@@ -13,6 +13,9 @@
 - 仓库 `zhangkaicr/mlr3HTE`（公开），分支 `main`，首推 commit `0547bc5`，共 40 个文件。
   **`ref/`（194M 课程资料）未上传**——它是 `mlr3HTE/` 的同级目录，且已在用户确认下排除。
 - GitHub Pages：**已开启**，从 `main` 分支的 `/docs` 目录发布，站点 HTTP 200 已验证可访问。
+- 最新交付 commit `8e019b7`（2026-10-20 收尾批次）**已推送到 `main`**：roxygen2 `man/`、
+  生存 `rmst`、R/DR 交叉拟合、`cate_ci()` 文档、`.onLoad` 修复、locale-稳健测试。
+  push 后 Pages 自动从 `/docs` 重建。
 - 文档站 `docs/`：纯静态、无构建步骤、无 npm 依赖。
   - `index.html` 外壳 + `assets/css/style.css`（CSS 变量切主题）+ `assets/js/app.js`
   - 内容分 5 个 JS 文件（home / guide / tutorial / api / changelog），
@@ -38,7 +41,7 @@
 | R6 Learner `lrn("regr.metalearner")`，三类结局通用 | ✅ |
 | `resample()` / `benchmark()` / `tune()` 集成 | ✅ |
 | `ml_task()` Task 编码辅助函数 | ✅ |
-| testthat 测试 117 个 | ✅ 全过（FAIL 0） |
+| testthat 测试 119 个 | ✅ 全过（FAIL 0） |
 | README + renv.lock | ✅ |
 | 配套教程：三类结局 × 随机/观察性 6 格 | ✅ 主文档 + 8 个脚本，全部实跑通过 |
 | 观察性的二分类 / 生存演示数据 | ✅ `mlr3HTE_demo_obs_binary()` / `mlr3HTE_demo_obs_surv()` |
