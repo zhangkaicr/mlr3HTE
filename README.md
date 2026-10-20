@@ -40,6 +40,11 @@ pkgload::load_all(".")      # 开发期
 library(mlr3HTE)
 ```
 
+> **`lrn()` 已经能从 `mlr3HTE` 直接用**——本包把 `mlr3::lrn()` 再导出了，
+> 所以下面所有示例只需 `library(mlr3HTE)` 一行，不用再 `library(mlr3)`。
+> 但 `resample()` / `benchmark()` / `rsmp()` 这些 mlr3 工作流函数没有再导出，
+> 走 R6 Learner 那条路时要自己加 `library(mlr3)`。
+
 依赖（均已列入 `DESCRIPTION` 的 `Imports`，安装时自动装齐，无需手动补）：
 `mlr3`、`mlr3learners`、`paradox`、`R6`、`survival`、`ranger`、`dplyr`、`cli`。
 其中 **`ranger` 是必需依赖**——包的默认基学习器就是 `regr.ranger`，且所有教程都用到它

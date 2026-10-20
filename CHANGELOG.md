@@ -2,6 +2,31 @@
 
 本文件记录 mlr3HTE 的每个交付批次。版本号遵循 `DESCRIPTION` 中的 `Version:`。
 
+## [0.1.0] — 2026-10-20（消费路径修复：`lrn()` 再导出）
+
+### 修复（消费者照抄文档即报错）
+- **`lrn()` 从 mlr3 再导出**（新增 `R/reexport.R`）。此前文档站与 README 的示例
+  都只写 `library(mlr3HTE)` 就直接 `lrn("regr.ranger", ...)`，消费者照抄会得到
+  「没有 lrn 这个函数」。现在 `library(mlr3HTE)` 之后 `lrn()` 直接可用：
+  NAMESPACE 同时有 `export(lrn)` 与 `importFrom(mlr3,lrn)`，再导出的是同一个函数
+  对象，与 `library(mlr3)` 的先后顺序无关，不会产生 mask 冲突。
+- 文档站：教程页「六格导航」前加「运行前准备」提示（中英同步）；
+  `content-guide.js` / `content-api.js` 中用到 `resample()` / `benchmark()` /
+  `rsmp()` 的片段补一行 `library(mlr3)`（这些 mlr3 工作流函数没有再导出）。
+- README 安装段补充同一说明：示例只需 `library(mlr3HTE)`，走 R6 Learner +
+  `resample()` 时才需要 `library(mlr3)`。
+
+### 测试
+- 新增 `tests/testthat/test-reexports.R`：断言 NAMESPACE 中 `export(lrn)` 与
+  `importFrom(mlr3,lrn)` 同时存在，且 `lrn()` 真能造出 `Learner`、
+  与 `mlr3::lrn` 为同一对象。
+
+### 验证
+- 测试 **25 个块、0 failed / 0 error**（新增 2 块 / 5 个期望）。
+- 原样执行文档片段（只 `library(mlr3HTE)`）：S 0.936 / T 0.950 / X 0.950 /
+  R 0.456 / DR 0.954，与文档表格数值一致；`regr.metalearner` 的 `train/predict` 正常。
+- 教程 01（连续 × RCT）与 08（mlr3 工作流集成）exit 0。
+
 ## [0.1.0] — 2026-10-20（收尾批次，commit `8e019b7`）
 
 首版功能交付后的收尾与文档补全。

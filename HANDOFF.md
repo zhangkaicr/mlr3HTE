@@ -111,8 +111,20 @@ tests/testthat/         test-engine.R / test-learner.R / test-ml_task.R
 18. **中文报错信息在非 UTF-8 locale 下会被 R 转成 `<U+XXXX>` 转义**，导致 `testthat`
     的 `expect_error(expr, "中文")` 里 `grepl` 字节匹配失败（本沙箱 `LC_CTYPE=C.UTF-8`
     设置失败、回退到 C 单字节 locale 时必现；UTF-8 机器 / CI 无此问题）。
-    4 条输入校验测试已改用报错信息里**本来就有的 ASCII 标记**（`"classif"` /
-    `"weights"` / `"survival"` / `"treatment_col"`）做匹配，保证任意 locale 都稳过。
+   4 条输入校验测试已改用报错信息里**本来就有的 ASCII 标记**（`"classif"` /
+   `"weights"` / `"survival"` / `"treatment_col"`）做匹配，保证任意 locale 都稳过。
+19. **在坏 locale 下 `R CMD INSTALL` 会写出损坏的懒加载库**：本沙箱若在
+   `LC_ALL=C.UTF-8` 设不上、回退到 C 单字节 locale 时装包，之后在 UTF-8 locale 下
+   `library(mlr3HTE)` 会报 `字符串里嵌入了 nul：'Task i\a\ff...'` 这类乱码错误
+   （报错串里混着本包源码的字符串字面量，是 CHARSXP 被写坏的典型症状）。
+   结论：**装包和跑包用同一个正常 locale**；沙箱里统一加
+   `env -u LC_ALL -u LANG -u LC_CTYPE`，重装一次即恢复（`Rscript` 只影响当前进程）。
+20. **文档示例只写 `library(mlr3HTE)` 却用 `lrn()` 会报「没有 lrn 这个函数」**
+   （2026-10-20 消费者真实反馈）。`lrn()` 属于 mlr3，不在本包搜索路径里。
+   已通过 `R/reexport.R` 再导出解决：`@export` 作用在 `mlr3::lrn` 上，roxygen 生成
+   `export(lrn)` + `importFrom(mlr3,lrn)`。再导出的是同一函数对象，与 attach 顺序
+   无关。`resample()` / `benchmark()` / `rsmp()` 没有再导出，文档里对应片段显式写了
+   `library(mlr3)`。`tests/testthat/test-reexports.R` 把这个契约钉住了。
 
 ## 三之二、mlr3proba：已彻底移除（2026-10-20）
 

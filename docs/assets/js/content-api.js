@@ -140,7 +140,8 @@ window.SITE_PAGES.api = {
           '<div class="callout warn"><div class="callout-title">为什么用字段而不是参数</div>' +
           '<p>paradox 1.0 的 <code>p_uty()</code> 只能存函数或 NULL，<strong>存不下 Learner 对象</strong>，' +
           '所以基学习器只能作为 R6 字段暴露。</p></div>' +
-          '<pre><code>task <- ml_task(X, A, Y)\n' +
+          '<pre><code>library(mlr3)   # resample() / benchmark() / rsmp() 来自 mlr3\n' +
+          'task <- ml_task(X, A, Y)\n' +
           'l    <- lrn("regr.metalearner", metalearner = "T")\n' +
           'l$learner_base <- lrn("regr.ranger", num.trees = 300, seed = 1)\n\n' +
           'resample(task, l, rsmp("cv", folds = 5))\n\n' +
@@ -321,7 +322,8 @@ window.SITE_PAGES.api = {
           '<p>paradox 1.0\'s <code>p_uty()</code> only accepts functions or NULL — it ' +
           '<strong>cannot hold a Learner object</strong>, so base learners must be exposed as R6 ' +
           'fields.</p></div>' +
-          '<pre><code>task <- ml_task(X, A, Y)\n' +
+          '<pre><code>library(mlr3)   # resample() / benchmark() / rsmp() 来自 mlr3\n' +
+          'task <- ml_task(X, A, Y)\n' +
           'l    <- lrn("regr.metalearner", metalearner = "T")\n' +
           'l$learner_base <- lrn("regr.ranger", num.trees = 300, seed = 1)\n\n' +
           'resample(task, l, rsmp("cv", folds = 5))\n\n' +

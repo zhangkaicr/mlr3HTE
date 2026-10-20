@@ -83,7 +83,8 @@ window.SITE_PAGES.guide = {
           'fit$cate_train   # 逐人 CATE\n' +
           'fit$predict(newX)</code></pre>' +
           '<h3>R6 Learner（进 mlr3 工作流）</h3>' +
-          '<pre><code>task <- ml_task(X, A, Y)          # 三类结局统一编码\n' +
+          '<pre><code>library(mlr3)                     # resample()/benchmark()/rsmp() 来自 mlr3\n' +
+          'task <- ml_task(X, A, Y)          # 三类结局统一编码\n' +
           'l    <- lrn("regr.metalearner", metalearner = "T")\n' +
           'l$learner_base <- lrn("regr.ranger")\n\n' +
           'resample(task, l, rsmp("cv", folds = 5))\n' +
@@ -253,7 +254,8 @@ window.SITE_PAGES.guide = {
           'fit$cate_train   # CATE per unit\n' +
           'fit$predict(newX)</code></pre>' +
           '<h3>R6 Learner (mlr3 workflows)</h3>' +
-          '<pre><code>task <- ml_task(X, A, Y)          # uniform encoding for all outcome types\n' +
+          '<pre><code>library(mlr3)                     # resample() / benchmark() / rsmp() live in mlr3\n' +
+          'task <- ml_task(X, A, Y)          # uniform encoding for all outcome types\n' +
           'l    <- lrn("regr.metalearner", metalearner = "T")\n' +
           'l$learner_base <- lrn("regr.ranger")\n\n' +
           'resample(task, l, rsmp("cv", folds = 5))\n' +

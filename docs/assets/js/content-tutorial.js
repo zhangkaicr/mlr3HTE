@@ -35,7 +35,13 @@ window.SITE_PAGES.tutorial = {
         heading: "六格导航",
         body: TUT_MATRIX.zh +
               '<p>所有演示数据都返回真实的 <code>tau</code> 与 <code>ate</code>，' +
-              '这是教学时最有用的部分——你可以直接看出哪个 learner 真的捕捉到了异质性。</p>'
+              '这是教学时最有用的部分——你可以直接看出哪个 learner 真的捕捉到了异质性。</p>' +
+              '<pre><code>library(mlr3HTE)   # 装完只需这一行：lrn() 已从 mlr3 再导出</code></pre>' +
+              '<div class="callout"><div class="callout-title">运行前准备</div>' +
+              '<p>本页每一格的代码都只依赖 <code>library(mlr3HTE)</code>——' +
+              '<code>lrn()</code> 由本包从 mlr3 再导出，不用额外 <code>library(mlr3)</code>。' +
+              '但如果你要自己接 <code>resample()</code> / <code>benchmark()</code> / <code>rsmp()</code> ' +
+              '这些 mlr3 工作流函数，请再补一行 <code>library(mlr3)</code>。</p></div>'
       },
 
       {
@@ -237,7 +243,14 @@ window.SITE_PAGES.tutorial = {
         body: TUT_MATRIX.en +
               '<p>Every demo dataset returns the true <code>tau</code> and <code>ate</code> — ' +
               'the most useful part for teaching, since you can see directly which learner ' +
-              'actually captured the heterogeneity.</p>'
+              'actually captured the heterogeneity.</p>' +
+              '<pre><code>library(mlr3HTE)   # the only line you need: lrn() is re-exported from mlr3</code></pre>' +
+              '<div class="callout"><div class="callout-title">Before you run</div>' +
+              '<p>Every code block on this page relies on <code>library(mlr3HTE)</code> alone — ' +
+              '<code>lrn()</code> is re-exported from mlr3, so no extra <code>library(mlr3)</code> ' +
+              'is required. If you chain into mlr3 workflow functions such as ' +
+              '<code>resample()</code> / <code>benchmark()</code> / <code>rsmp()</code>, add ' +
+              '<code>library(mlr3)</code> as well.</p></div>'
       },
 
       {
