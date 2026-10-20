@@ -26,7 +26,8 @@ Suggests:
     testthat,
     patchwork,
     ggdag,
-    survlearners
+    survlearners,
+    rcmdcheck
 Remotes:
     github::som-shahlab/survlearners/r-package/survlearners
 Roxygen: list(markdown = TRUE)
