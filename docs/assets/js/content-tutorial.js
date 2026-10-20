@@ -45,9 +45,88 @@ window.SITE_PAGES.tutorial = {
       },
 
       {
+        id: "dgp",
+        heading: "数据生成机制与 DAG（先读这个）",
+        body:
+          '<p>六个场景共用同一套<strong>数据生成过程（DGP）</strong>，只在两处不同：' +
+          '结局的分布形态（连续 / 二分类 / 生存），以及处理 <code>A</code> 怎么来' +
+          '（随机化 / 由协变量决定）。理解 DGP 是读懂后面每一格的前提——' +
+          '因为只有数据自己知道真值，你才能判断估计方法到底行不行。</p>' +
+
+          '<h3>共同骨架</h3>' +
+          '<p>四个协变量 <code>X = {age, lac, tumor, sex}</code>，标准化后参与两个方程：</p>' +
+          '<div class="formula">tau = 1.0 + 0.8·z1 − 0.5·z2 + 0.6·(z1&gt;1 &amp; z2&lt;0)   ' +
+          '# 真实 CATE（效应修饰）<br>' +
+          'mu  = 6 + 0.4·z1 + 0.5·z2 − 0.02·(age−60) + 0.3·sex   ' +
+          '# 基线结局水平（预后）</div>' +
+          '<p>其中 <code>z1 = lac 标准化</code>（乳酸，越高病情越重），' +
+          '<code>z2 = tumor 标准化</code>（瘤负荷）。注意 <code>tau</code> 里有一项' +
+          '<strong>交互</strong>：只有当「乳酸高 <em>且</em> 瘤负荷低」时处理效应才额外 +0.6。' +
+          '这就是异质性的来源——只会报一个平均数的方法是抓不到它的。</p>' +
+
+          '<h3>两种处理分配机制，两张 DAG</h3>' +
+          '<div class="fig-grid">' +
+          '<figure class="fig"><img src="assets/img/dag/dag_rct_continuous.png" ' +
+          'alt="RCT 的 DAG：A 随机化，与 X 无关">' +
+          '<figcaption>RCT：<code>A</code> 由抛硬币决定，没有父节点</figcaption></figure>' +
+          '<figure class="fig"><img src="assets/img/dag/dag_obs_continuous.png" ' +
+          'alt="观察性研究的 DAG：X → e → A 存在混杂">' +
+          '<figcaption>观察性：<code>X → e → A</code>，红色即开放的后门路径</figcaption></figure>' +
+          '</div>' +
+          '<p>随机化时 <code>A ⊥ X</code>，协变量只是效应修饰者，不混杂；' +
+          '观察性研究中处理概率 <code>e = expit(0.8·z1 + 0.5·z2 − 0.5·sex)</code>，' +
+          '于是 <code>X</code> 同时是 <code>A</code> 和 <code>Y</code> 的共同原因——' +
+          '后门路径 <code>A ← e ← X → mu → Y</code> 开放，粗差分有偏。</p>' +
+
+          '<h3>结局方程</h3>' +
+          '<div class="table-wrap"><table>' +
+          '<thead><tr><th>结局</th><th>方程</th><th>效应尺度</th></tr></thead><tbody>' +
+          '<tr><td>连续</td><td><code>Y = mu + A·tau + ε</code></td>' +
+          '<td>均值差</td></tr>' +
+          '<tr><td>二分类</td><td><code>P(Y=1) = expit(mu/3 + A·tau)</code></td>' +
+          '<td>风险差</td></tr>' +
+          '<tr><td>生存</td><td><code>h(t) = h₀(t)·exp(−mu/3 − A·tau)</code>，' +
+          '指数删失 ~ U(0, 5)</td><td><code>S(t₀)</code> 差（默认 t₀=2）</td></tr>' +
+          '</tbody></table></div>' +
+
+          '<div class="callout ok"><div class="callout-title">真值都随数据返回</div>' +
+          '<p>每个 <code>mlr3HTE_demo_*</code> 函数都返回 <code>tau</code>（逐人真实 CATE）、' +
+          '<code>ate</code>（真实平均效应）、<code>ps_true</code>（观察性场景的真实倾向得分）。' +
+          '跑 <code>00_数据生成机制与DAG.R</code> 可以逐条打印这些真值，并按协变量分四层展示。</p></div>' +
+
+          '<h3>实际输出：六个数据集的真值一览</h3>' +
+          '<p>下面是 <code>00_数据生成机制与DAG.R</code> 的真实运行结果（tidyverse tibble 原样输出）：</p>' +
+          '<pre><code># A tibble: 6 × 8\n' +
+          '  数据集          结局类型        真实ATE CATE均值 CATE标准差 CATE最小 CATE最大 ATE_RMST\n' +
+          '  &lt;chr&gt;           &lt;chr&gt;           &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt;\n' +
+          '1 连续 × RCT      连续             1.05   1.05   1.04  -2.58   4.85   NA\n' +
+          '2 二分类 × RCT    二分类(风险差)    0.131  0.131  0.133 -0.232  0.563  NA\n' +
+          '3 生存 × RCT      生存(S(t0)差)    0.152  0.152  0.151 -0.460  0.590  0.192\n' +
+          '4 连续 × 观察性   连续             1.05   1.05   1.04  -2.14   5.03   NA\n' +
+          '5 二分类 × 观察性  二分类(风险差)   0.131  0.131  0.132 -0.243  0.616  NA\n' +
+          '6 生存 × 观察性   生存(S(t0)差)    0.152  0.152  0.150 -0.371  0.664  0.192\n\n' +
+          '# A tibble: 3 × 2      # 观察性数据的粗差分 vs 真值\n' +
+          '  指标                                值\n' +
+          '  &lt;chr&gt;                            &lt;dbl&gt;\n' +
+          '1 未调整差 mean(Y|A=1)-mean(Y|A=0)  1.74\n' +
+          '2 真实 ATE                         1.05\n' +
+          '3 未调整偏倚                        0.689\n\n' +
+          'ℹ 生存数据删失比例 = 0.299</code></pre>' +
+          '<p>三个要点：<strong>①</strong> CATE 均值恒等于 ATE，但标准差高达 1.0+——' +
+          '平均值掩盖了个体间的巨大差异；<strong>②</strong> 生存场景额外给出 ' +
+          '<code>ATE_RMST = 0.192</code>（限制平均生存时间差），与 t₀=2 的概率差 0.152 ' +
+          '是同一个效应的两种尺度；<strong>③</strong> 观察性数据的真实 ATE 与 RCT ' +
+          '完全相同（1.05 / 0.131 / 0.152），差别只在<strong>分配机制</strong>——' +
+          '所以粗差分偏出 +0.69 纯粹是混杂造成的，不是效应真的变了。</p>'
+      },
+
+      {
         id: "s1",
         heading: "场景 1 · 连续结局 × RCT",
         body:
+          '<figure class="fig"><img src="assets/img/dag/dag_rct_continuous.png" ' +
+          'alt="场景 1 的 DAG：随机化连续结局">' +
+          '<figcaption>图 1 · 场景 1 因果图：<code>A</code> 随机分配，<code>X</code> 只修饰效应、不混杂</figcaption></figure>' +
           '<pre><code>d <- mlr3HTE_demo_data(n = 4000, seed = 1201)\n' +
           'lb <- lrn("regr.ranger", num.trees = 300, seed = 1)\n\n' +
           'for (tp in c("S","T","X","R","DR")) {\n' +
@@ -74,6 +153,10 @@ window.SITE_PAGES.tutorial = {
         id: "s2",
         heading: "场景 2 · 连续结局 × 观察性研究",
         body:
+          '<figure class="fig"><img src="assets/img/dag/dag_obs_continuous.png" ' +
+          'alt="场景 2 的 DAG：观察性连续结局，X 混杂">' +
+          '<figcaption>图 2 · 场景 2 因果图：红色路径 <code>X → e → A</code> 使 ' +
+          '<code>X</code> 成为共同原因，粗差分有偏</figcaption></figure>' +
           '<pre><code>d <- mlr3HTE_demo_obs(n = 4000, seed = 1204)   # 含混杂\n\n' +
           'naive <- mean(d$Y[d$A == 1]) - mean(d$Y[d$A == 0])     # 有偏\n' +
           'fit   <- metalearner("X", d$X, d$A, d$Y, weighting = "iptw")\n\n' +
@@ -101,6 +184,10 @@ window.SITE_PAGES.tutorial = {
         id: "s3",
         heading: "场景 3 · 二分类结局 × RCT",
         body:
+          '<figure class="fig"><img src="assets/img/dag/dag_rct_binary.png" ' +
+          'alt="场景 3 的 DAG：随机化二分类结局">' +
+          '<figcaption>图 3 · 场景 3 因果图：结构与场景 1 相同，结局换成 ' +
+          '<code>expit(mu/3 + A·tau)</code></figcaption></figure>' +
           '<pre><code>d <- mlr3HTE_demo_binary(n = 4000, seed = 1202)\n' +
           'lb <- lrn("classif.ranger", num.trees = 300, seed = 1)\n' +
           'fit <- metalearner("T", d$X, d$A, d$Y, learner_base = lb)\n' +
@@ -125,6 +212,10 @@ window.SITE_PAGES.tutorial = {
         id: "s4",
         heading: "场景 4 · 二分类结局 × 观察性研究",
         body:
+          '<figure class="fig"><img src="assets/img/dag/dag_obs_binary.png" ' +
+          'alt="场景 4 的 DAG：观察性二分类结局">' +
+          '<figcaption>图 4 · 场景 4 因果图：同样的混杂结构，未调整风险差 ' +
+          '0.256 vs 真实 0.131</figcaption></figure>' +
           '<pre><code>d <- mlr3HTE_demo_obs_binary(n = 4000, seed = 1205)\n\n' +
           'naive <- mean(d$Y[d$A == 1]) - mean(d$Y[d$A == 0])\n' +
           'fit <- metalearner("X", d$X, d$A, d$Y,\n' +
@@ -153,6 +244,10 @@ window.SITE_PAGES.tutorial = {
         id: "s5",
         heading: "场景 5 · 生存结局 × RCT",
         body:
+          '<figure class="fig"><img src="assets/img/dag/dag_rct_survival.png" ' +
+          'alt="场景 5 的 DAG：随机化生存结局">' +
+          '<figcaption>图 5 · 场景 5 因果图：<code>Y</code> 是 (时间, 事件) 二元组，' +
+          '另有指数删失（图中略）</figcaption></figure>' +
           '<pre><code>d <- mlr3HTE_demo_surv(n = 4000, t0 = 2, seed = 1203)\n\n' +
           'fit <- metalearner("T", d$X, d$A, d$Y, learner_base = "coxph", t0 = 2)\n' +
           'fit$ate   # 平均 S₁(2) − S₀(2)\n\n' +
@@ -183,6 +278,10 @@ window.SITE_PAGES.tutorial = {
         id: "s6",
         heading: "场景 6 · 生存结局 × 观察性研究",
         body:
+          '<figure class="fig"><img src="assets/img/dag/dag_obs_survival.png" ' +
+          'alt="场景 6 的 DAG：观察性生存结局">' +
+          '<figcaption>图 6 · 场景 6 因果图：混杂（红）之外还有删失，' +
+          'IPTW × IPCW 两层权重相乘</figcaption></figure>' +
           '<pre><code>d <- mlr3HTE_demo_obs_surv(n = 4000, t0 = 2, seed = 1206)\n\n' +
           '# 未调整：分两组做 Kaplan-Meier，再取 t0 处差值\n' +
           'km    <- survfit(Surv(d$Y[,1], d$Y[,2]) ~ d$A)\n' +
@@ -217,6 +316,7 @@ window.SITE_PAGES.tutorial = {
           '<div class="table-wrap"><table>' +
           '<thead><tr><th>脚本</th><th>内容</th></tr></thead>' +
           '<tbody>' +
+          '<tr><td><code>00_数据生成机制与DAG.R</code></td><td><strong>先跑这个</strong>：DGP 逐步展开、DAG、真值分层表</td></tr>' +
           '<tr><td><code>01_连续结局_随机化RCT.R</code></td><td>连续 + RCT，五种 learner 对账</td></tr>' +
           '<tr><td><code>02_连续结局_观察性研究.R</code></td><td>连续 + 观察性，IPTW vs 未调整</td></tr>' +
           '<tr><td><code>03_二分类结局_随机化RCT.R</code></td><td>二分类 + RCT，风险差尺度</td></tr>' +
@@ -254,9 +354,99 @@ window.SITE_PAGES.tutorial = {
       },
 
       {
+        id: "dgp",
+        heading: "Data-generating process & DAGs (read this first)",
+        body:
+          '<p>All six scenarios share one <strong>data-generating process (DGP)</strong>. ' +
+          'Only two things change: the outcome distribution (continuous / binary / survival) ' +
+          'and how treatment <code>A</code> arises (randomised / driven by covariates). ' +
+          'Understanding the DGP is a prerequisite for every scenario below — only the data ' +
+          'itself knows the truth, and that is how you judge whether an estimator works.</p>' +
+
+          '<h3>Shared skeleton</h3>' +
+          '<p>Four covariates <code>X = {age, lac, tumor, sex}</code>, standardised, feed two ' +
+          'equations:</p>' +
+          '<div class="formula">tau = 1.0 + 0.8·z1 − 0.5·z2 + 0.6·(z1&gt;1 &amp; z2&lt;0)   ' +
+          '# true CATE (effect modification)<br>' +
+          'mu  = 6 + 0.4·z1 + 0.5·z2 − 0.02·(age−60) + 0.3·sex   ' +
+          '# baseline outcome level (prognosis)</div>' +
+          '<p>Here <code>z1</code> is standardised lac (lactate; higher = sicker) and ' +
+          '<code>z2</code> is standardised tumor burden. Note the <strong>interaction</strong> ' +
+          'in <code>tau</code>: the treatment effect only gains an extra +0.6 when lactate is ' +
+          'high <em>and</em> tumor burden is low. That is where heterogeneity comes from — ' +
+          'any method that reports a single average cannot capture it.</p>' +
+
+          '<h3>Two assignment mechanisms, two DAGs</h3>' +
+          '<div class="fig-grid">' +
+          '<figure class="fig"><img src="assets/img/dag/dag_rct_continuous.png" ' +
+          'alt="RCT DAG: A randomised, independent of X">' +
+          '<figcaption>RCT: <code>A</code> is a coin flip, no parents</figcaption></figure>' +
+          '<figure class="fig"><img src="assets/img/dag/dag_obs_continuous.png" ' +
+          'alt="Observational DAG: X → e → A confounding">' +
+          '<figcaption>Observational: <code>X → e → A</code>; the red path is the open backdoor</figcaption></figure>' +
+          '</div>' +
+          '<p>Under randomisation <code>A ⊥ X</code>, so covariates only modify the effect ' +
+          'and never confound. In the observational design the treatment probability is ' +
+          '<code>e = expit(0.8·z1 + 0.5·z2 − 0.5·sex)</code>, making <code>X</code> a common ' +
+          'cause of both <code>A</code> and <code>Y</code> — the backdoor path ' +
+          '<code>A ← e ← X → mu → Y</code> is open, so crude differences are biased.</p>' +
+
+          '<h3>Outcome equations</h3>' +
+          '<div class="table-wrap"><table>' +
+          '<thead><tr><th>Outcome</th><th>Equation</th><th>Effect scale</th></tr></thead><tbody>' +
+          '<tr><td>Continuous</td><td><code>Y = mu + A·tau + ε</code></td>' +
+          '<td>mean difference</td></tr>' +
+          '<tr><td>Binary</td><td><code>P(Y=1) = expit(mu/3 + A·tau)</code></td>' +
+          '<td>risk difference</td></tr>' +
+          '<tr><td>Survival</td><td><code>h(t) = h₀(t)·exp(−mu/3 − A·tau)</code>, ' +
+          'exponential censoring ~ U(0, 5)</td><td>difference in <code>S(t₀)</code> (default t₀=2)</td></tr>' +
+          '</tbody></table></div>' +
+
+          '<div class="callout ok"><div class="callout-title">Truth ships with the data</div>' +
+          '<p>Every <code>mlr3HTE_demo_*</code> function returns <code>tau</code> (unit-level ' +
+          'true CATE), <code>ate</code> (true average effect) and, for observational scenarios, ' +
+          '<code>ps_true</code> (the true propensity score). Run ' +
+          '<code>00_数据生成机制与DAG.R</code> to print these truths and stratify them by ' +
+          'covariates.</p></div>' +
+
+          '<h3>Actual output: truths for all six datasets</h3>' +
+          '<p>Below is the real console output of <code>00_数据生成机制与DAG.R</code> ' +
+          '(tidyverse tibbles, verbatim):</p>' +
+          '<pre><code># A tibble: 6 × 8\n' +
+          '  dataset         outcome       true_ate cate_mean cate_sd cate_min cate_max ate_rmst\n' +
+          '  &lt;chr&gt;           &lt;chr&gt;        &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt;   &lt;dbl&gt;\n' +
+          '1 cont × RCT      continuous   1.05    1.05    1.04  -2.58   4.85   NA\n' +
+          '2 binary × RCT    risk diff    0.131   0.131   0.133 -0.232  0.563  NA\n' +
+          '3 surv × RCT      S(t0) diff   0.152   0.152   0.151 -0.460  0.590  0.192\n' +
+          '4 cont × obs      continuous   1.05    1.05    1.04  -2.14   5.03   NA\n' +
+          '5 binary × obs    risk diff    0.131   0.131   0.132 -0.243  0.616  NA\n' +
+          '6 surv × obs      S(t0) diff   0.152   0.152   0.150 -0.371  0.664  0.192\n\n' +
+          '# A tibble: 3 × 2      # crude difference vs truth (observational)\n' +
+          '  quantity                             value\n' +
+          '  &lt;chr&gt;                                &lt;dbl&gt;\n' +
+          '1 crude diff mean(Y|A=1)-mean(Y|A=0)  1.74\n' +
+          '2 true ATE                            1.05\n' +
+          '3 crude bias                          0.689\n\n' +
+          'ℹ survival censoring proportion = 0.299</code></pre>' +
+          '<p>Three takeaways: <strong>(1)</strong> the mean CATE always equals the ATE, but the ' +
+          'standard deviation exceeds 1.0 — the average hides enormous unit-level variation; ' +
+          '<strong>(2)</strong> survival scenarios additionally report ' +
+          '<code>ATE_RMST = 0.192</code> (difference in restricted mean survival time), the same ' +
+          'effect as the 0.152 probability difference at t₀=2 on a different scale; ' +
+          '<strong>(3)</strong> the true ATEs for the observational datasets are identical to ' +
+          'their RCT counterparts (1.05 / 0.131 / 0.152) — only the <strong>assignment ' +
+          'mechanism</strong> differs, so the +0.69 crude bias is pure confounding, not a real ' +
+          'change in the effect.</p>'
+      },
+
+      {
         id: "s1",
         heading: "Scenario 1 · Continuous outcome × RCT",
         body:
+          '<figure class="fig"><img src="assets/img/dag/dag_rct_continuous.png" ' +
+          'alt="Scenario 1 DAG: randomised continuous outcome">' +
+          '<figcaption>Figure 1 · Scenario 1 DAG: <code>A</code> is randomised; ' +
+          '<code>X</code> modifies the effect but does not confound</figcaption></figure>' +
           '<pre><code>d <- mlr3HTE_demo_data(n = 4000, seed = 1201)\n' +
           'lb <- lrn("regr.ranger", num.trees = 300, seed = 1)\n\n' +
           'for (tp in c("S","T","X","R","DR")) {\n' +
@@ -284,6 +474,10 @@ window.SITE_PAGES.tutorial = {
         id: "s2",
         heading: "Scenario 2 · Continuous outcome × observational",
         body:
+          '<figure class="fig"><img src="assets/img/dag/dag_obs_continuous.png" ' +
+          'alt="Scenario 2 DAG: observational continuous outcome with confounding">' +
+          '<figcaption>Figure 2 · Scenario 2 DAG: the red path <code>X → e → A</code> makes ' +
+          '<code>X</code> a common cause; crude differences are biased</figcaption></figure>' +
           '<pre><code>d <- mlr3HTE_demo_obs(n = 4000, seed = 1204)   # confounded\n\n' +
           'naive <- mean(d$Y[d$A == 1]) - mean(d$Y[d$A == 0])     # biased\n' +
           'fit   <- metalearner("X", d$X, d$A, d$Y, weighting = "iptw")\n\n' +
@@ -312,6 +506,10 @@ window.SITE_PAGES.tutorial = {
         id: "s3",
         heading: "Scenario 3 · Binary outcome × RCT",
         body:
+          '<figure class="fig"><img src="assets/img/dag/dag_rct_binary.png" ' +
+          'alt="Scenario 3 DAG: randomised binary outcome">' +
+          '<figcaption>Figure 3 · Scenario 3 DAG: same structure as Scenario 1, with the ' +
+          'outcome swapped for <code>expit(mu/3 + A·tau)</code></figcaption></figure>' +
           '<pre><code>d <- mlr3HTE_demo_binary(n = 4000, seed = 1202)\n' +
           'lb <- lrn("classif.ranger", num.trees = 300, seed = 1)\n' +
           'fit <- metalearner("T", d$X, d$A, d$Y, learner_base = lb)\n' +
@@ -337,6 +535,10 @@ window.SITE_PAGES.tutorial = {
         id: "s4",
         heading: "Scenario 4 · Binary outcome × observational",
         body:
+          '<figure class="fig"><img src="assets/img/dag/dag_obs_binary.png" ' +
+          'alt="Scenario 4 DAG: observational binary outcome">' +
+          '<figcaption>Figure 4 · Scenario 4 DAG: the same confounding structure; ' +
+          'unadjusted risk difference 0.256 vs true 0.131</figcaption></figure>' +
           '<pre><code>d <- mlr3HTE_demo_obs_binary(n = 4000, seed = 1205)\n\n' +
           'naive <- mean(d$Y[d$A == 1]) - mean(d$Y[d$A == 0])\n' +
           'fit <- metalearner("X", d$X, d$A, d$Y,\n' +
@@ -365,6 +567,10 @@ window.SITE_PAGES.tutorial = {
         id: "s5",
         heading: "Scenario 5 · Survival outcome × RCT",
         body:
+          '<figure class="fig"><img src="assets/img/dag/dag_rct_survival.png" ' +
+          'alt="Scenario 5 DAG: randomised survival outcome">' +
+          '<figcaption>Figure 5 · Scenario 5 DAG: <code>Y</code> is a (time, event) pair; ' +
+          'exponential censoring applies on top (omitted from the figure)</figcaption></figure>' +
           '<pre><code>d <- mlr3HTE_demo_surv(n = 4000, t0 = 2, seed = 1203)\n\n' +
           'fit <- metalearner("T", d$X, d$A, d$Y, learner_base = "coxph", t0 = 2)\n' +
           'fit$ate   # mean S₁(2) − S₀(2)\n\n' +
@@ -397,6 +603,10 @@ window.SITE_PAGES.tutorial = {
         id: "s6",
         heading: "Scenario 6 · Survival outcome × observational",
         body:
+          '<figure class="fig"><img src="assets/img/dag/dag_obs_survival.png" ' +
+          'alt="Scenario 6 DAG: observational survival outcome">' +
+          '<figcaption>Figure 6 · Scenario 6 DAG: on top of confounding (red) there is ' +
+          'censoring, so IPTW × IPCW layers are multiplied</figcaption></figure>' +
           '<pre><code>d <- mlr3HTE_demo_obs_surv(n = 4000, t0 = 2, seed = 1206)\n\n' +
           '# Unadjusted: separate Kaplan-Meier per arm, take the difference at t0\n' +
           'km    <- survfit(Surv(d$Y[,1], d$Y[,2]) ~ d$A)\n' +
@@ -431,6 +641,7 @@ window.SITE_PAGES.tutorial = {
           '<div class="table-wrap"><table>' +
           '<thead><tr><th>Script</th><th>Content</th></tr></thead>' +
           '<tbody>' +
+          '<tr><td><code>00_数据生成机制与DAG.R</code></td><td><strong>Run this first</strong>: the DGP step by step, DAGs, truth tables</td></tr>' +
           '<tr><td><code>01_连续结局_随机化RCT.R</code></td><td>Continuous + RCT, all five learners</td></tr>' +
           '<tr><td><code>02_连续结局_观察性研究.R</code></td><td>Continuous + observational, IPTW vs unadjusted</td></tr>' +
           '<tr><td><code>03_二分类结局_随机化RCT.R</code></td><td>Binary + RCT, risk-difference scale</td></tr>' +

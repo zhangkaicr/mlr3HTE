@@ -308,6 +308,39 @@ tbody tr:nth-child(even) { background: var(--bg-soft); }
 .callout p:last-child { margin-bottom: 0; }
 .callout-title { font-weight: 700; margin-bottom: 4px; }
 
+/* 13b 图片 / 公式块 ----------------------------------------------------- */
+.fig {
+  margin: 0 0 18px;
+  text-align: center;
+}
+.fig img {
+  max-width: 100%;
+  height: auto;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: #fff;
+}
+.fig figcaption {
+  margin-top: 6px;
+  font-size: 13px;
+  color: var(--fg-faint);
+}
+.fig-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 14px;
+  margin: 0 0 18px;
+}
+.formula {
+  font-family: var(--mono, monospace);
+  background: var(--bg-soft);
+  border-radius: var(--radius);
+  padding: 10px 14px;
+  margin: 0 0 10px;
+  font-size: 13.5px;
+  overflow-x: auto;
+}
+
 /* 14 卡片网格 ---------------------------------------------------------- */
 .cards {
   display: grid;

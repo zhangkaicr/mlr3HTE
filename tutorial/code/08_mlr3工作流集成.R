@@ -2,8 +2,8 @@
 # 08_mlr3工作流集成.R
 # 目的：演示 R6 Learner 接口——把 metalearner 塞进 mlr3 的
 #       resample() / benchmark()，三类结局统一处理。
-# 输入：无（数据由演示函数现场生成）
-# 输出：控制台打印的重抽样与基准对比结果
+# 输入：无（数据由演示函数现场生成；DGP 与 DAG 见 tutorial/00）
+# 输出：控制台打印的重抽样与基准对比结果 + 估计/真实 ATE 一览
 # 依赖：mlr3, mlr3learners, mlr3HTE, survival, dplyr, cli
 # 运行：在 mlr3HTE/ 目录下执行 Rscript tutorial/code/08_mlr3工作流集成.R
 # =====================================================================
@@ -76,12 +76,12 @@ cli::cli_alert_info(
 ## 3.1 注意：这里的 mse 是"预测 CATE vs 真实 Y"的误差，不是 CATE 误差 ----
 # CATE 是个体效应，没有个体真值可比对，所以 mse 只作流程检查用；
 # 真正衡量 CATE 质量要用模拟数据的已知 tau（见脚本 01/03/05）。
-print(data.frame(
+tibble(
   结局   = c("连续", "二分类", "生存"),
   regr.mse = round(c(p_c$score(msr("regr.mse")),
                      p_b$score(msr("regr.mse")),
                      p_s$score(msr("regr.mse"))), 4)
-))
+) |> print()
 
 # 4 resample：三类结局各跑 3 折 CV ----
 ## 4.1 逐个跑 ----
@@ -158,6 +158,20 @@ for (tp in c("S", "T", "X", "R", "DR")) {
 # 实际选型建议：用脚本 07 的模拟对账（已知真值 tau）来判断。
 cli::cli_alert_info(
   "提示：tune 只能优化 Y 上的预测指标，无法直接优化 CATE 误差；\n            选型请用脚本 07 的模拟对账方式（mlr3tuning 本机未安装，故不演示）。"
+)
+
+# 8 估计 ATE vs 真实 ATE 一览（tidyverse）----
+# 用上面三次直接训练的预测，核对"训练集内 CATE 均值"是否贴近真值。
+tibble(
+  结局     = c("连续", "二分类", "生存"),
+  估计CATE均值 = c(mean(p_c$response), mean(p_b$response), mean(p_s$response)),
+  真实ATE  = c(dc$ate, db$ate, ds$ate),
+  偏差     = 估计CATE均值 - 真实ATE
+) |>
+  mutate(across(c(估计CATE均值, 真实ATE, 偏差), \(x) round(x, 4))) |>
+  print()
+cli::cli_alert_info(
+  "注意：这是训练集内预测，偏差偏乐观；严谨评估请看脚本 07 的 5 折对账。"
 )
 
 # 99 收尾 ----

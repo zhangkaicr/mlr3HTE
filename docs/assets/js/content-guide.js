@@ -35,6 +35,11 @@ window.SITE_PAGES.guide = {
           '<div class="callout-title">基学习器类型必须与结局匹配</div>' +
           '<p>连续配 <code>regr.*</code>、二分类配 <code>classif.*</code>、生存配 ' +
           '<code>"coxph"</code> / <code>"ranger"</code>。不匹配会直接报错并给出提示。</p>' +
+          '</div>' +
+          '<div class="callout ok">' +
+          '<div class="callout-title">想看数据是怎么造出来的？</div>' +
+          '<p>六个教程场景共用一套<strong>数据生成过程</strong>，附带 DAG、真实 CATE/ATE ' +
+          '与分层真值表，见 <a href="#/tutorial/dgp">数据生成机制与 DAG</a>。</p>' +
           '</div>'
       },
 
@@ -205,6 +210,12 @@ window.SITE_PAGES.guide = {
           '<div class="callout-title">The base learner must match the outcome</div>' +
           '<p>Continuous → <code>regr.*</code>; binary → <code>classif.*</code>; survival → ' +
           '<code>"coxph"</code> / <code>"ranger"</code>. A mismatch raises an explicit error.</p>' +
+          '</div>' +
+          '<div class="callout ok">' +
+          '<div class="callout-title">Curious how the data is made?</div>' +
+          '<p>All six tutorial scenarios share one <strong>data-generating process</strong>, with ' +
+          'DAGs, the true CATE/ATE and stratified truth tables — see ' +
+          '<a href="#/tutorial/dgp">Data-generating process &amp; DAGs</a>.</p>' +
           '</div>'
       },
 

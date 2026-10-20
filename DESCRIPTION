@@ -20,8 +20,11 @@ Imports:
     survival,
     ranger,
     dplyr,
-    cli
+    cli,
+    ggplot2
 Suggests:
-    testthat
+    testthat,
+    patchwork,
+    ggdag
 Roxygen: list(markdown = TRUE)
 Config/roxygen2/version: 8.1.1

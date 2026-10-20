@@ -2,6 +2,48 @@
 
 本文件记录 mlr3HTE 的每个交付批次。版本号遵循 `DESCRIPTION` 中的 `Version:`。
 
+## [0.1.0] — 2026-10-20（教程深化：DAG、DGP 讲解、真实输出、tidyverse 整理）
+
+把教程从「能跑的示例」升级成「能教的讲义」：每个测试数据配套 DAG 与真值说明，
+结果一律用 tidyverse 整理，文档站给出实际运行输出。
+
+### 新增
+- **`mlr3HTE_dag()`**（新增 `R/dag.R`）：为六个演示数据集画配套因果图，
+  纯 `ggplot2` 实现（不引入 ggdag 等重依赖）。`design = "rct"/"obs"` ×
+  `outcome = "continuous"/"binary"/"survival"` 共六张；观察性设计的
+  混杂路径 `X → e → A` 以红色高亮。
+- **6 张 DAG PNG** 提交至 `docs/assets/img/dag/`，文档站直接引用。
+- **新教程 `00_数据生成机制与DAG.R`**（`tutorial/code/`）：逐步展开 DGP
+  （协变量 → tau / mu → 结局方程）、打印六个数据集的真值一览 tibble、
+  按协变量四层分位的真实 CATE 分层表、观察性粗差分 vs 真值对账。
+  这是所有分格教程的「数据说明书」。
+- `tutorial/00_教程.md` 新增第 0 节：DGP 公式、两张 DAG 的结构对照表、
+  六个数据集真值表；脚本索引加入 00。
+
+### 教程升级（01–08）
+- 每个脚本开头新增「数据卡片」：DAG 引用、真实 ATE、DGP 关键公式。
+- 结果整理全部改用 tidyverse：`tibble` / `mutate` / `group_by` / `summarise`
+  替代 `data.frame` 与手写循环；新增估计-vs-真实 CATE 散点图（`ggplot2`）。
+- 生存脚本补 RMST 尺度说明与 t0 敏感性表（去掉原先无意义的 NA 列）。
+- 07 增加「结局 × learner」热力图汇总；08 增加 tibble 化的基准对比表。
+
+### 文档站
+- 教程页新增「数据生成机制与 DAG（先读这个）」节（中英同步）：公式块、
+  两张 DAG 并排、结局方程表、**实际运行输出**（tibble 原样贴入）。
+- 六个场景节各嵌入对应 DAG 图与图注；脚本清单加入 00。
+- guide 页架构节加跳转链接；CSS 新增 `.fig` / `.fig-grid` / `.formula` 样式。
+
+### 工程
+- `DESCRIPTION`：`ggplot2` 加入 `Imports`（`mlr3HTE_dag()` 的硬依赖）。
+
+### 测试
+- 新增 `tests/testthat/test-dag.R`：输入校验、六种组合返回 ggplot、
+  cairo 设备渲染中文标题。
+
+### 验证
+- 测试 **142 个期望、0 failed / 0 error**（新增 3 块）。
+- `R CMD INSTALL .` 干净；教程 00–08 全部 exit 0。
+
 ## [0.1.0] — 2026-10-20（消费路径修复：`lrn()` 再导出）
 
 ### 修复（消费者照抄文档即报错）

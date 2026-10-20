@@ -3,8 +3,8 @@
 # 目的：演示观察性数据里的混杂偏倚，以及 IPTW / 外部权重如何把它拉回来。
 #       核心对照：未调整差分（有偏） vs IPTW 校正（无偏）。
 # 输入：无（数据由 mlr3HTE_demo_obs() 现场生成，含真实 PS）
-# 输出：控制台打印的偏倚对照表
-# 依赖：mlr3, mlr3learners, mlr3HTE, dplyr, cli
+# 输出：DAG、真值卡、偏倚对照表、估计 vs 真实 CATE 散点图
+# 依赖：mlr3, mlr3learners, mlr3HTE, dplyr, ggplot2, cli
 # 运行：在 mlr3HTE/ 目录下执行 Rscript tutorial/code/02_连续结局_观察性研究.R
 # =====================================================================
 
@@ -17,78 +17,108 @@ suppressPackageStartupMessages({
   library(mlr3)
   library(mlr3learners)
   library(dplyr)
+  library(ggplot2)
   library(cli)
 })
 set.seed(2026)
+if (!interactive()) {
+  options(device = function(...) grDevices::png(filename = tempfile(fileext = ".png"),
+                                                width = 1000, height = 640, type = "cairo"))
+}
 
-# 1 生成有混杂的观察性数据 ----
-# 混杂结构：病情越重（z1 高）越容易接受处理，而病情本身又影响结局。
-# 所以"处理组 - 对照组"的粗差分会同时混进病情的影响。
+# 1 数据集与因果结构（数据卡）----
+# DGP：结局机制与 01 完全相同，唯一区别是处理分配不再随机：
+#   e  = plogis(-0.5 + 0.8*z1 + 0.4*z2)   # 病情越重（z1）越易接受治疗
+#   A  ~ Bern(e)                           # A 依赖 X → confounding by indication
+# 因果结构：X → e → A 打开后门 A<-e<-X->mu->Y（红线），A 与 Y 都被 X 影响。
+# 所以"处理组均值 - 对照组均值"会混进病情的影响，必须校正。
+print(mlr3HTE_dag("obs", "continuous"))
+
+## 1.1 生成数据 ----
 d <- mlr3HTE_demo_obs(n = 4000, seed = 1204)
 
-## 1.1 先看混杂有多严重 ----
-# 处理组与对照组的基线协变量分布差异（用 lac 作代表）
-print(d$X |>
+## 1.2 真值卡 + 未调整差（tidyverse）----
+naive <- mean(d$Y[d$A == 1]) - mean(d$Y[d$A == 0])
+tibble(
+  指标 = c("真实 ATE", "未调整差分", "未调整偏倚", "处理率"),
+  值   = round(c(d$ate, naive, naive - d$ate, mean(d$A)), 4)
+) |> print()
+
+# 2 先看混杂有多严重：组间基线不平衡 ----
+# 处理组的 lac（病情）明显高于对照组——这正是偏倚的来源。
+d$X |>
   mutate(A = d$A) |>
   group_by(A) |>
-  summarise(n = n(), 平均lac = round(mean(lac), 3), 平均age = round(mean(age), 1),
-            .groups = "drop"))
-
-cli::cli_alert_info(
-  "真实 ATE = {round(d$ate, 4)}；处理率 = {round(mean(d$A), 3)}"
-)
-
-# 2 未调整差分：有偏的基线 ----
-## 2.1 粗差分 ----
-naive <- mean(d$Y[d$A == 1]) - mean(d$Y[d$A == 0])
-cli::cli_alert_warning(
-  "未调整差分 = {round(naive, 4)}，偏差 = {round(naive - d$ate, 4)}"
-)
+  summarise(n = n(), 平均lac = mean(lac), 平均tumor = mean(tumor),
+            平均age = mean(age), .groups = "drop") |>
+  mutate(across(c(平均lac, 平均tumor, 平均age), \(x) round(x, 3))) |>
+  print()
+cli::cli_alert_warning("两组基线的 lac/tumor 明显不同——不校正就会把'病情效应'误当成'治疗效应'")
 
 # 3 IPTW 校正（内部训 PS 模型）----
-## 3.1 基学习器与拟合 ----
+# 引擎内部用分类器拟合 e(X)=P(A=1|X)，再构造 1/e 与 1/(1-e) 的权重，
+# 让加权后的处理组与对照组在协变量上可比。
 lb <- lrn("regr.ranger", num.trees = 300, seed = 1)
 fit_iptw <- metalearner("X", d$X, d$A, d$Y, learner_base = lb, weighting = "iptw")
 
-## 3.2 稳定化权重版本 ----
-# 稳定化权重把权重均值拉回 1，方差更小、更稳
+## 3.1 稳定化权重版本 ----
+# 稳定化权重把权重均值拉回 1，方差更小、更稳。
 fit_stab <- metalearner("X", d$X, d$A, d$Y, learner_base = lb,
                         weighting = "iptw", stabilize = TRUE)
 
 # 4 外部权重（用真实 PS，教学时用来验证）----
-## 4.1 真实 PS 构造的 IPTW ----
+# 直接喂入数据生成时的真实倾向得分，验证"权重对了、估计就该对"。
 w_true <- ifelse(d$A == 1, d$ps_true, 1 - d$ps_true)
 fit_ext <- metalearner("DR", d$X, d$A, d$Y, learner_base = lb,
                        weighting = "external", weights = w_true)
 
-# 5 偏倚对照表 ----
-print(data.frame(
-  方法           = c("未调整差分", "IPTW + X-learner", "IPTW(稳定化) + X-learner",
-                     "真实PS外部权重 + DR"),
-  估计           = round(c(naive, fit_iptw$ate, fit_stab$ate, fit_ext$ate), 4),
-  真实ATE        = round(d$ate, 4),
-  偏差           = round(c(naive, fit_iptw$ate, fit_stab$ate, fit_ext$ate) - d$ate, 4),
-  与真相关       = round(c(NA, cor(fit_iptw$cate_train, d$tau),
-                           cor(fit_stab$cate_train, d$tau),
-                           cor(fit_ext$cate_train, d$tau)), 3)
-))
+# 5 偏倚对照表（tidyverse）----
+tibble(
+  方法     = c("未调整差分", "IPTW + X-learner", "IPTW(稳定化) + X-learner",
+               "真实PS外部权重 + DR"),
+  估计     = c(naive, fit_iptw$ate, fit_stab$ate, fit_ext$ate),
+  真实ATE  = d$ate,
+  偏差     = c(naive, fit_iptw$ate, fit_stab$ate, fit_ext$ate) - d$ate,
+  与真相关 = c(NA, cor(fit_iptw$cate_train, d$tau),
+               cor(fit_stab$cate_train, d$tau),
+               cor(fit_ext$cate_train, d$tau))
+) |>
+  mutate(across(c(估计, 真实ATE, 偏差, 与真相关), \(x) round(x, 4))) |>
+  print()
 
-# 6 五种 learner 在 IPTW 下的表现 ----
-## 6.1 逐一拟合 ----
+# 6 偏倚可视化：一眼看出"未调整 vs 校正" ----
+# 虚线 = 真实 ATE。未调整那根明显偏高，校正后都落回真实值附近。
+tibble(
+  方法 = c("未调整", "IPTW+X", "IPTW稳定+X", "真实PS+DR"),
+  估计 = c(naive, fit_iptw$ate, fit_stab$ate, fit_ext$ate)
+) |>
+  ggplot(aes(x = 方法, y = 估计)) +
+  geom_col(fill = "#4C78A8", width = 0.6) +
+  geom_hline(yintercept = d$ate, linetype = "dashed", color = "#E45756",
+             linewidth = 0.9) +
+  labs(title = "混杂偏倚：未调整差分 vs 校正后的 ATE",
+       subtitle = sprintf("红色虚线 = 真实 ATE = %.3f；未调整那根明显偏高", d$ate),
+       x = NULL, y = "ATE 估计") +
+  theme_minimal(base_size = 12)
+
+# 7 五种 learner 在 IPTW 下的表现（tidyverse）----
+# 校正的不是某个 learner，而是"权重"；权重对了，五种 learner 都该接近真值。
 types <- c("S", "T", "X", "R", "DR")
-tab <- data.frame(
-  方法     = types,
-  IPTW_ATE = round(vapply(types, function(tp)
-    metalearner(tp, d$X, d$A, d$Y, learner_base = lb, weighting = "iptw")$ate,
-    numeric(1)), 4),
-  真实ATE  = round(d$ate, 4),
-  与真相关 = round(vapply(types, function(tp)
-    cor(metalearner(tp, d$X, d$A, d$Y, learner_base = lb,
-                    weighting = "iptw")$cate_train, d$tau), numeric(1)), 3)
-)
-print(tab)
+iptw_fits <- lapply(types, function(tp)
+  metalearner(tp, d$X, d$A, d$Y, learner_base = lb, weighting = "iptw"))
+names(iptw_fits) <- types
 
-# 7 一个重要的提醒 ----
+tibble(
+  方法     = types,
+  IPTW_ATE = vapply(iptw_fits, \(f) f$ate, numeric(1)),
+  真实ATE  = d$ate,
+  偏差     = vapply(iptw_fits, \(f) f$ate, numeric(1)) - d$ate,
+  与真相关 = vapply(iptw_fits, \(f) cor(f$cate_train, d$tau), numeric(1))
+) |>
+  mutate(across(c(IPTW_ATE, 真实ATE, 偏差, 与真相关), \(x) round(x, 4))) |>
+  print()
+
+# 8 一个重要的提醒 ----
 # 观察性研究里，加权/双重稳健只能校正【已测量】的混杂。
 # 本演示数据的混杂全部由 X 中的协变量造成，所以能完全校正；
 # 真实研究里若存在未测量混杂，任何方法都救不回来——这是设计层面的问题。

@@ -1,7 +1,7 @@
-# mlr3HTE 交接说明（2026-10-20，首版 + 配套教程 + GitHub 与文档站）
+# mlr3HTE 交接说明（2026-10-20，首版 + 配套教程 + GitHub 与文档站 + 教程深化）
 
 包位置：`D:\Project\mlr3_HTE\mlr3HTE\`，使用说明见包内 `README.md`，
-教程见 `tutorial/00_教程.md` + `tutorial/code/` 下 8 个脚本。
+教程见 `tutorial/00_教程.md` + `tutorial/code/` 下 9 个脚本。
 
 | | 地址 |
 |---|---|
@@ -41,15 +41,18 @@
 | R6 Learner `lrn("regr.metalearner")`，三类结局通用 | ✅ |
 | `resample()` / `benchmark()` / `tune()` 集成 | ✅ |
 | `ml_task()` Task 编码辅助函数 | ✅ |
-| testthat 测试 119 个 | ✅ 全过（FAIL 0） |
+| testthat 测试 142 个 | ✅ 全过（FAIL 0） |
 | README + renv.lock | ✅ |
-| 配套教程：三类结局 × 随机/观察性 6 格 | ✅ 主文档 + 8 个脚本，全部实跑通过 |
+| 配套教程：三类结局 × 随机/观察性 6 格 | ✅ 主文档 + 9 个脚本，全部实跑通过 |
 | 观察性的二分类 / 生存演示数据 | ✅ `mlr3HTE_demo_obs_binary()` / `mlr3HTE_demo_obs_surv()` |
-| roxygen2 `man/`（15 个 .Rd）+ R6 类文档 | ✅ 由 roxygen2 8.1.1 生成，NAMESPACE 同步 |
+| roxygen2 `man/`（16 个 .Rd）+ R6 类文档 | ✅ 由 roxygen2 8.1.1 生成，NAMESPACE 同步 |
 | 生存 `effect = "rmst"`（限制平均生存时间差） | ✅ `metalearner(..., effect = "rmst", t0 = ...)` |
 | R/DR 交叉拟合 `cross_fitting = TRUE` | ✅ K 折 out-of-fold 拟合伪结果，降过拟合偏倚 |
 | CATE 不确定性量化 `cate_ci()` | ✅ bootstrap 给出 ATE 点估计 + CI，及可选逐样本 CATE CI |
 | `.onLoad` 修复：强制 `loadNamespace("mlr3learners")` | ✅ 否则 `regr.ranger`/`classif.ranger` 未注册，默认 learner 报 "not found" |
+| `lrn()` 从 mlr3 再导出（`R/reexport.R`） | ✅ `library(mlr3HTE)` 后文档示例原样可跑 |
+| `mlr3HTE_dag()` DAG 绘制函数（`R/dag.R`） | ✅ 六张 DAG（rct/obs × 三结局），纯 ggplot2，混杂路径红色高亮 |
+| 教程 00：数据生成机制与 DAG | ✅ DGP 逐步展开 + 真值分层表 + 粗差分对账，6 张 DAG PNG 已入 `docs/assets/img/dag/` |
 
 验证结果（冒烟测试 1/2/3 均 exit 0）：
 
@@ -162,10 +165,26 @@ paradox 1.0.1、R6、data.table、survival、ranger、testthat）全部健在。
      的创建不稳定，且 CRAN 索引下载被网络拦截，导致 check 子进程挂起。
    - **在用户的 UTF-8 机器或 CI（ubuntu）上可完整跑通**：测试已做成 locale-robust（见坑 18），
      纯 R 部分 `devtools::check(vignettes = FALSE, manual = FALSE)` 应无 ERROR/WARNING。
-2. ~~roxygen2 生成 `man/`~~ ✅ 已完成（15 个 .Rd + R6 类文档，NAMESPACE 同步）。
+2. ~~roxygen2 生成 `man/`~~ ✅ 已完成（16 个 .Rd + R6 类文档，NAMESPACE 同步）。
 3. ~~`mlr3HTE_demo_binary/surv` 的观察性版本~~ ✅ 已完成（`demo_obs_binary` / `demo_obs_surv`）。
 4. ~~生存 `effect = "rmst"`~~ ✅ 已完成。
 5. ~~R/DR 交叉拟合~~ ✅ 已完成（`cross_fitting = TRUE`）。
+6. ~~教程深化：DAG / DGP / 真实输出 / tidyverse~~ ✅ 已完成（见下）。
+
+### 教程深化批次（2026-10-20，最后一项）
+- 新增 `mlr3HTE_dag()`（`R/dag.R`，纯 ggplot2）与 6 张 DAG PNG
+  （`docs/assets/img/dag/`，已随文档站发布）。
+- 新增教程 `00_数据生成机制与DAG.R`：DGP 逐步展开（tau / mu / 结局方程）、
+  六个数据集真值一览 tibble、按 z1 四分位 × z2 中位分层的真实 CATE 表、
+  观察性粗差分 vs 真值对账（1.74 vs 1.05，偏倚 +0.69）。
+- 01–06 每个脚本加「数据卡片」（DAG + 真值 + DGP 公式），结果整理全部
+  tidyverse 化，新增估计-vs-真实 CATE 散点图；07 加热力图汇总；
+  08 基准对比表 tibble 化。
+- 文档站教程页新增「数据生成机制与 DAG（先读这个）」节（中英同步，含实际输出），
+  guide 页架构节加跳转链接；CSS 新增 `.fig` / `.fig-grid` / `.formula`。
+- `tutorial/00_教程.md` 加第 0 节与脚本索引 00 行。
+- 验证：`R CMD INSTALL .` 干净；测试 **142 个期望 0 failed / 0 error**
+  （新增 `test-dag.R` 3 块）；教程 00–08 全部 exit 0。
 
 > 注：`cate_ci()`（CATE 不确定性量化，bootstrap ATE/分位 CI）此前已实现并导出，
 > 本次补了 roxygen 文档与 `\donttest` 示例，一并随 `man/` 入库。
