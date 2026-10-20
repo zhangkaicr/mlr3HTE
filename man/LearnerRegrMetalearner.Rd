@@ -18,6 +18,8 @@
 \describe{
 \item{metalearner}{字符，S / T / X / R / DR，默认 "T"}
 \item{weighting}{字符，none / iptw / external，默认 "none"}
+\item{engine}{字符，native / survlearners，默认 "native"；
+生存结局的第二套引擎（survlearners 包，只支持 S/T/X/R 与 S(t0) 差）}
 }
 }
 
@@ -35,7 +37,8 @@
 \section{Public fields}{
   \if{html}{\out{<div class="r6-fields">}}
   \describe{
-    \item{\code{learner_base}}{结局模型基学习器（类型须与结局匹配；生存用 "coxph"/"ranger"）}
+    \item{\code{learner_base}}{结局模型基学习器（类型须与结局匹配；生存用 "coxph"/"ranger"，
+survlearners 引擎下用 "coxph"/"grf"/"lasso"）}
 
     \item{\code{learner_tau}}{效应阶段回归学习器；NULL 时引擎用偏正则化的 ranger}
 
@@ -48,6 +51,8 @@
     \item{\code{t0}}{生存效应评估时点；NULL 时取 extra_args$ml_t0，再取事件中位数}
 
     \item{\code{stabilize}}{IPTW 是否使用稳定化权重}
+
+    \item{\code{engine}}{生存结局估计引擎：native（默认）/ survlearners}
 
     \item{\code{model_id}}{真实拟合结果在登记处的 id}
   }

@@ -103,7 +103,7 @@ test_that("benchmark_grid 中多个 metalearner 需给不同 id", {
 # 5 可调参数 ------------------------------------------------------------------
 test_that("metalearner 与 weighting 是可调参数", {
   l <- mlr3::lrn("regr.metalearner")
-  expect_setequal(l$param_set$ids(), c("metalearner", "weighting"))
+  expect_setequal(l$param_set$ids(), c("metalearner", "weighting", "engine"))
   l$param_set$values <- list(metalearner = "DR", weighting = "iptw")
   expect_equal(l$param_set$values$metalearner, "DR")
 })

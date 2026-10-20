@@ -95,6 +95,25 @@ fit$ate            # 平均 S1(2) - S0(2)
 `t0` 缺省时取事件时间中位数。删失由两部分处理：S/T 的生存模型自身已在似然中正确处理；
 X/R/DR 需要个体尺度结局（用 `I(T > t0)`），此时会乘上删失 IPCW 权重。
 
+生存结局有两套引擎（`engine` 参数，默认 `"native"`，行为零变化）：
+
+```r
+# 引擎二：survlearners（GitHub 包，需先安装；只支持 S/T/X/R 与 S(t0) 差）
+remotes::install_github("som-shahlab/survlearners", subdir = "r-package/survlearners")
+fit <- metalearner("X", ds$X, ds$A, ds$Y, learner_base = "grf",
+                   t0 = 2, engine = "survlearners")
+```
+
+| | `"native"`（默认） | `"survlearners"` |
+|---|---|---|
+| metalearner | S/T/X/R/DR 五族 | S/T/X/R（无 DR） |
+| 效应尺度 | S(t0) 差 + RMST 差 | 仅 S(t0) 差 |
+| 基学习器 | `"coxph"`/`"ranger"` + 任意 mlr3 learner | `"coxph"`/`"grf"`/`"lasso"`（`"ranger"` 是 grf 别名） |
+| 依赖 | 零额外 | 需装 survlearners（已列入 Suggests） |
+
+注意 survlearners 的 `T-coxph` 组合实测有系统性偏差（把未中心化的基线累积危险与
+中心化的 `predict(type="risk")` 相乘），详见教程 09；要 Cox 做 T-learner 请用原生引擎。
+
 ### 2.4 观察性数据
 
 ```r

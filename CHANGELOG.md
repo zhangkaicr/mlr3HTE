@@ -2,6 +2,58 @@
 
 本文件记录 mlr3HTE 的每个交付批次。版本号遵循 `DESCRIPTION` 中的 `Version:`。
 
+## [0.1.0] — 2026-10-20（生存第二套引擎：`engine = "survlearners"`）
+
+### 新增
+- **`engine = "survlearners"`**（`R/surv_survlearners.R`）：生存结局可显式切换到
+  GitHub 包 [survlearners](https://som-shahlab.github.io/survlearners/)（Shah Lab，
+  GPL-3，S/T/X/R/M 五族，自带 IPCW 与 R 族交叉拟合）。默认仍为 `"native"`，
+  **老代码行为零变化**。
+  - 派发：S/T/X/R × `coxph`/`grf`/`lasso`（`"ranger"` 是 `grf` 的别名）；
+    X 无 coxph 版（survlearners 自身限制），会给明确提示。
+  - 倾向得分 `W.hat` 三来源：`none` → 0.5；`iptw` → mlr3HTE 自训 PS；
+    `external` → 按 1/PS 约定从权重反解。
+  - 引擎内固定 grf `seed = 1`（各函数 nuisance 参数名不统一，按形参名匹配），
+    保证教学场景可复现。
+  - 精确屏蔽 glmnet 的一条上游 tie-handling 提示（lasso 族一次能发 200+ 条），
+    其余警告原样抛出。
+- 新教程 `09_生存结局_survlearners引擎.R`：数据卡、能力对照表、n=2000 全组合
+  对账、与原生引擎同题对比、观察性（外部真实 PS 权重 + IPTW）、复现性说明。
+- 文档站教程页新增「生存结局的第二套引擎：survlearners」节（中英同步，含实际输出）；
+  README 2.3 节加引擎对照表；`00_教程.md` 加 5.7 节。
+
+### 工程
+- `DESCRIPTION`：`survlearners` 进 `Suggests`（GitHub-only，不做硬依赖）。
+- `ml_fit()` 返回对象新增 `engine` 字段（native / survlearners），R6 Learner
+  `param_set` 新增同名参数并透传。
+
+### 测试
+- 新增 `tests/testthat/test-survlearners.R`（8 块）：全组合数值合理性
+  （n=500 实测容差：ATE 偏差 ±0.1、相关 > 0.4）、外部权重反解、iptw 路径、
+  五条错误路径（DR / RMST / 非生存结局 / X+coxph / 非法 engine）、
+  默认 native 不变、R6 Learner 切换引擎。
+- `test-learner.R` 参数断言同步加入 `engine`。
+
+### 验证
+- 测试 **235 个期望、0 failed / 0 error**（仅 2 条 "built under R 4.5.3" 无害提示）。
+- `R CMD INSTALL .` 干净；教程 09 exit 0。
+
+### 如实记录（上游 survlearners 0.0.1 的实测发现）
+- **`surv_tl_coxph` 组合有系统性偏差**：本数据 n=2000 下 ATE 仅 0.067（真值 0.151），
+  同族 T-grf/T-lasso 正常。读源码 + 实验验证的机制：该函数把**未中心化**的
+  `basehaz(centered = FALSE)` 与 `predict(type = "risk")` 相乘，而后者的线性
+  预测器**以训练样本均值为参照**（平移协变量后 mean(risk) 恒为 1，而未中心化
+  链接 mean = 1.09），基准不一致导致 S(t0) 被扭曲。对照 `surv_sl_coxph`
+  手算未中心化链接，所以 S-coxph 准确。教程与 README 均已提示避开该组合。
+- **lasso 族不可逐位复现**：glmnet 内部交叉验证折序随机，survlearners 未暴露
+  `foldid`，两次运行有 ~0.001 量级抖动；grf 族因引擎内固定 seed 而完全可复现。
+
+### 文档修正（忠实性）
+- 修正文档站 DGP 节与 `00_教程.md` 第 0 节中与 `R/api.R` 源码不符的公式：
+  二分类为对数几率尺度 `tau_logit = 0.6 + 0.5·z1 − 0.4·z2`（非 `expit(mu/3 + A·tau)`）；
+  生存为 `tau = 0.5 + 0.4·z1 − 0.3·z2`（对数风险尺度，非 `h₀·exp(−mu/3 − A·tau)`）；
+  观察性 PS 为 `plogis(−0.5 + 0.8·z1 + 0.4·z2)`（非 `expit(0.8·z1 + 0.5·z2 − 0.5·sex)`）。
+
 ## [0.1.0] — 2026-10-20（教程深化：DAG、DGP 讲解、真实输出、tidyverse 整理）
 
 把教程从「能跑的示例」升级成「能教的讲义」：每个测试数据配套 DAG 与真值说明，

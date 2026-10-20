@@ -19,7 +19,8 @@ metalearner(
   outcome = "auto",
   effect = "survdiff",
   cross_fitting = FALSE,
-  n_folds = 5L
+  n_folds = 5L,
+  engine = "native"
 )
 }
 \arguments{
@@ -56,6 +57,11 @@ metalearner(
 伪结果在留出折上计算），默认 FALSE}
 
 \item{n_folds}{交叉拟合的折数，默认 5}
+
+\item{engine}{生存结局的估计引擎：\code{"native"}（默认，原生 coxph/ranger
+实现，五族齐全、支持 RMST 与任意 mlr3 基学习器）或 \code{"survlearners"}
+（委托 GitHub 包 survlearners，只有 S/T/X/R 与 S(t0) 差尺度，DR 与 RMST
+会明确报错；未安装该包时也会给出安装提示）}
 }
 \value{
 含 $predict(newX)、$ate、$cate_train 的拟合对象

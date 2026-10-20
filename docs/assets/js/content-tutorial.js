@@ -51,18 +51,35 @@ window.SITE_PAGES.tutorial = {
           '<p>六个场景共用同一套<strong>数据生成过程（DGP）</strong>，只在两处不同：' +
           '结局的分布形态（连续 / 二分类 / 生存），以及处理 <code>A</code> 怎么来' +
           '（随机化 / 由协变量决定）。理解 DGP 是读懂后面每一格的前提——' +
-          '因为只有数据自己知道真值，你才能判断估计方法到底行不行。</p>' +
+          '因为只有数据自己知道真值，你才能判断估计方法到底行不行。' +
+          '下面所有公式逐行照抄包内 <code>R/api.R</code> 的生成逻辑。</p>' +
 
-          '<h3>共同骨架</h3>' +
-          '<p>四个协变量 <code>X = {age, lac, tumor, sex}</code>，标准化后参与两个方程：</p>' +
-          '<div class="formula">tau = 1.0 + 0.8·z1 − 0.5·z2 + 0.6·(z1&gt;1 &amp; z2&lt;0)   ' +
-          '# 真实 CATE（效应修饰）<br>' +
-          'mu  = 6 + 0.4·z1 + 0.5·z2 − 0.02·(age−60) + 0.3·sex   ' +
-          '# 基线结局水平（预后）</div>' +
-          '<p>其中 <code>z1 = lac 标准化</code>（乳酸，越高病情越重），' +
-          '<code>z2 = tumor 标准化</code>（瘤负荷）。注意 <code>tau</code> 里有一项' +
-          '<strong>交互</strong>：只有当「乳酸高 <em>且</em> 瘤负荷低」时处理效应才额外 +0.6。' +
-          '这就是异质性的来源——只会报一个平均数的方法是抓不到它的。</p>' +
+          '<h3>共同骨架：协变量</h3>' +
+          '<div class="formula">' +
+          'age ~ N(60, 12)    lac ~ N(2.5, 1.2)    tumor ~ N(5, 2)    sex ~ Bern(0.45)<br>' +
+          'z1 = scale(lac)    z2 = scale(tumor)   ' +
+          '# z1 乳酸（越高病情越重），z2 瘤负荷</div>' +
+
+          '<h3>三种结局，三套方程</h3>' +
+          '<div class="table-wrap"><table>' +
+          '<thead><tr><th>结局</th><th>生成方程（源码原文）</th><th>效应尺度</th></tr></thead><tbody>' +
+          '<tr><td>连续</td><td><code>tau = 1.0 + 0.8·z1 − 0.5·z2 + 0.6·(z1&gt;1 &amp; z2&lt;0)</code><br>' +
+          '<code>mu = 6 + 0.4·z1 + 0.5·z2 − 0.02·(age−60) + 0.3·sex</code><br>' +
+          '<code>Y = mu + A·tau + N(0,1)</code></td>' +
+          '<td>均值差 <code>tau</code></td></tr>' +
+          '<tr><td>二分类</td><td><code>p0 = plogis(−1.2 + 0.5·z1 + 0.4·z2 + 0.1·(age−60)/12 + 0.2·sex)</code><br>' +
+          '<code>tau_logit = 0.6 + 0.5·z1 − 0.4·z2</code>（对数几率尺度）<br>' +
+          '<code>p1 = plogis(qlogis(p0) + tau_logit)</code>；<code>Y ~ Bern(p_A)</code></td>' +
+          '<td>风险差 <code>p1 − p0</code></td></tr>' +
+          '<tr><td>生存</td><td><code>tau = 0.5 + 0.4·z1 − 0.3·z2</code>（对数风险尺度）<br>' +
+          '<code>base_rate = exp(−1.0 + 0.3·z1 + 0.2·z2 + 0.1·(age−60)/12 + 0.15·sex)</code><br>' +
+          '<code>rate = base_rate·exp(−A·tau)</code>；<code>T ~ Exp(rate)</code>；' +
+          '删失 <code>C ~ Exp(0.12)</code>，<code>time = min(T,C)</code></td>' +
+          '<td><code>S(t₀)</code> 差（默认 t₀=2），另报 RMST 差</td></tr>' +
+          '</tbody></table></div>' +
+          '<p>注意连续结局的 <code>tau</code> 里有一项<strong>交互</strong>：' +
+          '只有当「乳酸高 <em>且</em> 瘤负荷低」时处理效应才额外 +0.6——' +
+          '这就是异质性的来源，只会报一个平均数的方法是抓不到它的。</p>' +
 
           '<h3>两种处理分配机制，两张 DAG</h3>' +
           '<div class="fig-grid">' +
@@ -73,21 +90,11 @@ window.SITE_PAGES.tutorial = {
           'alt="观察性研究的 DAG：X → e → A 存在混杂">' +
           '<figcaption>观察性：<code>X → e → A</code>，红色即开放的后门路径</figcaption></figure>' +
           '</div>' +
-          '<p>随机化时 <code>A ⊥ X</code>，协变量只是效应修饰者，不混杂；' +
-          '观察性研究中处理概率 <code>e = expit(0.8·z1 + 0.5·z2 − 0.5·sex)</code>，' +
+          '<p>随机化时 <code>A ~ Bern(0.5)</code>，<code>A ⊥ X</code>，' +
+          '协变量只是效应修饰者，不混杂；观察性研究中处理概率 ' +
+          '<code>e = plogis(−0.5 + 0.8·z1 + 0.4·z2)</code>，' +
           '于是 <code>X</code> 同时是 <code>A</code> 和 <code>Y</code> 的共同原因——' +
-          '后门路径 <code>A ← e ← X → mu → Y</code> 开放，粗差分有偏。</p>' +
-
-          '<h3>结局方程</h3>' +
-          '<div class="table-wrap"><table>' +
-          '<thead><tr><th>结局</th><th>方程</th><th>效应尺度</th></tr></thead><tbody>' +
-          '<tr><td>连续</td><td><code>Y = mu + A·tau + ε</code></td>' +
-          '<td>均值差</td></tr>' +
-          '<tr><td>二分类</td><td><code>P(Y=1) = expit(mu/3 + A·tau)</code></td>' +
-          '<td>风险差</td></tr>' +
-          '<tr><td>生存</td><td><code>h(t) = h₀(t)·exp(−mu/3 − A·tau)</code>，' +
-          '指数删失 ~ U(0, 5)</td><td><code>S(t₀)</code> 差（默认 t₀=2）</td></tr>' +
-          '</tbody></table></div>' +
+          '后门路径 <code>A ← e ← X → 结局 → Y</code> 开放，粗差分有偏。</p>' +
 
           '<div class="callout ok"><div class="callout-title">真值都随数据返回</div>' +
           '<p>每个 <code>mlr3HTE_demo_*</code> 函数都返回 <code>tau</code>（逐人真实 CATE）、' +
@@ -187,7 +194,7 @@ window.SITE_PAGES.tutorial = {
           '<figure class="fig"><img src="assets/img/dag/dag_rct_binary.png" ' +
           'alt="场景 3 的 DAG：随机化二分类结局">' +
           '<figcaption>图 3 · 场景 3 因果图：结构与场景 1 相同，结局换成 ' +
-          '<code>expit(mu/3 + A·tau)</code></figcaption></figure>' +
+          '<code>Y ~ Bern(plogis(qlogis(p0) + tau_logit))</code></figcaption></figure>' +
           '<pre><code>d <- mlr3HTE_demo_binary(n = 4000, seed = 1202)\n' +
           'lb <- lrn("classif.ranger", num.trees = 300, seed = 1)\n' +
           'fit <- metalearner("T", d$X, d$A, d$Y, learner_base = lb)\n' +
@@ -325,7 +332,61 @@ window.SITE_PAGES.tutorial = {
           '<tr><td><code>06_生存结局_观察性研究.R</code></td><td>生存 + 观察性，IPTW × IPCW</td></tr>' +
           '<tr><td><code>07_五种metalearner横向对比.R</code></td><td>三种结局 × 五种 learner 对比表</td></tr>' +
           '<tr><td><code>08_mlr3工作流集成.R</code></td><td><code>ml_task</code> + <code>resample</code> + <code>benchmark</code></td></tr>' +
+          '<tr><td><code>09_生存结局_survlearners引擎.R</code></td><td>生存第二套引擎 <code>engine="survlearners"</code>，与原生引擎同题对比</td></tr>' +
           '</tbody></table></div>'
+      },
+
+      {
+        id: "sl-engine",
+        heading: "生存结局的第二套引擎：survlearners（脚本 09）",
+        body:
+          '<p>生存结局除了默认的<strong>原生引擎</strong>（<code>engine = "native"</code>，' +
+          'Cox/ranger 实现，五族齐全），还可以显式切换到 <code>engine = "survlearners"</code>，' +
+          '把估计整体委托给 <a href="https://som-shahlab.github.io/survlearners/">survlearners</a> ' +
+          '（Shah Lab，GPL-3）。该包只发布在 GitHub，所以 mlr3HTE 把它放在 Suggests，' +
+          '未安装时会给出明确提示：</p>' +
+          '<pre><code>remotes::install_github("som-shahlab/survlearners", subdir = "r-package/survlearners")\n\n' +
+          'd <- mlr3HTE_demo_surv(n = 2000, t0 = 2, seed = 1203)\n' +
+          'fit <- metalearner("X", d$X, d$A, d$Y, learner_base = "grf",\n' +
+          '                   t0 = 2, engine = "survlearners")</code></pre>' +
+
+          '<div class="table-wrap"><table>' +
+          '<thead><tr><th>能力</th><th>native（默认）</th><th>survlearners</th></tr></thead><tbody>' +
+          '<tr><td>metalearner</td><td>S/T/X/R/DR 五族</td><td>S/T/X/R（没有 DR，另有一个 M）</td></tr>' +
+          '<tr><td>效应尺度</td><td>S(t0) 差 + RMST 差</td><td>只有 S(t0) 差</td></tr>' +
+          '<tr><td>基学习器</td><td><code>"coxph"</code>/<code>"ranger"</code> + 任意 mlr3 learner</td>' +
+          '<td><code>"coxph"</code>/<code>"grf"</code>/<code>"lasso"</code>（<code>"ranger"</code> 是 grf 的别名）</td></tr>' +
+          '<tr><td>删失 / 交叉拟合</td><td>IPTW × IPCW；<code>cross_fitting=TRUE</code></td>' +
+          '<td>包内 IPCW；R 族内部自带 K 折交叉拟合</td></tr>' +
+          '</tbody></table></div>' +
+
+          '<h3>实际输出：n=2000 全组合对账（真值 ATE = 0.151）</h3>' +
+          '<pre><code># A tibble: 11 × 5\n' +
+          '   tp    kind    ATE  相关   偏差\n' +
+          ' 1 S     coxph 0.156 0.993  0.005\n' +
+          ' 2 S     grf   0.129 0.910 -0.022\n' +
+          ' 3 S     lasso 0.156 0.997  0.006\n' +
+          ' 4 T     coxph 0.067 0.952 -0.084   # 避开这一格，见下\n' +
+          ' 5 T     grf   0.147 0.922 -0.004\n' +
+          ' 6 T     lasso 0.146 0.992 -0.004\n' +
+          ' 7 X     grf   0.149 0.934 -0.001\n' +
+          ' 8 X     lasso 0.150 0.978 -0.001\n' +
+          ' 9 R     coxph 0.152 0.963  0.001\n' +
+          '10 R     grf   0.152 0.923  0.001\n' +
+          '11 R     lasso 0.155 0.961  0.004</code></pre>' +
+
+          '<div class="callout warn"><div class="callout-title">避开 T-coxph 这一格</div>' +
+          '<p>实测 T-coxph 的 ATE 只有 0.067（偏差 −0.084），同族 T-grf/T-lasso 却正常。' +
+          '读源码 + 验证后的机制：<code>surv_tl_coxph</code> 把<strong>未中心化</strong>的基线累积危险 ' +
+          '（<code>basehaz(centered = FALSE)</code>）与 <code>predict(type = "risk")</code> 相乘，' +
+          '而后者的线性预测器<strong>以样本均值为参照</strong>，两个基准不一致会扭曲 S(t0)。' +
+          '对照 <code>surv_sl_coxph</code> 手算未中心化链接，所以 S-coxph 是准的。' +
+          '要 Cox 做 T-learner，请用原生引擎。</p></div>' +
+
+          '<div class="callout"><div class="callout-title">复现性</div>' +
+          '<p>grf 族在 mlr3HTE 引擎内固定 <code>seed = 1</code>，两次运行逐位相同；' +
+          'lasso 族内部用 glmnet 交叉验证选 lambda、折序随机（survlearners 未暴露 foldid），' +
+          '两次运行有 ~0.001 量级抖动——如实说明，不假装确定。</p></div>'
       }
     ]
   },
@@ -361,20 +422,36 @@ window.SITE_PAGES.tutorial = {
           'Only two things change: the outcome distribution (continuous / binary / survival) ' +
           'and how treatment <code>A</code> arises (randomised / driven by covariates). ' +
           'Understanding the DGP is a prerequisite for every scenario below — only the data ' +
-          'itself knows the truth, and that is how you judge whether an estimator works.</p>' +
+          'itself knows the truth, and that is how you judge whether an estimator works. ' +
+          'Every formula below is copied line by line from <code>R/api.R</code>.</p>' +
 
-          '<h3>Shared skeleton</h3>' +
-          '<p>Four covariates <code>X = {age, lac, tumor, sex}</code>, standardised, feed two ' +
-          'equations:</p>' +
-          '<div class="formula">tau = 1.0 + 0.8·z1 − 0.5·z2 + 0.6·(z1&gt;1 &amp; z2&lt;0)   ' +
-          '# true CATE (effect modification)<br>' +
-          'mu  = 6 + 0.4·z1 + 0.5·z2 − 0.02·(age−60) + 0.3·sex   ' +
-          '# baseline outcome level (prognosis)</div>' +
-          '<p>Here <code>z1</code> is standardised lac (lactate; higher = sicker) and ' +
-          '<code>z2</code> is standardised tumor burden. Note the <strong>interaction</strong> ' +
-          'in <code>tau</code>: the treatment effect only gains an extra +0.6 when lactate is ' +
-          'high <em>and</em> tumor burden is low. That is where heterogeneity comes from — ' +
-          'any method that reports a single average cannot capture it.</p>' +
+          '<h3>Shared skeleton: covariates</h3>' +
+          '<div class="formula">' +
+          'age ~ N(60, 12)    lac ~ N(2.5, 1.2)    tumor ~ N(5, 2)    sex ~ Bern(0.45)<br>' +
+          'z1 = scale(lac)    z2 = scale(tumor)   ' +
+          '# z1 lactate (higher = sicker), z2 tumor burden</div>' +
+
+          '<h3>Three outcomes, three sets of equations</h3>' +
+          '<div class="table-wrap"><table>' +
+          '<thead><tr><th>Outcome</th><th>Generating equations (verbatim from source)</th><th>Effect scale</th></tr></thead><tbody>' +
+          '<tr><td>Continuous</td><td><code>tau = 1.0 + 0.8·z1 − 0.5·z2 + 0.6·(z1&gt;1 &amp; z2&lt;0)</code><br>' +
+          '<code>mu = 6 + 0.4·z1 + 0.5·z2 − 0.02·(age−60) + 0.3·sex</code><br>' +
+          '<code>Y = mu + A·tau + N(0,1)</code></td>' +
+          '<td>mean difference <code>tau</code></td></tr>' +
+          '<tr><td>Binary</td><td><code>p0 = plogis(−1.2 + 0.5·z1 + 0.4·z2 + 0.1·(age−60)/12 + 0.2·sex)</code><br>' +
+          '<code>tau_logit = 0.6 + 0.5·z1 − 0.4·z2</code> (log-odds scale)<br>' +
+          '<code>p1 = plogis(qlogis(p0) + tau_logit)</code>; <code>Y ~ Bern(p_A)</code></td>' +
+          '<td>risk difference <code>p1 − p0</code></td></tr>' +
+          '<tr><td>Survival</td><td><code>tau = 0.5 + 0.4·z1 − 0.3·z2</code> (log-hazard scale)<br>' +
+          '<code>base_rate = exp(−1.0 + 0.3·z1 + 0.2·z2 + 0.1·(age−60)/12 + 0.15·sex)</code><br>' +
+          '<code>rate = base_rate·exp(−A·tau)</code>; <code>T ~ Exp(rate)</code>; ' +
+          'censoring <code>C ~ Exp(0.12)</code>, <code>time = min(T,C)</code></td>' +
+          '<td>difference in <code>S(t₀)</code> (default t₀=2), plus an RMST difference</td></tr>' +
+          '</tbody></table></div>' +
+          '<p>Note the <strong>interaction</strong> inside the continuous ' +
+          '<code>tau</code>: the treatment effect only gains an extra +0.6 when lactate is ' +
+          'high <em>and</em> tumor burden is low — that is where heterogeneity comes from, ' +
+          'and any method that reports a single average cannot capture it.</p>' +
 
           '<h3>Two assignment mechanisms, two DAGs</h3>' +
           '<div class="fig-grid">' +
@@ -385,22 +462,12 @@ window.SITE_PAGES.tutorial = {
           'alt="Observational DAG: X → e → A confounding">' +
           '<figcaption>Observational: <code>X → e → A</code>; the red path is the open backdoor</figcaption></figure>' +
           '</div>' +
-          '<p>Under randomisation <code>A ⊥ X</code>, so covariates only modify the effect ' +
-          'and never confound. In the observational design the treatment probability is ' +
-          '<code>e = expit(0.8·z1 + 0.5·z2 − 0.5·sex)</code>, making <code>X</code> a common ' +
-          'cause of both <code>A</code> and <code>Y</code> — the backdoor path ' +
-          '<code>A ← e ← X → mu → Y</code> is open, so crude differences are biased.</p>' +
-
-          '<h3>Outcome equations</h3>' +
-          '<div class="table-wrap"><table>' +
-          '<thead><tr><th>Outcome</th><th>Equation</th><th>Effect scale</th></tr></thead><tbody>' +
-          '<tr><td>Continuous</td><td><code>Y = mu + A·tau + ε</code></td>' +
-          '<td>mean difference</td></tr>' +
-          '<tr><td>Binary</td><td><code>P(Y=1) = expit(mu/3 + A·tau)</code></td>' +
-          '<td>risk difference</td></tr>' +
-          '<tr><td>Survival</td><td><code>h(t) = h₀(t)·exp(−mu/3 − A·tau)</code>, ' +
-          'exponential censoring ~ U(0, 5)</td><td>difference in <code>S(t₀)</code> (default t₀=2)</td></tr>' +
-          '</tbody></table></div>' +
+          '<p>Under randomisation <code>A ~ Bern(0.5)</code> and <code>A ⊥ X</code>, so ' +
+          'covariates only modify the effect and never confound. In the observational design ' +
+          'the treatment probability is <code>e = plogis(−0.5 + 0.8·z1 + 0.4·z2)</code>, ' +
+          'making <code>X</code> a common cause of both <code>A</code> and <code>Y</code> — ' +
+          'the backdoor path <code>A ← e ← X → outcome → Y</code> is open, so crude ' +
+          'differences are biased.</p>' +
 
           '<div class="callout ok"><div class="callout-title">Truth ships with the data</div>' +
           '<p>Every <code>mlr3HTE_demo_*</code> function returns <code>tau</code> (unit-level ' +
@@ -509,7 +576,7 @@ window.SITE_PAGES.tutorial = {
           '<figure class="fig"><img src="assets/img/dag/dag_rct_binary.png" ' +
           'alt="Scenario 3 DAG: randomised binary outcome">' +
           '<figcaption>Figure 3 · Scenario 3 DAG: same structure as Scenario 1, with the ' +
-          'outcome swapped for <code>expit(mu/3 + A·tau)</code></figcaption></figure>' +
+          'outcome swapped for <code>Y ~ Bern(plogis(qlogis(p0) + tau_logit))</code></figcaption></figure>' +
           '<pre><code>d <- mlr3HTE_demo_binary(n = 4000, seed = 1202)\n' +
           'lb <- lrn("classif.ranger", num.trees = 300, seed = 1)\n' +
           'fit <- metalearner("T", d$X, d$A, d$Y, learner_base = lb)\n' +
@@ -650,7 +717,64 @@ window.SITE_PAGES.tutorial = {
           '<tr><td><code>06_生存结局_观察性研究.R</code></td><td>Survival + observational, IPTW × IPCW</td></tr>' +
           '<tr><td><code>07_五种metalearner横向对比.R</code></td><td>3 outcomes × 5 learners comparison tables</td></tr>' +
           '<tr><td><code>08_mlr3工作流集成.R</code></td><td><code>ml_task</code> + <code>resample</code> + <code>benchmark</code></td></tr>' +
+          '<tr><td><code>09_生存结局_survlearners引擎.R</code></td><td>The second survival engine <code>engine="survlearners"</code>, head-to-head with native</td></tr>' +
           '</tbody></table></div>'
+      },
+
+      {
+        id: "sl-engine",
+        heading: "A second survival engine: survlearners (script 09)",
+        body:
+          '<p>Besides the default <strong>native engine</strong> (<code>engine = "native"</code>, ' +
+          'Cox/ranger, all five learners), survival outcomes can explicitly switch to ' +
+          '<code>engine = "survlearners"</code>, delegating estimation to ' +
+          '<a href="https://som-shahlab.github.io/survlearners/">survlearners</a> ' +
+          '(Shah Lab, GPL-3). It lives on GitHub only, so mlr3HTE keeps it in Suggests ' +
+          'and prints an install hint when missing:</p>' +
+          '<pre><code>remotes::install_github("som-shahlab/survlearners", subdir = "r-package/survlearners")\n\n' +
+          'd <- mlr3HTE_demo_surv(n = 2000, t0 = 2, seed = 1203)\n' +
+          'fit <- metalearner("X", d$X, d$A, d$Y, learner_base = "grf",\n' +
+          '                   t0 = 2, engine = "survlearners")</code></pre>' +
+
+          '<div class="table-wrap"><table>' +
+          '<thead><tr><th>Capability</th><th>native (default)</th><th>survlearners</th></tr></thead><tbody>' +
+          '<tr><td>Metalearners</td><td>S/T/X/R/DR</td><td>S/T/X/R (no DR; an extra M)</td></tr>' +
+          '<tr><td>Effect scale</td><td>S(t0) difference + RMST difference</td><td>S(t0) difference only</td></tr>' +
+          '<tr><td>Base learners</td><td><code>"coxph"</code>/<code>"ranger"</code> + any mlr3 learner</td>' +
+          '<td><code>"coxph"</code>/<code>"grf"</code>/<code>"lasso"</code> (<code>"ranger"</code> aliases grf)</td></tr>' +
+          '<tr><td>Censoring / cross-fitting</td><td>IPTW × IPCW; <code>cross_fitting=TRUE</code></td>' +
+          '<td>built-in IPCW; R family cross-fits internally</td></tr>' +
+          '</tbody></table></div>' +
+
+          '<h3>Actual output: full grid at n=2000 (true ATE = 0.151)</h3>' +
+          '<pre><code># A tibble: 11 × 5\n' +
+          '   tp    kind    ATE  cor   bias\n' +
+          ' 1 S     coxph 0.156 0.993  0.005\n' +
+          ' 2 S     grf   0.129 0.910 -0.022\n' +
+          ' 3 S     lasso 0.156 0.997  0.006\n' +
+          ' 4 T     coxph 0.067 0.952 -0.084   # avoid this cell, see below\n' +
+          ' 5 T     grf   0.147 0.922 -0.004\n' +
+          ' 6 T     lasso 0.146 0.992 -0.004\n' +
+          ' 7 X     grf   0.149 0.934 -0.001\n' +
+          ' 8 X     lasso 0.150 0.978 -0.001\n' +
+          ' 9 R     coxph 0.152 0.963  0.001\n' +
+          '10 R     grf   0.152 0.923  0.001\n' +
+          '11 R     lasso 0.155 0.961  0.004</code></pre>' +
+
+          '<div class="callout warn"><div class="callout-title">Avoid the T-coxph cell</div>' +
+          '<p>Measured ATE for T-coxph is only 0.067 (bias −0.084) while T-grf/T-lasso are fine. ' +
+          'Mechanism (read from source and verified, not guessed): <code>surv_tl_coxph</code> multiplies ' +
+          'the <strong>uncentred</strong> baseline cumulative hazard (<code>basehaz(centered = FALSE)</code>) ' +
+          'with <code>predict(type = "risk")</code>, whose linear predictor is <strong>centred at the ' +
+          'training-sample mean</strong>; the mismatched reference scales distort S(t0). By contrast ' +
+          '<code>surv_sl_coxph</code> builds its links manually (uncentred), so S-coxph is accurate. ' +
+          'For a Cox-based T-learner, use the native engine.</p></div>' +
+
+          '<div class="callout"><div class="callout-title">Reproducibility</div>' +
+          '<p>The grf family is seeded (<code>seed = 1</code>) inside the mlr3HTE engine, so repeated ' +
+          'runs are bit-identical. The lasso family cross-validates lambda with glmnet using random ' +
+          'folds (survlearners exposes no foldid), so repeated runs jitter by ~0.001 — stated plainly ' +
+          'rather than pretended away.</p></div>'
       }
     ]
   }

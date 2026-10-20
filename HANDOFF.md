@@ -53,6 +53,7 @@
 | `lrn()` 从 mlr3 再导出（`R/reexport.R`） | ✅ `library(mlr3HTE)` 后文档示例原样可跑 |
 | `mlr3HTE_dag()` DAG 绘制函数（`R/dag.R`） | ✅ 六张 DAG（rct/obs × 三结局），纯 ggplot2，混杂路径红色高亮 |
 | 教程 00：数据生成机制与 DAG | ✅ DGP 逐步展开 + 真值分层表 + 粗差分对账，6 张 DAG PNG 已入 `docs/assets/img/dag/` |
+| 生存第二套引擎 `engine = "survlearners"` | ✅ `R/surv_survlearners.R`，S/T/X/R × coxph/grf/lasso，survlearners 进 Suggests |
 
 验证结果（冒烟测试 1/2/3 均 exit 0）：
 
@@ -185,6 +186,29 @@ paradox 1.0.1、R6、data.table、survival、ranger、testthat）全部健在。
 - `tutorial/00_教程.md` 加第 0 节与脚本索引 00 行。
 - 验证：`R CMD INSTALL .` 干净；测试 **142 个期望 0 failed / 0 error**
   （新增 `test-dag.R` 3 块）；教程 00–08 全部 exit 0。
+
+### 生存第二套引擎批次（2026-10-20，commit 见 git log）
+- 新增 `R/surv_survlearners.R`：`engine = "survlearners"` 时生存分支整体委托
+  survlearners 包（S/T/X/R × coxph/grf/lasso；`"ranger"` 是 grf 别名；
+  X 无 coxph 版会明确报错；DR 与 RMST 明确报错并指向 native）。
+  `ml_fit()` 的 `engine` 参数 + R6 `param_set` 同名参数 + 返回对象 `engine` 字段。
+  survlearners 进 `Suggests`（GitHub-only），未装时给安装提示。
+- W.hat 三来源：none→0.5；iptw→mlr3HTE 自训 PS；external→按 1/PS 约定反解。
+- 引擎内固定 grf `seed = 1`（按形参名匹配 `new.args.grf.nuisance` /
+  `args.grf.nuisance` / `new.args.cf`，各函数命名不统一）；精确屏蔽 glmnet
+  tie-handling 提示。
+- 新教程 `09_生存结局_survlearners引擎.R`；文档站教程页加 sl-engine 节（中英）；
+  README 2.3 加对照表；`00_教程.md` 加 5.7 节。
+- 验证：测试 **235 期望 0 failed / 0 error**；教程 09 exit 0。
+- **上游实测发现（已写进教程/README/CHANGELOG）**：
+  - `surv_tl_coxph` 有系统性偏差（n=2000 ATE 0.067 vs 真值 0.151）：未中心化
+    `basehaz(centered=FALSE)` × 中心化的 `predict(type="risk")`，基准不一致。
+    （教训：曾猜「取错 basehaz 列」，实测本机 basehaz 列序是 `hazard|time`，
+    猜错了；验证后抓真凶。）
+  - lasso 族 glmnet CV 折序随机 → 两次运行 ~0.001 抖动，survlearners 未暴露
+    foldid，无法外部固定；grf 族因引擎内 seed 完全可复现。
+- **文档忠实性修正**：文档站 DGP 节与 `00_教程.md` 第 0 节里我此前写错的
+  二分类/生存/PS 公式已按 `R/api.R` 源码订正（详见 CHANGELOG「文档修正」条）。
 
 > 注：`cate_ci()`（CATE 不确定性量化，bootstrap ATE/分位 CI）此前已实现并导出，
 > 本次补了 roxygen 文档与 `\donttest` 示例，一并随 `man/` 入库。

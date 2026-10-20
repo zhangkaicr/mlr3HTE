@@ -22,6 +22,13 @@
 # 权重落地：mlr3 1.8 的 Task/Learner 不接收 case weights，统一用
 # learner-agnostic 的重要性重采样（按权重有放回抽样行），对任意基学习器生效。
 # 注意重采样会引入蒙特卡洛噪声，需要复现时请在调用前 set.seed()。
+#
+# 生存结局有两套引擎（engine 参数，默认 "native"）：
+#   "native"      原生 coxph/ranger 实现（survival_base.R），五族齐全、
+#                 支持 RMST、支持任意 mlr3 基学习器，零额外依赖；
+#   "survlearners" 委托 survlearners 包（surv_survlearners.R，GitHub-only，
+#                 装没装都会给明确提示），只有 S/T/X/R 与 S(t0) 差尺度，
+#                 但它自带 IPCW 与 R 族的交叉拟合，适合做方法学对照。
 # =====================================================================
 
 # 1 识别基学习器种类 -----------------------------------------------------------
@@ -366,10 +373,12 @@ ml_fit <- function(type, X, A, Y, learner_base = NULL, learner_tau = NULL,
                    weighting = c("none", "iptw", "external"), weights = NULL,
                    stabilize = FALSE, t0 = NULL, outcome = "auto",
                    effect = c("survdiff", "rmst"),
-                   cross_fitting = FALSE, n_folds = 5L) {
+                   cross_fitting = FALSE, n_folds = 5L,
+                   engine = c("native", "survlearners")) {
   type <- match.arg(type, c("S", "T", "X", "R", "DR"))
   weighting <- match.arg(weighting)
   effect <- match.arg(effect)
+  engine <- match.arg(engine)
   if (is.null(learner_base)) learner_base <- mlr3::lrn("regr.ranger")
   if (cross_fitting && !type %in% c("R", "DR")) {
     warning("交叉拟合目前只对 R / DR 学习器实现；其他 learner 忽略该参数。")
@@ -381,6 +390,19 @@ ml_fit <- function(type, X, A, Y, learner_base = NULL, learner_tau = NULL,
   n <- nrow(X)
 
   outcome <- .resolve_outcome(outcome, Y)
+
+  # survlearners 引擎：只服务生存结局，整体委托 survlearners 包实现
+  # （S/T/X/R 四族；DR 与 RMST 它没有，里面会给明确报错）。
+  # 放在 .lb_kind 校验之前——它的基学习器是 coxph/grf/lasso 字符串，
+  # 与原生引擎的 "coxph"/"ranger" 不是同一套取值。
+  if (identical(engine, "survlearners")) {
+    if (!identical(outcome, "survival")) {
+      stop('engine = "survlearners" 只支持生存结局；连续 / 二分类请用 engine = "native"。')
+    }
+    return(.ml_fit_survlearners(type, X, A, Y, learner_base, weighting, weights,
+                                learner_ps, stabilize, t0, effect))
+  }
+
   kind <- .lb_kind(learner_base)
   .check_outcome_kind(outcome, kind)
   # RMST 只在生存结局下有定义（必须在 outcome 解析之后检查）
@@ -453,6 +475,7 @@ ml_fit <- function(type, X, A, Y, learner_base = NULL, learner_tau = NULL,
   res$outcome <- outcome
   res$weighting <- weighting
   res$effect <- effect
+  res$engine <- engine
   res$cross_fitting <- cross_fitting
   res$t0 <- t0
   res$cate_train <- res$predict(X)

@@ -8,8 +8,11 @@
 # 三类结局（用 learner_base 的类型自动判定，也可用 outcome 显式指定）：
 #   连续   Y 为数值，配 regr.* 学习器，CATE = E[Y|A=1] - E[Y|A=0]
 #   二分类 Y 为 0/1 或两水平因子，配 classif.* 学习器，CATE = 风险差
-#   生存   Y 为 survival::Surv 对象，配原生基学习器 "coxph"/"ranger"（不依赖 mlr3proba），
-#         CATE = t0 时点生存概率差 S1(t0) - S0(t0)
+#   生存   Y 为 survival::Surv 对象。两套引擎（engine 参数）：
+#            "native"（默认）原生 "coxph"/"ranger" 基学习器（不依赖 mlr3proba），
+#              CATE = t0 时点生存概率差 S1(t0) - S0(t0)，五族 + RMST 齐全
+#            "survlearners" 委托 survlearners 包（Suggests，GitHub-only），
+#              S/T/X/R 四族 + S(t0) 差，自带 IPCW 与 R 族交叉拟合
 # =====================================================================
 
 #' 拟合一个 metalearner，返回可预测的对象
@@ -33,6 +36,10 @@
 #' @param cross_fitting R/DR 是否做交叉拟合（干扰参数在 K 折训练折上拟合，
 #'   伪结果在留出折上计算），默认 FALSE
 #' @param n_folds 交叉拟合的折数，默认 5
+#' @param engine 生存结局的估计引擎：\code{"native"}（默认，原生 coxph/ranger
+#'   实现，五族齐全、支持 RMST 与任意 mlr3 基学习器）或 \code{"survlearners"}
+#'   （委托 GitHub 包 survlearners，只有 S/T/X/R 与 S(t0) 差尺度，DR 与 RMST
+#'   会明确报错；未安装该包时也会给出安装提示）
 #' @return 含 $predict(newX)、$ate、$cate_train 的拟合对象
 #' @seealso \code{\link{s_learner}}, \code{\link{ml_task}}
 #' @export
@@ -47,12 +54,13 @@ metalearner <- function(type, X, A, Y,
                         weighting = "none", weights = NULL,
                         stabilize = FALSE, t0 = NULL, outcome = "auto",
                         effect = "survdiff",
-                        cross_fitting = FALSE, n_folds = 5L) {
+                        cross_fitting = FALSE, n_folds = 5L,
+                        engine = "native") {
   ml_fit(type = type, X = X, A = A, Y = Y,
          learner_base = learner_base, learner_tau = learner_tau,
          learner_ps = learner_ps, weighting = weighting, weights = weights,
          stabilize = stabilize, t0 = t0, outcome = outcome, effect = effect,
-         cross_fitting = cross_fitting, n_folds = n_folds)
+         cross_fitting = cross_fitting, n_folds = n_folds, engine = engine)
 }
 
 #' CATE / ATE 的自助法置信区间

@@ -45,14 +45,18 @@
 #'   \describe{
 #'     \item{metalearner}{字符，S / T / X / R / DR，默认 "T"}
 #'     \item{weighting}{字符，none / iptw / external，默认 "none"}
+#'     \item{engine}{字符，native / survlearners，默认 "native"；
+#'       生存结局的第二套引擎（survlearners 包，只支持 S/T/X/R 与 S(t0) 差）}
 #'   }
-#' @field learner_base 结局模型基学习器（类型须与结局匹配；生存用 "coxph"/"ranger"）
+#' @field learner_base 结局模型基学习器（类型须与结局匹配；生存用 "coxph"/"ranger"，
+#'   survlearners 引擎下用 "coxph"/"grf"/"lasso"）
 #' @field learner_tau 效应阶段回归学习器；NULL 时引擎用偏正则化的 ranger
 #' @field learner_ps 倾向得分学习器（weighting = "iptw" 时）
 #' @field treatment_col 处理列名（可被 task$extra_args$ml_treatment_col 覆盖）
 #' @field status_col 生存事件指示列名（可被 ml_status_col 覆盖）
 #' @field t0 生存效应评估时点；NULL 时取 extra_args$ml_t0，再取事件中位数
 #' @field stabilize IPTW 是否使用稳定化权重
+#' @field engine 生存结局估计引擎：native（默认）/ survlearners
 #' @field model_id 真实拟合结果在登记处的 id
 #' @section 预测:
 #'   返回 CATE（个体处理效应）作为 \code{response}，可直接与真实 tau 比较。
@@ -71,12 +75,14 @@ LearnerRegrMetalearner <- R6::R6Class("LearnerRegrMetalearner",
     status_col    = ".status", # 生存事件指示列名（可被 ml_status_col 覆盖）
     t0            = NULL,      # 生存效应时点，NULL 时取 extra_args$ml_t0，再取事件中位数
     stabilize     = FALSE,     # IPTW 是否用稳定化权重
+    engine        = "native",  # 生存引擎：native（原生 coxph/ranger）/ survlearners
     model_id      = NULL,      # 真实拟合结果在登记处的 id
 
     initialize = function(id = "regr.metalearner") {
       param_set <- paradox::ParamSet$new(list(
         metalearner = paradox::p_fct(levels = c("S", "T", "X", "R", "DR"), default = "T"),
-        weighting   = paradox::p_fct(levels = c("none", "iptw", "external"), default = "none")
+        weighting   = paradox::p_fct(levels = c("none", "iptw", "external"), default = "none"),
+        engine      = paradox::p_fct(levels = c("native", "survlearners"), default = "native")
       ))
       super$initialize(
         id = id,
@@ -94,6 +100,7 @@ LearnerRegrMetalearner <- R6::R6Class("LearnerRegrMetalearner",
       self$status_col    <- ".status"
       self$t0            <- NULL
       self$stabilize     <- FALSE
+      self$engine        <- "native"
       self$model_id      <- NULL
     }
   ),
@@ -138,7 +145,8 @@ LearnerRegrMetalearner <- R6::R6Class("LearnerRegrMetalearner",
         learner_base = lb, learner_tau = self$learner_tau,
         learner_ps = self$learner_ps, weighting = pv$weighting,
         weights = NULL, stabilize = self$stabilize,
-        t0 = ctx$t0, outcome = ctx$outcome
+        t0 = ctx$t0, outcome = ctx$outcome,
+        engine = if (is.null(pv$engine)) self$engine else pv$engine
       )
       id <- tempfile("mm_")
       .metalearner_registry[[id]] <- fit
