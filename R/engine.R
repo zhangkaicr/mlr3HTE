@@ -71,12 +71,18 @@
   }
 }
 
-# 4 分析尺度的结局数值 ---------------------------------------------------------
-# 连续/二分类：就是 Y 本身（二分类取 0/1）；生存：I(T > t0)
-.analysis_outcome <- function(Y, outcome, t0) {
-  if (outcome == "survival") as.integer(Y[, 1L] > t0)
-  else if (is.factor(Y)) as.integer(Y == levels(Y)[2L])
-  else as.numeric(Y)
+# 4 分析尺度的结局数值（X/R/DR 的个体尺度结局）---------------------------------
+# 连续/二分类：就是 Y 本身（二分类取 0/1）
+# 生存：按 effect 取 —— "survdiff" 为 I(T > t0)，"rmst" 为 IPCW 修正的
+#       ξ = δ·min(X, τ)/Ĝ(X)（见 .surv_analysis_outcome）
+.analysis_outcome <- function(Y, outcome, t0, effect = "survdiff", X = NULL) {
+  if (outcome == "survival") {
+    .surv_analysis_outcome(Y[, 1L], Y[, 2L], X, t0, effect)
+  } else if (is.factor(Y)) {
+    as.integer(Y == levels(Y)[2L])
+  } else {
+    as.numeric(Y)
+  }
 }
 
 # 5 按行子集取结局 -------------------------------------------------------------
@@ -149,25 +155,27 @@
 
 # 12 结局模型：统一入口 --------------------------------------------------------
 # 返回 list(predict = function(newX) -> 结局尺度预测值, kind = ..., model = ...)
-.fit_outcome <- function(X, Y, lb, w, t0, outcome) {
+.fit_outcome <- function(X, Y, lb, w, t0, outcome, effect) {
   kind <- .lb_kind(lb)
   .check_outcome_kind(outcome, kind)
   if (kind == "regr") {
-    m <- .fit_regr(X, .analysis_outcome(Y, outcome, t0), lb, w)
+    m <- .fit_regr(X, .analysis_outcome(Y, outcome, t0, effect, X), lb, w)
     list(kind = "regr", model = m, predict = function(newX) .pred_regr(m, newX))
   } else if (kind == "classif") {
-    m <- .fit_classif(X, .analysis_outcome(Y, outcome, t0), lb, w)
+    m <- .fit_classif(X, .analysis_outcome(Y, outcome, t0, effect, X), lb, w)
     list(kind = "classif", model = m, predict = function(newX) .pred_classif(m, newX))
   } else {
     # 生存结局：lb 是 "coxph" / "ranger" 字符串，走原生实现
-    m <- .fit_surv(X, Y[, 1L], Y[, 2L], lb, t0, w)
-    list(kind = "surv", model = m, predict = function(newX) as.numeric(m$predict(newX)))
+    # effect 决定 predict 返回 S(t0) 还是 RMST(t0)
+    m <- .fit_surv(X, Y[, 1L], Y[, 2L], lb, t0, w, effect = effect)
+    list(kind = "surv", effect = effect, model = m,
+         predict = function(newX) as.numeric(m$predict(newX)))
   }
 }
 
 # 13 S-Learner：一个模型，处理当普通特征，两次反事实预测相减 -------------------
-.fit_S <- function(X, A, Y, lb, lb_tau, g_fn, w, t0, outcome) {
-  m <- .fit_outcome(data.frame(X, a_trt = A), Y, lb, w, t0, outcome)
+.fit_S <- function(X, A, Y, lb, lb_tau, g_fn, w, t0, outcome, effect) {
+  m <- .fit_outcome(data.frame(X, a_trt = A), Y, lb, w, t0, outcome, effect)
   pred_fn <- function(newX) {
     nd <- as.data.frame(newX)
     m$predict(data.frame(nd, a_trt = 1L)) - m$predict(data.frame(nd, a_trt = 0L))
@@ -176,13 +184,13 @@
 }
 
 # 14 T-Learner：两组各一个模型，相减 ------------------------------------------
-.fit_T <- function(X, A, Y, lb, lb_tau, g_fn, w, t0, outcome) {
+.fit_T <- function(X, A, Y, lb, lb_tau, g_fn, w, t0, outcome, effect) {
   i1 <- A == 1L
   i0 <- A == 0L
   w1 <- if (is.null(w)) NULL else w[i1]
   w0 <- if (is.null(w)) NULL else w[i0]
-  m1 <- .fit_outcome(X[i1, , drop = FALSE], .subset_Y(Y, i1), lb, w1, t0, outcome)
-  m0 <- .fit_outcome(X[i0, , drop = FALSE], .subset_Y(Y, i0), lb, w0, t0, outcome)
+  m1 <- .fit_outcome(X[i1, , drop = FALSE], .subset_Y(Y, i1), lb, w1, t0, outcome, effect)
+  m0 <- .fit_outcome(X[i0, , drop = FALSE], .subset_Y(Y, i0), lb, w0, t0, outcome, effect)
   pred_fn <- function(newX) {
     nd <- as.data.frame(newX)
     m1$predict(nd) - m0$predict(nd)
@@ -193,15 +201,15 @@
 # 15 X-Learner：两阶段插补 + 倾向得分加权融合 --------------------------------
 # 插补的个体效应 D1 = Y1 - mu0(X1)，D0 = mu1(X0) - Y0，再分别回归出
 # tau1 / tau0，最后按 g(X) 加权融合（Kunzel et al. 2019, PNAS）
-.fit_X <- function(X, A, Y, lb, lb_tau, g_fn, w, t0, outcome) {
+.fit_X <- function(X, A, Y, lb, lb_tau, g_fn, w, t0, outcome, effect) {
   i1 <- A == 1L
   i0 <- A == 0L
   w1 <- if (is.null(w)) NULL else w[i1]
   w0 <- if (is.null(w)) NULL else w[i0]
-  Yv <- .analysis_outcome(Y, outcome, t0)
+  Yv <- .analysis_outcome(Y, outcome, t0, effect, X)
 
-  m1 <- .fit_outcome(X[i1, , drop = FALSE], .subset_Y(Y, i1), lb, w1, t0, outcome)
-  m0 <- .fit_outcome(X[i0, , drop = FALSE], .subset_Y(Y, i0), lb, w0, t0, outcome)
+  m1 <- .fit_outcome(X[i1, , drop = FALSE], .subset_Y(Y, i1), lb, w1, t0, outcome, effect)
+  m0 <- .fit_outcome(X[i0, , drop = FALSE], .subset_Y(Y, i0), lb, w0, t0, outcome, effect)
 
   D1 <- Yv[i1] - m0$predict(X[i1, , drop = FALSE])     # 治疗组：实际 - 若未治
   D0 <- m1$predict(X[i0, , drop = FALSE]) - Yv[i0]     # 对照组：若治 - 实际
@@ -219,10 +227,10 @@
 # 16 R-Learner：残差对残差（Robinson 变换）------------------------------------
 # mu(X) = E[Y|X]（不含 A），处理对倾向得分取残差 A - e(X)，
 # 目标 (Y - mu)/(A - e)，以 (A - e)^2 为权重回归得 tau（Nie & Wager 2021）
-.fit_R <- function(X, A, Y, lb, lb_tau, g_fn, w, t0, outcome) {
-  mu <- .fit_outcome(X, Y, lb, w, t0, outcome)
+.fit_R <- function(X, A, Y, lb, lb_tau, g_fn, w, t0, outcome, effect) {
+  mu <- .fit_outcome(X, Y, lb, w, t0, outcome, effect)
   mu_hat <- mu$predict(as.data.frame(X))
-  Yv <- .analysis_outcome(Y, outcome, t0)
+  Yv <- .analysis_outcome(Y, outcome, t0, effect, X)
   e <- g_fn(as.data.frame(X))
   tildeA <- A - e
   target <- (Yv - mu_hat) / tildeA
@@ -235,15 +243,15 @@
 # 17 DR-Learner：双重稳健伪结果 ------------------------------------------------
 # psi = mu1 - mu0 + A(Y - mu1)/e - (1 - A)(Y - mu0)/(1 - e)，
 # 只要 (mu1, mu0) 或 e 之一正确，ATE 估计就一致（Kennedy 2020）
-.fit_DR <- function(X, A, Y, lb, lb_tau, g_fn, w, t0, outcome) {
+.fit_DR <- function(X, A, Y, lb, lb_tau, g_fn, w, t0, outcome, effect) {
   i1 <- A == 1L
   i0 <- A == 0L
   w1 <- if (is.null(w)) NULL else w[i1]
   w0 <- if (is.null(w)) NULL else w[i0]
-  Yv <- .analysis_outcome(Y, outcome, t0)
+  Yv <- .analysis_outcome(Y, outcome, t0, effect, X)
 
-  m1 <- .fit_outcome(X[i1, , drop = FALSE], .subset_Y(Y, i1), lb, w1, t0, outcome)
-  m0 <- .fit_outcome(X[i0, , drop = FALSE], .subset_Y(Y, i0), lb, w0, t0, outcome)
+  m1 <- .fit_outcome(X[i1, , drop = FALSE], .subset_Y(Y, i1), lb, w1, t0, outcome, effect)
+  m0 <- .fit_outcome(X[i0, , drop = FALSE], .subset_Y(Y, i0), lb, w0, t0, outcome, effect)
   mu1 <- m1$predict(as.data.frame(X))
   mu0 <- m0$predict(as.data.frame(X))
   e <- g_fn(as.data.frame(X))
@@ -253,21 +261,132 @@
   list(models = list(m1 = m1, m0 = m0, tau = tau), predict = pred_fn)
 }
 
+# 17b 交叉拟合（cross-fitting）-------------------------------------------------
+# R/DR 的伪结果依赖干扰参数（R 的 mu；DR 的 m1 / m0 与倾向得分 e）。
+# 如果这些干扰参数是在同一批数据上拟合、又在同一批数据上取伪结果，
+# 过拟合会让伪结果带上系统性偏差，进而污染 tau。标准做法（Kennedy 2020）是：
+#   第 k 折的伪结果用「其余 K-1 折拟合的干扰参数」算出，
+#   全部折拼齐后再回归一次 tau。
+# 本实现同时把倾向得分也做折内重估，所以是完整的交叉拟合。
+
+# 两个权重向量相乘（任一为 NULL 就取另一个），供混杂权重 × 删失权重使用
+.combine_w <- function(a, b) {
+  if (is.null(a) && is.null(b)) return(NULL)
+  if (is.null(a)) return(as.numeric(b))
+  if (is.null(b)) return(as.numeric(a))
+  as.numeric(a) * as.numeric(b)
+}
+
+# 折划分：随机打乱后尽量均分
+.cv_folds <- function(n, k) {
+  k <- max(2L, min(as.integer(k), n))
+  idx <- sample.int(n)
+  split(idx, cut(seq_len(n), breaks = k, labels = FALSE))
+}
+
+# 某个训练折内部的权重：外部权重直接取子集；IPTW 则折内重训 PS
+.cf_weights <- function(X_tr, A_tr, learner_ps, stabilize, w_ext_tr) {
+  if (!is.null(w_ext_tr)) return(as.numeric(w_ext_tr))
+  if (is.null(learner_ps)) return(NULL)
+  g <- .fit_ps(X_tr, A_tr, learner_ps)
+  .iptw_weights(A_tr, g(X_tr), stabilize)
+}
+
+# 某个训练折内部的倾向得分函数（非 IPTW 时退化为常数 = 处理比例）
+.cf_g_fn <- function(X_tr, A_tr, learner_ps) {
+  if (is.null(learner_ps)) {
+    return(function(newX) rep(mean(A_tr), nrow(as.data.frame(newX))))
+  }
+  g <- .fit_ps(X_tr, A_tr, learner_ps)
+  function(newX) g(newX)
+}
+
+# R-Learner 的交叉拟合版
+.fit_R_cf <- function(X, A, Y, lb, lb_tau, learner_ps, stabilize, w_ext,
+                      w_cens, t0, outcome, effect, folds) {
+  n <- nrow(X)
+  Yv <- .analysis_outcome(Y, outcome, t0, effect, X)
+  target <- numeric(n)
+  for (f in folds) {
+    tr <- setdiff(seq_len(n), f)
+    w_tr <- .combine_w(
+      .cf_weights(X[tr, , drop = FALSE], A[tr], learner_ps, stabilize,
+                  if (is.null(w_ext)) NULL else w_ext[tr]),
+      if (is.null(w_cens)) NULL else w_cens[tr]
+    )
+    mu <- .fit_outcome(X[tr, , drop = FALSE], .subset_Y(Y, tr), lb, w_tr,
+                       t0, outcome, effect)
+    g_k <- .cf_g_fn(X[tr, , drop = FALSE], A[tr], learner_ps)
+    target[f] <- (Yv[f] - mu$predict(X[f, , drop = FALSE])) /
+                 (A[f] - g_k(X[f, , drop = FALSE]))
+  }
+  g_all <- .cf_g_fn(X, A, learner_ps)
+  tildeA <- A - g_all(X)
+  base_w <- .combine_w(w_ext, w_cens)
+  wt <- if (is.null(base_w)) tildeA^2 else base_w * tildeA^2
+  tau <- .fit_regr(X, target, lb_tau, weights = wt)
+  pred_fn <- function(newX) .pred_regr(tau, as.data.frame(newX))
+  list(models = list(tau = tau), predict = pred_fn)
+}
+
+# DR-Learner 的交叉拟合版
+.fit_DR_cf <- function(X, A, Y, lb, lb_tau, learner_ps, stabilize, w_ext,
+                       w_cens, t0, outcome, effect, folds) {
+  n <- nrow(X)
+  Yv <- .analysis_outcome(Y, outcome, t0, effect, X)
+  psi <- numeric(n)
+  for (f in folds) {
+    tr <- setdiff(seq_len(n), f)
+    i1 <- tr[A[tr] == 1L]
+    i0 <- tr[A[tr] == 0L]
+    w_tr <- .combine_w(
+      .cf_weights(X[tr, , drop = FALSE], A[tr], learner_ps, stabilize,
+                  if (is.null(w_ext)) NULL else w_ext[tr]),
+      if (is.null(w_cens)) NULL else w_cens[tr]
+    )
+    w1 <- if (is.null(w_tr)) NULL else w_tr[A[tr] == 1L]
+    w0 <- if (is.null(w_tr)) NULL else w_tr[A[tr] == 0L]
+    m1 <- .fit_outcome(X[i1, , drop = FALSE], .subset_Y(Y, i1), lb, w1, t0, outcome, effect)
+    m0 <- .fit_outcome(X[i0, , drop = FALSE], .subset_Y(Y, i0), lb, w0, t0, outcome, effect)
+    mu1 <- m1$predict(X[f, , drop = FALSE])
+    mu0 <- m0$predict(X[f, , drop = FALSE])
+    g_k <- .cf_g_fn(X[tr, , drop = FALSE], A[tr], learner_ps)
+    e <- g_k(X[f, , drop = FALSE])
+    psi[f] <- mu1 - mu0 + A[f] * (Yv[f] - mu1) / e -
+              (1 - A[f]) * (Yv[f] - mu0) / (1 - e)
+  }
+  tau <- .fit_regr(X, psi, lb_tau, weights = .combine_w(w_ext, w_cens))
+  pred_fn <- function(newX) .pred_regr(tau, as.data.frame(newX))
+  list(models = list(tau = tau), predict = pred_fn)
+}
+
 # 18 调度器：归一化输入 -> 组装权重 -> 分派到五种 learner ----------------------
 ml_fit <- function(type, X, A, Y, learner_base = NULL, learner_tau = NULL,
                    learner_ps = NULL,
                    weighting = c("none", "iptw", "external"), weights = NULL,
-                   stabilize = FALSE, t0 = NULL, outcome = "auto") {
+                   stabilize = FALSE, t0 = NULL, outcome = "auto",
+                   effect = c("survdiff", "rmst"),
+                   cross_fitting = FALSE, n_folds = 5L) {
   type <- match.arg(type, c("S", "T", "X", "R", "DR"))
   weighting <- match.arg(weighting)
+  effect <- match.arg(effect)
   if (is.null(learner_base)) learner_base <- mlr3::lrn("regr.ranger")
+  if (cross_fitting && !type %in% c("R", "DR")) {
+    warning("交叉拟合目前只对 R / DR 学习器实现；其他 learner 忽略该参数。")
+    cross_fitting <- FALSE
+  }
 
   X <- as.data.frame(X)
   A <- as.integer(A)
+  n <- nrow(X)
 
   outcome <- .resolve_outcome(outcome, Y)
   kind <- .lb_kind(learner_base)
   .check_outcome_kind(outcome, kind)
+  # RMST 只在生存结局下有定义（必须在 outcome 解析之后检查）
+  if (!identical(outcome, "survival") && identical(effect, "rmst")) {
+    stop('effect = "rmst" 只对生存结局有意义。')
+  }
 
   # 效应阶段的回归学习器：X/R/DR 要对「伪结果」做回归，噪声结构与结局模型
   # 完全不同（R/DR 的目标含 1/(A-e) 放大，DR 的 psi 是残差型伪结果）。
@@ -300,23 +419,41 @@ ml_fit <- function(type, X, A, Y, learner_base = NULL, learner_tau = NULL,
     g_fn <- function(newX) rep(mean(A), nrow(as.data.frame(newX)))
   }
 
-  # 生存结局：把删失 IPCW 乘进基础权重，供 X/R/DR 的个体尺度分析用
-  if (outcome == "survival") {
-    wc <- .surv_ipcw(Y[, 1L], Y[, 2L], X)
-    w <- if (is.null(w)) wc else w * wc
+  # 生存结局的删失校正：
+  #   effect = "survdiff" —— 个体结局是 I(T > t0)，需要乘删失 IPCW 1/G(Tᵢ⁻)
+  #   effect = "rmst"     —— 个体结局 ξ 本身已含 IPCW，不再额外乘
+  w_cens <- NULL
+  if (outcome == "survival" && identical(effect, "survdiff")) {
+    w_cens <- .surv_ipcw(Y[, 1L], Y[, 2L], X)
   }
 
-  res <- switch(type,
-    S  = .fit_S(X, A, Y, learner_base, learner_tau, g_fn, w, t0, outcome),
-    T  = .fit_T(X, A, Y, learner_base, learner_tau, g_fn, w, t0, outcome),
-    X  = .fit_X(X, A, Y, learner_base, learner_tau, g_fn, w, t0, outcome),
-    R  = .fit_R(X, A, Y, learner_base, learner_tau, g_fn, w, t0, outcome),
-    DR = .fit_DR(X, A, Y, learner_base, learner_tau, g_fn, w, t0, outcome)
-  )
+  # 交叉拟合：R/DR 的干扰参数（mu 或 m1/m0 + e）在 K 折的训练折上拟合，
+  # 伪结果在留出折上计算，最后统一回归一次。这样能避免 in-sample 过拟合
+  # 把伪结果的系统性偏差带进 tau。
+  if (cross_fitting) {
+    folds <- .cv_folds(n, n_folds)
+    w_ext <- if (identical(weighting, "external")) w else NULL
+    cf_args <- list(X = X, A = A, Y = Y, lb = learner_base, lb_tau = learner_tau,
+                    learner_ps = learner_ps, stabilize = stabilize, w_ext = w_ext,
+                    w_cens = w_cens, t0 = t0, outcome = outcome, effect = effect,
+                    folds = folds)
+    res <- if (type == "R") do.call(.fit_R_cf, cf_args) else do.call(.fit_DR_cf, cf_args)
+  } else {
+    w <- .combine_w(w, w_cens)
+    res <- switch(type,
+      S  = .fit_S(X, A, Y, learner_base, learner_tau, g_fn, w, t0, outcome, effect),
+      T  = .fit_T(X, A, Y, learner_base, learner_tau, g_fn, w, t0, outcome, effect),
+      X  = .fit_X(X, A, Y, learner_base, learner_tau, g_fn, w, t0, outcome, effect),
+      R  = .fit_R(X, A, Y, learner_base, learner_tau, g_fn, w, t0, outcome, effect),
+      DR = .fit_DR(X, A, Y, learner_base, learner_tau, g_fn, w, t0, outcome, effect)
+    )
+  }
 
   res$type <- type
   res$outcome <- outcome
   res$weighting <- weighting
+  res$effect <- effect
+  res$cross_fitting <- cross_fitting
   res$t0 <- t0
   res$cate_train <- res$predict(X)
   res$ate <- mean(res$cate_train)

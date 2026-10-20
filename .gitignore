@@ -4,6 +4,7 @@
 .RData
 .Ruserdata
 *.Rcheck/
+*.tar.gz
 
 # renv：只保留 renv.lock 作版本快照，项目库不入库
 renv/library/

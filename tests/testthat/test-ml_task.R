@@ -46,7 +46,8 @@ test_that("自定义 treatment_col 被记录且可从协变量中区分", {
 test_that("treatment_col 与协变量列重名时报错", {
   dc <- mlr3HTE_demo_data(n = 60, seed = 205)
   dc$X$A <- 1
-  expect_error(ml_task(dc$X, dc$A, dc$Y), "请换个 treatment_col")
+  # 用 ASCII 的 treatment_col 标记做 locale-proof 匹配（非 UTF-8 locale 下中文会被转义）
+  expect_error(ml_task(dc$X, dc$A, dc$Y), "treatment_col")
 })
 
 # 5 元数据在分折后保留（resample 的关键前提）----------------------------------

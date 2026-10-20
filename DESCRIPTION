@@ -1,7 +1,8 @@
 Package: mlr3HTE
 Title: Metalearner Learners for Heterogeneous Treatment Effects in mlr3
 Version: 0.1.0
-Authors@R: person("Flexible", "Pangzi", email = "zhangkaicr@foxmail.com", role = c("cre", "aut"))
+Author: Flexible Pangzi <zhangkaicr@foxmail.com> [cre, aut]
+Maintainer: Flexible Pangzi <zhangkaicr@foxmail.com>
 Description: A small, mlr3-native R package that implements the S-, T-, X-, R- and DR-learners
     for conditional average treatment effect (CATE) estimation. The same engine covers
     continuous, binary and survival outcomes and handles both randomized (RCT) and
@@ -16,10 +17,9 @@ Imports:
     mlr3learners,
     paradox,
     R6,
-    data.table,
     survival
 Suggests:
     ranger,
     testthat
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.3.2
+Config/roxygen2/version: 8.1.1

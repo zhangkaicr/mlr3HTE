@@ -6,6 +6,13 @@
       mlr3::mlr_learners$add("regr.metalearner", LearnerRegrMetalearner)
     }
   }
+  # 默认基学习器是 mlr3::lrn("regr.ranger")/classif.ranger，由 mlr3learners 提供。
+  # 该包只是 Imports（惰性加载），mlr3HTE 代码又不直接调用 mlr3learners::*，
+  # 若不在此显式加载，其 .onLoad 不会运行，regr.ranger 等 learner 就不会注册进
+  # mlr_learners 词典，导致 lrn("regr.ranger") 报 "not found"。这里确保它加载注册。
+  if (requireNamespace("mlr3learners", quietly = TRUE)) {
+    loadNamespace("mlr3learners")
+  }
 }
 
 # 模型登记处：存放真正装「嵌套 ranger 基学习器 + predict 函数」的拟合结果。

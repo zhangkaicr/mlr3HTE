@@ -112,9 +112,11 @@ test_that("外部权重：weighting='external' 可走通", {
 # 7 输入校验 ------------------------------------------------------------------
 test_that("结局类型与基学习器不匹配时报错", {
   d <- mlr3HTE_demo_data(n = 100, seed = 107)
+  # 注：用 ASCII 的 learner 种类标记做匹配，避免非 UTF-8 locale 下中文报错被转成
+  # <U+XXXX> 转义导致 grepl 字节不匹配（CI / 现代 R 无此问题，这里让测试在任意 locale 都稳过）。
   expect_error(
     metalearner("T", d$X, d$A, d$Y, learner_base = mlr3::lrn("classif.ranger")),
-    "不匹配"
+    "classif"
   )
 })
 
@@ -122,7 +124,7 @@ test_that("external 权重缺失时报错", {
   d <- mlr3HTE_demo_data(n = 100, seed = 108)
   expect_error(
     metalearner("T", d$X, d$A, d$Y, weighting = "external"),
-    "必须提供 weights"
+    "weights"
   )
 })
 
@@ -134,10 +136,10 @@ test_that("生存结局只接受 coxph / ranger，其他基学习器一律报错
     metalearner("T", d$X, d$A, d$Y, learner_base = "bogus", t0 = 2),
     "coxph"
   )
-  # 连续结局的学习器配生存结局
+  # 连续结局的学习器配生存结局（用 ASCII 的 outcome 标记做 locale-proof 匹配）
   expect_error(
     metalearner("T", d$X, d$A, d$Y, learner_base = mlr3::lrn("regr.ranger"), t0 = 2),
-    "不匹配"
+    "survival"
   )
 })
 

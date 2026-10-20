@@ -1,2 +1,6 @@
 ^renv$
 ^renv\.lock$
+^docs$
+^tutorial$
+^smoke_test.*\.R$
+^HANDOFF\.md$

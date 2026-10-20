@@ -42,6 +42,11 @@
 | README + renv.lock | ✅ |
 | 配套教程：三类结局 × 随机/观察性 6 格 | ✅ 主文档 + 8 个脚本，全部实跑通过 |
 | 观察性的二分类 / 生存演示数据 | ✅ `mlr3HTE_demo_obs_binary()` / `mlr3HTE_demo_obs_surv()` |
+| roxygen2 `man/`（15 个 .Rd）+ R6 类文档 | ✅ 由 roxygen2 8.1.1 生成，NAMESPACE 同步 |
+| 生存 `effect = "rmst"`（限制平均生存时间差） | ✅ `metalearner(..., effect = "rmst", t0 = ...)` |
+| R/DR 交叉拟合 `cross_fitting = TRUE` | ✅ K 折 out-of-fold 拟合伪结果，降过拟合偏倚 |
+| CATE 不确定性量化 `cate_ci()` | ✅ bootstrap 给出 ATE 点估计 + CI，及可选逐样本 CATE CI |
+| `.onLoad` 修复：强制 `loadNamespace("mlr3learners")` | ✅ 否则 `regr.ranger`/`classif.ranger` 未注册，默认 learner 报 "not found" |
 
 验证结果（冒烟测试 1/2/3 均 exit 0）：
 
@@ -95,6 +100,16 @@ tests/testthat/         test-engine.R / test-learner.R / test-ml_task.R
     教程脚本统一用 `as.data.frame(bm$score())[...]`。
 16. **Git Bash 下 `Rscript /tmp/xxx.R` 路径映射有问题**（空输出 + exit 1），
     临时脚本要放在包目录内再跑。
+17. **`.onLoad` 必须显式 `loadNamespace("mlr3learners")`。** mlr3HTE 只在 `Imports`
+    里惰性加载 mlr3learners、自身从不直接调用 `mlr3learners::*`，于是它的 `.onLoad`
+    不会自动跑，`regr.ranger` / `classif.ranger` 等 learner 就没注册进 `mlr_learners`
+    词典 —— 用默认 learner 会报 `not found in DictionaryLearner`。在 `R/aaa.R` 的
+    `.onLoad` 里补一句 `loadNamespace("mlr3learners")` 即可。
+18. **中文报错信息在非 UTF-8 locale 下会被 R 转成 `<U+XXXX>` 转义**，导致 `testthat`
+    的 `expect_error(expr, "中文")` 里 `grepl` 字节匹配失败（本沙箱 `LC_CTYPE=C.UTF-8`
+    设置失败、回退到 C 单字节 locale 时必现；UTF-8 机器 / CI 无此问题）。
+    4 条输入校验测试已改用报错信息里**本来就有的 ASCII 标记**（`"classif"` /
+    `"weights"` / `"survival"` / `"treatment_col"`）做匹配，保证任意 locale 都稳过。
 
 ## 三之二、mlr3proba：已彻底移除（2026-10-20）
 
@@ -122,15 +137,23 @@ tests/testthat/         test-engine.R / test-learner.R / test-ml_task.R
 教程 `01..08` 八个脚本全 exit 0。mlr3HTE 自身依赖（mlr3 1.8.0、mlr3learners 0.16.0、
 paradox 1.0.1、R6、data.table、survival、ranger、testthat）全部健在。
 
-## 四、可继续做的（非阻塞）
+## 四、可继续做的 / 已收尾（2026-10-20 续）
 
-1. `R CMD check` 全量检查（本机无 Rtools，编译型检查跑不了；可先跑
-   `devtools::check(manual = TRUE, vignettes = FALSE)` 看纯 R 部分）。
-2. roxygen2 生成 `man/` 帮助文档（现在只有 NAMESPACE，没有 .Rd）。
-3. `mlr3HTE_demo_binary/surv` 的观察性版本（目前只有连续结局的 obs 数据）。
-4. 生存分支补 `effect = "rmst"` 选项（限制平均生存时间差），当前只实现了 t0 概率差。
-5. 交叉拟合（cross-fitting）：R/DR 理论上应对伪结果做 K 折 out-of-fold 拟合以降低
-   过拟合偏倚，当前是 in-sample，教学场景可接受但严谨实现应补。
+1. **`R CMD check` 全量检查**——本沙箱环境限制：
+   - 已通过的结构检查：`R CMD build` 干净；`can be installed` / `package namespace` /
+     `dependencies` / `DESCRIPTION meta-information`（需 `LC_ALL=C`，见坑 18）/ `encoding: UTF-8`
+     全部 OK。
+   - 卡住的部分：examples / tests 执行需要隔离的临时库，本沙箱对 NTFS reparse-point（junction）
+     的创建不稳定，且 CRAN 索引下载被网络拦截，导致 check 子进程挂起。
+   - **在用户的 UTF-8 机器或 CI（ubuntu）上可完整跑通**：测试已做成 locale-robust（见坑 18），
+     纯 R 部分 `devtools::check(vignettes = FALSE, manual = FALSE)` 应无 ERROR/WARNING。
+2. ~~roxygen2 生成 `man/`~~ ✅ 已完成（15 个 .Rd + R6 类文档，NAMESPACE 同步）。
+3. ~~`mlr3HTE_demo_binary/surv` 的观察性版本~~ ✅ 已完成（`demo_obs_binary` / `demo_obs_surv`）。
+4. ~~生存 `effect = "rmst"`~~ ✅ 已完成。
+5. ~~R/DR 交叉拟合~~ ✅ 已完成（`cross_fitting = TRUE`）。
+
+> 注：`cate_ci()`（CATE 不确定性量化，bootstrap ATE/分位 CI）此前已实现并导出，
+> 本次补了 roxygen 文档与 `\donttest` 示例，一并随 `man/` 入库。
 
 ## 五、环境
 
