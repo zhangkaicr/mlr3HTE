@@ -1,0 +1,42 @@
+# mlr3HTE 的 R CMD check CI
+# 触发：push 到 main/master、PR 到 main/master、手动 workflow_dispatch。
+# 说明：survlearners 是 GitHub-only 包，已在 DESCRIPTION 的 Remotes: 里声明，
+#       setup-r-dependencies（经 pak）据此从 GitHub 安装；GITHUB_PAT 规避 API 限流。
+# 只在检查出 ERROR 时判红；NOTE/WARNING 不挡（后续看过干净 run 可收紧到 error-on: warning）。
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+  workflow_dispatch:
+
+name: R-CMD-check
+
+permissions: read-all
+
+jobs:
+  R-CMD-check:
+    runs-on: ubuntu-latest
+    env:
+      GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
+      R_KEEP_PKG_SOURCE: yes
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: r-lib/actions/setup-r@v2
+        with:
+          use-public-rspm: true
+
+      - uses: r-lib/actions/setup-r-dependencies@v2
+        with:
+          dependencies: '"all"'
+
+      - name: Show session info
+        run: sessionInfo()
+        shell: Rscript {0}
+
+      - name: Check package
+        uses: r-lib/actions/check-r-package@v2
+        with:
+          args: --no-manual
+          error-on: error

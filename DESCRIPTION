@@ -27,5 +27,7 @@ Suggests:
     patchwork,
     ggdag,
     survlearners
+Remotes:
+    github::som-shahlab/survlearners
 Roxygen: list(markdown = TRUE)
 Config/roxygen2/version: 8.1.1
