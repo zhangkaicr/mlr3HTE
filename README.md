@@ -1,5 +1,8 @@
 # mlr3HTE
 
+> **仓库**：<https://github.com/zhangkaicr/mlr3HTE>
+> **双语教程站（含搜索 / 中英切换 / 明暗主题）**：<https://zhangkaicr.github.io/mlr3HTE/>
+
 `mlr3HTE` 是一个基于 **mlr3** 的异质性治疗效应（HTE / CATE）估计包，把课程模块三里的
 S- / T- / X- / R- / DR-learner 做成了正规可安装的 mlr3 学习器。
 
@@ -204,6 +207,9 @@ tests/testthat/   112 个测试
 每个都返回真实的 `tau`，方便直接对账——这是教学时最有用的部分。
 
 ## 5.5 配套教程
+
+**在线双语文档站**：<https://zhangkaicr.github.io/mlr3HTE/>
+（全局搜索、中英切换、明暗主题；内容与本 README 同步）
 
 `tutorial/` 下是完整教程，覆盖**三类结局 × 随机/观察性**共 6 种组合：
 

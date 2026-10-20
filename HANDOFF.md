@@ -1,7 +1,28 @@
-# mlr3HTE 交接说明（2026-10-18 深夜，首版 + 配套教程完成）
+# mlr3HTE 交接说明（2026-10-20，首版 + 配套教程 + GitHub 与文档站）
 
 包位置：`D:\Project\mlr3_HTE\mlr3HTE\`，使用说明见包内 `README.md`，
 教程见 `tutorial/00_教程.md` + `tutorial/code/` 下 8 个脚本。
+
+| | 地址 |
+|---|---|
+| GitHub 仓库 | <https://github.com/zhangkaicr/mlr3HTE> |
+| 双语教程站 | <https://zhangkaicr.github.io/mlr3HTE/> |
+
+## 零、仓库与文档站
+
+- 仓库 `zhangkaicr/mlr3HTE`（公开），分支 `main`，首推 commit `0547bc5`，共 40 个文件。
+  **`ref/`（194M 课程资料）未上传**——它是 `mlr3HTE/` 的同级目录，且已在用户确认下排除。
+- GitHub Pages：**已开启**，从 `main` 分支的 `/docs` 目录发布，站点 HTTP 200 已验证可访问。
+- 文档站 `docs/`：纯静态、无构建步骤、无 npm 依赖。
+  - `index.html` 外壳 + `assets/css/style.css`（CSS 变量切主题）+ `assets/js/app.js`
+  - 内容分 5 个 JS 文件（home / guide / tutorial / api / changelog），
+    每个页面同时有 `zh` 与 `en` 两份，**两版的小节 id 完全一致**（切换语言不会丢锚点）
+  - 功能：哈希路由、中英切换、明暗主题（首次跟随系统，之后记 localStorage）、
+    全局搜索（6.7 万字正文压平建索引，词频打分 + 片段高亮，`/` 聚焦）
+  - 因内容写在 JS 里而非 `fetch` JSON，本地 `file://` 直接打开也能用
+
+维护提示：改文档只需编辑 `docs/assets/js/content-*.js`，**中英两版要同步改**，
+且新增小节时两版的 `id` 必须同名。
 
 ## 一、交付状态
 
