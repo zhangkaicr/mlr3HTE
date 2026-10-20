@@ -1,0 +1,25 @@
+Package: mlr3HTE
+Title: Metalearner Learners for Heterogeneous Treatment Effects in mlr3
+Version: 0.1.0
+Authors@R: person("Flexible", "Pangzi", email = "zhangkaicr@foxmail.com", role = c("cre", "aut"))
+Description: A small, mlr3-native R package that implements the S-, T-, X-, R- and DR-learners
+    for conditional average treatment effect (CATE) estimation. The same engine covers
+    continuous, binary and survival outcomes and handles both randomized (RCT) and
+    observational data (via internal propensity-score IPTW or user-supplied weights).
+    Survival outcomes are supported natively via 'survival' and 'ranger'
+    (no 'mlr3proba' dependency). It ships both a functional API and a parametric
+    mlr3 Learner subclass that plugs into resample()/benchmark()/tune().
+License: GPL-3
+Encoding: UTF-8
+Imports:
+    mlr3,
+    mlr3learners,
+    paradox,
+    R6,
+    data.table,
+    survival
+Suggests:
+    ranger,
+    testthat
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.3.2

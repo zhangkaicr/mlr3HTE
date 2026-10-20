@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="zh" data-theme="light">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>mlr3HTE · 异质性治疗效应 Meta-Learner 文档</title>
+  <meta name="description" content="mlr3HTE: mlr3-native meta-learners (S/T/X/R/DR) for CATE estimation with continuous, binary and survival outcomes. Bilingual CN/EN tutorial and API reference.">
+  <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+
+<!-- 顶栏：品牌 / 搜索 / 语言切换 / 主题切换 -->
+<header class="topbar">
+  <button class="btn icon menu-btn" id="menu-btn" title="菜单">☰</button>
+  <a class="brand" href="#/home"><span class="dot"></span> mlr3HTE</a>
+  <div class="spacer"></div>
+
+  <div class="search-wrap">
+    <span class="search-icon">🔍</span>
+    <input id="search-input" type="search" autocomplete="off" placeholder="搜索文档…">
+    <span class="search-kbd">/</span>
+    <div id="search-results" role="listbox"></div>
+  </div>
+
+  <button class="btn" id="lang-toggle" title="切换语言 / Switch language">English</button>
+  <button class="btn icon" id="theme-toggle" title="切换主题 / Toggle theme">🌙</button>
+</header>
+
+<div class="layout">
+  <!-- 侧边栏由 app.js 依 SITE_NAV 与当前语言生成 -->
+  <nav class="sidebar" id="sidebar"></nav>
+
+  <!-- 正文由 app.js 渲染 -->
+  <main class="content" id="content">
+    <p>加载中…</p>
+  </main>
+</div>
+
+<footer class="footer" id="footer"></footer>
+
+<!-- 内容（中英双语） -->
+<script src="assets/js/content-home.js"></script>
+<script src="assets/js/content-guide.js"></script>
+<script src="assets/js/content-tutorial.js"></script>
+<script src="assets/js/content-api.js"></script>
+<script src="assets/js/content-changelog.js"></script>
+<!-- 逻辑 -->
+<script src="assets/js/app.js"></script>
+</body>
+</html>

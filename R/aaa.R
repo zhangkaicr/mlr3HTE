@@ -1,0 +1,17 @@
+# 包级初始化：把 LearnerRegrMetalearner 注册进 mlr3 词典，使 lrn("regr.metalearner") 可用
+.onLoad <- function(libname, pkgname) {
+  if (requireNamespace("mlr3", quietly = TRUE)) {
+    x <- try(mlr3::mlr_learners$get("regr.metalearner"), silent = TRUE)
+    if (inherits(x, "try-error") || is.null(x)) {
+      mlr3::mlr_learners$add("regr.metalearner", LearnerRegrMetalearner)
+    }
+  }
+}
+
+# 模型登记处：存放真正装「嵌套 ranger 基学习器 + predict 函数」的拟合结果。
+# 原因：mlr3 在 resample/benchmark 时会克隆并（反）序列化 Learner 对象；而 ranger 的
+# C++ 模型无法安全序列化，会导致段错误（segfault）。因此 Learner 对象本身只持有
+# 一个字符串 id（model_id），真实模型存在这里，预测时按 id 取回。这样 Learner 对象
+# 完全可序列化，resample 的克隆/序列化不再触碰 C++ 模型。单进程下（含顺序 resample）
+# 该登记处一直有效。
+.metalearner_registry <- new.env(hash = TRUE, parent = emptyenv())
