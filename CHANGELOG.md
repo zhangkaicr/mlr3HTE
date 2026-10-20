@@ -37,6 +37,27 @@
 - `R CMD build` 干净；`R CMD check` 的纯 R 部分在 UTF-8 机器 / CI（ubuntu）
   环境可完整跑通（examples / tests 在沙箱中受 junction 与 CRAN 网络限制无法执行）。
 
+## [0.1.0] — 2026-10-20（消费者可复现性修复，commit 待定）
+
+针对「别人从 GitHub 安装后跑教程」的保证做的两处修正。
+
+### 修复（消费者安装即跑通）
+- `DESCRIPTION`：`ranger` 从 `Suggests` 提到 **`Imports`**——它是包的默认基学习器
+  （`regr.ranger`）且所有教程都用它，`install_github` / `pak::pak` 只自动装 `Imports`，
+  原先在 `Suggests` 会导致消费者装完跑教程报 `regr.ranger not found`。
+- `DESCRIPTION`：新增 `dplyr`、`cli` 到 `Imports`（教程脚本 `library(dplyr)` /
+  `library(cli)` 所需，保证一键安装即带齐，无需消费者手动补）。
+- `README.md` 安装段补上**从 GitHub 安装的可复制命令**（`pak::pak(...)` 与
+  `remotes::install_github(...)`）；纠正两处陈旧说法：
+  - 依赖列表曾列 `data.table`（早已移除）——已删；
+  - 曾称"`ranger` 为可选（仅生存分支选 ranger 才需要）"——错误，已改为"`ranger` 必需"。
+- `README.md` 环境段澄清 `renv.lock` 为可选版本锁定（`renv::restore()`），并说明
+  `pak` / `remotes` 一键安装即可跑通，不强制 renv。
+- README 测试数 112 → 119 订正。
+
+### 验证
+- `R CMD INSTALL .` 干净（`* DONE`）；教程 07（同时用 ranger + dplyr + cli）exit 0、0 错误。
+
 ## [0.1.0] — 2026-10-20（首版 + 教程 + 站点）
 
 初始交付：三类结局（连续 / 二分类 / 生存）× 随机化 / 观察性设计的 metalearner

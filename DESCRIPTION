@@ -17,9 +17,11 @@ Imports:
     mlr3learners,
     paradox,
     R6,
-    survival
-Suggests:
+    survival,
     ranger,
+    dplyr,
+    cli
+Suggests:
     testthat
 Roxygen: list(markdown = TRUE)
 Config/roxygen2/version: 8.1.1

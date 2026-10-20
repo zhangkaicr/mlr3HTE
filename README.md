@@ -22,17 +22,31 @@ S- / T- / X- / R- / DR-learner 做成了正规可安装的 mlr3 学习器。
 
 ## 1 安装与加载
 
+从 GitHub 安装（推荐 `pak`，会自动解析并装齐全部依赖；`remotes` 也行）：
+
+```r
+# 方式一：pak（依赖求解快、并行下载，推荐）
+pak::pak("zhangkaicr/mlr3HTE")
+
+# 方式二：remotes
+remotes::install_github("zhangkaicr/mlr3HTE")
+```
+
+开发期也可直接加载源码：
+
 ```r
 pkgload::load_all(".")      # 开发期
 # 或安装后
 library(mlr3HTE)
 ```
 
-依赖：`mlr3`、`mlr3learners`、`paradox`、`R6`、`data.table`、`survival`。
-`ranger` 为可选（只有生存分支选 `"ranger"` 基学习器时才需要）。
+依赖（均已列入 `DESCRIPTION` 的 `Imports`，安装时自动装齐，无需手动补）：
+`mlr3`、`mlr3learners`、`paradox`、`R6`、`survival`、`ranger`、`dplyr`、`cli`。
+其中 **`ranger` 是必需依赖**——包的默认基学习器就是 `regr.ranger`，且所有教程都用到它
+（早期文档称“ranger 可选”已更正）。`testthat` 在 `Suggests`，仅运行测试时需要。
 
 > **生存分支完全不依赖 mlr3proba。** 基学习器用字符串指定：`"coxph"`
-> （默认，`survival::coxph`）或 `"ranger"`（随机生存森林，可选装）。
+> （默认，`survival::coxph`）或 `"ranger"`（`ranger` 包已随 `Imports` 安装）。
 > 传 `lrn("surv.*")` 会被明确拒绝并提示——那需要 mlr3proba，本包不引入这个依赖。
 
 ---
@@ -190,7 +204,7 @@ R/
 smoke_test.R       连续结局 RCT 冒烟测试
 smoke_test2.R      二分类/生存/观察性冒烟测试
 smoke_test3.R      R6 Learner 三类结局 + resample 冒烟测试
-tests/testthat/   112 个测试
+tests/testthat/   119 个测试
 ```
 
 演示数据集（`*_obs_*` 为观察性版本，含真实 PS）：
@@ -239,7 +253,8 @@ Rscript tutorial/code/01_连续结局_随机化RCT.R
 ## 6 环境
 
 - R 4.5.1；mlr3 1.8.0；paradox 1.0.1
-- **不依赖 `mlr3proba`**：生存分支用 `survival` + 可选 `ranger` 原生实现
-- `renv.lock` 是开发机**系统库**的全量版本快照（约 100 个包），供对环境对账用；
-  renv 项目库未激活（本机只有单一系统库，激活会反而找不到包）。
-  要正式采用 renv 管理项目依赖，另跑一次 `renv::init()`。
+- **不依赖 `mlr3proba`**：生存分支用 `survival` + `ranger` 原生实现（`ranger` 已列入 `Imports`，安装即带）
+- **复现依赖版本（可选）**：仓库已带 `renv.lock`（开发机系统库全量快照，约 100 个包）。
+  想锁定到完全相同的版本，clone 后执行 `renv::restore()` 即可。不强制——
+  直接用 `pak::pak("zhangkaicr/mlr3HTE")` / `remotes::install_github(...)` 安装也能跑通全部教程，
+  只是依赖版本随 CRAN 当前发布浮动。
