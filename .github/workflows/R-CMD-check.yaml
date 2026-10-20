@@ -38,5 +38,9 @@ jobs:
       - name: Check package
         uses: r-lib/actions/check-r-package@v2
         with:
-          args: --no-manual
-          error-on: error
+          # 坑：r-lib/actions 把 inputs 原样插值进 R 代码，值必须是「带引号的 R 字面量」。
+          # 写 error-on: error（裸值）会生成 error_on = (error) → object 'error' not found。
+          # action 默认值是 '"error"'（自带引号）；此处显式写出等价形式。
+          args: '"--no-manual"'
+          build-args: '"--no-manual"'
+          error-on: '"error"'
