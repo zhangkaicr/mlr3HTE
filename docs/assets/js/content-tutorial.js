@@ -382,29 +382,64 @@ window.SITE_PAGES.tutorial = {
           '</div>' +
 
           '<h3>实测输出：n=4000，连续结局</h3>' +
-          '<pre><code># A tibble: 2 × 3\n' +
-          '  metric          informative random\n' +
-          '  &lt;chr&gt;                &lt;dbl&gt;  &lt;dbl&gt;\n' +
-          '1 Qini coefficient      0.312  0.020\n' +
-          '2 c-for-benefit         0.601  0.501\n\n' +
-          'ℹ cor(cate_test, tau_test) = 0.931   # 排序有信息，源自 CATE 抓到了真 tau</code></pre>' +
+          '<pre><code>            metric informative     random\n' +
+          '1 Qini coefficient   0.3120958 0.02028658\n' +
+          '2    c-for-benefit   0.6456819 0.50779098\n\n' +
+          'ℹ cor(cate_test, tau_test) = 0.904   # 排序有信息，源自 CATE 抓到了真 tau</code></pre>' +
 
           '<div class="callout"><div class="callout-title">三个指标怎么读</div>' +
           '<p><strong>Qini 曲线越早抬升、前段越陡</strong>，说明模型把获益者往前排的能力越强；' +
           'Qini 系数 0.312 对随机 0.020，差距接近 15 倍。' +
-          '<strong>c-for-benefit 0.601</strong>：预测获益更高的配对，其观测获益也确实更高的比例约 60%，' +
-          '随机是 50%。<strong>TOC 曲线前段高于总体 ATE</strong>：只治疗前 25% 的人，' +
+          '<strong>c-for-benefit 0.646</strong>：预测获益更高的配对，其观测获益也确实更高的比例约 65%，' +
+          '随机是 0.508。<strong>TOC 曲线前段高于总体 ATE</strong>：只治疗前 25% 的人，' +
           '平均效应比全员治疗更高——这就是"精准投放"的空间。</p></div>' +
 
-          '<div class="callout warn"><div class="callout-title">三个坑，先说清</div>' +
+          '<h3>观察性数据：三个指标各自要补什么</h3>' +
+          '<p>随机化下「观测获益 = 处理者结局 − 对照者结局」是无偏的；观察性数据里两组基线' +
+          '预后不同，这个差被混杂污染。所以三个指标的修正路径不同：</p>' +
+          '<div class="table-wrap"><table>' +
+          '<thead><tr><th>指标</th><th>要补什么</th><th>为什么</th></tr></thead><tbody>' +
+          '<tr><td>Qini / TOC</td><td><code>propensity = e(X)</code></td>' +
+          '<td>估计式本身就是 IPW，把 <code>e</code> 换成估计值即可去混杂</td></tr>' +
+          '<tr><td>c-for-benefit</td><td><code>propensity</code> + <code>mu1</code> + <code>mu0</code></td>' +
+          '<td>观测获益换成双重稳健伪结局，<strong>三件套缺一不可</strong></td></tr>' +
+          '</tbody></table></div>' +
+          '<p>三个干扰参数用 <code>dr_pseudo_outcome()</code> 一次拿到，默认做 5 折交叉拟合：</p>' +
+          '<pre><code>d_obs &lt;- mlr3HTE_demo_obs(n = 4000, seed = 11)\n' +
+          'dr    &lt;- dr_pseudo_outcome(d_obs$X, d_obs$A, d_obs$Y, seed = 1)  # e / mu1 / mu0\n' +
+          'cate  &lt;- dr$mu1 - dr$mu0\n\n' +
+          'qini_coefficient(cate, d_obs$A, d_obs$Y, propensity = dr$propensity)\n' +
+          'toc_curve(cate, d_obs$A, d_obs$Y, propensity = dr$propensity)\n' +
+          'c_for_benefit(cate, d_obs$A, d_obs$Y,\n' +
+          '              propensity = dr$propensity, mu1 = dr$mu1, mu0 = dr$mu0)</code></pre>' +
+          '<pre><code>            metric naive_no_ps with_ps_dr reference\n' +
+          '1 Qini coefficient    1.053519  0.2666317        NA\n' +
+          '2  TOC overall ATE    1.797248  1.0966008 1.0462000\n' +
+          '3    c-for-benefit          NA  0.6296391 0.6493522\n\n' +
+          'ℹ obs data: true ATE = 1.046, DR ATE ≈ 1.00\n' +
+          'ℹ c-for-benefit: model 0.630 / oracle tau 0.649 / random ≈ 0.508</code></pre>' +
+          '<p>不传 <code>propensity</code> 时，TOC 的 overall ATE 被混杂抬到 1.797（真值 1.046），' +
+          'Qini 系数从 0.267 虚高到 1.054——<strong>把混杂当成了异质性</strong>。' +
+          'c-for-benefit 的 model 0.630 ≤ oracle 0.649，次序正确。</p>' +
+
+          '<div class="callout warn"><div class="callout-title">四个坑，先说清</div>' +
           '<p><strong>① 观察性数据必须传倾向得分。</strong>三个函数的 ' +
           '<code>propensity</code> 参数默认 <code>NULL</code>，此时按 ' +
           '<code>mean(A)</code> 处理——只对随机化试验成立。观察性数据请传入估计的 ' +
           '<code>e(X)</code>，否则 IPW 评分本身有偏，指标跟着有偏。</p>' +
-          '<p><strong>② 生存结局暂不支持。</strong>三个函数只接受数值型 ' +
+          '<p><strong>② c-for-benefit 只给 propensity 会直接报错。</strong>那样等价于拿 ' +
+          'Horvitz–Thompson 评分 <code>AY/e − (1−A)Y/(1−e)</code> 当观测获益，' +
+          '单次样本标准差约 15（ATE 才 1 左右），噪声会把 C 统计量压到随机线以下——' +
+          '实测即使用真 <code>tau</code> 排序也只有 0.39。所以必须把结局模型 ' +
+          '<code>mu1</code>/<code>mu0</code> 一起给进来，走双重稳健。</p>' +
+          '<p><strong>②b 结局模型要交叉拟合。</strong>用全样本拟合再回代（in-fold），' +
+          '伪结局里的 <code>mu1 − mu0</code> 与被评价的 CATE 同源，配对又按该 CATE 找最近邻，' +
+          '会把观测获益人为对齐到预测获益。实测倒挂：' +
+          'in-fold 模型 0.754 &gt; 真 tau 0.717；交叉拟合后恢复 0.662 ≤ 0.669。</p>' +
+          '<p><strong>③ 生存结局暂不支持。</strong>三个函数只接受数值型 ' +
           '<code>Y</code>（连续或 0/1），传 <code>Surv</code> 会直接报错。' +
           '生存要做判别力评价，需要把删失 IPCW 织进评分，本版没做。</p>' +
-          '<p><strong>③ c-for-benefit 是近似实现。</strong>本包用贪心配对 + 配对间秩相关，' +
+          '<p><strong>④ c-for-benefit 是近似实现。</strong>本包用贪心配对 + 配对间秩相关，' +
           '不是 van Klaveren 原文的完整匹配流程；需要严格复现时请对照 ' +
           '<code>CforBenefit</code> 包。这一点写在了 <code>R/metrics.R</code> 的注释里，不藏着。</p></div>' +
 
@@ -864,33 +899,75 @@ window.SITE_PAGES.tutorial = {
           '</div>' +
 
           '<h3>Actual output: n=4000, continuous outcome</h3>' +
-          '<pre><code># A tibble: 2 × 3\n' +
-          '  metric          informative random\n' +
-          '  &lt;chr&gt;                &lt;dbl&gt;  &lt;dbl&gt;\n' +
-          '1 Qini coefficient      0.312  0.020\n' +
-          '2 c-for-benefit         0.601  0.501\n\n' +
-          'ℹ cor(cate_test, tau_test) = 0.931   # the ordering carries signal: CATE tracked the true tau</code></pre>' +
+          '<pre><code>            metric informative     random\n' +
+          '1 Qini coefficient   0.3120958 0.02028658\n' +
+          '2    c-for-benefit   0.6456819 0.50779098\n\n' +
+          'ℹ cor(cate_test, tau_test) = 0.904   # the ordering carries signal: CATE tracked the true tau</code></pre>' +
 
           '<div class="callout"><div class="callout-title">How to read the three metrics</div>' +
           '<p><strong>The earlier and steeper the Qini curve lifts</strong>, the better the model ' +
           'pushes beneficiaries to the front; a coefficient of 0.312 against 0.020 for random is ' +
-          'roughly a 15-fold gap. <strong>c-for-benefit 0.601</strong>: among pairs, the one with ' +
-          'higher predicted benefit also shows higher observed benefit about 60% of the time, ' +
-          'versus 50% for random. <strong>The TOC curve sits above the overall ATE early</strong>: ' +
+          'roughly a 15-fold gap. <strong>c-for-benefit 0.646</strong>: among pairs, the one with ' +
+          'higher predicted benefit also shows higher observed benefit about 65% of the time, ' +
+          'versus 0.508 for random. <strong>The TOC curve sits above the overall ATE early</strong>: ' +
           'treating only the top 25% yields a larger average effect than treating everyone — ' +
           'that headroom is what precision targeting buys you.</p></div>' +
 
-          '<div class="callout warn"><div class="callout-title">Three caveats, stated up front</div>' +
+          '<h3>Observational data: what each metric needs</h3>' +
+          '<p>Under randomization, "observed benefit = treated outcome − control outcome" is ' +
+          'unbiased. With observational data the two arms differ in baseline prognosis, so that ' +
+          'difference is confounded — and the fix differs per metric:</p>' +
+          '<div class="table-wrap"><table>' +
+          '<thead><tr><th>Metric</th><th>What to pass</th><th>Why</th></tr></thead><tbody>' +
+          '<tr><td>Qini / TOC</td><td><code>propensity = e(X)</code></td>' +
+          '<td>The estimator is already IPW; swapping in an estimated <code>e</code> ' +
+          'de-confound it</td></tr>' +
+          '<tr><td>c-for-benefit</td><td><code>propensity</code> + <code>mu1</code> + <code>mu0</code></td>' +
+          '<td>Observed benefit becomes a doubly-robust pseudo-outcome — ' +
+          '<strong>all three are required</strong></td></tr>' +
+          '</tbody></table></div>' +
+          '<p>Get all three nuisance parameters in one call with <code>dr_pseudo_outcome()</code>, ' +
+          'which cross-fits by default (5 folds):</p>' +
+          '<pre><code>d_obs &lt;- mlr3HTE_demo_obs(n = 4000, seed = 11)\n' +
+          'dr    &lt;- dr_pseudo_outcome(d_obs$X, d_obs$A, d_obs$Y, seed = 1)  # e / mu1 / mu0\n' +
+          'cate  &lt;- dr$mu1 - dr$mu0\n\n' +
+          'qini_coefficient(cate, d_obs$A, d_obs$Y, propensity = dr$propensity)\n' +
+          'toc_curve(cate, d_obs$A, d_obs$Y, propensity = dr$propensity)\n' +
+          'c_for_benefit(cate, d_obs$A, d_obs$Y,\n' +
+          '              propensity = dr$propensity, mu1 = dr$mu1, mu0 = dr$mu0)</code></pre>' +
+          '<pre><code>            metric naive_no_ps with_ps_dr reference\n' +
+          '1 Qini coefficient    1.053519  0.2666317        NA\n' +
+          '2  TOC overall ATE    1.797248  1.0966008 1.0462000\n' +
+          '3    c-for-benefit          NA  0.6296391 0.6493522\n\n' +
+          'ℹ obs data: true ATE = 1.046, DR ATE ≈ 1.00\n' +
+          'ℹ c-for-benefit: model 0.630 / oracle tau 0.649 / random ≈ 0.508</code></pre>' +
+          '<p>Without <code>propensity</code>, the TOC overall ATE is inflated to 1.797 ' +
+          '(truth 1.046) and the Qini coefficient jumps from 0.267 to 1.054 — ' +
+          '<strong>confounding mistaken for heterogeneity</strong>. For c-for-benefit the model ' +
+          'score 0.630 stays below the oracle 0.649, which is the correct ordering.</p>' +
+
+          '<div class="callout warn"><div class="callout-title">Four caveats, stated up front</div>' +
           '<p><strong>① Observational data must pass a propensity score.</strong> The ' +
           '<code>propensity</code> argument defaults to <code>NULL</code>, which falls back to ' +
           '<code>mean(A)</code> — valid only for randomized trials. For observational data, pass ' +
           'your estimated <code>e(X)</code>; otherwise the IPW score itself is biased and so are ' +
           'the metrics.</p>' +
-          '<p><strong>② Survival outcomes are not supported yet.</strong> All three functions ' +
+          '<p><strong>② c-for-benefit errors if you only pass a propensity score.</strong> ' +
+          'That silently falls back on the Horvitz–Thompson score ' +
+          '<code>AY/e − (1−A)Y/(1−e)</code>, whose per-sample SD is about 15 while the ATE is ' +
+          'around 1; the noise drives the C-statistic below the random line — measured at 0.39 ' +
+          'even when ranking by the true <code>tau</code>. Supply the outcome model ' +
+          '<code>mu1</code>/<code>mu0</code> as well and use the doubly-robust form.</p>' +
+          '<p><strong>②b Cross-fit the outcome model.</strong> Fitting on the full sample and ' +
+          'predicting back in-sample puts <code>mu1 − mu0</code> and the CATE being evaluated in ' +
+          'the same model, and pairs are then formed by nearest neighbour on that same CATE — ' +
+          'which mechanically aligns observed with predicted benefit. Measured inversion: ' +
+          'in-fold model 0.754 &gt; true tau 0.717; after cross-fitting, 0.662 ≤ 0.669.</p>' +
+          '<p><strong>③ Survival outcomes are not supported yet.</strong> All three functions ' +
           'accept only numeric <code>Y</code> (continuous or 0/1) and raise an explicit error on ' +
           '<code>Surv</code>. Evaluating discrimination for survival would require folding ' +
           'censoring IPCW into the score, which this version does not do.</p>' +
-          '<p><strong>③ c-for-benefit is an approximation.</strong> This package uses greedy ' +
+          '<p><strong>④ c-for-benefit is an approximation.</strong> This package uses greedy ' +
           'matching plus rank concordance across pairs, not the full matching procedure of the ' +
           'van Klaveren paper; use the <code>CforBenefit</code> package when strict replication ' +
           'is required. This is written in the comments of <code>R/metrics.R</code>, not hidden.</p></div>' +

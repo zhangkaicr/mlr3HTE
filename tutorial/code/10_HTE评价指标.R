@@ -28,8 +28,12 @@ Xtr <- d$X[tr, ];  Atr <- d$A[tr];  Ytr <- d$Y[tr]
 Xte <- d$X[idx, ]; Ate <- d$A[idx]; Yte <- d$Y[idx]; tau_te <- d$tau[idx]
 
 # 2 拟合 T-learner，在测试集上预测逐人 CATE ---------------------------------
+# learner_tau 是引擎单独建的 ranger（默认 min.node.size = 50，避免二阶段过拟合
+# 伪结果噪声）；两个 ranger 都显式给 seed，保证文档里引用的数值可复现。
 fit <- metalearner("T", Xtr, Atr, Ytr,
-                   learner_base = mlr3::lrn("regr.ranger", num.trees = 300, seed = 1))
+                   learner_base = mlr3::lrn("regr.ranger", num.trees = 300, seed = 1),
+                   learner_tau  = mlr3::lrn("regr.ranger", num.trees = 500,
+                                            min.node.size = 50, seed = 1))
 cate_te <- fit$predict(Xte)
 
 # 与真值对账：模型 CATE 与真 tau 的相关性（信息性排序的来源）
@@ -91,5 +95,56 @@ if (requireNamespace("cli", quietly = TRUE)) {
 # - c-for-benefit > 0.5 表示有判别力，越接近 1 越好；随机排序约等于 0.5。
 # - 这些是"判别性"评价，不替代对 ATE 的无偏估计（后者靠 weighting / DR）。
 # - 生存结局暂不支持（需删失 IPCW），详见 metrics-spec.md。
+
+# 8 观察性数据：三个指标各自要补什么 ----------------------------------------
+# 随机化下"观测获益 = 处理者结局 − 对照者结局"无偏；观察性数据里两者基线预后
+# 不同，这个差被混杂污染。三指标的两条修正路径：
+#   Qini / TOC  —— 传 propensity，IPW 估计式自己去混杂；
+#   c-for-benefit —— 传 propensity + mu1 + mu0，用双重稳健伪结局当观测获益。
+d_obs <- mlr3HTE_demo_obs(n = 4000, seed = 11)
+dr    <- dr_pseudo_outcome(d_obs$X, d_obs$A, d_obs$Y, seed = 1)
+cate_obs <- dr$mu1 - dr$mu0
+
+if (requireNamespace("cli", quietly = TRUE)) {
+  cli::cli_alert_info("obs data: true ATE = {round(mean(d_obs$tau), 3)}, ",
+                      "DR ATE = {round(dr$ate, 3)}")
+}
+
+# 8.1 Qini / TOC：不给 propensity 会把混杂当成效应，Qini 与 ATE 双双虚高
+q_obs_ps <- qini_coefficient(cate_obs, d_obs$A, d_obs$Y, propensity = dr$propensity)
+q_obs_nv <- qini_coefficient(cate_obs, d_obs$A, d_obs$Y)
+t_obs_ps <- toc_curve(cate_obs, d_obs$A, d_obs$Y, propensity = dr$propensity)
+t_obs_nv <- toc_curve(cate_obs, d_obs$A, d_obs$Y)
+
+# 8.2 c-for-benefit：三件套缺一不可，只给 propensity 会报错
+c_obs       <- c_for_benefit(cate_obs, d_obs$A, d_obs$Y, propensity = dr$propensity,
+                             mu1 = dr$mu1, mu0 = dr$mu0)
+c_obs_oracle <- c_for_benefit(d_obs$tau, d_obs$A, d_obs$Y, propensity = dr$propensity,
+                              mu1 = dr$mu1, mu0 = dr$mu0)
+set.seed(99)
+c_obs_rand  <- c_for_benefit(rnorm(nrow(d_obs$X)), d_obs$A, d_obs$Y,
+                             propensity = dr$propensity, mu1 = dr$mu1, mu0 = dr$mu0)
+
+res_obs <- data.frame(
+  metric = c("Qini coefficient", "TOC overall ATE", "c-for-benefit"),
+  naive_no_ps = c(q_obs_nv$qini_coefficient, attr(t_obs_nv, "overall_ate"), NA),
+  with_ps_dr  = c(q_obs_ps$qini_coefficient, attr(t_obs_ps, "overall_ate"),
+                  c_obs$c_for_benefit),
+  reference   = c(NA, mean(d_obs$tau), c_obs_oracle$c_for_benefit)
+)
+print(res_obs)
+if (requireNamespace("cli", quietly = TRUE)) {
+  cli::cli_alert_info("c-for-benefit: model {round(c_obs$c_for_benefit, 3)} / ",
+                      "oracle tau {round(c_obs_oracle$c_for_benefit, 3)} / ",
+                      "random {round(c_obs_rand$c_for_benefit, 3)}")
+}
+
+# 8.3 为什么 mu1/mu0 必须交叉拟合：in-fold 会让模型给自己的 CATE 打高分
+# 把 dr_pseudo_outcome(cross_fitting = FALSE) 的三件套喂进去，会出现
+# "模型 CATE 反超真 tau"的倒挂（本数据实测 0.754 vs 0.717）；
+# 交叉拟合后恢复正确次序（0.662 vs 0.668）。
+#   dr_in <- dr_pseudo_outcome(d_obs$X, d_obs$A, d_obs$Y, cross_fitting = FALSE)
+#   c_for_benefit(dr_in$mu1 - dr_in$mu0, d_obs$A, d_obs$Y,
+#                 propensity = dr_in$propensity, mu1 = dr_in$mu1, mu0 = dr_in$mu0)
 
 # 99 收尾 ------------------------------------------------------------------

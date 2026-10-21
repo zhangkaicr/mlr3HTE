@@ -4,12 +4,9 @@ export(LearnerRegrMetalearner)
 export(c_for_benefit)
 export(cate_ci)
 export(dr_learner)
+export(dr_pseudo_outcome)
 export(lrn)
-export(plot_qini)
-export(qini_curve)
-export(qini_coefficient)
 export(metalearner)
-export(toc_curve)
 export(ml_task)
 export(mlr3HTE_dag)
 export(mlr3HTE_demo_binary)
@@ -18,15 +15,19 @@ export(mlr3HTE_demo_obs)
 export(mlr3HTE_demo_obs_binary)
 export(mlr3HTE_demo_obs_surv)
 export(mlr3HTE_demo_surv)
+export(plot_qini)
+export(qini_coefficient)
+export(qini_curve)
 export(r_learner)
 export(s_learner)
 export(t_learner)
+export(toc_curve)
 export(x_learner)
-importFrom(mlr3,lrn)
 importFrom(graphics,
-  plot,
-  abline
+  abline,
+  plot
 )
+importFrom(mlr3,lrn)
 importFrom(stats,
   plogis,
   predict,

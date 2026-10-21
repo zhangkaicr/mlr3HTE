@@ -9,9 +9,9 @@ window.SITE_PAGES.api = {
   /* ---------------- 中文 ---------------- */
   zh: {
     title: "函数文档",
-    lede: "mlr3HTE 共导出 22 个对象：1 个主拟合函数、5 个便捷封装、1 个置信区间辅助、1 个 R6 " +
+    lede: "mlr3HTE 共导出 23 个对象：1 个主拟合函数、5 个便捷封装、1 个置信区间辅助、1 个 R6 " +
           "Learner 类、1 个 Task 编码函数、6 个演示数据集生成器、1 个 DAG 辅助、1 个 mlr3 再导出、" +
-          "4 个 HTE 评价指标与 1 个曲线绘图函数。",
+          "4 个 HTE 评价指标、1 个观察性数据干扰参数估计与 1 个曲线绘图函数。",
     sections: [
 
       {
@@ -26,7 +26,7 @@ window.SITE_PAGES.api = {
           '<tr><td><a href="#/api/ml_task"><code>ml_task()</code></a></td><td>Task 编码</td><td>把 X/A/Y 编码成 mlr3 Task（三类结局统一）</td></tr>' +
           '<tr><td><a href="#/api/learner"><code>LearnerRegrMetalearner</code></a></td><td>R6 Learner</td><td><code>lrn("regr.metalearner")</code>，接入 mlr3 工作流</td></tr>' +
           '<tr><td><a href="#/api/demo"><code>mlr3HTE_demo_*()</code></a></td><td>演示数据</td><td>6 个带真值的模拟数据集</td></tr>' +
-          '<tr><td><a href="#/api/metrics"><code>qini_curve()</code> 等 4 个</a></td><td>HTE 评价</td><td>Qini 曲线 / 系数、c-for-benefit、TOC 曲线</td></tr>' +
+          '<tr><td><a href="#/api/metrics"><code>qini_curve()</code> 等 5 个</a></td><td>HTE 评价</td><td>Qini 曲线 / 系数、c-for-benefit、TOC 曲线</td></tr>' +
           '<tr><td><a href="#/api/helpers"><code>cate_ci()</code> / <code>plot_qini()</code> / <code>mlr3HTE_dag()</code></a></td><td>辅助</td><td>CATE 自助置信区间、Qini 曲线绘图、因果 DAG 绘制</td></tr>' +
           '<tr><td><code>lrn()</code></td><td>再导出</td><td>从 mlr3 再导出，免额外加载</td></tr>' +
           '</tbody></table></div>'
@@ -197,6 +197,7 @@ window.SITE_PAGES.api = {
           '<tr><td><a href="#/api/metrics"><code>qini_coefficient()</code></a></td><td>曲线与随机线间面积</td><td>Sverdrup et al., JCGS 2025</td></tr>' +
           '<tr><td><a href="#/api/metrics"><code>c_for_benefit()</code></a></td><td>预测获益的 C 统计量</td><td>van Klaveren et al., J Clin Epidemiol 2018</td></tr>' +
           '<tr><td><a href="#/api/metrics"><code>toc_curve()</code></a></td><td>靶向操作特征曲线</td><td>Yadlowsky et al., JASA 2025</td></tr>' +
+          '<tr><td><a href="#/api/metrics"><code>dr_pseudo_outcome()</code></a></td><td>双重稳健伪结局（含交叉拟合的 e / mu1 / mu0）</td><td>Yadlowsky et al., JASA 2025</td></tr>' +
           '</tbody></table></div>' +
           '<pre><code>cate  <- fit$predict(testX)      # 新数据上的逐人 CATE\n' +
           'crv   <- qini_curve(cate, A_test, Y_test)\n' +
@@ -204,6 +205,14 @@ window.SITE_PAGES.api = {
           'c_for_benefit(cate, A_test, Y_test)$c_for_benefit\n' +
           'toc_curve(cate, A_test, Y_test)\n' +
           'plot_qini(crv)                    # 或 ggplot2 自绘</code></pre>' +
+          '<div class="callout"><div class="callout-title">观察性数据怎么喂</div>' +
+          '<p>Qini / TOC 传 <code>propensity</code> 即可；c-for-benefit 必须传 ' +
+          '<code>propensity</code> + <code>mu1</code> + <code>mu0</code> 三件套' +
+          '（只给倾向得分会报错——HT 评分噪声会把 C 统计量压到随机线以下）。' +
+          '三件套用 <code>dr_pseudo_outcome(X, A, Y, seed = 1)</code> 一次拿到，默认 5 折交叉拟合。</p>' +
+          '<pre><code>dr <- dr_pseudo_outcome(X, A, Y, seed = 1)   # 返回 pseudo / mu1 / mu0 / propensity / ate\n' +
+          'qini_coefficient(cate, A, Y, propensity = dr$propensity)\n' +
+          'c_for_benefit(cate, A, Y, propensity = dr$propensity, mu1 = dr$mu1, mu0 = dr$mu0)</code></pre></div>' +
           '<div class="callout warn"><div class="callout-title">生存结局暂不支持</div>' +
           '<p>指标目前只接受连续 / 0-1 结局；生存需删失 IPCW，留作后续版本，' +
           '传入 <code>Surv</code> 会明确报错。</p></div>'
@@ -234,10 +243,11 @@ window.SITE_PAGES.api = {
   /* ---------------- English ---------------- */
   en: {
     title: "API Reference",
-    lede: "mlr3HTE exports 22 objects: one main fitting function, five shortcuts, one " +
+    lede: "mlr3HTE exports 23 objects: one main fitting function, five shortcuts, one " +
           "confidence-interval helper, one R6 Learner class, one Task-encoding helper, six " +
           "demo data generators, one DAG helper, one mlr3 re-export, four HTE evaluation " +
-          "metrics, and one curve-plotting function.",
+          "metrics, one nuisance-parameter estimator for observational data, and one " +
+          "curve-plotting function.",
     sections: [
 
       {
@@ -252,7 +262,7 @@ window.SITE_PAGES.api = {
           '<tr><td><a href="#/api/ml_task"><code>ml_task()</code></a></td><td>Task encoding</td><td>Encode X/A/Y into an mlr3 Task (uniform across outcome types)</td></tr>' +
           '<tr><td><a href="#/api/learner"><code>LearnerRegrMetalearner</code></a></td><td>R6 Learner</td><td><code>lrn("regr.metalearner")</code> for mlr3 workflows</td></tr>' +
           '<tr><td><a href="#/api/demo"><code>mlr3HTE_demo_*()</code></a></td><td>Demo data</td><td>Six simulated datasets with known ground truth</td></tr>' +
-          '<tr><td><a href="#/api/metrics"><code>qini_curve()</code> &amp; 3 more</a></td><td>HTE evaluation</td><td>Qini curve / coefficient, c-for-benefit, TOC curve</td></tr>' +
+          '<tr><td><a href="#/api/metrics"><code>qini_curve()</code> &amp; 4 more</a></td><td>HTE evaluation</td><td>Qini curve / coefficient, c-for-benefit, TOC curve</td></tr>' +
           '<tr><td><a href="#/api/helpers"><code>cate_ci()</code> / <code>plot_qini()</code> / <code>mlr3HTE_dag()</code></a></td><td>Helpers</td><td>Bootstrap CI for CATE, Qini plotting, causal DAG drawing</td></tr>' +
           '<tr><td><code>lrn()</code></td><td>Re-export</td><td>Re-exported from mlr3 so you need not load it</td></tr>' +
           '</tbody></table></div>'
@@ -431,6 +441,7 @@ window.SITE_PAGES.api = {
           '<tr><td><a href="#/api/metrics"><code>qini_coefficient()</code></a></td><td>Area between curve and random line</td><td>Sverdrup et al., JCGS 2025</td></tr>' +
           '<tr><td><a href="#/api/metrics"><code>c_for_benefit()</code></a></td><td>C-statistic for predicted benefit</td><td>van Klaveren et al., J Clin Epidemiol 2018</td></tr>' +
           '<tr><td><a href="#/api/metrics"><code>toc_curve()</code></a></td><td>Targeting Operator Characteristic</td><td>Yadlowsky et al., JASA 2025</td></tr>' +
+          '<tr><td><a href="#/api/metrics"><code>dr_pseudo_outcome()</code></a></td><td>Doubly-robust pseudo-outcome (with cross-fitted e / mu1 / mu0)</td><td>Yadlowsky et al., JASA 2025</td></tr>' +
           '</tbody></table></div>' +
           '<pre><code>cate  <- fit$predict(testX)      # per-unit CATE on new data\n' +
           'crv   <- qini_curve(cate, A_test, Y_test)\n' +
@@ -438,6 +449,15 @@ window.SITE_PAGES.api = {
           'c_for_benefit(cate, A_test, Y_test)$c_for_benefit\n' +
           'toc_curve(cate, A_test, Y_test)\n' +
           'plot_qini(crv)                    # or draw with ggplot2</code></pre>' +
+          '<div class="callout"><div class="callout-title">Feeding observational data</div>' +
+          '<p>Qini / TOC only need <code>propensity</code>; c-for-benefit requires the full ' +
+          '<code>propensity</code> + <code>mu1</code> + <code>mu0</code> triple (passing a ' +
+          'propensity score alone errors out — Horvitz–Thompson noise drives the C-statistic ' +
+          'below the random line). Get all three in one call with ' +
+          '<code>dr_pseudo_outcome(X, A, Y, seed = 1)</code>, which cross-fits by default.</p>' +
+          '<pre><code>dr <- dr_pseudo_outcome(X, A, Y, seed = 1)   # pseudo / mu1 / mu0 / propensity / ate\n' +
+          'qini_coefficient(cate, A, Y, propensity = dr$propensity)\n' +
+          'c_for_benefit(cate, A, Y, propensity = dr$propensity, mu1 = dr$mu1, mu0 = dr$mu0)</code></pre></div>' +
           '<div class="callout warn"><div class="callout-title">Survival not yet supported</div>' +
           '<p>The metrics currently accept continuous / 0-1 outcomes only; survival needs ' +
           'censoring IPCW (planned). Passing a <code>Surv</code> object raises an explicit error.</p></div>'
