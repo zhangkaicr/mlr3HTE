@@ -14,7 +14,7 @@
   var LS_THEME = "mlr3hte.theme";
 
   var state = {
-    lang:  localStorage.getItem(LS_LANG)  || "zh",
+    lang:  localStorage.getItem(LS_LANG)  || "en",
     theme: localStorage.getItem(LS_THEME) || null,
     page:  "home",
     hash:  ""
@@ -158,6 +158,16 @@
   }
 
   // 9 正文 ---------------------------------------------------------------
+  function sectionsHtml(secs, sfx) {
+    sfx = sfx || "";
+    var html = "";
+    for (var i = 0; i < secs.length; i++) {
+      html += '<h2 id="' + secs[i].id + sfx + '">' + secs[i].heading + "</h2>";
+      html += secs[i].body;
+    }
+    return html;
+  }
+
   function renderPage(sectionId) {
     var pg = pages()[state.page];
     if (!pg) {
@@ -167,12 +177,19 @@
     var data = pg[state.lang] || pg.zh;
     var html = "<h1>" + data.title + "</h1>";
     if (data.lede) html += '<p class="lede">' + data.lede + "</p>";
+    html += sectionsHtml(data.sections || []);
 
-    var secs = data.sections || [];
-    for (var i = 0; i < secs.length; i++) {
-      html += '<h2 id="' + secs[i].id + '">' + secs[i].heading + "</h2>";
-      html += secs[i].body;
+    // 首页同屏双语：当前语言在上，另一语言整段附在下；一键切换只改上下顺序
+    if (state.page === "home" && pg.zh && pg.en) {
+      var otherLang  = state.lang === "zh" ? "en" : "zh";
+      var other      = pg[otherLang];
+      var otherLabel = otherLang === "zh" ? "中文" : "English";
+      html += '<hr class="lang-divider">';
+      html += '<h2 class="lang-block-title">' + otherLabel + "</h2>";
+      if (other.lede) html += '<p class="lede">' + other.lede + "</p>";
+      html += sectionsHtml(other.sections || [], "-" + otherLang);
     }
+
     el.content.innerHTML = html;
 
     // 有指定小节就滚过去

@@ -9,4 +9,5 @@
 # =====================================================================
 
 #' @importFrom stats rnorm rbinom plogis qlogis quantile predict
+#' @importFrom graphics plot abline
 NULL

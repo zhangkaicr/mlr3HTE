@@ -140,6 +140,7 @@ window.SITE_PAGES.home = {
           '<tr><td><code>R CMD check</code> / roxygen2 生成 man/</td><td>⏳ 待办</td></tr>' +
           '<tr><td>R / DR 的交叉拟合（cross-fitting）</td><td>⏳ 待办</td></tr>' +
           '<tr><td>生存分支的 RMST 效应选项</td><td>⏳ 待办</td></tr>' +
+          '<tr><td>HTE 评价指标（Qini 曲线/系数 · c-for-benefit · TOC）</td><td>✅ 连续 / 二分类</td></tr>' +
           '</tbody></table></div>'
       }
     ]
@@ -274,6 +275,7 @@ window.SITE_PAGES.home = {
           '<tr><td><code>R CMD check</code> / roxygen2 man pages</td><td>⏳ Pending</td></tr>' +
           '<tr><td>Cross-fitting for R / DR learners</td><td>⏳ Pending</td></tr>' +
           '<tr><td>RMST effect option for survival</td><td>⏳ Pending</td></tr>' +
+          '<tr><td>HTE evaluation metrics (Qini curve/coef · c-for-benefit · TOC)</td><td>✅ Continuous / binary</td></tr>' +
           '</tbody></table></div>'
       }
     ]

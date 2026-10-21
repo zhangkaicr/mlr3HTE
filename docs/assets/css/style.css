@@ -407,6 +407,16 @@ tbody tr:nth-child(even) { background: var(--bg-soft); }
 }
 .badge.grey { background: var(--bg-soft); color: var(--fg-muted); }
 
+/* 16b 首页同屏双语 ---------------------------------------------------- */
+.lang-divider { margin: 3rem 0 1.25rem; border: none; border-top: 2px solid var(--border); }
+.lang-block-title {
+  color: var(--fg-muted);
+  font-size: 1.15rem;
+  font-weight: 700;
+  letter-spacing: .02em;
+  margin-top: 0;
+}
+
 /* 17 移动端 ------------------------------------------------------------ */
 .menu-btn { display: none; }
 

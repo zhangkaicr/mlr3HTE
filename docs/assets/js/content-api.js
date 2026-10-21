@@ -9,8 +9,8 @@ window.SITE_PAGES.api = {
   /* ---------------- 中文 ---------------- */
   zh: {
     title: "函数文档",
-    lede: "mlr3HTE 共导出 14 个对象：1 个主拟合函数、5 个便捷封装、1 个 R6 Learner 类、" +
-          "1 个 Task 编码函数、6 个演示数据集生成器。",
+    lede: "mlr3HTE 共导出 18 个对象：1 个主拟合函数、5 个便捷封装、1 个 R6 Learner 类、" +
+          "1 个 Task 编码函数、6 个演示数据集生成器、4 个 HTE 评价指标。",
     sections: [
 
       {
@@ -25,6 +25,7 @@ window.SITE_PAGES.api = {
           '<tr><td><a href="#/api/ml_task"><code>ml_task()</code></a></td><td>Task 编码</td><td>把 X/A/Y 编码成 mlr3 Task（三类结局统一）</td></tr>' +
           '<tr><td><a href="#/api/learner"><code>LearnerRegrMetalearner</code></a></td><td>R6 Learner</td><td><code>lrn("regr.metalearner")</code>，接入 mlr3 工作流</td></tr>' +
           '<tr><td><a href="#/api/demo"><code>mlr3HTE_demo_*()</code></a></td><td>演示数据</td><td>6 个带真值的模拟数据集</td></tr>' +
+          '<tr><td><a href="#/api/metrics"><code>qini_curve()</code> 等 4 个</a></td><td>HTE 评价</td><td>Qini 曲线 / 系数、c-for-benefit、TOC 曲线</td></tr>' +
           '</tbody></table></div>'
       },
 
@@ -179,6 +180,30 @@ window.SITE_PAGES.api = {
           '<code>e = plogis(−0.5 + 0.8·z1 + 0.4·z2)</code>，即病情越重越容易接受处理。' +
           '所以未调整的差分必然有偏，正好用来演示 IPTW 的校正效果。</p></div>' +
           '</div>'
+      },
+
+      {
+        id: "metrics",
+        heading: "HTE 评价指标",
+        body:
+          '<p>给定模型的逐个体 CATE 估计，量化它区分"谁获益更多"的能力。每种方法都有文献依据。</p>' +
+          '<div class="table-wrap"><table>' +
+          '<thead><tr><th>函数</th><th>度量</th><th>文献</th></tr></thead>' +
+          '<tbody>' +
+          '<tr><td><a href="#/api/metrics"><code>qini_curve()</code></a></td><td>Qini 曲线（IPW 累积增益）</td><td>Sverdrup et al., JCGS 2025</td></tr>' +
+          '<tr><td><a href="#/api/metrics"><code>qini_coefficient()</code></a></td><td>曲线与随机线间面积</td><td>Sverdrup et al., JCGS 2025</td></tr>' +
+          '<tr><td><a href="#/api/metrics"><code>c_for_benefit()</code></a></td><td>预测获益的 C 统计量</td><td>van Klaveren et al., J Clin Epidemiol 2018</td></tr>' +
+          '<tr><td><a href="#/api/metrics"><code>toc_curve()</code></a></td><td>靶向操作特征曲线</td><td>Yadlowsky et al., JASA 2025</td></tr>' +
+          '</tbody></table></div>' +
+          '<pre><code>cate  <- fit$predict(testX)      # 新数据上的逐人 CATE\n' +
+          'crv   <- qini_curve(cate, A_test, Y_test)\n' +
+          'qini_coefficient(cate, A_test, Y_test)$qini_coefficient\n' +
+          'c_for_benefit(cate, A_test, Y_test)$c_for_benefit\n' +
+          'toc_curve(cate, A_test, Y_test)\n' +
+          'plot_qini(crv)                    # 或 ggplot2 自绘</code></pre>' +
+          '<div class="callout warn"><div class="callout-title">生存结局暂不支持</div>' +
+          '<p>指标目前只接受连续 / 0-1 结局；生存需删失 IPCW，留作后续版本，' +
+          '传入 <code>Surv</code> 会明确报错。</p></div>'
       }
     ]
   },
@@ -186,8 +211,9 @@ window.SITE_PAGES.api = {
   /* ---------------- English ---------------- */
   en: {
     title: "API Reference",
-    lede: "mlr3HTE exports 14 objects: one main fitting function, five shortcuts, one R6 " +
-          "Learner class, one Task-encoding helper, and six demo data generators.",
+    lede: "mlr3HTE exports 18 objects: one main fitting function, five shortcuts, one R6 " +
+          "Learner class, one Task-encoding helper, six demo data generators, and four " +
+          "HTE evaluation metrics.",
     sections: [
 
       {
@@ -202,6 +228,7 @@ window.SITE_PAGES.api = {
           '<tr><td><a href="#/api/ml_task"><code>ml_task()</code></a></td><td>Task encoding</td><td>Encode X/A/Y into an mlr3 Task (uniform across outcome types)</td></tr>' +
           '<tr><td><a href="#/api/learner"><code>LearnerRegrMetalearner</code></a></td><td>R6 Learner</td><td><code>lrn("regr.metalearner")</code> for mlr3 workflows</td></tr>' +
           '<tr><td><a href="#/api/demo"><code>mlr3HTE_demo_*()</code></a></td><td>Demo data</td><td>Six simulated datasets with known ground truth</td></tr>' +
+          '<tr><td><a href="#/api/metrics"><code>qini_curve()</code> &amp; 3 more</a></td><td>HTE evaluation</td><td>Qini curve / coefficient, c-for-benefit, TOC curve</td></tr>' +
           '</tbody></table></div>'
       },
 
@@ -363,6 +390,31 @@ window.SITE_PAGES.api = {
           'treated. The crude difference is therefore biased by construction, which is exactly what ' +
           'IPTW is meant to fix.</p></div>' +
           '</div>'
+      },
+
+      {
+        id: "metrics",
+        heading: "HTE evaluation metrics",
+        body:
+          '<p>Given a model\'s per-unit CATE estimates, quantify how well it separates ' +
+          '"who benefits more". Every method carries a literature reference.</p>' +
+          '<div class="table-wrap"><table>' +
+          '<thead><tr><th>Function</th><th>Measure</th><th>Reference</th></tr></thead>' +
+          '<tbody>' +
+          '<tr><td><a href="#/api/metrics"><code>qini_curve()</code></a></td><td>Qini curve (IPW cumulative gain)</td><td>Sverdrup et al., JCGS 2025</td></tr>' +
+          '<tr><td><a href="#/api/metrics"><code>qini_coefficient()</code></a></td><td>Area between curve and random line</td><td>Sverdrup et al., JCGS 2025</td></tr>' +
+          '<tr><td><a href="#/api/metrics"><code>c_for_benefit()</code></a></td><td>C-statistic for predicted benefit</td><td>van Klaveren et al., J Clin Epidemiol 2018</td></tr>' +
+          '<tr><td><a href="#/api/metrics"><code>toc_curve()</code></a></td><td>Targeting Operator Characteristic</td><td>Yadlowsky et al., JASA 2025</td></tr>' +
+          '</tbody></table></div>' +
+          '<pre><code>cate  <- fit$predict(testX)      # per-unit CATE on new data\n' +
+          'crv   <- qini_curve(cate, A_test, Y_test)\n' +
+          'qini_coefficient(cate, A_test, Y_test)$qini_coefficient\n' +
+          'c_for_benefit(cate, A_test, Y_test)$c_for_benefit\n' +
+          'toc_curve(cate, A_test, Y_test)\n' +
+          'plot_qini(crv)                    # or draw with ggplot2</code></pre>' +
+          '<div class="callout warn"><div class="callout-title">Survival not yet supported</div>' +
+          '<p>The metrics currently accept continuous / 0-1 outcomes only; survival needs ' +
+          'censoring IPCW (planned). Passing a <code>Surv</code> object raises an explicit error.</p></div>'
       }
     ]
   }
