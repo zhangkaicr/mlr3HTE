@@ -9,8 +9,9 @@ window.SITE_PAGES.api = {
   /* ---------------- 中文 ---------------- */
   zh: {
     title: "函数文档",
-    lede: "mlr3HTE 共导出 18 个对象：1 个主拟合函数、5 个便捷封装、1 个 R6 Learner 类、" +
-          "1 个 Task 编码函数、6 个演示数据集生成器、4 个 HTE 评价指标。",
+    lede: "mlr3HTE 共导出 22 个对象：1 个主拟合函数、5 个便捷封装、1 个置信区间辅助、1 个 R6 " +
+          "Learner 类、1 个 Task 编码函数、6 个演示数据集生成器、1 个 DAG 辅助、1 个 mlr3 再导出、" +
+          "4 个 HTE 评价指标与 1 个曲线绘图函数。",
     sections: [
 
       {
@@ -26,6 +27,8 @@ window.SITE_PAGES.api = {
           '<tr><td><a href="#/api/learner"><code>LearnerRegrMetalearner</code></a></td><td>R6 Learner</td><td><code>lrn("regr.metalearner")</code>，接入 mlr3 工作流</td></tr>' +
           '<tr><td><a href="#/api/demo"><code>mlr3HTE_demo_*()</code></a></td><td>演示数据</td><td>6 个带真值的模拟数据集</td></tr>' +
           '<tr><td><a href="#/api/metrics"><code>qini_curve()</code> 等 4 个</a></td><td>HTE 评价</td><td>Qini 曲线 / 系数、c-for-benefit、TOC 曲线</td></tr>' +
+          '<tr><td><a href="#/api/helpers"><code>cate_ci()</code> / <code>plot_qini()</code> / <code>mlr3HTE_dag()</code></a></td><td>辅助</td><td>CATE 自助置信区间、Qini 曲线绘图、因果 DAG 绘制</td></tr>' +
+          '<tr><td><code>lrn()</code></td><td>再导出</td><td>从 mlr3 再导出，免额外加载</td></tr>' +
           '</tbody></table></div>'
       },
 
@@ -204,6 +207,26 @@ window.SITE_PAGES.api = {
           '<div class="callout warn"><div class="callout-title">生存结局暂不支持</div>' +
           '<p>指标目前只接受连续 / 0-1 结局；生存需删失 IPCW，留作后续版本，' +
           '传入 <code>Surv</code> 会明确报错。</p></div>'
+      },
+
+      {
+        id: "helpers",
+        heading: "辅助函数",
+        body:
+          '<div class="fn">' +
+          '<div class="fn-name">cate_ci()<span class="badge">不确定度</span></div>' +
+          '<div class="fn-sig">cate_ci(fit, X, level = 0.95, n_boot = 200, seed = 1)</div>' +
+          '<p>对训练好的 fit 做自助重采样，返回 CATE 的百分位自助置信区间。' +
+          '权重抽样带蒙特卡洛噪声，务必固定 <code>seed</code> 才能复现。</p></div>' +
+          '<div class="fn">' +
+          '<div class="fn-name">plot_qini()<span class="badge">绘图</span></div>' +
+          '<div class="fn-sig">plot_qini(curve, main = "Qini curve", ...)</div>' +
+          '<p>base graphics 快速绘制 Qini 曲线与随机参考线；要精细控制可自行用 ggplot2 重绘。</p></div>' +
+          '<div class="fn">' +
+          '<div class="fn-name">mlr3HTE_dag()<span class="badge">DAG</span></div>' +
+          '<div class="fn-sig">mlr3HTE_dag()</div>' +
+          '<p>画出 HTE 场景的因果图：X（协变量）同时影响处理 A 与结局 Y，' +
+          'A 对 Y 的效应随 X 变化即异质性；用于说明为何要调整 X。</p></div>'
       }
     ]
   },
@@ -211,9 +234,10 @@ window.SITE_PAGES.api = {
   /* ---------------- English ---------------- */
   en: {
     title: "API Reference",
-    lede: "mlr3HTE exports 18 objects: one main fitting function, five shortcuts, one R6 " +
-          "Learner class, one Task-encoding helper, six demo data generators, and four " +
-          "HTE evaluation metrics.",
+    lede: "mlr3HTE exports 22 objects: one main fitting function, five shortcuts, one " +
+          "confidence-interval helper, one R6 Learner class, one Task-encoding helper, six " +
+          "demo data generators, one DAG helper, one mlr3 re-export, four HTE evaluation " +
+          "metrics, and one curve-plotting function.",
     sections: [
 
       {
@@ -229,6 +253,8 @@ window.SITE_PAGES.api = {
           '<tr><td><a href="#/api/learner"><code>LearnerRegrMetalearner</code></a></td><td>R6 Learner</td><td><code>lrn("regr.metalearner")</code> for mlr3 workflows</td></tr>' +
           '<tr><td><a href="#/api/demo"><code>mlr3HTE_demo_*()</code></a></td><td>Demo data</td><td>Six simulated datasets with known ground truth</td></tr>' +
           '<tr><td><a href="#/api/metrics"><code>qini_curve()</code> &amp; 3 more</a></td><td>HTE evaluation</td><td>Qini curve / coefficient, c-for-benefit, TOC curve</td></tr>' +
+          '<tr><td><a href="#/api/helpers"><code>cate_ci()</code> / <code>plot_qini()</code> / <code>mlr3HTE_dag()</code></a></td><td>Helpers</td><td>Bootstrap CI for CATE, Qini plotting, causal DAG drawing</td></tr>' +
+          '<tr><td><code>lrn()</code></td><td>Re-export</td><td>Re-exported from mlr3 so you need not load it</td></tr>' +
           '</tbody></table></div>'
       },
 
@@ -415,6 +441,29 @@ window.SITE_PAGES.api = {
           '<div class="callout warn"><div class="callout-title">Survival not yet supported</div>' +
           '<p>The metrics currently accept continuous / 0-1 outcomes only; survival needs ' +
           'censoring IPCW (planned). Passing a <code>Surv</code> object raises an explicit error.</p></div>'
+      },
+
+      {
+        id: "helpers",
+        heading: "Helpers",
+        body:
+          '<div class="fn">' +
+          '<div class="fn-name">cate_ci()<span class="badge">Uncertainty</span></div>' +
+          '<div class="fn-sig">cate_ci(fit, X, level = 0.95, n_boot = 200, seed = 1)</div>' +
+          '<p>Bootstrap the fitted object to return a percentile interval for CATE. ' +
+          'Weighted resampling carries Monte-Carlo noise, so always fix <code>seed</code> ' +
+          'if you need reproducibility.</p></div>' +
+          '<div class="fn">' +
+          '<div class="fn-name">plot_qini()<span class="badge">Plot</span></div>' +
+          '<div class="fn-sig">plot_qini(curve, main = "Qini curve", ...)</div>' +
+          '<p>Quick base-graphics rendering of the Qini curve plus the random reference ' +
+          'line; draw with ggplot2 yourself when you need finer control.</p></div>' +
+          '<div class="fn">' +
+          '<div class="fn-name">mlr3HTE_dag()<span class="badge">DAG</span></div>' +
+          '<div class="fn-sig">mlr3HTE_dag()</div>' +
+          '<p>Draws the causal diagram for an HTE setting: covariates X affect both ' +
+          'treatment A and outcome Y, and the A-to-Y effect varies with X. Useful for ' +
+          'explaining why X must be adjusted for.</p></div>'
       }
     ]
   }
