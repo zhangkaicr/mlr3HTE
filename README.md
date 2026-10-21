@@ -1,11 +1,14 @@
-# mlr3HTE
-
 <p align="center">
   <img src="docs/assets/img/social-preview.png" alt="mlr3HTE 封面：潜在结局重合后按治疗与对照发散" width="720">
 </p>
 
-<p align="center">
-  <img src="docs/assets/img/logo.png" alt="mlr3HTE 包图标" width="120">
+# mlr3HTE <a href="https://zhangkaicr.github.io/mlr3HTE/"><img src="docs/assets/img/logo.png" alt="mlr3HTE 包图标" align="right" height="138" /></a>
+
+<p>
+  <a href="https://github.com/zhangkaicr/mlr3HTE/actions/workflows/R-CMD-check.yaml"><img src="https://github.com/zhangkaicr/mlr3HTE/actions/workflows/R-CMD-check.yaml/badge.svg" alt="R-CMD-check" height="20" /></a>
+  <a href="https://zhangkaicr.github.io/mlr3HTE/"><img src="https://img.shields.io/badge/docs-GitHub%20Pages-blue.svg" alt="双语文档站" height="20" /></a>
+  <img src="https://img.shields.io/badge/lifecycle-experimental-orange.svg" alt="生命周期：实验性" height="20" />
+  <img src="https://img.shields.io/badge/outcomes-continuous%20%2F%20binary%20%2F%20survival-brightgreen.svg" alt="结局类型：连续 / 二分类 / 生存" height="20" />
 </p>
 
 > **仓库**：<https://github.com/zhangkaicr/mlr3HTE>
