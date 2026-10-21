@@ -1,45 +1,97 @@
 # =====================================================================
 # metrics.R —— 异质性治疗效应（HTE）模型的判别性评价
 #
-# 现有实现覆盖两类最常用指标：
-#   1. Qini 曲线 / Qini 系数   —— 基于"按效应排序后靶向治疗"的增益曲线
-#   2. c-for-benefit          —— 模型预测"治疗获益"的 C 统计量
+# 三类结局（连续 / 二分类 / 生存）共用同一套指标：
+#   1. Qini 曲线 / Qini 系数 —— 基于"按效应排序后靶向治疗"的增益曲线
+#   2. TOC 曲线             —— 靶向前 k 个个体的平均治疗效应
+#   3. c-for-benefit        —— 模型预测"治疗获益"的 C 统计量
 #
-# 仅支持数值型结局（连续，或 0/1 二分类）。生存结局需要删失 IPCW，
-# 留作后续版本；当前若传入非数值 Y 会自动报错。
+# 统一的做法是先把结局降维成「个体层面数值结局 y + 权重 w」（见 .hte_outcome）：
+#   连续 / 二分类 : y = Y,                    w = 1
+#   生存 survdiff : y = I(T > t0),            w = I(可观测)/G(min(T,t0))
+#   生存 rmst     : y = δ·min(T,t0)/G(T),     w = 1（IPCW 已含在 y 里）
+# 之后所有指标都用加权版 IPW 评分 s_i = w_i·(A_i y_i/e_i − (1−A_i) y_i/(1−e_i))，
+# 无删失时 w ≡ 1，与经典公式完全一致。
 #
 # 参考实现对照：
 #   - Qini：Sverdrup, Wu, Athey & Wager (2025) 的 IPW 估计式
 #   - c-for-benefit：van Klaveren, Steyerberg, Serruys & Kent (2018)
+#   - TOC：Yadlowsky, Fleming, Shah, Brunskill & Wager (2025)
 # =====================================================================
 
 # ---------------------------------------------------------------------
-# 内部：把 Y 规整为数值向量（连续或 0/1），并给出友好错误
+# 内部：结局降维 —— 把三类结局统一成 (y, w)
+#
+# 生存结局必须落在与包内 CATE 相同的标尺上，否则排序对不上：
+# metalearner 的生存效应默认是 S(t0) 差，所以指标默认也用 I(T > t0)。
+# 删失由完整病例 IPCW 处理：在 t0 之前被删失的人，I(T > t0) 无从得知，
+# 权重取 0；其余人权重 = 1/G(min(T, t0))，G 为删失生存函数。
 # ---------------------------------------------------------------------
-.hte_numeric_outcome <- function(Y) {
-  if (inherits(Y, "Surv")) {
-    stop("Survival outcomes are not supported by the HTE metrics yet ",
-         "(they require censoring IPCW). Pass a numeric continuous or 0/1 outcome.",
-         call. = FALSE)
+.hte_is_surv <- function(Y) {
+  inherits(Y, "Surv") || (is.matrix(Y) && ncol(Y) == 2L)
+}
+
+.hte_outcome <- function(Y, t0 = NULL, X = NULL,
+                         effect = c("survdiff", "rmst")) {
+  effect <- match.arg(effect)
+
+  if (.hte_is_surv(Y)) {
+    Ym <- if (inherits(Y, "Surv")) unclass(Y) else Y
+    time <- as.numeric(Ym[, 1L])
+    status <- as.integer(Ym[, 2L])
+    if (anyNA(time) || anyNA(status)) {
+      stop("Survival outcome contains NA in time or status.", call. = FALSE)
+    }
+    # t0 缺省与 metalearner 一致：取事件时间中位数（无事件时取随访时间中位数）
+    if (is.null(t0)) {
+      tt <- time[status == 1L]
+      t0 <- if (length(tt)) stats::median(tt) else stats::median(time)
+    }
+    if (identical(effect, "rmst")) {
+      # ξ = δ·min(T,τ)/Ĝ(T)，E[ξ] = RMST(τ)，删失校正已含在里面
+      G <- .surv_ipcw(time, status, X, at = time)
+      y <- as.numeric(status * pmin(time, t0) / G)
+      w <- rep(1, length(y))
+    } else {
+      G <- .surv_ipcw(time, status, X, at = pmin(time, t0))
+      y <- as.numeric(time > t0)
+      obs <- (time > t0) | (status == 1L)      # t0 前删失者结局不可知
+      w <- as.numeric(obs) / G
+    }
+    return(list(y = y, w = w, kind = "survival", t0 = t0, effect = effect))
   }
+
   if (is.factor(Y)) {
     if (nlevels(Y) != 2L) {
       stop("Factor outcome must have exactly two levels (binary).", call. = FALSE)
     }
-    return(as.numeric(Y) - 1)          # 第一水平=0，第二水平=1
+    Y <- as.numeric(Y) - 1                     # 第一水平=0，第二水平=1
   }
-  Y <- as.numeric(Y)
-  if (anyNA(Y)) stop("Y contains NA; please handle missing outcomes first.", call. = FALSE)
-  Y
+  y <- as.numeric(Y)
+  if (anyNA(y)) stop("Y contains NA; please handle missing outcomes first.", call. = FALSE)
+  binary <- all(y %in% c(0, 1))
+  list(y = y, w = rep(1, length(y)),
+       kind = if (binary) "binary" else "continuous",
+       t0 = NULL, effect = NULL)
 }
 
 # ---------------------------------------------------------------------
-# 内部：IPW / AIPW 评分（Sverdrup et al. 2025 的 Q 曲线估计核）
-#   s_i = A_i Y_i / e_i - (1 - A_i) Y_i / (1 - e_i)
+# 内部：加权 IPW 评分（Sverdrup et al. 2025 的 Q 曲线估计核）
+#   s_i = w_i · (A_i y_i / e_i - (1 - A_i) y_i / (1 - e_i))
+# w 为删失 IPCW 权重；无删失时 w ≡ 1，退化为经典 IPW 评分。
 # ---------------------------------------------------------------------
-.hte_ipw_score <- function(A, Y, propensity) {
+.hte_ipw_score <- function(A, y, propensity, w = NULL) {
   e <- pmin(pmax(as.numeric(propensity), 1e-6), 1 - 1e-6)
-  A * Y / e - (1 - A) * Y / (1 - e)
+  if (is.null(w)) w <- rep(1, length(A))
+  w * (A * y / e - (1 - A) * y / (1 - e))
+}
+
+# 内部：生存结局时把通知打出来（t0 是解释结果的关键，不能默默选）
+.hte_surv_note <- function(oc) {
+  if (!identical(oc$kind, "survival")) return(invisible(NULL))
+  cli::cli_alert_info(
+    "生存结局：效应标尺 = {oc$effect}，t0 = {signif(oc$t0, 4)}；删失用完整病例 IPCW 校正。"
+  )
 }
 
 #' Qini 曲线：按估计 CATE 排序的累积治疗增益
@@ -55,10 +107,36 @@
 #'
 #' @param cate 逐个体估计的 CATE（数值向量），即模型的排序分数。
 #' @param A 处理指示（0/1 或逻辑）。
-#' @param Y 数值结局：连续，或 0/1 二分类。生存结局暂不支持。
+#' @param Y 结局：连续数值、0/1 二分类，或生存对象
+#'   （\code{survival::Surv(time, status)}，也可直接给两列矩阵）。
 #' @param propensity 倾向得分 \eqn{e(X)}；\code{NULL}（默认）时用 \code{mean(A)}，
 #'   适用于随机化试验。观察性数据请传入估计好的倾向得分。
 #' @param n_bins 曲线取多少个点（等量分箱的箱末点）；\code{NULL} 表示用全部样本点。
+#' @param t0 生存结局的关键时点；\code{NULL}（默认）取事件时间中位数。
+#'   连续/二分类结局忽略此参数。
+#' @param X 协变量 data.frame；仅生存结局且删失依赖协变量时需要，用于 Cox 建模
+#'   删失分布。\code{NULL}（默认）用边际 Kaplan–Meier，假定删失与协变量无关。
+#' @param effect 生存结局的效应标尺：\code{"survdiff"}（默认）为 \eqn{t0} 时点
+#'   生存概率差，与 \code{metalearner()} 的默认 CATE 一致；\code{"rmst"} 为
+#'   限制平均生存时间差。连续/二分类结局忽略此参数。
+#' @section 三类结局怎么处理:
+#' 连续与二分类结局直接用原始数值；生存结局先降维成\strong{里程碑生存指示}
+#' \eqn{I(T > t_0)}。之所以必须选这个标尺，是因为 \code{metalearner()} 的生存
+#' CATE 定义为 \eqn{S_1(t_0) - S_0(t_0)}——指标与 CATE 不在同一把尺子上，
+#' 排序就无从比较。
+#'
+#' 删失用\strong{完整病例 IPCW}校正：在 \eqn{t_0} 之前就被删失的人，\eqn{I(T > t_0)}
+#' 无从得知，权重取 0；其余人权重为 \eqn{1/G(\min(T, t_0))}，\eqn{G} 为删失生存
+#' 函数（给了 \code{X} 就用 Cox 建模，否则用边际 Kaplan–Meier）。
+#' 这条校正不是可选项：真 ATE 0.148 的演示数据在 30% 删失下，不做 IPCW 会把
+#' \eqn{Q(1)} 从 0.151 压到 0.115，58% 删失下压到 0.062，而做完 IPCW 分别回到
+#' 0.151 与 0.144。
+#'
+#' \code{effect = "rmst"} 换成限制平均生存时间标尺（\eqn{\xi = \delta\min(T,t_0)/\hat G(T)}，
+#' 删失校正已含在 \eqn{\xi} 内）。它的权重取自 \eqn{\hat G(T_i)}，删失重时权重被
+#' 截断到 100 会低估效应（58% 删失下实测 0.043，真值 0.184），
+#' \strong{删失较重时请用默认的 \code{"survdiff"}}。
+#'
 #' @return 一个 data.frame，含 \code{fraction}（靶向比例，从 0 到 1）与
 #'   \code{qini}（对应累积增益），并附属性 \code{qini_at_full}。
 #' @references
@@ -77,8 +155,17 @@
 #' tau <- rnorm(n)
 #' Y <- 1 + A * tau + rnorm(n)
 #' head(qini_curve(tau, A, Y))
-qini_curve <- function(cate, A, Y, propensity = NULL, n_bins = NULL) {
-  Y <- .hte_numeric_outcome(Y)
+#'
+#' # 生存结局：效应标尺 = t0 时点生存概率差
+#' d <- mlr3HTE_demo_surv(n = 600)
+#' fit <- metalearner("T", d$X, d$A, d$Y, learner_base = "coxph", t0 = d$t0)
+#' head(qini_curve(fit$cate_train, d$A, d$Y, t0 = d$t0))
+qini_curve <- function(cate, A, Y, propensity = NULL, n_bins = NULL,
+                       t0 = NULL, X = NULL,
+                       effect = c("survdiff", "rmst")) {
+  oc <- .hte_outcome(Y, t0 = t0, X = X, effect = effect)
+  .hte_surv_note(oc)
+  Y <- oc$y
   cate <- as.numeric(cate)
   A <- as.numeric(A)
   n <- length(cate)
@@ -88,7 +175,7 @@ qini_curve <- function(cate, A, Y, propensity = NULL, n_bins = NULL) {
   if (n < 2L) stop("Need at least two observations.", call. = FALSE)
   if (is.null(propensity)) propensity <- rep(mean(A), n)
 
-  score <- .hte_ipw_score(A, Y, propensity)
+  score <- .hte_ipw_score(A, Y, propensity, oc$w)
   ord   <- order(cate, decreasing = TRUE)
   q     <- cumsum(score[ord]) / n
   frac  <- seq_len(n) / n
@@ -130,8 +217,11 @@ qini_curve <- function(cate, A, Y, propensity = NULL, n_bins = NULL) {
 #' tau <- rnorm(n)
 #' Y <- 1 + A * tau + rnorm(n)
 #' qini_coefficient(tau, A, Y)$qini_coefficient
-qini_coefficient <- function(cate, A, Y, propensity = NULL) {
-  df <- qini_curve(cate, A, Y, propensity = propensity, n_bins = NULL)
+qini_coefficient <- function(cate, A, Y, propensity = NULL,
+                             t0 = NULL, X = NULL,
+                             effect = c("survdiff", "rmst")) {
+  df <- qini_curve(cate, A, Y, propensity = propensity, n_bins = NULL,
+                   t0 = t0, X = X, effect = effect)
   f  <- df$fraction
   q  <- df$qini
   auc <- sum(diff(f) * (q[-length(q)] + q[-1]) / 2)
@@ -157,7 +247,7 @@ qini_coefficient <- function(cate, A, Y, propensity = NULL) {
 #' 其中的 \code{propensity} 也可以直接喂给 \code{\link{qini_curve}} /
 #' \code{\link{qini_coefficient}} / \code{\link{toc_curve}}。
 #'
-#' @section 为什么要交叉拟合：
+#' @section 为什么要交叉拟合:
 #' 默认 \code{cross_fitting = TRUE}：倾向得分与结局模型都在 K 折的\strong{训练折}
 #' 上拟合、在留出折上预测。若用全样本拟合再回代自己（in-fold），\eqn{Y^*} 里的
 #' \eqn{\hat\mu_1-\hat\mu_0} 与被评价的 CATE 出自同一个模型，配对时又按该 CATE
@@ -165,17 +255,23 @@ qini_coefficient <- function(cate, A, Y, propensity = NULL) {
 #' 本包演示数据上实测 in-fold 会出现"模型 CATE 0.754 > 真 tau 0.717"的倒挂，
 #' 交叉拟合后恢复为"模型 0.659 ≤ 真 tau 0.669"。
 #'
-#' @param X 协变量 data.frame。
+#' @param X 协变量 data.frame。生存结局下还用于建模删失分布（IPCW 权重）。
 #' @param A 处理指示（0/1 或逻辑）。
-#' @param Y 数值结局（连续，或 0/1 二分类）。
+#' @param Y 结局：连续数值、0/1 二分类，或生存对象
+#'   （\code{survival::Surv(time, status)}）。
 #' @param cross_fitting 是否对干扰参数做交叉拟合，默认 \code{TRUE}。
 #' @param n_folds 交叉拟合折数，默认 5。
 #' @param learner_ps 倾向得分学习器（classif），默认 \code{classif.log_reg}。
-#' @param learner_base 结局模型基学习器，默认按结局类型自动选
-#'   \code{regr.ranger}（连续）或 \code{classif.log_reg}（二分类）。
+#' @param learner_base 结局模型基学习器。连续/二分类下是 mlr3 Learner，默认
+#'   \code{regr.ranger}（连续）或 \code{classif.log_reg}（二分类）；生存结局下
+#'   用字符串 \code{"coxph"}（默认）或 \code{"ranger"}，与 \code{metalearner()}
+#'   的生存分支取同样的值。
 #' @param seed 折分配的随机种子；\code{NULL} 则不设（复现请显式给）。
+#' @param t0 生存结局的关键时点；\code{NULL}（默认）取事件时间中位数。
+#' @param effect 生存结局的效应标尺，\code{"survdiff"}（默认）或 \code{"rmst"}。
 #' @return list：\code{pseudo}（DR 伪结局向量）、\code{mu1}、\code{mu0}、
-#'   \code{propensity}、\code{ate}（\code{mean(pseudo)}）。
+#'   \code{propensity}、\code{ate}（\code{mean(pseudo)}）、\code{t0}、
+#'   \code{effect}（生存结局时给出，便于与 CATE 标尺对齐）。
 #' @references
 #' Yadlowsky S, Fleming T, Shah N, Brunskill E, Wager S. Evaluating treatment
 #' prioritization rules via rank-weighted average treatment effects.
@@ -192,24 +288,47 @@ qini_coefficient <- function(cate, A, Y, propensity = NULL) {
 #'               propensity = dr$propensity, mu1 = dr$mu1, mu0 = dr$mu0)
 dr_pseudo_outcome <- function(X, A, Y, cross_fitting = TRUE, n_folds = 5L,
                               learner_ps = NULL, learner_base = NULL,
-                              seed = NULL) {
-  Y <- .hte_numeric_outcome(Y)
-  A <- as.numeric(A)
+                              seed = NULL, t0 = NULL,
+                              effect = c("survdiff", "rmst")) {
+  effect <- match.arg(effect)
   X <- as.data.frame(X)
+  # 先降维：生存结局取 I(T>t0)（或 RMST 伪值）并配好删失 IPCW 权重。
+  # 原始 Y 要留住——拟合生存模型需要 time/status，而 oc 里只剩降维后的 y。
+  Y_raw <- Y
+  oc <- .hte_outcome(Y_raw, t0 = t0, X = X, effect = effect)
+  .hte_surv_note(oc)
+  Y <- oc$y
+  w <- oc$w
+  surv <- identical(oc$kind, "survival")
+  t0 <- oc$t0
+
+  A <- as.numeric(A)
   n <- nrow(X)
   if (length(A) != n) {
     stop("X and A must have the same number of rows.", call. = FALSE)
   }
   if (n < 4L) stop("Need at least four observations.", call. = FALSE)
 
+  time <- status <- NULL
+  if (surv) {
+    Ym <- if (inherits(Y_raw, "Surv")) unclass(Y_raw) else Y_raw
+    time <- as.numeric(Ym[, 1L]); status <- as.integer(Ym[, 2L])
+  }
+
   if (is.null(learner_ps)) learner_ps <- mlr3::lrn("classif.log_reg")
-  binary <- all(Y %in% c(0, 1))
+  binary <- !surv && all(Y %in% c(0, 1))
   if (is.null(learner_base)) {
-    learner_base <- if (binary) {
+    learner_base <- if (surv) {
+      "coxph"
+    } else if (binary) {
       mlr3::lrn("classif.log_reg")
     } else {
       mlr3::lrn("regr.ranger", num.trees = 300L)
     }
+  }
+  if (surv && !is.character(learner_base)) {
+    stop('Survival outcomes require learner_base to be "coxph" or "ranger" ',
+         "(a character string), not an mlr3 Learner.", call. = FALSE)
   }
 
   if (!is.null(seed)) set.seed(seed)
@@ -231,22 +350,37 @@ dr_pseudo_outcome <- function(X, A, Y, cross_fitting = TRUE, n_folds = 5L,
 
     tr1 <- tr[A[tr] == 1]
     tr0 <- tr[A[tr] == 0]
-    if (length(tr1)) {
-      m1 <- .fit_regr_or_classif(X[tr1, , drop = FALSE], Y[tr1],
-                                 learner_base, binary)
-      mu1[te] <- .pred_regr_or_classif(m1, X[te, , drop = FALSE], binary)
-    }
-    if (length(tr0)) {
-      m0 <- .fit_regr_or_classif(X[tr0, , drop = FALSE], Y[tr0],
-                                 learner_base, binary)
-      mu0[te] <- .pred_regr_or_classif(m0, X[te, , drop = FALSE], binary)
+    if (surv) {
+      # 生存：mu = S(t0|X) 或 RMST(t0)，用与 metalearner 相同的原生基学习器
+      if (length(tr1)) {
+        m1 <- .fit_surv(X[tr1, , drop = FALSE], time[tr1], status[tr1],
+                        kind = learner_base, t0 = t0, effect = effect)
+        mu1[te] <- m1$predict(X[te, , drop = FALSE])
+      }
+      if (length(tr0)) {
+        m0 <- .fit_surv(X[tr0, , drop = FALSE], time[tr0], status[tr0],
+                        kind = learner_base, t0 = t0, effect = effect)
+        mu0[te] <- m0$predict(X[te, , drop = FALSE])
+      }
+    } else {
+      if (length(tr1)) {
+        m1 <- .fit_regr_or_classif(X[tr1, , drop = FALSE], Y[tr1],
+                                   learner_base, binary)
+        mu1[te] <- .pred_regr_or_classif(m1, X[te, , drop = FALSE], binary)
+      }
+      if (length(tr0)) {
+        m0 <- .fit_regr_or_classif(X[tr0, , drop = FALSE], Y[tr0],
+                                   learner_base, binary)
+        mu0[te] <- .pred_regr_or_classif(m0, X[te, , drop = FALSE], binary)
+      }
     }
   }
 
   ee <- pmin(pmax(e, 1e-6), 1 - 1e-6)
-  pseudo <- (mu1 - mu0) + A * (Y - mu1) / ee - (1 - A) * (Y - mu0) / (1 - ee)
+  # w 是删失 IPCW 权重：无删失时恒为 1，公式退化为经典 DR 伪结局
+  pseudo <- (mu1 - mu0) + w * (A * (Y - mu1) / ee - (1 - A) * (Y - mu0) / (1 - ee))
   list(pseudo = pseudo, mu1 = mu1, mu0 = mu0, propensity = e,
-       ate = mean(pseudo))
+       ate = mean(pseudo), t0 = t0, effect = effect)
 }
 
 # 内部：按结局类型分派结局模型的拟合 / 预测（伪结局的干扰参数用）-----------------
@@ -270,7 +404,7 @@ dr_pseudo_outcome <- function(X, A, Y, cross_fitting = TRUE, n_folds = 5L,
 #' 注意：这是对 van Klaveren 配对思想的**近似实现**（贪心配对 + 配对间秩相关），
 #' 不是原文的完整匹配流程；需要严格复现时请对照 \code{CforBenefit} 包。
 #'
-#' @section 观察性数据：必须走双重稳健，不能只给倾向得分：
+#' @section 观察性数据 - 必须走双重稳健，不能只给倾向得分:
 #' 默认的"观测获益 = 处理者结局 − 对照者结局"只在处理随机化时无偏。观察性数据里
 #' 两者基线预后不同，这个差被混杂污染。
 #' 正确做法是把观测获益换成\strong{双重稳健（DR）伪结局}：
@@ -296,6 +430,10 @@ dr_pseudo_outcome <- function(X, A, Y, cross_fitting = TRUE, n_folds = 5L,
 #'   观察性数据下与 \code{propensity}、\code{mu0} 一起传入以启用 DR 校正；
 #'   \code{NULL}（默认）时用原始结局差，仅在随机化试验下无偏。
 #' @param mu0 对照组的结局模型预测值 \eqn{\hat\mu_0(X)}。用法同 \code{mu1}。
+#' @param t0 生存结局的关键时点；\code{NULL}（默认）取事件时间中位数。
+#' @param X 协变量 data.frame；仅生存结局且删失依赖协变量时需要（Cox 建模删失
+#'   分布）。\code{NULL}（默认）用边际 Kaplan–Meier。
+#' @param effect 生存结局的效应标尺，\code{"survdiff"}（默认）或 \code{"rmst"}。
 #' @return 一个 list，含 \code{c_for_benefit}（C 统计量）、\code{n_pairs}
 #'   （配对数）以及一致/不一致/预测并列的对数。
 #' @references
@@ -323,8 +461,13 @@ dr_pseudo_outcome <- function(X, A, Y, cross_fitting = TRUE, n_folds = 5L,
 #' c_for_benefit(dr$mu1 - dr$mu0, d$A, d$Y,
 #'               propensity = dr$propensity, mu1 = dr$mu1, mu0 = dr$mu0)
 c_for_benefit <- function(cate, A, Y, caliper = NULL,
-                          propensity = NULL, mu1 = NULL, mu0 = NULL) {
-  Y <- .hte_numeric_outcome(Y)
+                          propensity = NULL, mu1 = NULL, mu0 = NULL,
+                          t0 = NULL, X = NULL,
+                          effect = c("survdiff", "rmst")) {
+  oc <- .hte_outcome(Y, t0 = t0, X = X, effect = effect)
+  .hte_surv_note(oc)
+  Y <- oc$y
+  w <- oc$w
   cate <- as.numeric(cate)
   A <- as.numeric(A)
   n <- length(cate)
@@ -373,7 +516,7 @@ c_for_benefit <- function(cate, A, Y, caliper = NULL,
     e <- pmin(pmax(as.numeric(propensity), 1e-6), 1 - 1e-6)
     m1 <- as.numeric(mu1)
     m0 <- as.numeric(mu0)
-    Ystar <- (m1 - m0) + A * (Y - m1) / e - (1 - A) * (Y - m0) / (1 - e)
+    Ystar <- (m1 - m0) + w * (A * (Y - m1) / e - (1 - A) * (Y - m0) / (1 - e))
   }
 
   tr <- tr[order(cate[tr])]
@@ -390,7 +533,8 @@ c_for_benefit <- function(cate, A, Y, caliper = NULL,
     used[j] <- TRUE
     pred <- c(pred, cate[t])            # 预测获益
     o <- if (is.null(Ystar)) {
-      Y[t] - Y[ct[j]]                   # 观测获益：原始结局差（仅随机化下无偏）
+      # 观测获益：原始结局差（仅随机化下无偏）；生存下乘删失 IPCW 权重
+      w[t] * Y[t] - w[ct[j]] * Y[ct[j]]
     } else {
       0.5 * (Ystar[t] + Ystar[ct[j]])   # 观测获益：DR 伪结局的配对内平均
     }
@@ -470,8 +614,12 @@ plot_qini <- function(curve, main = "Qini curve", ...) {
 #' tau <- rnorm(n)
 #' Y <- 1 + A * tau + rnorm(n)
 #' head(toc_curve(tau, A, Y))
-toc_curve <- function(cate, A, Y, propensity = NULL, n_bins = NULL) {
-  Y <- .hte_numeric_outcome(Y)
+toc_curve <- function(cate, A, Y, propensity = NULL, n_bins = NULL,
+                      t0 = NULL, X = NULL,
+                      effect = c("survdiff", "rmst")) {
+  oc <- .hte_outcome(Y, t0 = t0, X = X, effect = effect)
+  .hte_surv_note(oc)
+  Y <- oc$y
   cate <- as.numeric(cate)
   A <- as.numeric(A)
   n <- length(cate)
@@ -481,12 +629,15 @@ toc_curve <- function(cate, A, Y, propensity = NULL, n_bins = NULL) {
   if (n < 2L) stop("Need at least two observations.", call. = FALSE)
   if (is.null(propensity)) propensity <- rep(mean(A), n)
 
-  score   <- .hte_ipw_score(A, Y, propensity)
+  score   <- .hte_ipw_score(A, Y, propensity, oc$w)
   ord     <- order(cate, decreasing = TRUE)
   s       <- score[ord]
   cum     <- cumsum(s)
   k       <- seq_len(n)
-  toc     <- cum / k                     # top-k 子群的平均（IPW）效应
+  # 分母用有效样本量 Σw 而不是 k：生存下 t0 前删失者权重为 0，
+  # 用 k 会把平均效应稀释。无删失时 Σw = k，与经典 TOC 一致。
+  sw      <- cumsum(oc$w[ord])
+  toc     <- cum / pmax(sw, 1e-12)       # top-k 子群的平均（IPW）效应
   frac    <- k / n
   overall <- mean(score)
 

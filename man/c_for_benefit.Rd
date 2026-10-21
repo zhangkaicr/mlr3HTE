@@ -11,7 +11,10 @@ c_for_benefit(
   caliper = NULL,
   propensity = NULL,
   mu1 = NULL,
-  mu0 = NULL
+  mu0 = NULL,
+  t0 = NULL,
+  X = NULL,
+  effect = c("survdiff", "rmst")
 )
 }
 \arguments{
@@ -19,7 +22,8 @@ c_for_benefit(
 
 \item{A}{处理指示（0/1 或逻辑）。}
 
-\item{Y}{数值结局：连续，或 0/1 二分类。生存结局暂不支持。}
+\item{Y}{结局：连续数值、0/1 二分类，或生存对象
+（\code{survival::Surv(time, status)}，也可直接给两列矩阵）。}
 
 \item{caliper}{配对时允许的最大预测获益差；\code{NULL}（默认）不设卡钳，
 总是取最近邻。设卡钳可避免把获益相差很大的两人硬配。}
@@ -32,6 +36,13 @@ c_for_benefit(
 \code{NULL}（默认）时用原始结局差，仅在随机化试验下无偏。}
 
 \item{mu0}{对照组的结局模型预测值 \eqn{\hat\mu_0(X)}。用法同 \code{mu1}。}
+
+\item{t0}{生存结局的关键时点；\code{NULL}（默认）取事件时间中位数。}
+
+\item{X}{协变量 data.frame；仅生存结局且删失依赖协变量时需要（Cox 建模删失
+分布）。\code{NULL}（默认）用边际 Kaplan–Meier。}
+
+\item{effect}{生存结局的效应标尺，\code{"survdiff"}（默认）或 \code{"rmst"}。}
 }
 \value{
 一个 list，含 \code{c_for_benefit}（C 统计量）、\code{n_pairs}
@@ -50,6 +61,27 @@ c_for_benefit(
 注意：这是对 van Klaveren 配对思想的\strong{近似实现}（贪心配对 + 配对间秩相关），
 不是原文的完整匹配流程；需要严格复现时请对照 \code{CforBenefit} 包。
 }
+\section{观察性数据 - 必须走双重稳健，不能只给倾向得分}{
+
+默认的"观测获益 = 处理者结局 − 对照者结局"只在处理随机化时无偏。观察性数据里
+两者基线预后不同，这个差被混杂污染。
+正确做法是把观测获益换成\strong{双重稳健（DR）伪结局}：
+\deqn{Y^*_i = (\hat\mu_1(X_i) - \hat\mu_0(X_i)) +
+  \frac{A_i(Y_i - \hat\mu_1(X_i))}{e_i} -
+  \frac{(1-A_i)(Y_i - \hat\mu_0(X_i))}{1-e_i}}
+满足 \eqn{E[Y^*_i \mid X_i] = \tau(X_i)}，且\strong{结局模型与倾向得分模型
+只要有一个正确即无偏}。配对内取两人的 \eqn{Y^*} 平均作为观测获益。
+
+为什么不能只传 \code{propensity}：那样等价于用 Horvitz–Thompson 评分
+\eqn{AY/e - (1-A)Y/(1-e)} 当观测获益，其单次样本标准差极大（本包演示数据上
+实测约 15，而 ATE 只有 1 左右），噪声会把 C 统计量压到随机线以下——实测即使用
+真 \code{tau} 排序也只有 0.39，比随机还差。所以只给 \code{propensity} 会直接报错，
+逼你把结局模型一起给进来。
+
+三个干扰参数可以用 \code{\link{dr_pseudo_outcome}} 一次拿到，它默认做交叉拟合，
+避免"结局模型评价自己的 CATE"带来的虚高。
+}
+
 \examples{
 set.seed(1)
 n <- 400

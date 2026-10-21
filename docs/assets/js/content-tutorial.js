@@ -335,6 +335,7 @@ window.SITE_PAGES.tutorial = {
           '<tr><td><code>09_生存结局_survlearners引擎.R</code></td><td>生存第二套引擎 <code>engine="survlearners"</code>，与原生引擎同题对比</td></tr>' +
           '<tr><td><code>10_HTE评价指标.R</code></td><td>Qini / c-for-benefit / TOC：模型<strong>判别力</strong>评价，附随机排序对照</td></tr>' +
           '<tr><td><code>11_评价指标真值对账.R</code></td><td>用已知真 <code>tau</code> 当标尺：把误差拆成<strong>排序损失</strong>与<strong>估计噪声</strong>，并给出 c-for-benefit 的闭式上界</td></tr>' +
+          '<tr><td><code>12_三类结局评价指标.R</code></td><td>三个指标在<strong>连续 / 二分类 / 生存</strong>上各跑一遍：生存要 IPCW，并演示「先拟合后切分」的泄漏有多离谱</td></tr>' +
           '</tbody></table></div>'
       },
 
@@ -437,12 +438,19 @@ window.SITE_PAGES.tutorial = {
           '伪结局里的 <code>mu1 − mu0</code> 与被评价的 CATE 同源，配对又按该 CATE 找最近邻，' +
           '会把观测获益人为对齐到预测获益。实测倒挂：' +
           'in-fold 模型 0.754 &gt; 真 tau 0.717；交叉拟合后恢复 0.662 ≤ 0.669。</p>' +
-          '<p><strong>③ 生存结局暂不支持。</strong>三个函数只接受数值型 ' +
-          '<code>Y</code>（连续或 0/1），传 <code>Surv</code> 会直接报错。' +
-          '生存要做判别力评价，需要把删失 IPCW 织进评分，本版没做。</p>' +
+          '<p><strong>③ 生存结局也能评，但标尺必须和 CATE 对齐。</strong>' +
+          '三个函数都接受 <code>Surv</code> 对象，默认把结局压成里程碑指标 ' +
+          '<code>I(T &gt; t0)</code>，效应标尺 = <em>S</em>(t0) 差——和 ' +
+          '<code>metalearner()</code> 的生存 CATE 定义一致，否则排序比较没有意义。' +
+          '删失用完整病例 IPCW 校正（<code>effect = "rmst"</code> 可换 RMST 尺度）。详见下一节。</p>' +
           '<p><strong>④ c-for-benefit 是近似实现。</strong>本包用贪心配对 + 配对间秩相关，' +
           '不是 van Klaveren 原文的完整匹配流程；需要严格复现时请对照 ' +
-          '<code>CforBenefit</code> 包。这一点写在了 <code>R/metrics.R</code> 的注释里，不藏着。</p></div>' +
+          '<code>CforBenefit</code> 包。这一点写在了 <code>R/metrics.R</code> 的注释里，不藏着。</p>' +
+          '<p><strong>⑤ 留出集必须在拟合<em>之前</em>切出来。</strong>' +
+          '先在全集拟合、再划一块当测试集，等于把 <code>Y</code> 泄漏进 CATE。' +
+          '二分类下最明显：观测获益就是 <code>Y<sub>treated</sub> − Y<sub>control</sub></code>，' +
+          'CATE 记住了 <code>Y<sub>treated</sub></code>，一致率凭空抬到 0.89，' +
+          '甚至反超 oracle 的 0.60——尽管它与真 <em>τ</em> 的相关反而更低。见下一节实测。</p></div>' +
 
           '<h3>真值标尺：模拟数据里这些指标到底该是多少</h3>' +
           '<p>模拟数据的好处是 <em>τ</em> 已知，所以 Qini 与 TOC 的<strong>真值可以直接算出来</strong>，' +
@@ -495,6 +503,55 @@ window.SITE_PAGES.tutorial = {
           '<p>所以 c-for-benefit 报 0.65 时不要觉得「不够接近 1」——' +
           '<strong>这个数据的信息上限就是 0.671</strong>。想抬高天花板只能提高信噪比：' +
           '降低结局噪声（重复测量、用更精确的结局）、或选异质性更大的亚群。</p>' +
+
+          '<h3>三类结局：同一套指标，标尺不同（脚本 12）</h3>' +
+          '<p>三个指标对<strong>连续、二分类、生存</strong>都能用，调用方式完全一样，' +
+          '差别只在内部怎么把结局压成可比较的评分。生存最关键：必须先固定一个时点 ' +
+          '<code>t0</code>，把结局压成里程碑指标 <code>I(T &gt; t0)</code>，' +
+          '并用完整病例 IPCW 权重 <code>1/Ĝ(min(T, t0))</code> 补偿删失。</p>' +
+          '<div class="table-wrap"><table>' +
+          '<thead><tr><th>结局</th><th>压成的 <code>y</code></th><th>权重 <code>w</code></th><th>效应标尺</th></tr></thead><tbody>' +
+          '<tr><td>连续</td><td><code>Y</code></td><td>1</td><td>均值差</td></tr>' +
+          '<tr><td>二分类</td><td><code>0/1</code></td><td>1</td><td>风险差</td></tr>' +
+          '<tr><td>生存（默认 <code>survdiff</code>）</td><td><code>I(T &gt; t0)</code></td>' +
+          '<td><code>I(可观测) / Ĝ(min(T,t0))</code></td><td><em>S</em>(t0) 差</td></tr>' +
+          '<tr><td>生存（<code>effect = "rmst"</code>）</td><td><code>δ·min(T,t0) / Ĝ(T)</code></td>' +
+          '<td>1</td><td>t0 内 RMST 差</td></tr>' +
+          '</tbody></table></div>' +
+          '<pre><code># 生存结局：t0 不传时默认取事件时间的中位数\n' +
+          'qini_coefficient(cate, d$A, d$Y, t0 = 2)                  # S(t0) 差\n' +
+          'qini_coefficient(cate, d$A, d$Y, t0 = 2, effect = "rmst") # RMST 差\n' +
+          'c_for_benefit(cate, d$A, d$Y, t0 = 2)\n' +
+          'dr_pseudo_outcome(d$X, d$A, d$Y, t0 = 2)                  # 生存也能出 DR 伪结局</code></pre>' +
+
+          '<h4>实测对账：三层排序 × 三类结局（各重复 8 次，留出集评价）</h4>' +
+          '<pre><code>| 结局   | ATE真值 | Qini oracle       | Qini model        | Qini random       | c4b oracle        | c4b model         | c4b random        |\n' +
+          '| 连续   | 1.0433  | 0.3373 ± 0.1348  | 0.3253 ± 0.1613  | -0.0239 ± 0.1398 | 0.6630 ± 0.0199  | 0.6440 ± 0.0228  | 0.4995 ± 0.0282  |\n' +
+          '| 二分类 | 0.1312  | 0.0361 ± 0.0120  | 0.0248 ± 0.0096  | -0.0016 ± 0.0172 | 0.6118 ± 0.0276  | 0.5727 ± 0.0213  | 0.5029 ± 0.0287  |\n' +
+          '| 生存   | 0.1514  | 0.0386 ± 0.0122  | 0.0385 ± 0.0116  |  0.0010 ± 0.0118 | 0.5777 ± 0.0256  | 0.5746 ± 0.0242  | 0.4944 ± 0.0247  |</code></pre>' +
+          '<p>三层排序的次序在三类结局上都对：<strong>oracle ≥ model &gt; random</strong>，' +
+          '且随机排序的 Qini ≈ 0、c-for-benefit ≈ 0.5。' +
+          '生存那一格 model 与 oracle 几乎持平，是因为 T-learner + Cox 在 ' +
+          '<em>S</em>(t0) 尺度上已经很接近天花板，不是指标失灵。</p>' +
+
+          '<h4>生存的删失校正不是可选项（n = 20000）</h4>' +
+          '<pre><code>| 算法                     | Q(1)   | 偏差    |\n' +
+          '| 完整病例 IPCW（本包默认） | 0.1424 | -0.0090 |\n' +
+          '| 不做删失校正（w = 1）     | 0.1127 | -0.0387 |\n' +
+          '| 真值                     | 0.1514 | +0.0000 |</code></pre>' +
+          '<p>不做 IPCW 会把 Q(1) 从 0.142 压到 0.113，低估约四分之一——' +
+          '因为被删失的人被当成「没获益」计入了分母。<code>rmst</code> 尺度在删失很重时' +
+          '还会系统性低估（实测 −0.067），原因是权重被截断在 100 以内；' +
+          '删失重的样本请优先用默认的 <code>survdiff</code>。</p>' +
+
+          '<h4>泄漏对照：拟合顺序决定指标能不能信</h4>' +
+          '<pre><code>| 拟合方式                   | c-for-benefit | 与真 tau 的相关 |\n' +
+          '| 全集拟合后切留出集（泄漏）  | 0.8910        | 0.542           |\n' +
+          '| 只在训练集拟合（正确）      | 0.5583        | 0.655           |\n' +
+          '| 真 tau（oracle）           | 0.6045        | 1.000           |</code></pre>' +
+          '<p>泄漏版的 CATE 与真 <em>τ</em> 的相关反而<strong>更低</strong>（0.542 &lt; 0.655），' +
+          'c-for-benefit 却高得多——这正是「记住了 <code>Y</code>」的特征：' +
+          '指标变好而排序变差。评价 HTE 模型时，<strong>先切分、后拟合</strong>是硬规矩。</p>' +
 
           '<h3>观察性数据：偏差与噪声是两回事</h3>' +
           '<p>同一把真值尺子放到观察性数据上，能看出 <code>propensity</code> 修的是哪一块：</p>' +
@@ -922,6 +979,7 @@ window.SITE_PAGES.tutorial = {
           '<tr><td><code>09_生存结局_survlearners引擎.R</code></td><td>The second survival engine <code>engine="survlearners"</code>, head-to-head with native</td></tr>' +
           '<tr><td><code>10_HTE评价指标.R</code></td><td>Qini / c-for-benefit / TOC: <strong>discrimination</strong> metrics with a random-ordering control</td></tr>' +
           '<tr><td><code>11_评价指标真值对账.R</code></td><td>Known <code>tau</code> as the yardstick: split the error into <strong>ranking loss</strong> and <strong>estimation noise</strong>, plus the closed-form c-for-benefit ceiling</td></tr>' +
+          '<tr><td><code>12_三类结局评价指标.R</code></td><td>All three metrics on <strong>continuous / binary / survival</strong>: survival needs IPCW, plus a demonstration of how badly "fit first, split later" leaks</td></tr>' +
           '</tbody></table></div>'
       },
 
@@ -1036,14 +1094,75 @@ window.SITE_PAGES.tutorial = {
           'the same model, and pairs are then formed by nearest neighbour on that same CATE — ' +
           'which mechanically aligns observed with predicted benefit. Measured inversion: ' +
           'in-fold model 0.754 &gt; true tau 0.717; after cross-fitting, 0.662 ≤ 0.669.</p>' +
-          '<p><strong>③ Survival outcomes are not supported yet.</strong> All three functions ' +
-          'accept only numeric <code>Y</code> (continuous or 0/1) and raise an explicit error on ' +
-          '<code>Surv</code>. Evaluating discrimination for survival would require folding ' +
-          'censoring IPCW into the score, which this version does not do.</p>' +
+          '<p><strong>③ Survival outcomes are supported, but the scale must match the CATE.</strong> ' +
+          'All three functions accept a <code>Surv</code> object. By default the outcome is ' +
+          'reduced to the milestone indicator <code>I(T &gt; t0)</code>, so the effect scale is ' +
+          'the <em>S</em>(t0) difference — the same quantity <code>metalearner()</code> reports ' +
+          'as its survival CATE. Without that alignment, ranking comparisons are meaningless. ' +
+          'Censoring is handled by complete-case IPCW; <code>effect = "rmst"</code> switches to ' +
+          'the RMST scale. See the next section.</p>' +
           '<p><strong>④ c-for-benefit is an approximation.</strong> This package uses greedy ' +
           'matching plus rank concordance across pairs, not the full matching procedure of the ' +
           'van Klaveren paper; use the <code>CforBenefit</code> package when strict replication ' +
-          'is required. This is written in the comments of <code>R/metrics.R</code>, not hidden.</p></div>' +
+          'is required. This is written in the comments of <code>R/metrics.R</code>, not hidden.</p>' +
+          '<p><strong>⑤ Split before you fit.</strong> Fitting on the full sample and then ' +
+          'carving out a test set leaks <code>Y</code> into the CATE. Binary outcomes make it ' +
+          'brutal: observed benefit is <code>Y<sub>treated</sub> − Y<sub>control</sub></code>, ' +
+          'so a CATE that memorized <code>Y<sub>treated</sub></code> jumps to 0.89 and beats the ' +
+          'oracle\'s 0.60 — even though its correlation with the true <em>τ</em> is <em>worse</em>. ' +
+          'Measured below.</p></div>' +
+
+          '<h3>Three outcome types: same metrics, different scales (script 12)</h3>' +
+          '<p>All three metrics work for <strong>continuous, binary and survival</strong> ' +
+          'outcomes with an identical call; only the internal reduction differs. For survival ' +
+          'the key step is fixing a horizon <code>t0</code> and reducing the outcome to the ' +
+          'milestone indicator <code>I(T &gt; t0)</code>, with complete-case IPCW weights ' +
+          '<code>1/Ĝ(min(T, t0))</code> compensating for censoring.</p>' +
+          '<div class="table-wrap"><table>' +
+          '<thead><tr><th>Outcome</th><th>Reduced <code>y</code></th><th>Weight <code>w</code></th><th>Effect scale</th></tr></thead><tbody>' +
+          '<tr><td>Continuous</td><td><code>Y</code></td><td>1</td><td>Mean difference</td></tr>' +
+          '<tr><td>Binary</td><td><code>0/1</code></td><td>1</td><td>Risk difference</td></tr>' +
+          '<tr><td>Survival (<code>survdiff</code>, default)</td><td><code>I(T &gt; t0)</code></td>' +
+          '<td><code>I(observable) / Ĝ(min(T,t0))</code></td><td><em>S</em>(t0) difference</td></tr>' +
+          '<tr><td>Survival (<code>effect = "rmst"</code>)</td><td><code>δ·min(T,t0) / Ĝ(T)</code></td>' +
+          '<td>1</td><td>RMST difference up to t0</td></tr>' +
+          '</tbody></table></div>' +
+          '<pre><code># t0 defaults to the median event time when omitted\n' +
+          'qini_coefficient(cate, d$A, d$Y, t0 = 2)                  # S(t0) difference\n' +
+          'qini_coefficient(cate, d$A, d$Y, t0 = 2, effect = "rmst") # RMST difference\n' +
+          'c_for_benefit(cate, d$A, d$Y, t0 = 2)\n' +
+          'dr_pseudo_outcome(d$X, d$A, d$Y, t0 = 2)                  # DR pseudo-outcome for survival too</code></pre>' +
+
+          '<h4>Measured: three rankings x three outcomes (8 replicates, held-out evaluation)</h4>' +
+          '<pre><code>| outcome    | true ATE | Qini oracle       | Qini model        | Qini random       | c4b oracle        | c4b model         | c4b random        |\n' +
+          '| continuous | 1.0433   | 0.3373 +- 0.1348  | 0.3253 +- 0.1613  | -0.0239 +- 0.1398 | 0.6630 +- 0.0199  | 0.6440 +- 0.0228  | 0.4995 +- 0.0282  |\n' +
+          '| binary     | 0.1312   | 0.0361 +- 0.0120  | 0.0248 +- 0.0096  | -0.0016 +- 0.0172 | 0.6118 +- 0.0276  | 0.5727 +- 0.0213  | 0.5029 +- 0.0287  |\n' +
+          '| survival   | 0.1514   | 0.0386 +- 0.0122  | 0.0385 +- 0.0116  |  0.0010 +- 0.0118 | 0.5777 +- 0.0256  | 0.5746 +- 0.0242  | 0.4944 +- 0.0247  |</code></pre>' +
+          '<p>The ordering holds for every outcome type: ' +
+          '<strong>oracle ≥ model &gt; random</strong>, with random landing at Qini ≈ 0 and ' +
+          'c-for-benefit ≈ 0.5. The survival row sits nearly at parity because a T-learner with ' +
+          'Cox is already close to the ceiling on the <em>S</em>(t0) scale — not because the ' +
+          'metric fails.</p>' +
+
+          '<h4>Censoring correction is not optional (n = 20000)</h4>' +
+          '<pre><code>| method                        | Q(1)   | bias    |\n' +
+          '| complete-case IPCW (default)  | 0.1424 | -0.0090 |\n' +
+          '| no censoring correction (w=1) | 0.1127 | -0.0387 |\n' +
+          '| truth                         | 0.1514 | +0.0000 |</code></pre>' +
+          '<p>Skipping IPCW drags Q(1) from 0.142 down to 0.113 — about a quarter too low — ' +
+          'because censored subjects are counted as non-responders in the denominator. The ' +
+          '<code>rmst</code> scale additionally under-estimates under heavy censoring ' +
+          '(measured −0.067) because weights are capped at 100; prefer the default ' +
+          '<code>survdiff</code> when censoring is heavy.</p>' +
+
+          '<h4>Leakage control: fit order decides whether the metric is trustworthy</h4>' +
+          '<pre><code>| fit protocol                        | c-for-benefit | cor with true tau |\n' +
+          '| fit on all data, then split (leaky) | 0.8910        | 0.542             |\n' +
+          '| fit on training set only (correct)  | 0.5583        | 0.655             |\n' +
+          '| true tau (oracle)                   | 0.6045        | 1.000             |</code></pre>' +
+          '<p>The leaky CATE correlates <em>worse</em> with the true <em>τ</em> (0.542 &lt; 0.655) ' +
+          'yet scores far higher on c-for-benefit — the signature of memorizing <code>Y</code>: ' +
+          'the metric improves while the ranking degrades. <strong>Split first, fit second.</strong></p>' +
 
           '<h3>Truth scale: what these metrics <em>should</em> be</h3>' +
           '<p>With simulated data <em>τ</em> is known, so the true Qini and TOC are ' +

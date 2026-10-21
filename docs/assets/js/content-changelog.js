@@ -9,12 +9,49 @@ window.SITE_PAGES.changelog = {
   /* ---------------- 中文 ---------------- */
   zh: {
     title: "更新日志",
-    lede: "mlr3HTE 的版本历史与重要变更。当前版本 v0.1.0。",
+    lede: "mlr3HTE 的版本历史与重要变更。当前版本 v0.2.0。",
     sections: [
 
       {
+        id: "v020",
+        heading: "v0.2.0 · 2026-10-21（当前版本）",
+        body:
+          '<div class="callout ok"><div class="callout-title">评价指标现在覆盖三类结局</div>' +
+          '<p>Qini / TOC / c-for-benefit / DR 伪结局过去只接受数值型结局，' +
+          '传 <code>Surv</code> 会直接报错。现在五个函数全部支持<strong>连续、二分类、生存</strong>，' +
+          '生存走里程碑指标 <code>I(T &gt; t0)</code> + 删失 IPCW，' +
+          '效应标尺与 <code>metalearner()</code> 的生存 CATE 对齐。</p></div>' +
+          '<h3>新增</h3>' +
+          '<ul>' +
+          '<li>五个评价函数新增 <code>t0</code> / <code>X</code> / <code>effect</code> 参数。' +
+          '<code>t0</code> 不传时取事件时间中位数；<code>effect</code> 可选 ' +
+          '<code>"survdiff"</code>（默认，S(t0) 差）或 <code>"rmst"</code>。</li>' +
+          '<li><code>dr_pseudo_outcome()</code> 也支持生存结局：默认基学习器 ' +
+          '<code>"coxph"</code>，返回伪结局并带回 <code>t0</code> 与 <code>effect</code>。</li>' +
+          '<li><code>.surv_ipcw()</code> 新增 <code>at</code> 参数与 <code>X = NULL</code> 的' +
+          '边际 Kaplan–Meier 分支，删失权重同时供引擎与指标使用。</li>' +
+          '<li>教程脚本 <code>12_三类结局评价指标.R</code>：三类结局 × 三层排序对账，' +
+          '各重复 8 次报均值 ± 标准差。</li>' +
+          '</ul>' +
+          '<h3>实测：为什么生存必须做删失校正</h3>' +
+          '<ul>' +
+          '<li>真值 ATE 0.1514：完整病例 IPCW 得 0.1424（偏差 −0.009）；' +
+          '不做校正（<code>w = 1</code>）只有 0.1127（偏差 −0.039，低估约四分之一）。</li>' +
+          '<li><code>toc_curve()</code> 的分母从 <code>k</code> 改为 <code>cumsum(w)</code>，' +
+          '避免零权重的删失个体稀释均值。</li>' +
+          '<li>已知限制：<code>effect = "rmst"</code> 在删失重时低估（权重截断在 100 以内，' +
+          '删失 58% 时实测 0.043 vs 真值 0.184）。删失重请用默认 <code>survdiff</code>。</li>' +
+          '</ul>' +
+          '<h3>教程新增的一课：拟合顺序决定指标能不能信</h3>' +
+          '<p>先在全集拟合、再切一块当留出集，等于把 <code>Y</code> 泄漏进 CATE。' +
+          '二分类下最致命（观测获益就是 <code>Y<sub>treated</sub> − Y<sub>control</sub></code>）：' +
+          'c-for-benefit 从 0.558 虚高到 <strong>0.891</strong>，反超 oracle 的 0.605，' +
+          '尽管它与真 <em>τ</em> 的相关反而更低（0.542 &lt; 0.655）。<strong>先切分、后拟合。</strong></p>'
+      },
+
+      {
         id: "v010",
-        heading: "v0.1.0 · 2026-10-20（当前版本）",
+        heading: "v0.1.0 · 2026-10-20",
         body:
           '<div class="callout ok"><div class="callout-title">首个完整版本</div>' +
           '<p>S / T / X / R / DR 五种 Meta-Learner，覆盖连续、二分类、生存三类结局，' +
@@ -106,12 +143,56 @@ window.SITE_PAGES.changelog = {
   /* ---------------- English ---------------- */
   en: {
     title: "Changelog",
-    lede: "Version history and notable changes for mlr3HTE. Current version: v0.1.0.",
+    lede: "Version history and notable changes for mlr3HTE. Current version: v0.2.0.",
     sections: [
 
       {
+        id: "v020",
+        heading: "v0.2.0 · 2026-10-21 (current)",
+        body:
+          '<div class="callout ok"><div class="callout-title">Evaluation metrics now cover all three outcome types</div>' +
+          '<p>Qini / TOC / c-for-benefit / the DR pseudo-outcome used to accept numeric outcomes ' +
+          'only and raised an error on <code>Surv</code>. All five functions now handle ' +
+          '<strong>continuous, binary and survival</strong> outcomes; survival is reduced to the ' +
+          'milestone indicator <code>I(T &gt; t0)</code> with censoring IPCW, so the effect scale ' +
+          'matches the survival CATE reported by <code>metalearner()</code>.</p></div>' +
+          '<h3>Added</h3>' +
+          '<ul>' +
+          '<li>New <code>t0</code> / <code>X</code> / <code>effect</code> arguments on all five ' +
+          'functions. <code>t0</code> defaults to the median event time; <code>effect</code> takes ' +
+          '<code>"survdiff"</code> (default, S(t0) difference) or <code>"rmst"</code>.</li>' +
+          '<li><code>dr_pseudo_outcome()</code> now supports survival outcomes too: default base ' +
+          'learner <code>"coxph"</code>, returns the pseudo-outcome plus <code>t0</code> and ' +
+          '<code>effect</code>.</li>' +
+          '<li><code>.surv_ipcw()</code> gained an <code>at</code> argument and a marginal ' +
+          'Kaplan–Meier branch for <code>X = NULL</code>, so censoring weights serve both the ' +
+          'engine and the metrics.</li>' +
+          '<li>Tutorial script <code>12_三类结局评价指标.R</code>: three outcomes x three ' +
+          'rankings, averaged over 8 replicates.</li>' +
+          '</ul>' +
+          '<h3>Measured: why censoring correction is mandatory for survival</h3>' +
+          '<ul>' +
+          '<li>True ATE 0.1514: complete-case IPCW gives 0.1424 (bias −0.009), while ' +
+          'no correction (<code>w = 1</code>) gives only 0.1127 (bias −0.039, about a quarter ' +
+          'too low).</li>' +
+          '<li><code>toc_curve()</code> now divides by <code>cumsum(w)</code> instead of ' +
+          '<code>k</code>, so censored subjects with zero weight no longer dilute the average.</li>' +
+          '<li>Known limitation: <code>effect = "rmst"</code> under-estimates under heavy censoring ' +
+          '(weights are capped at 100; measured 0.043 vs a true 0.184 at 58% censoring). ' +
+          'Prefer the default <code>survdiff</code> when censoring is heavy.</li>' +
+          '</ul>' +
+          '<h3>New tutorial lesson: fit order decides whether a metric is trustworthy</h3>' +
+          '<p>Fitting on the full sample and then carving out a holdout leaks <code>Y</code> into ' +
+          'the CATE. Binary outcomes make it brutal (observed benefit is ' +
+          '<code>Y<sub>treated</sub> − Y<sub>control</sub></code>): c-for-benefit jumps from 0.558 ' +
+          'to <strong>0.891</strong>, beating the oracle\'s 0.605, even though its correlation ' +
+          'with the true <em>τ</em> is <em>worse</em> (0.542 &lt; 0.655). ' +
+          '<strong>Split first, fit second.</strong></p>'
+      },
+
+      {
         id: "v010",
-        heading: "v0.1.0 · 2026-10-20 (current)",
+        heading: "v0.1.0 · 2026-10-20",
         body:
           '<div class="callout ok"><div class="callout-title">First complete release</div>' +
           '<p>The S, T, X, R and DR meta-learners covering continuous, binary and survival ' +

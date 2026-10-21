@@ -12,15 +12,18 @@ dr_pseudo_outcome(
   n_folds = 5L,
   learner_ps = NULL,
   learner_base = NULL,
-  seed = NULL
+  seed = NULL,
+  t0 = NULL,
+  effect = c("survdiff", "rmst")
 )
 }
 \arguments{
-\item{X}{协变量 data.frame。}
+\item{X}{协变量 data.frame。生存结局下还用于建模删失分布（IPCW 权重）。}
 
 \item{A}{处理指示（0/1 或逻辑）。}
 
-\item{Y}{数值结局（连续，或 0/1 二分类）。}
+\item{Y}{结局：连续数值、0/1 二分类，或生存对象
+（\code{survival::Surv(time, status)}）。}
 
 \item{cross_fitting}{是否对干扰参数做交叉拟合，默认 \code{TRUE}。}
 
@@ -28,14 +31,21 @@ dr_pseudo_outcome(
 
 \item{learner_ps}{倾向得分学习器（classif），默认 \code{classif.log_reg}。}
 
-\item{learner_base}{结局模型基学习器，默认按结局类型自动选
-\code{regr.ranger}（连续）或 \code{classif.log_reg}（二分类）。}
+\item{learner_base}{结局模型基学习器。连续/二分类下是 mlr3 Learner，默认
+\code{regr.ranger}（连续）或 \code{classif.log_reg}（二分类）；生存结局下
+用字符串 \code{"coxph"}（默认）或 \code{"ranger"}，与 \code{metalearner()}
+的生存分支取同样的值。}
 
 \item{seed}{折分配的随机种子；\code{NULL} 则不设（复现请显式给）。}
+
+\item{t0}{生存结局的关键时点；\code{NULL}（默认）取事件时间中位数。}
+
+\item{effect}{生存结局的效应标尺，\code{"survdiff"}（默认）或 \code{"rmst"}。}
 }
 \value{
 list：\code{pseudo}（DR 伪结局向量）、\code{mu1}、\code{mu0}、
-\code{propensity}、\code{ate}（\code{mean(pseudo)}）。
+\code{propensity}、\code{ate}（\code{mean(pseudo)}）、\code{t0}、
+\code{effect}（生存结局时给出，便于与 CATE 标尺对齐）。
 }
 \description{
 计算 \eqn{Y^*}（AIPW / 双重稳健伪结局）：
@@ -51,6 +61,16 @@ list：\code{pseudo}（DR 伪结局向量）、\code{mu1}、\code{mu0}、
 其中的 \code{propensity} 也可以直接喂给 \code{\link{qini_curve}} /
 \code{\link{qini_coefficient}} / \code{\link{toc_curve}}。
 }
+\section{为什么要交叉拟合}{
+
+默认 \code{cross_fitting = TRUE}：倾向得分与结局模型都在 K 折的\strong{训练折}
+上拟合、在留出折上预测。若用全样本拟合再回代自己（in-fold），\eqn{Y^*} 里的
+\eqn{\hat\mu_1-\hat\mu_0} 与被评价的 CATE 出自同一个模型，配对时又按该 CATE
+找最近邻，会把"观测获益"人为对齐到"预测获益"，导致 c-for-benefit 虚高——
+本包演示数据上实测 in-fold 会出现"模型 CATE 0.754 > 真 tau 0.717"的倒挂，
+交叉拟合后恢复为"模型 0.659 ≤ 真 tau 0.669"。
+}
+
 \examples{
 set.seed(1)
 d <- mlr3HTE_demo_obs(n = 800)

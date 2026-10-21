@@ -110,18 +110,29 @@
 # G(t|x) = P(C > t | x)，C 为删失时间。Cox 模型对删失指示 (1 - status) 建模，
 # 取 Breslow 基线累积危险的左极限 H0(t-)，再乘 exp(x'beta) 得 H(t-|x)，
 # G = exp(-H)。最后截断到 [0.01, 1]，避免极端权重把估计搅坏。
-.surv_ipcw <- function(time, status, X) {
+#
+# X 为 NULL 时退回边际 Kaplan–Meier（删失与协变量无关）；
+# at 给出求值时点，默认在各自的随访时间 time 上求值。评价指标要在
+# min(T, t0) 上求值（里程碑结局只要 C > t0 就可观测），所以留了这个口子。
+.surv_ipcw <- function(time, status, X, at = NULL) {
   time <- as.numeric(time)
   status <- as.integer(status)
   cens <- 1L - status
-  if (!any(cens > 0L)) return(rep(1, length(time)))     # 没有删失，权重全为 1
+  u <- if (is.null(at)) time else as.numeric(at)
+  if (!any(cens > 0L)) return(rep(1, length(u)))        # 没有删失，权重全为 1
+
+  if (is.null(X)) {
+    km <- survival::survfit(survival::Surv(time, cens) ~ 1)
+    j <- pmin(findInterval(u, km$time), length(km$surv))
+    return(pmin(pmax(ifelse(j >= 1L, km$surv[j], 1), 0.01), 1))
+  }
 
   d <- data.frame(X, .time = time, .cens = cens)
   fit <- survival::coxph(survival::Surv(.time, .cens) ~ ., data = d, x = TRUE)
   bh <- survival::basehaz(fit, centered = FALSE)        # 列: time, hazard
   bh <- bh[order(bh$time), ]
   lp <- as.numeric(predict(fit, type = "lp", newdata = as.data.frame(X)))
-  idx <- findInterval(time, bh$time, left.open = TRUE)  # 严格小于 t_i 的删失时点个数
+  idx <- findInterval(u, bh$time, left.open = TRUE)     # 严格小于 u_i 的删失时点个数
   H0 <- ifelse(idx >= 1L, bh$hazard[pmax(idx, 1L)], 0)
   pmin(pmax(exp(-H0 * exp(lp)), 0.01), 1)
 }

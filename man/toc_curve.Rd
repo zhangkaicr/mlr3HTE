@@ -4,19 +4,39 @@
 \alias{toc_curve}
 \title{TOC 曲线：按效应排序后各分位的平均治疗效应}
 \usage{
-toc_curve(cate, A, Y, propensity = NULL, n_bins = NULL)
+toc_curve(
+  cate,
+  A,
+  Y,
+  propensity = NULL,
+  n_bins = NULL,
+  t0 = NULL,
+  X = NULL,
+  effect = c("survdiff", "rmst")
+)
 }
 \arguments{
 \item{cate}{逐个体估计的 CATE（数值向量），即模型的排序分数。}
 
 \item{A}{处理指示（0/1 或逻辑）。}
 
-\item{Y}{数值结局：连续，或 0/1 二分类。生存结局暂不支持。}
+\item{Y}{结局：连续数值、0/1 二分类，或生存对象
+（\code{survival::Surv(time, status)}，也可直接给两列矩阵）。}
 
 \item{propensity}{倾向得分 \eqn{e(X)}；\code{NULL}（默认）时用 \code{mean(A)}，
 适用于随机化试验。观察性数据请传入估计好的倾向得分。}
 
 \item{n_bins}{曲线取多少个点（等量分箱的箱末点）；\code{NULL} 表示用全部样本点。}
+
+\item{t0}{生存结局的关键时点；\code{NULL}（默认）取事件时间中位数。
+连续/二分类结局忽略此参数。}
+
+\item{X}{协变量 data.frame；仅生存结局且删失依赖协变量时需要，用于 Cox 建模
+删失分布。\code{NULL}（默认）用边际 Kaplan–Meier，假定删失与协变量无关。}
+
+\item{effect}{生存结局的效应标尺：\code{"survdiff"}（默认）为 \eqn{t0} 时点
+生存概率差，与 \code{metalearner()} 的默认 CATE 一致；\code{"rmst"} 为
+限制平均生存时间差。连续/二分类结局忽略此参数。}
 }
 \value{
 data.frame，含 \code{fraction} 与 \code{toc}，并附属性

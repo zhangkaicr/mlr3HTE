@@ -2,6 +2,52 @@
 
 本文件记录 mlr3HTE 的每个交付批次。版本号遵循 `DESCRIPTION` 中的 `Version:`。
 
+## [0.2.0] — 2026-10-21（评价指标覆盖三类结局）
+
+### 新增：生存结局终于能评了
+- `qini_curve()` / `qini_coefficient()` / `c_for_benefit()` / `toc_curve()` /
+  `dr_pseudo_outcome()` 全部接受 `Surv` 对象。原来 `.hte_numeric_outcome()`
+  遇到 `Surv` 会直接报错，现在换成统一的 `.hte_outcome()`，把三类结局都压成
+  `(y, w)` 两件套再进评分：
+  - 连续 / 二分类：`y = Y`，`w = 1`
+  - 生存 `survdiff`（默认）：`y = I(T > t0)`，`w = I(可观测) / Ĝ(min(T, t0))`
+  - 生存 `rmst`：`y = δ·min(T, t0) / Ĝ(T)`，`w = 1`
+- 五个函数新增 `t0` / `X` / `effect` 三个参数。`t0` 不传时默认取**事件时间的中位数**；
+  `X` 用于拟合删失模型（`X = NULL` 时退化为边际 Kaplan–Meier）；
+  `effect = c("survdiff", "rmst")` 选效应标尺。
+- `.surv_ipcw()` 扩展（`R/survival_base.R`）：新增 `at` 参数（在指定时点估值）
+  与 `X = NULL` 的边际 KM 分支，删失 IPCW 现在既供引擎用也供指标用。
+
+### 为什么生存必须走 `I(T > t0)` + IPCW（实测，n = 20000）
+- 效应标尺必须和 `metalearner()` 的生存 CATE 定义一致（都是 S(t0) 差），
+  否则被评价的 CATE 与指标算的效应不在同一个量纲上，排序比较没有意义。
+- 删失校正是因为可选项：真值 ATE 0.1514，完整病例 IPCW 得 0.1424（偏差 −0.009），
+  不做校正（`w = 1`）只有 0.1127（偏差 −0.039，低估约四分之一）——
+  被删失的人被当成「没获益」计入了分母。
+- `toc_curve()` 的分母从 `k` 改为 `cumsum(w)`，避免零权重的删失个体稀释均值。
+
+### 已知限制：`effect = "rmst"` 在删失重时低估
+- 权重取自 `Ĝ(T_i)` 且被截断在 100 以内，删失 58% 时实测 Q(1) = 0.043 vs 真值 0.184。
+  该截断是引擎共用的 `.surv_ipcw()` 行为，为避免影响主估计未改；
+  删失重的样本请用默认的 `survdiff`。
+
+### 教程脚本 12（新）：`tutorial/code/12_三类结局评价指标.R`
+- 三类结局 × 三层排序（oracle / model / random）对账，各重复 8 次报均值 ± 标准差。
+  次序在三类结局上都对：oracle ≥ model > random。
+- 新增**泄漏对照**：先在全集拟合再切留出集，二分类的 c-for-benefit 从
+  0.558 虚高到 0.891 并反超 oracle 0.605——尽管它与真 `tau` 的相关反而更低
+  （0.542 < 0.655）。观测获益是 `Y_treated − Y_control`，CATE 记住了 `Y_treated`。
+  **先切分、后拟合**是硬规矩，已写进文档站的两个坑位。
+
+### 测试
+- `tests/testthat/test-metrics.R` 用 `Surv` 重写：新增 8 组生存测试
+  （无删失时 Q(1) 复原真 S(t0) 差、30% 删失下 IPCW 仍无偏、oracle > random、
+  TOC 的 overall ATE 等于 Qini 的 Q(1)、`t0` 默认取事件时间中位数、
+  `dr_pseudo_outcome()` 在生存上可用、生存下拒绝 mlr3 Learner 作基学习器）。
+  该文件 44 个断言，全套件通过。
+
+---
+
 ## [0.1.0] — 2026-10-21（评价指标可用于观察性数据 + DAG 箭头修复）
 
 ### 新增
