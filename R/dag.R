@@ -93,6 +93,16 @@ mlr3HTE_dag <- function(design = c("rct", "obs"),
   edges <- merge(edges, setNames(pos, c("from", "x", "y")), by = "from")
   edges <- merge(edges, setNames(pos, c("to", "xend", "yend")), by = "to")
 
+  # 边缩短：geom_segment 的 arrow 参数确实画了箭头，但每条边都终止在节点中心，
+  # 而 geom_label 是不透明底色且画在更上层，箭头整个被标签盒吞掉，看上去像没有箭头。
+  # 这里把终点沿边方向朝起点回退 shrink 个数据单位，让箭头停在标签盒外侧。
+  shrink <- 0.45
+  dx <- edges$xend - edges$x
+  dy <- edges$yend - edges$y
+  k  <- shrink / sqrt(dx^2 + dy^2)
+  edges$xend <- edges$xend - dx * k
+  edges$yend <- edges$yend - dy * k
+
   role_fill <- c(cov = "#4C78A8", trt = "#F58518", eff = "#B279A2",
                  prog = "#54A24B", out = "#E45756", ps = "#E45756")
   edges$col <- ifelse(edges$type == "conf", "#E45756", "#888888")
@@ -108,7 +118,7 @@ mlr3HTE_dag <- function(design = c("rct", "obs"),
       data = nodes,
       ggplot2::aes(x = x, y = y, label = label, fill = I(role_fill[role])),
       color = "white", size = 4.2, fontface = "bold",
-      label.size = NA, linewidth = 0) +
+      linewidth = 0) +
     ggplot2::scale_x_continuous(limits = c(0.2, 7.6), expand = c(0, 0)) +
     ggplot2::scale_y_continuous(limits = c(0.2, 4.2), expand = c(0, 0)) +
     ggplot2::theme_void() +

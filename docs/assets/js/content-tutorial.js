@@ -26,8 +26,8 @@ window.SITE_PAGES.tutorial = {
 
   /* ---------------- 中文 ---------------- */
   zh: {
-    title: "六种场景教程",
-    lede: "三类结局 × 随机/观察性，共六格。每格都用自带真值的模拟数据，可逐人对账。",
+    title: "场景教程与模型评价",
+    lede: "三类结局 × 随机/观察性，共六格；另加一格模型判别力评价（Qini / c-for-benefit / TOC）。每格都用自带真值的模拟数据，可逐人对账。",
     sections: [
 
       {
@@ -333,7 +333,101 @@ window.SITE_PAGES.tutorial = {
           '<tr><td><code>07_五种metalearner横向对比.R</code></td><td>三种结局 × 五种 learner 对比表</td></tr>' +
           '<tr><td><code>08_mlr3工作流集成.R</code></td><td><code>ml_task</code> + <code>resample</code> + <code>benchmark</code></td></tr>' +
           '<tr><td><code>09_生存结局_survlearners引擎.R</code></td><td>生存第二套引擎 <code>engine="survlearners"</code>，与原生引擎同题对比</td></tr>' +
+          '<tr><td><code>10_HTE评价指标.R</code></td><td>Qini / c-for-benefit / TOC：模型<strong>判别力</strong>评价，附随机排序对照</td></tr>' +
           '</tbody></table></div>'
+      },
+
+      {
+        id: "metrics",
+        heading: "模型评价：Qini、c-for-benefit 与 TOC（脚本 10）",
+        body:
+          '<p>前面六格回答的是「ATE 估得准不准」。但 HTE 模型还有一个独立的问题：' +
+          '<strong>它把「谁获益更多」排前面的能力如何</strong>？一个模型可以 ATE 完全无偏，' +
+          '却对异质性一无所知（比如只会报一个常数）。三个指标专门评这件事，' +
+          '全部定义在<strong>测试集</strong>上——训练集上的判别力是自欺欺人。</p>' +
+
+          '<div class="table-wrap"><table>' +
+          '<thead><tr><th>指标</th><th>函数</th><th>看什么</th><th>参照</th></tr></thead><tbody>' +
+          '<tr><td>Qini 曲线 / 系数</td><td><code>qini_curve()</code><br><code>qini_coefficient()</code></td>' +
+          '<td>按 CATE 降序靶向前 k% 的累积治疗增益（IPW 估计）</td>' +
+          '<td>随机靶向线；系数≈0 即无异质性可利用</td></tr>' +
+          '<tr><td>c-for-benefit</td><td><code>c_for_benefit()</code></td>' +
+          '<td>配对后比较「预测获益」与「观测获益」的次序一致率</td>' +
+          '<td>0.5 = 随机；越接近 1 越好</td></tr>' +
+          '<tr><td>TOC 曲线</td><td><code>toc_curve()</code></td>' +
+          '<td>靶向前 k% 子群的平均治疗效应如何随靶向比例变化</td>' +
+          '<td>全样本总体 ATE（水平虚线）</td></tr>' +
+          '</tbody></table></div>' +
+
+          '<h3>代码长这样</h3>' +
+          '<pre><code>d &lt;- mlr3HTE_demo_data(n = 4000, seed = 1)\n' +
+          'idx &lt;- sample.int(nrow(d$X), nrow(d$X) %/% 2)   # 切出测试集\n' +
+          'fit &lt;- metalearner("T", d$X[-idx, ], d$A[-idx], d$Y[-idx],\n' +
+          '                   learner_base = mlr3::lrn("regr.ranger", num.trees = 300, seed = 1))\n' +
+          'cate_te &lt;- fit$predict(d$X[idx, ])             # 测试集上的排序分数\n\n' +
+          'q &lt;- qini_coefficient(cate_te, d$A[idx], d$Y[idx])\n' +
+          'c &lt;- c_for_benefit(cate_te, d$A[idx], d$Y[idx])\n' +
+          't &lt;- toc_curve(cate_te, d$A[idx], d$Y[idx])\n\n' +
+          '# 对照组：把 CATE 打乱，就是"无信息排序"\n' +
+          'cate_rand &lt;- sample(cate_te)\n' +
+          'qini_coefficient(cate_rand, d$A[idx], d$Y[idx])$qini_coefficient</code></pre>' +
+
+          '<div class="fig-grid">' +
+          '<figure class="fig"><img src="assets/img/qini-curve.png" ' +
+          'alt="Qini 曲线：IPW 累积增益随靶向比例上升，明显高于随机靶向线">' +
+          '<figcaption>Qini 曲线（虚线 = 随机靶向）</figcaption></figure>' +
+          '<figure class="fig"><img src="assets/img/toc-curve.png" ' +
+          'alt="TOC 曲线：前段明显高于总体 ATE，后段回落到总体线附近">' +
+          '<figcaption>TOC 曲线（虚线 = 总体 ATE）</figcaption></figure>' +
+          '</div>' +
+
+          '<h3>实测输出：n=4000，连续结局</h3>' +
+          '<pre><code># A tibble: 2 × 3\n' +
+          '  metric          informative random\n' +
+          '  &lt;chr&gt;                &lt;dbl&gt;  &lt;dbl&gt;\n' +
+          '1 Qini coefficient      0.312  0.020\n' +
+          '2 c-for-benefit         0.601  0.501\n\n' +
+          'ℹ cor(cate_test, tau_test) = 0.931   # 排序有信息，源自 CATE 抓到了真 tau</code></pre>' +
+
+          '<div class="callout"><div class="callout-title">三个指标怎么读</div>' +
+          '<p><strong>Qini 曲线越早抬升、前段越陡</strong>，说明模型把获益者往前排的能力越强；' +
+          'Qini 系数 0.312 对随机 0.020，差距接近 15 倍。' +
+          '<strong>c-for-benefit 0.601</strong>：预测获益更高的配对，其观测获益也确实更高的比例约 60%，' +
+          '随机是 50%。<strong>TOC 曲线前段高于总体 ATE</strong>：只治疗前 25% 的人，' +
+          '平均效应比全员治疗更高——这就是"精准投放"的空间。</p></div>' +
+
+          '<div class="callout warn"><div class="callout-title">三个坑，先说清</div>' +
+          '<p><strong>① 观察性数据必须传倾向得分。</strong>三个函数的 ' +
+          '<code>propensity</code> 参数默认 <code>NULL</code>，此时按 ' +
+          '<code>mean(A)</code> 处理——只对随机化试验成立。观察性数据请传入估计的 ' +
+          '<code>e(X)</code>，否则 IPW 评分本身有偏，指标跟着有偏。</p>' +
+          '<p><strong>② 生存结局暂不支持。</strong>三个函数只接受数值型 ' +
+          '<code>Y</code>（连续或 0/1），传 <code>Surv</code> 会直接报错。' +
+          '生存要做判别力评价，需要把删失 IPCW 织进评分，本版没做。</p>' +
+          '<p><strong>③ c-for-benefit 是近似实现。</strong>本包用贪心配对 + 配对间秩相关，' +
+          '不是 van Klaveren 原文的完整匹配流程；需要严格复现时请对照 ' +
+          '<code>CforBenefit</code> 包。这一点写在了 <code>R/metrics.R</code> 的注释里，不藏着。</p></div>' +
+
+          '<div class="callout ok"><div class="callout-title">判别力 ≠ 无偏性</div>' +
+          '<p>这三个指标衡量的是<strong>排序质量</strong>，不是<strong>效应估计的无偏性</strong>。' +
+          '一个模型可以把 CATE 整体放大 10 倍，Qini / c-for-benefit 完全不变，但 ATE 会错 10 倍。' +
+          '所以两者要分开报：ATE 的无偏性靠 IPTW / DR 与真值对账（前六格），' +
+          '判别力靠这三个指标（本格）。</p></div>' +
+
+          '<h3>文献出处</h3>' +
+          '<ul>' +
+          '<li>Qini 曲线与系数：Sverdrup E, Wu H, Athey S, Wager S. ' +
+          '<em>Qini Curves for Multi-Armed Treatment Rules.</em> ' +
+          'Journal of Computational and Graphical Statistics, 2025. arXiv:2306.11979. ' +
+          '（uplift 曲线的早期形式见 Radcliffe 2007）</li>' +
+          '<li>c-for-benefit：van Klaveren D, Steyerberg EW, Serruys PW, Kent DM. ' +
+          '<em>The proposed "concordance-statistic for benefit" provided a useful metric ' +
+          'when modeling heterogeneous treatment effects.</em> ' +
+          'J Clin Epidemiol 2018;94:59-68.</li>' +
+          '<li>TOC 曲线：Yadlowsky S, Fleming S, Shah N, Brunskill E, Wager S. ' +
+          '<em>Evaluating Treatment Prioritization Rules via Rank-Weighted Average ' +
+          'Treatment Effects.</em> JASA 120(549), 2025. arXiv:2111.07966.</li>' +
+          '</ul>'
       },
 
       {
@@ -393,9 +487,10 @@ window.SITE_PAGES.tutorial = {
 
   /* ---------------- English ---------------- */
   en: {
-    title: "Tutorial: 6 Scenarios",
-    lede: "Three outcome types × randomized / observational = six cells. Every cell uses " +
-          "simulated data with known ground truth, so you can check estimates unit by unit.",
+    title: "Scenario tutorial & model evaluation",
+    lede: "Three outcome types × randomized / observational = six cells, plus one on model " +
+          "discrimination (Qini / c-for-benefit / TOC). Every cell uses simulated data with " +
+          "known ground truth, so you can check estimates unit by unit.",
     sections: [
 
       {
@@ -718,7 +813,109 @@ window.SITE_PAGES.tutorial = {
           '<tr><td><code>07_五种metalearner横向对比.R</code></td><td>3 outcomes × 5 learners comparison tables</td></tr>' +
           '<tr><td><code>08_mlr3工作流集成.R</code></td><td><code>ml_task</code> + <code>resample</code> + <code>benchmark</code></td></tr>' +
           '<tr><td><code>09_生存结局_survlearners引擎.R</code></td><td>The second survival engine <code>engine="survlearners"</code>, head-to-head with native</td></tr>' +
+          '<tr><td><code>10_HTE评价指标.R</code></td><td>Qini / c-for-benefit / TOC: <strong>discrimination</strong> metrics with a random-ordering control</td></tr>' +
           '</tbody></table></div>'
+      },
+
+      {
+        id: "metrics",
+        heading: "Model evaluation: Qini, c-for-benefit and TOC (script 10)",
+        body:
+          '<p>The six cells above answer "is the ATE estimated accurately?". An HTE model ' +
+          'raises a separate question: <strong>how well does it rank who benefits more</strong>? ' +
+          'A model can be perfectly unbiased for the ATE while knowing nothing about ' +
+          'heterogeneity (a constant predictor does exactly that). Three metrics target that ' +
+          'question specifically, and all of them must be computed on a <strong>held-out ' +
+          'test set</strong> — discrimination on the training set is self-deception.</p>' +
+
+          '<div class="table-wrap"><table>' +
+          '<thead><tr><th>Metric</th><th>Function</th><th>What it looks at</th><th>Reference</th></tr></thead><tbody>' +
+          '<tr><td>Qini curve / coefficient</td><td><code>qini_curve()</code><br><code>qini_coefficient()</code></td>' +
+          '<td>IPW cumulative treatment gain when targeting the top k% by CATE</td>' +
+          '<td>Random-targeting line; coefficient ≈ 0 means no usable heterogeneity</td></tr>' +
+          '<tr><td>c-for-benefit</td><td><code>c_for_benefit()</code></td>' +
+          '<td>Concordance between predicted and observed benefit across matched pairs</td>' +
+          '<td>0.5 = random; closer to 1 is better</td></tr>' +
+          '<tr><td>TOC curve</td><td><code>toc_curve()</code></td>' +
+          '<td>Average treatment effect inside the top k% as targeting grows</td>' +
+          '<td>Overall ATE (horizontal dashed line)</td></tr>' +
+          '</tbody></table></div>' +
+
+          '<h3>What the code looks like</h3>' +
+          '<pre><code>d &lt;- mlr3HTE_demo_data(n = 4000, seed = 1)\n' +
+          'idx &lt;- sample.int(nrow(d$X), nrow(d$X) %/% 2)   # hold out a test set\n' +
+          'fit &lt;- metalearner("T", d$X[-idx, ], d$A[-idx], d$Y[-idx],\n' +
+          '                   learner_base = mlr3::lrn("regr.ranger", num.trees = 300, seed = 1))\n' +
+          'cate_te &lt;- fit$predict(d$X[idx, ])             # ranking score on the test set\n\n' +
+          'q &lt;- qini_coefficient(cate_te, d$A[idx], d$Y[idx])\n' +
+          'c &lt;- c_for_benefit(cate_te, d$A[idx], d$Y[idx])\n' +
+          't &lt;- toc_curve(cate_te, d$A[idx], d$Y[idx])\n\n' +
+          '# control: shuffle the CATE — that is an uninformative ordering\n' +
+          'cate_rand &lt;- sample(cate_te)\n' +
+          'qini_coefficient(cate_rand, d$A[idx], d$Y[idx])$qini_coefficient</code></pre>' +
+
+          '<div class="fig-grid">' +
+          '<figure class="fig"><img src="assets/img/qini-curve.png" ' +
+          'alt="Qini curve: IPW cumulative gain rises well above the random-targeting line">' +
+          '<figcaption>Qini curve (dashed = random targeting)</figcaption></figure>' +
+          '<figure class="fig"><img src="assets/img/toc-curve.png" ' +
+          'alt="TOC curve: clearly above the overall ATE early, flattening back to it later">' +
+          '<figcaption>TOC curve (dashed = overall ATE)</figcaption></figure>' +
+          '</div>' +
+
+          '<h3>Actual output: n=4000, continuous outcome</h3>' +
+          '<pre><code># A tibble: 2 × 3\n' +
+          '  metric          informative random\n' +
+          '  &lt;chr&gt;                &lt;dbl&gt;  &lt;dbl&gt;\n' +
+          '1 Qini coefficient      0.312  0.020\n' +
+          '2 c-for-benefit         0.601  0.501\n\n' +
+          'ℹ cor(cate_test, tau_test) = 0.931   # the ordering carries signal: CATE tracked the true tau</code></pre>' +
+
+          '<div class="callout"><div class="callout-title">How to read the three metrics</div>' +
+          '<p><strong>The earlier and steeper the Qini curve lifts</strong>, the better the model ' +
+          'pushes beneficiaries to the front; a coefficient of 0.312 against 0.020 for random is ' +
+          'roughly a 15-fold gap. <strong>c-for-benefit 0.601</strong>: among pairs, the one with ' +
+          'higher predicted benefit also shows higher observed benefit about 60% of the time, ' +
+          'versus 50% for random. <strong>The TOC curve sits above the overall ATE early</strong>: ' +
+          'treating only the top 25% yields a larger average effect than treating everyone — ' +
+          'that headroom is what precision targeting buys you.</p></div>' +
+
+          '<div class="callout warn"><div class="callout-title">Three caveats, stated up front</div>' +
+          '<p><strong>① Observational data must pass a propensity score.</strong> The ' +
+          '<code>propensity</code> argument defaults to <code>NULL</code>, which falls back to ' +
+          '<code>mean(A)</code> — valid only for randomized trials. For observational data, pass ' +
+          'your estimated <code>e(X)</code>; otherwise the IPW score itself is biased and so are ' +
+          'the metrics.</p>' +
+          '<p><strong>② Survival outcomes are not supported yet.</strong> All three functions ' +
+          'accept only numeric <code>Y</code> (continuous or 0/1) and raise an explicit error on ' +
+          '<code>Surv</code>. Evaluating discrimination for survival would require folding ' +
+          'censoring IPCW into the score, which this version does not do.</p>' +
+          '<p><strong>③ c-for-benefit is an approximation.</strong> This package uses greedy ' +
+          'matching plus rank concordance across pairs, not the full matching procedure of the ' +
+          'van Klaveren paper; use the <code>CforBenefit</code> package when strict replication ' +
+          'is required. This is written in the comments of <code>R/metrics.R</code>, not hidden.</p></div>' +
+
+          '<div class="callout ok"><div class="callout-title">Discrimination is not unbiasedness</div>' +
+          '<p>These three metrics measure <strong>ranking quality</strong>, not ' +
+          '<strong>unbiased effect estimation</strong>. Inflate every CATE by 10× and the Qini / ' +
+          'c-for-benefit values do not move at all, while the ATE is off by 10×. Report the two ' +
+          'separately: unbiasedness of the ATE comes from IPTW / DR and truth reconciliation ' +
+          '(the six cells above), discrimination comes from these three metrics (this cell).</p></div>' +
+
+          '<h3>References</h3>' +
+          '<ul>' +
+          '<li>Qini curves and coefficient: Sverdrup E, Wu H, Athey S, Wager S. ' +
+          '<em>Qini Curves for Multi-Armed Treatment Rules.</em> ' +
+          'Journal of Computational and Graphical Statistics, 2025. arXiv:2306.11979. ' +
+          '(The early uplift form is Radcliffe 2007.)</li>' +
+          '<li>c-for-benefit: van Klaveren D, Steyerberg EW, Serruys PW, Kent DM. ' +
+          '<em>The proposed "concordance-statistic for benefit" provided a useful metric ' +
+          'when modeling heterogeneous treatment effects.</em> ' +
+          'J Clin Epidemiol 2018;94:59-68.</li>' +
+          '<li>TOC curve: Yadlowsky S, Fleming S, Shah N, Brunskill E, Wager S. ' +
+          '<em>Evaluating Treatment Prioritization Rules via Rank-Weighted Average ' +
+          'Treatment Effects.</em> JASA 120(549), 2025. arXiv:2111.07966.</li>' +
+          '</ul>'
       },
 
       {

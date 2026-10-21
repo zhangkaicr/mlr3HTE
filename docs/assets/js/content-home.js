@@ -7,7 +7,7 @@ window.SITE_META = { version: "0.1.0", date: "2026-10-20" };
 window.SITE_NAV = [
   { id: "home",      zh: "首页",           en: "Home"                    },
   { id: "guide",     zh: "架构与快速开始", en: "Architecture & Quickstart" },
-  { id: "tutorial",  zh: "六种场景教程",   en: "Tutorial: 6 Scenarios"     },
+  { id: "tutorial",  zh: "场景教程与模型评价", en: "Tutorial & Model Evaluation" },
   { id: "api",       zh: "函数文档",       en: "API Reference"             },
   { id: "changelog", zh: "更新日志",       en: "Changelog"                 }
 ];
