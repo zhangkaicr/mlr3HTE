@@ -21,12 +21,19 @@ window.SITE_PAGES.home = {
     title: "mlr3HTE",
     lede: "基于 mlr3 的异质性治疗效应（HTE / CATE）估计包：S / T / X / R / DR 五种 Meta-Learner，" +
           "一套引擎通吃连续、二分类、生存三类结局，同时适用于随机化试验与观察性研究。",
+    hero: "assets/img/social-preview.png",
+    heroAlt: "mlr3HTE 封面：治疗推荐前的潜在结局重合、推荐后按治疗与对照发散",
     sections: [
 
       {
         id: "intro",
         heading: "这是什么",
         body:
+          '<div class="logo-block">' +
+          '<img src="assets/img/logo.png" alt="mlr3HTE 包图标" width="150">' +
+          '<p class="logo-caption">两条潜在结局曲线向右发散，中间琥珀色间隙即治疗效应；' +
+          '间隙越宽表示异质性越强。</p>' +
+          '</div>' +
           '<p><code>mlr3HTE</code> 把课程里的 S- / T- / X- / R- / DR-Learner 做成了正规可安装的 ' +
           'mlr3 学习器。它的核心设计只有一句话：</p>' +
           '<div class="callout ok">' +
@@ -152,12 +159,19 @@ window.SITE_PAGES.home = {
     lede: "mlr3-native estimation of heterogeneous treatment effects (HTE / CATE) with the " +
           "S, T, X, R and DR meta-learners — one engine covering continuous, binary and " +
           "survival outcomes, for both randomized trials and observational studies.",
+    hero: "assets/img/social-preview.png",
+    heroAlt: "mlr3HTE cover: potential outcomes coincide before a treatment recommendation, then diverge by treatment vs control",
     sections: [
 
       {
         id: "intro",
         heading: "What this is",
         body:
+          '<div class="logo-block">' +
+          '<img src="assets/img/logo.png" alt="mlr3HTE package logo" width="150">' +
+          '<p class="logo-caption">Two potential-outcome curves diverge to the right; the amber gap ' +
+          'between them is the treatment effect, and a wider gap means stronger heterogeneity.</p>' +
+          '</div>' +
           '<p><code>mlr3HTE</code> turns the classic S- / T- / X- / R- / DR-learners into proper, ' +
           'installable mlr3 learners. The design boils down to one sentence:</p>' +
           '<div class="callout ok">' +

@@ -1,5 +1,13 @@
 # mlr3HTE
 
+<p align="center">
+  <img src="docs/assets/img/social-preview.png" alt="mlr3HTE 封面：潜在结局重合后按治疗与对照发散" width="720">
+</p>
+
+<p align="center">
+  <img src="docs/assets/img/logo.png" alt="mlr3HTE 包图标" width="120">
+</p>
+
 > **仓库**：<https://github.com/zhangkaicr/mlr3HTE>
 > **双语教程站（含搜索 / 中英切换 / 明暗主题）**：<https://zhangkaicr.github.io/mlr3HTE/>
 

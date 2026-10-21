@@ -102,6 +102,48 @@ a:hover { text-decoration: underline; }
   width: 10px; height: 10px; border-radius: 50%;
   background: var(--accent);
 }
+/* 顶栏品牌图标：包图标的无字标小标（64px 母题） */
+.brand-mark {
+  width: 22px; height: 22px;
+  border-radius: 5px;
+  display: block;
+  flex: none;
+}
+/* 首页 hero 封面图 */
+.hero {
+  margin: 0 0 22px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  background: var(--bg-soft);
+  line-height: 0;
+}
+.hero img {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+/* 首页介绍区的包图标 */
+.logo-block {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin: 4px 0 16px;
+  padding: 14px 16px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--bg-soft);
+}
+.logo-block img { flex: none; border-radius: 8px; }
+.logo-caption {
+  margin: 0;
+  font-size: 13px;
+  color: var(--fg-muted);
+  line-height: 1.6;
+}
+@media (max-width: 640px) {
+  .logo-block { flex-direction: column; text-align: center; }
+}
 
 .topbar .spacer { flex: 1; }
 

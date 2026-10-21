@@ -177,6 +177,11 @@
     var data = pg[state.lang] || pg.zh;
     var html = "<h1>" + data.title + "</h1>";
     if (data.lede) html += '<p class="lede">' + data.lede + "</p>";
+    // 可选的 hero 封面图（首页用；只在当前语言段渲染一次，不随另一语言重复）
+    if (data.hero) {
+      html += '<div class="hero"><img src="' + data.hero + '" alt="' +
+              (data.heroAlt || data.title) + '"></div>';
+    }
     html += sectionsHtml(data.sections || []);
 
     // 首页同屏双语：当前语言在上，另一语言整段附在下；一键切换只改上下顺序
