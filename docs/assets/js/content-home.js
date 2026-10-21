@@ -10,7 +10,8 @@ window.SITE_NAV = [
   { id: "tutorial",  zh: "场景教程与模型评价", en: "Tutorial & Model Evaluation" },
   { id: "api",       zh: "函数文档",       en: "API Reference"             },
   { id: "changelog", zh: "更新日志",       en: "Changelog"                 },
-  { id: "references", zh: "参考文献",      en: "References"                }
+  { id: "references", zh: "参考文献",      en: "References"                },
+  { id: "environment", zh: "运行环境",     en: "Environment"               }
 ];
 
 window.SITE_PAGES = window.SITE_PAGES || {};

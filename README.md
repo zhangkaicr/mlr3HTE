@@ -306,11 +306,149 @@ Rscript tutorial/code/01_连续结局_随机化RCT.R
 
 ---
 
-## 6 环境
+## 6 依赖与运行环境
 
-- R 4.5.1；mlr3 1.8.0；paradox 1.0.1
-- **不依赖 `mlr3proba`**：生存分支用 `survival` + `ranger` 原生实现（`ranger` 已列入 `Imports`，安装即带）
-- **复现依赖版本（可选）**：仓库已带 `renv.lock`（开发机系统库全量快照，约 100 个包）。
-  想锁定到完全相同的版本，clone 后执行 `renv::restore()` 即可。不强制——
-  直接用 `pak::pak("zhangkaicr/mlr3HTE")` / `remotes::install_github(...)` 安装也能跑通全部教程，
-  只是依赖版本随 CRAN 当前发布浮动。
+复现本仓库全部教程与测试结果所需的**依赖包版本**与**测试环境**细节如下（版本均为 2026-10-21 抓取的当前测试环境真实取值）。
+
+### 6.1 测试环境
+
+| 项目 | 取值 |
+|---|---|
+| R 版本 | 4.5.1 (2025-06-13 ucrt) |
+| 平台 | x86_64-w64-mingw32/x64 |
+| 操作系统 | Windows 11 x64 (build 26200) |
+| 语言环境 | 需 `en_US.UTF-8`（LC_CTYPE）——R 在 `LC_CTYPE=C` 下解析含 UTF-8 字节的源码会改写字符串常量，本项目实测有此坑 |
+| 测试命令 | `Rscript -e 'Sys.setlocale("LC_CTYPE","en_US.UTF-8"); pkgload::load_all("."); testthat::test_local()'` |
+| 测试规模 | 288 个用例 / 55 个文件，全部通过 |
+| 持续集成 | GitHub Actions `R-CMD-check.yaml`，运行于 `ubuntu-latest` |
+
+### 6.2 直接依赖（DESCRIPTION · Imports）
+
+安装 mlr3HTE 时由 `pak` / `remotes` 自动解析装齐，无需手动补。
+
+| 包 | 版本 | 角色 |
+|---|---|---|
+| `mlr3` | 1.8.0 | 核心框架：Task / Learner / resample / benchmark |
+| `mlr3learners` | 0.16.0 | 基学习器注册表（ranger、xgboost、glmnet、lm…） |
+| `paradox` | 1.0.1 | 参数空间与调参（tune） |
+| `R6` | 2.6.1 | 面向对象（Learner 子类） |
+| `survival` | 3.8-3 | 生存分析基础（coxph、survfit） |
+| `ranger` | 0.18.0 | 默认基学习器（随机森林，含生存分支） |
+| `dplyr` | 1.2.1 | 数据整理 |
+| `cli` | 3.6.6 | 运行信息与告警 |
+| `ggplot2` | 4.0.3 | 结果可视化 |
+
+### 6.3 建议依赖（DESCRIPTION · Suggests）
+
+仅运行测试、绘图或教程演示时需要。
+
+| 包 | 版本 | 角色 |
+|---|---|---|
+| `testthat` | 3.3.2 | 单元测试（288 用例 / 55 文件） |
+| `patchwork` | 1.3.2 | 多图拼接 |
+| `ggdag` | 0.2.13 | DAG 绘图（教程示意图） |
+| `survlearners` | 0.0.1 | 生存 learner 演示（可选） |
+| `rcmdcheck` | （CI 提供） | R CMD check；当前环境未安装，由 GitHub Actions 提供 |
+
+### 6.4 完整递归依赖清单（89 个）
+
+<details>
+<summary>展开全部 89 个包（pkg@version）</summary>
+
+- MASS@7.3-65
+- Matrix@1.7-3
+- MatrixModels@0.5-4
+- R6@2.6.1
+- Rcpp@1.1.2
+- Rdpack@2.6.6
+- S7@0.2.2
+- askpass@1.2.1
+- backports@1.5.1
+- base64enc@0.1-6
+- brio@1.1.5
+- bslib@0.11.0
+- cachem@1.1.0
+- callr@3.7.6
+- checkmate@2.3.4
+- class@7.3-23
+- cli@3.6.6
+- colorspace@2.1-4
+- covr@3.6.5
+- curl@7.1.0
+- data.table@1.18.4
+- desc@1.4.3
+- diffobj@0.3.9
+- digest@0.6.39
+- dplyr@1.2.1
+- evaluate@1.0.5
+- farver@2.1.2
+- fastmap@1.2.0
+- fontawesome@0.5.3
+- forcats@1.0.1
+- future@1.76.0
+- future.apply@1.20.2
+- generics@0.1.4
+- ggdag@0.2.13
+- ggforce@0.5.0
+- ggplot2@4.0.3
+- ggraph@2.2.2
+- glue@1.8.1
+- gridExtra@2.3
+- gtable@0.3.6
+- highr@0.12
+- htmltools@0.5.9
+- igraph@2.3.4
+- isoband@0.3.0
+- jquerylib@0.1.4
+- jsonlite@2.0.0
+- labeling@0.4.3
+- lgr@0.5.2
+- lifecycle@1.0.5
+- magrittr@2.0.5
+- memoise@2.0.1
+- mgcv@1.9-3
+- mlr3@1.8.0
+- mlr3learners@0.16.0
+- mlr3measures@1.3.0
+- mlr3misc@0.23.0
+- nlme@3.1-168
+- nnet@7.3-20
+- paradox@1.0.1
+- patchwork@1.3.2
+- pillar@1.11.1
+- pkgload@1.5.3
+- polyclip@1.10-7
+- praise@1.0.0
+- prettyunits@1.2.0
+- processx@3.9.0
+- ps@1.9.3
+- purrr@1.2.2
+- ranger@0.18.0
+- rbibutils@2.4.1
+- rematch2@2.1.2
+- sass@0.4.10
+- scales@1.4.0
+- splines@4.5.1
+- stringi@1.8.7
+- stringr@1.6.0
+- survival@3.8-3
+- survlearners@0.0.1
+- sys@3.4.3
+- testthat@3.3.2
+- tibble@3.3.1
+- tidygraph@1.3.1
+- uuid@1.2-2
+- vctrs@0.7.3
+- waldo@0.6.2
+- withr@3.0.2
+- xfun@0.57
+- xml2@1.5.2
+- yaml@2.3.12
+
+</details>
+
+### 6.5 复现与版本锁定
+
+- **版本锁定**：仓库根目录的 `renv.lock` 记录了全部依赖的精确版本；先 `renv::restore()` 再 `pkgload::load_all('.')` 即可回到本节所列环境。
+- **实时核对**：在 R 里运行 `sessionInfo()` 可打印当前加载的全部包版本。
+- **生存分支无 `mlr3proba` 依赖**：基学习器用字符串 `"coxph"` / `"ranger"` 指定，不引入额外包。

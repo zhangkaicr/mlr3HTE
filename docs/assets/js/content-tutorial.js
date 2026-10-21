@@ -679,6 +679,20 @@ window.SITE_PAGES.tutorial = {
           '<p>grf 族在 mlr3HTE 引擎内固定 <code>seed = 1</code>，两次运行逐位相同；' +
           'lasso 族内部用 glmnet 交叉验证选 lambda、折序随机（survlearners 未暴露 foldid），' +
           '两次运行有 ~0.001 量级抖动——如实说明，不假装确定。</p></div>'
+      },
+
+      {
+        id: "environment",
+        heading: "依赖与运行环境",
+        body:
+          '<p>复现本教程所有结果所需的<strong>依赖包版本</strong>与<strong>测试环境</strong>（R 版本、操作系统、' +
+          '测试规模、CI 配置）已单独立页整理，含直接依赖、建议依赖、关键传递依赖与<strong>完整 89 个递归依赖清单</strong>：</p>' +
+          '<p><a href="#/environment" class="btn">查看运行环境与依赖版本 →</a></p>' +
+          '<p>简表（直接依赖，完整见上页）：' +
+          '<code>mlr3 1.8.0</code> · <code>mlr3learners 0.16.0</code> · <code>paradox 1.0.1</code> · ' +
+          '<code>R6 2.6.1</code> · <code>survival 3.8-3</code> · <code>ranger 0.18.0</code> · ' +
+          '<code>dplyr 1.2.1</code> · <code>cli 3.6.6</code> · <code>ggplot2 4.0.3</code>。' +
+          '测试：<code>testthat 3.3.2</code>，共 288 个用例 / 55 个文件全部通过。</p>'
       }
     ]
   },
@@ -1394,6 +1408,22 @@ window.SITE_PAGES.tutorial = {
           'runs are bit-identical. The lasso family cross-validates lambda with glmnet using random ' +
           'folds (survlearners exposes no foldid), so repeated runs jitter by ~0.001 — stated plainly ' +
           'rather than pretended away.</p></div>'
+      },
+
+      {
+        id: "environment",
+        heading: "Dependencies & environment",
+        body:
+          '<p>The <strong>dependency versions</strong> and <strong>testing environment</strong> needed to ' +
+          'reproduce every result in this tutorial (R version, OS, test scale, CI config) are collected on a ' +
+          'dedicated page, with direct deps, suggested deps, key transitive deps and the <strong>full 89-package ' +
+          'recursive list</strong>:</p>' +
+          '<p><a href="#/environment" class="btn">Open environment & dependency versions →</a></p>' +
+          '<p>Quick table (direct deps; full list on the page above): ' +
+          '<code>mlr3 1.8.0</code> · <code>mlr3learners 0.16.0</code> · <code>paradox 1.0.1</code> · ' +
+          '<code>R6 2.6.1</code> · <code>survival 3.8-3</code> · <code>ranger 0.18.0</code> · ' +
+          '<code>dplyr 1.2.1</code> · <code>cli 3.6.6</code> · <code>ggplot2 4.0.3</code>. ' +
+          'Testing: <code>testthat 3.3.2</code>, 288 cases / 55 files, all passing.</p>'
       }
     ]
   }

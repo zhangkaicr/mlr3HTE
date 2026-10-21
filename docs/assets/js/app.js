@@ -48,7 +48,8 @@
       linkSrc:      "源码",
       linkIssues:   "报告问题",
       linkPkg:      "安装",
-      linkRefs:     "参考文献"
+      linkRefs:     "参考文献",
+      linkEnv:      "运行环境"
     },
     en: {
       searchPh:     "Search docs…",
@@ -68,7 +69,8 @@
       linkSrc:      "Source",
       linkIssues:   "Report a bug",
       linkPkg:      "Install",
-      linkRefs:     "References"
+      linkRefs:     "References",
+      linkEnv:      "Environment"
     }
   };
 
@@ -459,6 +461,7 @@
           '<a href="https://github.com/zhangkaicr/mlr3HTE/issues" target="_blank" rel="noopener">' + t("linkIssues") + '</a>' +
           '<a href="#/guide">' + t("linkPkg") + '</a>' +
           '<a href="#/references">' + t("linkRefs") + '</a>' +
+          '<a href="#/environment">' + t("linkEnv") + '</a>' +
         '</div>' +
         '<div class="footer-col">' +
           '<div class="footer-title">' + t("footerDev") + '</div>' +

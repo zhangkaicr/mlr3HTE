@@ -56,6 +56,9 @@ window.SITE_PAGES.changelog = {
           '<li>新增教程脚本 <code>13_换基学习器_基准对比.R</code> 与教程页「换基学习器：mlr3 生态随便挑」小节' +
           '（中英）：演示用 mlr3 体系换基学习器只需改 <code>learner_base = lrn("regr.xxx")</code> 一行，' +
           '并复用 <code>benchmark()</code> 横向对比；README 顶部也加了一段「为什么基于 mlr3：基学习器想换就换」callout。</li>' +
+          '<li>新增独立的 <a href="#/environment">运行环境与依赖版本</a> 页（中英），列出完整测试环境' +
+          '（R 4.5.1 / Windows 11 / 288 用例 / ubuntu-latest CI）与全部依赖版本——直接依赖、建议依赖、' +
+          '关键传递依赖及 <strong>完整 89 个递归依赖清单</strong>；README §6 与教程主文档同步补齐。</li>' +
           '</ul>'
       },
 
@@ -209,6 +212,10 @@ window.SITE_PAGES.changelog = {
           'swapping the base learner in the mlr3 system is a one-line <code>learner_base = lrn("regr.xxx")</code> change, ' +
           'and <code>benchmark()</code> reuses the workflow directly. The README top also gained a ' +
           '"why mlr3: swap the base learner freely" callout.</li>' +
+          '<li>New standalone <a href="#/environment">Environment &amp; dependency versions</a> page (zh + en) ' +
+          'listing the full testing environment (R 4.5.1 / Windows 11 / 288 cases / ubuntu-latest CI) and every ' +
+          'dependency version — direct, suggested, key transitive, and the <strong>full 89-package recursive list</strong>; ' +
+          'README §6 and the tutorial main doc were updated to match.</li>' +
           '</ul>'
       },
 
