@@ -4,3 +4,5 @@
 ^tutorial$
 ^smoke_test.*\.R$
 ^HANDOFF\.md$
+^\.github$
+^run_checks\.R$

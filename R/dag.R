@@ -8,6 +8,11 @@
 # 依赖：ggplot2
 # =====================================================================
 
+# ggplot2 的 aes() 里引用的数据列名（x/y/xend/yend/label/role）对 codetools 不可见，
+# R CMD check 会报 "no visible binding for global variable" NOTE。globalVariables
+# 显式声明一次即可消除（这是 ggplot2 包社区的标准做法，不改变任何运行行为）。
+utils::globalVariables(c("x", "y", "xend", "yend", "label", "role"))
+
 # 0 环境与依赖 ----
 
 #' 因果图（DAG）：演示数据集的生成机制

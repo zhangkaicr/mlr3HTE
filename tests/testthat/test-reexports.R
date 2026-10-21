@@ -7,7 +7,14 @@
 
 # 1 NAMESPACE 声明 ------------------------------------------------------------
 test_that("lrn 同时被 export 与 importFrom(mlr3)", {
-  ns <- readLines(test_path("..", "..", "NAMESPACE"))
+  # 坑：不能写 test_path("..", "..", "NAMESPACE")。那个相对路径只在「从包源码根」
+  # 跑 devtools::test()/test_dir() 时成立；R CMD check 里测试的运行目录是
+  # <pkg>.Rcheck/tests/，../../NAMESPACE 并不存在——曾因此在 GitHub CI 上报
+  # "cannot open the connection" 直接判红。已安装包的目录里必定带 NAMESPACE，
+  # 用 system.file(package=...) 取，源码 / 已安装 / check 三种上下文都成立。
+  ns_file <- file.path(system.file(package = "mlr3HTE"), "NAMESPACE")
+  expect_true(file.exists(ns_file))
+  ns <- readLines(ns_file)
   expect_true(any(grepl("^export\\(lrn\\)$", ns)))
   expect_true(any(grepl("^importFrom\\(mlr3,lrn\\)$", ns)))
 })

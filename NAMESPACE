@@ -18,3 +18,11 @@ export(s_learner)
 export(t_learner)
 export(x_learner)
 importFrom(mlr3,lrn)
+importFrom(stats,
+  plogis,
+  predict,
+  qlogis,
+  quantile,
+  rbinom,
+  rnorm
+)
