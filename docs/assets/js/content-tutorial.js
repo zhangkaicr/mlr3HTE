@@ -334,6 +334,7 @@ window.SITE_PAGES.tutorial = {
           '<tr><td><code>08_mlr3工作流集成.R</code></td><td><code>ml_task</code> + <code>resample</code> + <code>benchmark</code></td></tr>' +
           '<tr><td><code>09_生存结局_survlearners引擎.R</code></td><td>生存第二套引擎 <code>engine="survlearners"</code>，与原生引擎同题对比</td></tr>' +
           '<tr><td><code>10_HTE评价指标.R</code></td><td>Qini / c-for-benefit / TOC：模型<strong>判别力</strong>评价，附随机排序对照</td></tr>' +
+          '<tr><td><code>11_评价指标真值对账.R</code></td><td>用已知真 <code>tau</code> 当标尺：把误差拆成<strong>排序损失</strong>与<strong>估计噪声</strong>，并给出 c-for-benefit 的闭式上界</td></tr>' +
           '</tbody></table></div>'
       },
 
@@ -442,6 +443,77 @@ window.SITE_PAGES.tutorial = {
           '<p><strong>④ c-for-benefit 是近似实现。</strong>本包用贪心配对 + 配对间秩相关，' +
           '不是 van Klaveren 原文的完整匹配流程；需要严格复现时请对照 ' +
           '<code>CforBenefit</code> 包。这一点写在了 <code>R/metrics.R</code> 的注释里，不藏着。</p></div>' +
+
+          '<h3>真值标尺：模拟数据里这些指标到底该是多少</h3>' +
+          '<p>模拟数据的好处是 <em>τ</em> 已知，所以 Qini 与 TOC 的<strong>真值可以直接算出来</strong>，' +
+          '不需要 IPW 估计：<br><code>Q_true(f_k) = (1/n) · Σ<sub>i in top-k</sub> τ<sub>i</sub></code>。' +
+          '有了这把尺子，同一个指标的「真值」与「估计值」就能并排放，' +
+          '把误差拆成两块：<strong>排序损失</strong>（模型没把获益者排对）和' +
+          '<strong>估计噪声</strong>（IPW 本身的抽样误差）。脚本 <code>11_评价指标真值对账.R</code>。</p>' +
+
+          '<div class="fig-grid">' +
+          '<figure class="fig"><img src="assets/img/qini-truth.png" ' +
+          'alt="Qini 曲线：真值 oracle 线、真值模型线、IPW 估计线三者对比">' +
+          '<figcaption>绿 = 真值天花板，蓝 = 真值·模型排序，橙虚线 = IPW 估计</figcaption></figure>' +
+          '<figure class="fig"><img src="assets/img/toc-truth.png" ' +
+          'alt="TOC 曲线：IPW 估计在真值线上下抖动，最左端越界">' +
+          '<figcaption>TOC：IPW 估计围绕真值抖动，最左端越界</figcaption></figure>' +
+          '</div>' +
+
+          '<pre><code># n_test = 2000，连续结局 RCT，真 ATE = 1.042\n' +
+          '| 层 | 真值 | IPW 估计 | 估计 − 真值 |\n' +
+          '| 随机排序   | 0.0076 | 0.1140 | 0.1065 |\n' +
+          '| 模型排序   | 0.2618 | 0.3121 | 0.0503 |\n' +
+          '| oracle 排序 | 0.2887 | 0.3477 | 0.0591 |\n\n' +
+          'oracle 真值（排序天花板）：0.2887\n' +
+          '排序损失（模型没排对）：0.0269 → 占天花板 9.3%\n' +
+          '估计噪声（IPW 抽样误差）：0.0591 → 占天花板 20.5%\n' +
+          '排序效率 = 模型真值 / oracle 真值 = 0.907</code></pre>' +
+
+          '<div class="callout"><div class="callout-title">最有用的一条：噪声标尺</div>' +
+          '<p>随机排序的真值 Qini 系数<strong>恒等于 0</strong>——Q<sub>true</sub>(f) = f·ATE 是直线，' +
+          '它的面积正好等于随机靶向线下的面积。所以随机排序的 IPW 估计值偏离 0 多少，' +
+          '就是单次估计的噪声量级。本数据上它是 <strong>0.1065</strong>，' +
+          '而 oracle 与模型的真值差距只有 <strong>0.0269</strong>。</p>' +
+          '<p><strong>结论：单次 IPW 估计分辨不出这两个排序的优劣。</strong>' +
+          '模型已经拿到天花板的 90.7%，但这点差距被埋进噪声里了。' +
+          '想比较两个模型，必须做重复抽样取均值，不能拿一次的数直接比大小。</p></div>' +
+
+          '<h3>c-for-benefit 没有真值，只有上界</h3>' +
+          '<p>这一点常被误解。Qini / TOC 是 <em>τ</em> 的函数（排序分数确定后，真值就确定），' +
+          '而 c-for-benefit 的「观测获益」里混着<strong>不可消除的个体结局噪声</strong>' +
+          '——配对两人的基线差加结局噪声差。即使排序完美，C 统计量也到不了 1。</p>' +
+          '<p>它的天花板有闭式解。观测获益 <code>= τ + η</code>，比较两对时信号 <code>D = τ<sub>i</sub> − τ<sub>j</sub></code>、' +
+          '噪声 <code>η</code> 都是零均值正态且独立，于是 <code>(D, D+η)</code> 是二元正态，' +
+          '相关系数 <code>ρ = sd(τ) / sd(观测获益)</code>，' +
+          '同号概率 = <code>1/2 + arcsin(ρ)/π</code>：</p>' +
+          '<pre><code>信噪比 rho = sd(tau) / sd(观测获益) = 0.973 / 1.905 = 0.511\n' +
+          '理论天花板 = 0.5 + asin(0.511) / pi = 0.6706\n' +
+          'oracle 实测  0.6638     ← 与理论值差 0.007，吻合\n' +
+          '模型实测    0.6457     ← 拿到天花板区间的 (0.646−0.5)/(0.671−0.5) ≈ 85%\n' +
+          '随机排序    0.5062</code></pre>' +
+          '<p>所以 c-for-benefit 报 0.65 时不要觉得「不够接近 1」——' +
+          '<strong>这个数据的信息上限就是 0.671</strong>。想抬高天花板只能提高信噪比：' +
+          '降低结局噪声（重复测量、用更精确的结局）、或选异质性更大的亚群。</p>' +
+
+          '<h3>观察性数据：偏差与噪声是两回事</h3>' +
+          '<p>同一把真值尺子放到观察性数据上，能看出 <code>propensity</code> 修的是哪一块：</p>' +
+          '<pre><code>模型真值      0.2523\n' +
+          'oracle 真值   0.2850\n' +
+          '传 propensity  0.2666   ← 残差 0.014，是噪声\n' +
+          '不传 propensity 1.0535   ← 偏差 0.801，是混杂\n' +
+          '噪声标尺       0.0383   ← 偏差是它的 21 倍</code></pre>' +
+          '<p>传了 <code>propensity</code> 之后残差 0.014 已经落在噪声量级内（标尺 0.038）；' +
+          '不传则偏出去 0.801，是噪声的 21 倍——<strong>这不是抖动，是系统错</strong>。' +
+          '这也解释了为什么在这个数据上「不传 propensity」的读数没有讨论价值：' +
+          '它根本不是对真值的估计。</p>' +
+
+          '<div class="callout warn"><div class="callout-title">TOC 曲线最左端不可信</div>' +
+          '<p>看上面那张 TOC 图：IPW 估计线在最左侧冲到 20+（y 轴截到 6 才看得清）。' +
+          '原因是 <code>TOC(f_k) = (1/k)·Σ s<sub>i</sub></code>，当 <em>k</em> 很小时单个样本的' +
+          '<code>Y<sub>i</sub>/e<sub>i</sub></code> 就能主导整个均值，而 <em>e</em><sub>i</sub> 可能只有 0.01。' +
+          '<strong>只看 <em>f</em> ≥ 0.1 的部分</strong>；要对极端分位做推断，请用 ' +
+          '<code>n_bins</code> 分箱或直接换 DR/AIPW 评分。</p></div>' +
 
           '<div class="callout ok"><div class="callout-title">判别力 ≠ 无偏性</div>' +
           '<p>这三个指标衡量的是<strong>排序质量</strong>，不是<strong>效应估计的无偏性</strong>。' +
@@ -849,6 +921,7 @@ window.SITE_PAGES.tutorial = {
           '<tr><td><code>08_mlr3工作流集成.R</code></td><td><code>ml_task</code> + <code>resample</code> + <code>benchmark</code></td></tr>' +
           '<tr><td><code>09_生存结局_survlearners引擎.R</code></td><td>The second survival engine <code>engine="survlearners"</code>, head-to-head with native</td></tr>' +
           '<tr><td><code>10_HTE评价指标.R</code></td><td>Qini / c-for-benefit / TOC: <strong>discrimination</strong> metrics with a random-ordering control</td></tr>' +
+          '<tr><td><code>11_评价指标真值对账.R</code></td><td>Known <code>tau</code> as the yardstick: split the error into <strong>ranking loss</strong> and <strong>estimation noise</strong>, plus the closed-form c-for-benefit ceiling</td></tr>' +
           '</tbody></table></div>'
       },
 
@@ -971,6 +1044,91 @@ window.SITE_PAGES.tutorial = {
           'matching plus rank concordance across pairs, not the full matching procedure of the ' +
           'van Klaveren paper; use the <code>CforBenefit</code> package when strict replication ' +
           'is required. This is written in the comments of <code>R/metrics.R</code>, not hidden.</p></div>' +
+
+          '<h3>Truth scale: what these metrics <em>should</em> be</h3>' +
+          '<p>With simulated data <em>τ</em> is known, so the true Qini and TOC are ' +
+          '<strong>directly computable</strong> without any IPW estimation: ' +
+          '<code>Q_true(f_k) = (1/n) · Σ<sub>i in top-k</sub> τ<sub>i</sub></code>. ' +
+          'That yardstick lets us put truth and estimate side by side and split the error into ' +
+          '<strong>ranking loss</strong> (the model misplaced beneficiaries) and ' +
+          '<strong>estimation noise</strong> (IPW sampling error). ' +
+          'Script: <code>11_评价指标真值对账.R</code>.</p>' +
+
+          '<div class="fig-grid">' +
+          '<figure class="fig"><img src="assets/img/qini-truth.png" ' +
+          'alt="Qini curves comparing the truth under oracle ranking, truth under model ranking, and the IPW estimate">' +
+          '<figcaption>Green = truth ceiling, blue = truth under model ranking, ' +
+          'orange dashed = IPW estimate</figcaption></figure>' +
+          '<figure class="fig"><img src="assets/img/toc-truth.png" ' +
+          'alt="TOC curves: the IPW estimate oscillates around the truth and blows up at the far left">' +
+          '<figcaption>TOC: IPW estimate hovers around the truth, overshoots at the far left</figcaption></figure>' +
+          '</div>' +
+
+          '<pre><code># n_test = 2000, continuous outcome RCT, true ATE = 1.042\n' +
+          '| layer       | truth  | IPW est | est - truth |\n' +
+          '| random      | 0.0076 | 0.1140  | 0.1065      |\n' +
+          '| model       | 0.2618 | 0.3121  | 0.0503      |\n' +
+          '| oracle      | 0.2887 | 0.3477  | 0.0591      |\n\n' +
+          'oracle truth (ranking ceiling):      0.2887\n' +
+          'ranking loss (model misordered):     0.0269 -> 9.3% of ceiling\n' +
+          'estimation noise (IPW sampling):     0.0591 -> 20.5% of ceiling\n' +
+          'ranking efficiency = model / oracle = 0.907</code></pre>' +
+
+          '<div class="callout"><div class="callout-title">The most useful number: a noise ruler</div>' +
+          '<p>The true Qini coefficient of a random ranking is <strong>exactly 0</strong> — ' +
+          'Q<sub>true</sub>(f) = f·ATE is a straight line whose area equals the area under the ' +
+          'random-targeting line. So however far the IPW estimate of a random ranking sits from 0 ' +
+          'is a direct read of single-sample noise. Here that gap is <strong>0.1065</strong>, ' +
+          'while the true gap between oracle and model ranking is only <strong>0.0269</strong>.</p>' +
+          '<p><strong>Conclusion: a single IPW estimate cannot tell these two rankings apart.</strong> ' +
+          'The model already captures 90.7% of the ceiling, but the remaining distance is buried in ' +
+          'noise. To compare two models you must average over repeated samples — never compare ' +
+          'one-shot numbers.</p></div>' +
+
+          '<h3>c-for-benefit has no truth, only an upper bound</h3>' +
+          '<p>This is routinely misunderstood. Qini / TOC are functions of <em>τ</em> (fix the ' +
+          'ranking score and the truth is determined), whereas c-for-benefit\'s "observed benefit" ' +
+          'carries <strong>irreducible outcome noise</strong> — the baseline gap between the two ' +
+          'paired patients plus the difference in their outcome noise. Even a perfect ranking ' +
+          'cannot push the C-statistic to 1.</p>' +
+          '<p>The ceiling has a closed form. Observed benefit <code>= τ + η</code>; comparing two ' +
+          'pairs, the signal <code>D = τ<sub>i</sub> − τ<sub>j</sub></code> and the noise <code>η</code> are both ' +
+          'zero-mean Gaussian and independent, so <code>(D, D+η)</code> is bivariate normal with ' +
+          'correlation <code>ρ = sd(τ) / sd(observed benefit)</code>, ' +
+          'and the probability of agreeing signs is ' +
+          '<code>1/2 + arcsin(ρ)/π</code>:</p>' +
+          '<pre><code>signal-to-noise rho = sd(tau) / sd(observed) = 0.973 / 1.905 = 0.511\n' +
+          'theoretical ceiling  = 0.5 + asin(0.511) / pi            = 0.6706\n' +
+          'oracle measured       0.6638   <- 0.007 from theory, a match\n' +
+          'model measured        0.6457   <- (0.646-0.5)/(0.671-0.5) = 85% of headroom\n' +
+          'random ranking        0.5062</code></pre>' +
+          '<p>So when c-for-benefit reports 0.65, do not conclude it is "not close enough to 1" — ' +
+          '<strong>the information ceiling of this dataset is 0.671</strong>. The only ways to ' +
+          'raise it are to raise the signal-to-noise ratio: measure the outcome more precisely, ' +
+          'or evaluate within a subgroup with larger heterogeneity.</p>' +
+
+          '<h3>Observational data: bias and noise are different failures</h3>' +
+          '<p>Point the same yardstick at observational data and it becomes clear which part ' +
+          '<code>propensity</code> fixes:</p>' +
+          '<pre><code>model truth       0.2523\n' +
+          'oracle truth      0.2850\n' +
+          'with propensity   0.2666   <- residual 0.014, noise\n' +
+          'without           1.0535   <- bias 0.801, confounding\n' +
+          'noise ruler       0.0383   <- the bias is 21x the ruler</code></pre>' +
+          '<p>With <code>propensity</code> the residual 0.014 sits inside the noise level (ruler ' +
+          '0.038); without it the estimate is off by 0.801, twenty-one times the noise — ' +
+          '<strong>that is not jitter, it is systematic error</strong>. Which is also why the ' +
+          '"without propensity" number deserves no discussion here: it is not an estimate of the ' +
+          'truth at all.</p>' +
+
+          '<div class="callout warn"><div class="callout-title">The far-left end of TOC is unreliable</div>' +
+          '<p>Look at the TOC figure above: the IPW estimate shoots past 20 at the very left ' +
+          '(the y-axis is clipped at 6 so anything is visible at all). ' +
+          '<code>TOC(f_k) = (1/k)·Σ s<sub>i</sub></code>, so when <em>k</em> is tiny a single ' +
+          'observation\'s <code>Y<sub>i</sub>/e<sub>i</sub></code> dominates the mean — ' +
+          'and <em>e</em><sub>i</sub> can be 0.01. ' +
+          '<strong>Read only <em>f</em> ≥ 0.1</strong>; for inference at extreme quantiles use ' +
+          '<code>n_bins</code> or switch to a DR/AIPW score.</p></div>' +
 
           '<div class="callout ok"><div class="callout-title">Discrimination is not unbiasedness</div>' +
           '<p>These three metrics measure <strong>ranking quality</strong>, not ' +
