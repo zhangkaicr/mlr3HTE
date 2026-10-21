@@ -3,6 +3,7 @@
      · 哈希路由：#/页面 或 #/页面/小节
      · 中英双语切换（localStorage 记忆）
      · 明暗主题切换（首次跟随系统，之后记忆用户选择）
+     · 顶栏导航（pkgdown 风格）+ 右侧「本页目录」（滚动高亮）
      · 全局搜索：加载时把所有小节正文压平成索引，做词频打分 + 片段高亮
    ===================================================================== */
 
@@ -39,7 +40,14 @@
       allResults:   "共 {n} 条结果",
       updated:      "最后更新",
       editHint:     "本站随 mlr3HTE 包一同维护。",
-      home:         "首页"
+      home:         "首页",
+      footerAbout:  "基于 mlr3 的异质性治疗效应（HTE / CATE）估计包：S / T / X / R / DR 五种 Meta-Learner，一套引擎通吃连续、二分类、生存三类结局。",
+      footerLinks:  "链接",
+      footerDev:    "开发者",
+      builtWith:    "本站为纯静态页面，随 mlr3HTE 包一同维护。",
+      linkSrc:      "源码",
+      linkIssues:   "报告问题",
+      linkPkg:      "安装"
     },
     en: {
       searchPh:     "Search docs…",
@@ -51,7 +59,14 @@
       allResults:   "{n} result(s)",
       updated:      "Last updated",
       editHint:     "This site is maintained with the mlr3HTE package.",
-      home:         "Home"
+      home:         "Home",
+      footerAbout:  "mlr3-native meta-learners for heterogeneous treatment effects: S / T / X / R / DR, one engine for continuous, binary and survival outcomes.",
+      footerLinks:  "Links",
+      footerDev:    "Developed by",
+      builtWith:    "This site is a static page maintained alongside the mlr3HTE package.",
+      linkSrc:      "Source",
+      linkIssues:   "Report a bug",
+      linkPkg:      "Install"
     }
   };
 
@@ -62,8 +77,9 @@
   // 3 DOM 引用 -----------------------------------------------------------
   var el = {
     html:      document.documentElement,
-    sidebar:   document.getElementById("sidebar"),
+    navbar:    document.getElementById("navbar"),
     content:   document.getElementById("content"),
+    toc:       document.getElementById("toc"),
     footer:    document.getElementById("footer"),
     input:     document.getElementById("search-input"),
     results:   document.getElementById("search-results"),
@@ -82,6 +98,15 @@
 
   function escapeHtml(s) {
     return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  }
+
+  function slug(s) {
+    return (s || "")
+      .toLowerCase()
+      .replace(/[\s　]+/g, "-")
+      .replace(/[^\w\u4e00-\u9fa5-]/g, "")
+      .replace(/-+/g, "-")
+      .replace(/^-|-$/g, "") || "sec";
   }
 
   function pages() { return window.SITE_PAGES || {}; }
@@ -111,9 +136,10 @@
   el.langBtn.addEventListener("click", function () {
     state.lang = state.lang === "zh" ? "en" : "zh";
     applyLang();
-    renderSidebar();
+    renderNavbar();
     renderPage();
     buildIndex();
+    renderFooter();
     closeResults();
   });
 
@@ -128,33 +154,22 @@
   window.addEventListener("hashchange", function () {
     var r = parseHash();
     state.page = r.page;
-    renderSidebar();
+    renderNavbar();
     renderPage(r.section);
   });
 
-  // 8 侧边栏 -------------------------------------------------------------
-  function renderSidebar() {
+  // 8 顶栏导航（pkgdown navbar 风格）-------------------------------------
+  function renderNavbar() {
     var items = nav();
     var html = "";
     for (var i = 0; i < items.length; i++) {
       var it = items[i];
       var label = state.lang === "zh" ? it.zh : it.en;
       var active = (it.id === state.page) ? " active" : "";
-      html += '<a class="side-link' + active + '" href="#/' + it.id + '">' +
+      html += '<a class="nav-link' + active + '" href="#/' + it.id + '">' +
               escapeHtml(label) + "</a>";
-      // 当前页面的小节也列出来，方便跳转
-      if (it.id === state.page) {
-        var pg = pages()[it.id];
-        var secs = pg && pg[state.lang] && pg[state.lang].sections;
-        if (secs && secs.length > 1) {
-          for (var j = 0; j < secs.length; j++) {
-            html += '<a class="side-link side-sub" href="#/' + it.id + "/" + secs[j].id +
-                    '">' + escapeHtml(secs[j].heading) + "</a>";
-          }
-        }
-      }
     }
-    el.sidebar.innerHTML = html;
+    el.navbar.innerHTML = html;
   }
 
   // 9 正文 ---------------------------------------------------------------
@@ -172,6 +187,8 @@
     var pg = pages()[state.page];
     if (!pg) {
       el.content.innerHTML = "<h1>404</h1><p>页面不存在。</p>";
+      el.toc.innerHTML = "";
+      el.toc.classList.remove("shown");
       return;
     }
     var data = pg[state.lang] || pg.zh;
@@ -202,13 +219,92 @@
       var target = document.getElementById(sectionId);
       if (target) {
         window.setTimeout(function () {
-          target.scrollIntoView({ behavior: "smooth", block: "start" });
+          window.scrollTo({ top: topOf(target) - 72, behavior: "smooth" });
         }, 30);
       }
     } else {
       window.scrollTo(0, 0);
     }
+
+    buildToc();
   }
+
+  // 9b 右侧「本页目录」---------------------------------------------------
+  var tocLinks = [];
+
+  function topOf(node) {
+    return node.getBoundingClientRect().top + window.pageYOffset;
+  }
+
+  function buildToc() {
+    tocLinks = [];
+    var heads = el.content.querySelectorAll("h2, h3");
+    if (!heads.length) {
+      el.toc.innerHTML = "";
+      el.toc.classList.remove("shown");
+      return;
+    }
+
+    var html = '<div class="toc-title">' + t("onThisPage") + "</div>";
+    var used = {};
+
+    for (var i = 0; i < heads.length; i++) {
+      var h = heads[i];
+      // 首页同屏双语：只收录当前语言那一半，遇到另一语言的标题就停
+      if (h.classList.contains("lang-block-title")) break;
+      if (!h.id) {
+        var base = slug(h.textContent);
+        var id = base, k = 2;
+        while (used[id] || document.getElementById(id)) { id = base + "-" + (k++); }
+        h.id = id;
+      }
+      used[h.id] = true;
+      var sub = (h.tagName.toLowerCase() === "h3") ? " toc-sub" : "";
+      html += '<a class="toc-link' + sub + '" href="#' + h.id +
+              '" data-target="' + escapeHtml(h.id) + '">' +
+              escapeHtml(h.textContent) + "</a>";
+    }
+
+    el.toc.innerHTML = html;
+    el.toc.classList.add("shown");
+    tocLinks = Array.prototype.slice.call(el.toc.querySelectorAll(".toc-link"));
+
+    // 目录点击：走原生锚点会污染哈希路由（页面名会被解析成小节），这里手动滚
+    for (var j = 0; j < tocLinks.length; j++) {
+      tocLinks[j].addEventListener("click", function (e) {
+        e.preventDefault();
+        var node = document.getElementById(this.getAttribute("data-target"));
+        if (node) window.scrollTo({ top: topOf(node) - 72, behavior: "smooth" });
+      });
+    }
+    highlightToc();
+  }
+
+  // 滚动时把当前所在小节标出来
+  function highlightToc() {
+    if (!tocLinks.length) return;
+    var line = window.pageYOffset + 96;
+    var current = null;
+    for (var i = 0; i < tocLinks.length; i++) {
+      var node = document.getElementById(tocLinks[i].getAttribute("data-target"));
+      if (node && topOf(node) <= line) current = tocLinks[i];
+    }
+    // 滚到底时把最后一项点亮，否则末节永远高亮不上
+    if (!current) current = tocLinks[0];
+    if (window.innerHeight + window.pageYOffset >= document.body.scrollHeight - 4) {
+      current = tocLinks[tocLinks.length - 1];
+    }
+    for (var k = 0; k < tocLinks.length; k++) {
+      tocLinks[k].classList.toggle("active", tocLinks[k] === current);
+    }
+  }
+
+  var tocTick = false;
+  window.addEventListener("scroll", function () {
+    if (tocTick) return;
+    tocTick = true;
+    window.requestAnimationFrame(function () { tocTick = false; highlightToc(); });
+  }, { passive: true });
 
   // 10 搜索索引 ----------------------------------------------------------
   var index = [];
@@ -334,22 +430,41 @@
     if (!e.target.closest || !e.target.closest(".search-wrap")) closeResults();
   });
 
-  // 11 移动端菜单 --------------------------------------------------------
+  // 11 移动端菜单（导航项收进抽屉）--------------------------------------
   el.menuBtn.addEventListener("click", function () {
-    el.sidebar.classList.toggle("open");
+    el.navbar.classList.toggle("open");
   });
-  el.sidebar.addEventListener("click", function (e) {
-    if (e.target.classList.contains("side-link")) el.sidebar.classList.remove("open");
+  el.navbar.addEventListener("click", function (e) {
+    if (e.target.classList.contains("nav-link")) el.navbar.classList.remove("open");
   });
 
   // 12 页脚 --------------------------------------------------------------
   function renderFooter() {
     var md = window.SITE_META || {};
-    var txt = state.lang === "zh"
-      ? 'mlr3HTE · 基于 mlr3 的异质性治疗效应 Meta-Learner 包　|　' + t("editHint")
-      : "mlr3HTE · mlr3-native meta-learners for heterogeneous treatment effects　|　" + t("editHint");
-    if (md.version) txt += "　|　" + t("updated") + ": " + md.date + " (v" + md.version + ")";
-    el.footer.textContent = txt;
+    var zh = state.lang === "zh";
+    var ver = md.version ? ' · v' + md.version : "";
+    var date = md.date ? ' · ' + md.date : "";
+
+    el.footer.innerHTML =
+      '<div class="footer-inner">' +
+        '<div class="footer-col footer-about">' +
+          '<div class="footer-title">mlr3HTE<span class="footer-ver">' + ver + '</span></div>' +
+          '<p>' + t("footerAbout") + '</p>' +
+        '</div>' +
+        '<div class="footer-col">' +
+          '<div class="footer-title">' + t("footerLinks") + '</div>' +
+          '<a href="https://github.com/zhangkaicr/mlr3HTE" target="_blank" rel="noopener">' + t("linkSrc") + '</a>' +
+          '<a href="https://github.com/zhangkaicr/mlr3HTE/issues" target="_blank" rel="noopener">' + t("linkIssues") + '</a>' +
+          '<a href="#/guide">' + t("linkPkg") + '</a>' +
+        '</div>' +
+        '<div class="footer-col">' +
+          '<div class="footer-title">' + t("footerDev") + '</div>' +
+          '<a href="https://github.com/zhangkaicr" target="_blank" rel="noopener">zhangkaicr</a>' +
+        '</div>' +
+      '</div>' +
+      '<div class="footer-bottom">' +
+        '<span>' + t("builtWith") + (date ? '（' + t("updated") + ': ' + md.date + '）' : '') + '</span>' +
+      '</div>';
   }
 
   // 13 启动 --------------------------------------------------------------
@@ -358,7 +473,7 @@
     applyLang();
     var r = parseHash();
     state.page = r.page;
-    renderSidebar();
+    renderNavbar();
     renderPage(r.section);
     buildIndex();
     renderFooter();
