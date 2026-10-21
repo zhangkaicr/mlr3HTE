@@ -15,6 +15,26 @@
 - `0.21` 之前的历史批次沿用旧编号折算（`0.1.0` → `0.10`，10-21 那批观察性指标 →
   `0.11`，`0.2.0` → `0.20`）；`0.21` 起严格执行上面的 +0.01。
 
+## [0.22] — 2026-10-21（学习器可按分组 / 阶段单独指定）
+
+### 新增：learner_base / learner_tau 支持按角色命名的 list
+- T-Learner：两组可各自指定不同算法，`learner_base = list(treated = ..., control = ...)`。
+- X-Learner：两个结局模型可分别指定 `learner_base = list(m1 = ..., m0 = ...)`，
+  两个效应回归可分别指定 `learner_tau = list(tau1 = ..., tau0 = ...)`；
+  单 learner 仍是默认（所有分组 / 阶段共用），完全向后兼容。
+- S / R / DR 与 `engine = "survlearners"` 只接受单个 learner，传命名 list 会明确报错。
+- R6 Learner `lrn("regr.metalearner")` 的 `learner_base` / `learner_tau` 字段透传同一套规格。
+
+### 新增：教程脚本 13 补回 kknn
+- `kknn` 此前本机未装，演示被临时换成 `rpart`；现已安装，六类基学习器
+  （ranger / xgboost / glmnet / rpart / kknn / lm）全部回归，并新增一节演示
+  "每个分组 / 阶段单独换算法"。
+
+### 测试
+- 新增 `tests/testthat/test-learners-flexible.R`：覆盖 T 两组不同、X 各阶段不同、
+  缺角色 / 未知角色 / S·R·DR 拒绝 list / 生存按组字符串 / R6 透传共 7 个 `test_that`。
+- 全量测试 `FAIL 0 | WARN 2 | SKIP 0 | PASS 314`。
+
 ## [0.21] — 2026-10-21（版本号改为两位小数递增）
 
 ### 变更：版本号规则

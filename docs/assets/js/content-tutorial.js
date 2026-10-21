@@ -370,7 +370,22 @@ window.SITE_PAGES.tutorial = {
           '不用为每种算法单独写循环：</p>' +
           '<pre><code>task  &lt;- ml_task(X, A, Y)\ndesign &lt;- benchmark_grid(\n  task,\n  list(\n    lrn("regr.metalearner", id = "T_ranger",  metalearner = "T",\n        learner_base = lrn("regr.ranger", num.trees = 300)),\n    lrn("regr.metalearner", id = "T_xgboost", metalearner = "T",\n        learner_base = lrn("regr.xgboost"))\n  ),\n  rsmp("cv", folds = 5)\n)\nbenchmark(design)$score()</code></pre>' +
           '<p>这就是「用 mlr3 体系」而不是「又造一套训练管道」的甜头：' +
-          '从教学到调参、从单模型到交叉验证对比，整条链路免费继承。</p>'
+          '从教学到调参、从单模型到交叉验证对比，整条链路免费继承。</p>' +
+          '<h4>再进一步：每个分组 / 每个阶段单独换算法</h4>' +
+          '<p>「一行换一个基学习器」是最粗的粒度。更细一层，mlr3HTE 允许你为每个<strong>分组</strong>、' +
+          '每个<strong>阶段</strong>分别指定算法——这通常比全局统一一个算法更贴合各阶段的数值特性：</p>' +
+          '<ul>' +
+          '<li><strong>T-Learner</strong>：两组各用一套，<code>list(treated = ..., control = ...)</code>；' +
+          '例如治疗组用随机森林、对照组用线性模型（对照组样本少、线性更稳）。</li>' +
+          '<li><strong>X-Learner</strong>：两个结局模型 <code>list(m1 = ..., m0 = ...)</code> 可分别指定，' +
+          '两个效应回归 <code>list(tau1 = ..., tau0 = ...)</code> 也可分别指定；' +
+          '例如 <code>m1</code> 用 kNN、<code>m0</code> 用随机森林，两个 tau 回归都用线性模型。</li>' +
+          '</ul>' +
+          '<pre><code>metalearner("T", X, A, Y,\n  learner_base = list(treated = lrn("regr.ranger"),\n                      control  = lrn("regr.lm")))\n\nmetalearner("X", X, A, Y,\n  learner_base = list(m1 = lrn("regr.kknn"), m0 = lrn("regr.ranger")),\n  learner_tau  = list(tau1 = lrn("regr.lm"), tau0 = lrn("regr.lm")))</code></pre>' +
+          '<p>脚本 13 的新增一节把这套「按角色命名 list」跑了一遍（n = 4000，真值 ATE = 1.048）：' +
+          'T 两组 ranger / lm 的 CATE 相关 0.913，X 各阶段混用的 CATE 相关 0.988——' +
+          '在合适的分工下，排序能力还能再上一个台阶。S / R / DR 与 <code>survlearners</code> 引擎只接受单个 learner，' +
+          '传命名 list 会明确报错。</p>'
       },
 
       {
@@ -1062,7 +1077,23 @@ window.SITE_PAGES.tutorial = {
           'no separate loop per algorithm:</p>' +
           '<pre><code>task  &lt;- ml_task(X, A, Y)\ndesign &lt;- benchmark_grid(\n  task,\n  list(\n    lrn("regr.metalearner", id = "T_ranger",  metalearner = "T",\n        learner_base = lrn("regr.ranger", num.trees = 300)),\n    lrn("regr.metalearner", id = "T_xgboost", metalearner = "T",\n        learner_base = lrn("regr.xgboost"))\n  ),\n  rsmp("cv", folds = 5)\n)\nbenchmark(design)$score()</code></pre>' +
           '<p>That is the payoff of "using the mlr3 system" rather than "building yet another training pipeline": ' +
-          'from teaching to tuning, from single model to cross-validated comparison, the whole chain comes for free.</p>'
+          'from teaching to tuning, from single model to cross-validated comparison, the whole chain comes for free.</p>' +
+          '<h4>One step further: pick a different algorithm per group / per stage</h4>' +
+          '<p>"Swap one base learner in one line" is the coarsest grain. A finer grain lets you specify a different ' +
+          'algorithm for each <strong>group</strong> and each <strong>stage</strong>—usually a better fit to the numeric ' +
+          'character of each stage:</p>' +
+          '<ul>' +
+          '<li><strong>T-Learner</strong>: one learner per arm, <code>list(treated = ..., control = ...)</code>; ' +
+          'e.g. random forest for the treated arm and a linear model for the control arm (smaller, more stable).</li>' +
+          '<li><strong>X-Learner</strong>: the two outcome models <code>list(m1 = ..., m0 = ...)</code> can differ, and ' +
+          'the two effect regressions <code>list(tau1 = ..., tau0 = ...)</code> can differ too; ' +
+          'e.g. kNN for <code>m1</code>, random forest for <code>m0</code>, and linear models for both tau regressions.</li>' +
+          '</ul>' +
+          '<pre><code>metalearner("T", X, A, Y,\n  learner_base = list(treated = lrn("regr.ranger"),\n                      control  = lrn("regr.lm")))\n\nmetalearner("X", X, A, Y,\n  learner_base = list(m1 = lrn("regr.kknn"), m0 = lrn("regr.ranger")),\n  learner_tau  = list(tau1 = lrn("regr.lm"), tau0 = lrn("regr.lm")))</code></pre>' +
+          '<p>The new section of Script 13 runs this role-named-list recipe (n = 4000, true ATE = 1.048): ' +
+          'T with ranger / lm across arms reaches CATE correlation 0.913, and X with mixed stages reaches 0.988—' +
+          'with the right division of labour, ranking power climbs another notch. S / R / DR and the ' +
+          '<code>survlearners</code> engine accept only a single learner and error clearly on a named list.</p>'
       },
 
       {

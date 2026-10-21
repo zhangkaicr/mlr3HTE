@@ -23,6 +23,7 @@ candidates <- list(
   xgboost = lrn("regr.xgboost"),
   glmnet  = lrn("regr.glmnet"),
   rpart   = lrn("regr.rpart"),
+  kknn    = lrn("regr.kknn"),
   lm      = lrn("regr.lm")
 )
 
@@ -60,6 +61,30 @@ bm <- benchmark(design)
 bm_score <- as.data.frame(bm$score()[, .(learner_id, regr.mse)])
 print(bm_score)
 
+# 3b 进阶：每个分组 / 每个阶段单独换算法 ---------------------------------
+#    T-Learner：list(treated = ..., control = ...) 让两组各用一套算法
+#    X-Learner：list(m1 = ..., m0 = ...) 指定两个结局模型，
+#               list(tau1 = ..., tau0 = ...) 指定两个效应回归
+#    这是「基于 mlr3」更深一层的收益——不只是全局换算法，还能按算法原理分工。
+flex_T <- metalearner("T", d$X, d$A, d$Y,
+                      learner_base = list(
+                        treated = lrn("regr.ranger", num.trees = 300, seed = 1),
+                        control  = lrn("regr.lm")))
+flex_X <- metalearner("X", d$X, d$A, d$Y,
+                      learner_base = list(m1 = lrn("regr.kknn"),
+                                          m0 = lrn("regr.ranger", num.trees = 300, seed = 1)),
+                      learner_tau  = list(tau1 = lrn("regr.lm"), tau0 = lrn("regr.lm")))
+
+flex_rows <- rbind(
+  data.frame(配置 = "T：治疗组 ranger / 对照组 lm",
+             ATE = round(flex_T$ate, 4), ATE偏差 = round(flex_T$ate - d$ate, 4),
+             CATE相关 = round(cor(flex_T$cate_train, d$tau), 3), stringsAsFactors = FALSE),
+  data.frame(配置 = "X：m1 kknn / m0 ranger / tau 双 lm",
+             ATE = round(flex_X$ate, 4), ATE偏差 = round(flex_X$ate - d$ate, 4),
+             CATE相关 = round(cor(flex_X$cate_train, d$tau), 3), stringsAsFactors = FALSE)
+)
+print(flex_rows)
+
 # 4 把结果写成简单的 Markdown 表（base R，避免额外依赖）-----------------
 md_table <- function(df) {
   header <- paste("|", paste(names(df), collapse = " | "), "|")
@@ -79,11 +104,19 @@ out_md <- c(
   "",
   md_table(rows),
   "",
+  "## 每个分组 / 每个阶段单独换算法",
+  "",
+  "同一套 metalearner 配方，也能为 T-Learner 的「两组」、X-Learner 的「两个结局模型 + 两个效应回归」",
+  "分别指定不同算法（按角色命名 list，详见函数文档）：",
+  "",
+  md_table(flex_rows),
+  "",
   "## benchmark：跨基学习器的 5 折 CV MSE",
   "",
   md_table(bm_score),
   "",
   "结论：换算法不影响 mlr3HTE 的接口与流程，只影响拟合能力与噪声；",
+  "从「全局换一个基学习器」到「按分组 / 阶段分别选算法」，都是改一行 learner 规格的事——",
   "这正是基于 mlr3 体系而非自写训练循环的核心收益。"
 )
 

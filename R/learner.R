@@ -49,8 +49,10 @@
 #'       生存结局的第二套引擎（survlearners 包，只支持 S/T/X/R 与 S(t0) 差）}
 #'   }
 #' @field learner_base 结局模型基学习器（类型须与结局匹配；生存用 "coxph"/"ranger"，
-#'   survlearners 引擎下用 "coxph"/"grf"/"lasso"）
-#' @field learner_tau 效应阶段回归学习器；NULL 时引擎用偏正则化的 ranger
+#'   survlearners 引擎下用 "coxph"/"grf"/"lasso"）。T / X Learner 可传命名 list
+#'   （\code{list(treated=, control=)} 或 \code{list(m1=, m0=)}）让分组 / 阶段各自用不同算法。
+#' @field learner_tau 效应阶段回归学习器；NULL 时引擎用偏正则化的 ranger。
+#'   X-Learner 可传 \code{list(tau1=, tau0=)} 分别指定两个效应回归。
 #' @field learner_ps 倾向得分学习器（weighting = "iptw" 时）
 #' @field treatment_col 处理列名（可被 task$extra_args$ml_treatment_col 覆盖）
 #' @field status_col 生存事件指示列名（可被 ml_status_col 覆盖）

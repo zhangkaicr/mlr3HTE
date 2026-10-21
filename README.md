@@ -462,8 +462,8 @@ Rscript tutorial/code/01_连续结局_随机化RCT.R
 
 | 位置 | 内容 |
 |---|---|
-| `DESCRIPTION` | `Version: 0.21` |
-| `CHANGELOG.md` | 顶部新增 `## [0.21]` 小节 |
+| `DESCRIPTION` | `Version: 0.22` |
+| `CHANGELOG.md` | 顶部新增 `## [0.22]` 小节 |
 | `docs/assets/js/content-home.js` | `SITE_META.version`（页脚读它） |
 | `docs/assets/js/content-changelog.js` | `lede` 的「当前版本」与当前小节 `heading` |
 

@@ -78,6 +78,35 @@
   }
 }
 
+# 3b 规范化 learner 规格：单个学习器 或 按角色命名的 list -----------------------
+# 让 T / X learner 能为每个分组 / 每个阶段单独指定学习器：
+#   - 单个 mlr3 learner（或生存原生字符串 "coxph"/"ranger"）：所有角色共用同一个
+#   - 命名 list：名字必须恰好覆盖 roles，每个角色一个 learner
+# 返回：与 roles 同序、同名的 list。S / R / DR 只有单一角色，仍是单 learner 语义。
+.resolve_learner_spec <- function(spec, roles) {
+  if (inherits(spec, "Learner") || is.character(spec)) {
+    return(setNames(replicate(length(roles), spec, simplify = FALSE), roles))
+  }
+  if (is.list(spec)) {
+    if (is.null(names(spec))) {
+      stop(sprintf("按角色指定的 learner 必须是命名 list；期望角色：%s。",
+                   paste(roles, collapse = ", ")))
+    }
+    extra   <- setdiff(names(spec), roles)
+    missing <- setdiff(roles, names(spec))
+    if (length(extra)) {
+      stop(sprintf("未知的 learner 角色：%s。允许的角色只有：%s。",
+                   paste(extra, collapse = ", "), paste(roles, collapse = ", ")))
+    }
+    if (length(missing)) {
+      stop(sprintf("缺少必需的 learner 角色：%s（请用命名 list 一次性给全）。",
+                   paste(missing, collapse = ", ")))
+    }
+    return(spec[roles])   # 按 roles 顺序重排，保证确定性
+  }
+  stop("learner_base / learner_tau 必须是单个 mlr3 learner（或生存原生字符串），或按角色命名的 list。")
+}
+
 # 4 分析尺度的结局数值（X/R/DR 的个体尺度结局）---------------------------------
 # 连续/二分类：就是 Y 本身（二分类取 0/1）
 # 生存：按 effect 取 —— "survdiff" 为 I(T > t0)，"rmst" 为 IPCW 修正的
@@ -191,13 +220,16 @@
 }
 
 # 14 T-Learner：两组各一个模型，相减 ------------------------------------------
+# lb 可以是单个 learner（两组共用），或命名 list list(treated = ..., control = ...)
+# 让两组用不同算法（例如治疗组用随机森林、对照组用线性模型）。
 .fit_T <- function(X, A, Y, lb, lb_tau, g_fn, w, t0, outcome, effect) {
+  lb <- .resolve_learner_spec(lb, c("treated", "control"))
   i1 <- A == 1L
   i0 <- A == 0L
   w1 <- if (is.null(w)) NULL else w[i1]
   w0 <- if (is.null(w)) NULL else w[i0]
-  m1 <- .fit_outcome(X[i1, , drop = FALSE], .subset_Y(Y, i1), lb, w1, t0, outcome, effect)
-  m0 <- .fit_outcome(X[i0, , drop = FALSE], .subset_Y(Y, i0), lb, w0, t0, outcome, effect)
+  m1 <- .fit_outcome(X[i1, , drop = FALSE], .subset_Y(Y, i1), lb[["treated"]], w1, t0, outcome, effect)
+  m0 <- .fit_outcome(X[i0, , drop = FALSE], .subset_Y(Y, i0), lb[["control"]], w0, t0, outcome, effect)
   pred_fn <- function(newX) {
     nd <- as.data.frame(newX)
     m1$predict(nd) - m0$predict(nd)
@@ -208,20 +240,25 @@
 # 15 X-Learner：两阶段插补 + 倾向得分加权融合 --------------------------------
 # 插补的个体效应 D1 = Y1 - mu0(X1)，D0 = mu1(X0) - Y0，再分别回归出
 # tau1 / tau0，最后按 g(X) 加权融合（Kunzel et al. 2019, PNAS）
+# lb 支持 list(m1 = ..., m0 = ...) 让两个结局模型用不同算法；
+# lb_tau 支持 list(tau1 = ..., tau0 = ...) 让两个效应回归各自选用算法
+# （例如 tau1 用随机森林、tau0 用线性模型）。单 learner 则全部共用。
 .fit_X <- function(X, A, Y, lb, lb_tau, g_fn, w, t0, outcome, effect) {
+  lb      <- .resolve_learner_spec(lb, c("m1", "m0"))
+  lb_tau  <- .resolve_learner_spec(lb_tau, c("tau1", "tau0"))
   i1 <- A == 1L
   i0 <- A == 0L
   w1 <- if (is.null(w)) NULL else w[i1]
   w0 <- if (is.null(w)) NULL else w[i0]
   Yv <- .analysis_outcome(Y, outcome, t0, effect, X)
 
-  m1 <- .fit_outcome(X[i1, , drop = FALSE], .subset_Y(Y, i1), lb, w1, t0, outcome, effect)
-  m0 <- .fit_outcome(X[i0, , drop = FALSE], .subset_Y(Y, i0), lb, w0, t0, outcome, effect)
+  m1 <- .fit_outcome(X[i1, , drop = FALSE], .subset_Y(Y, i1), lb[["m1"]], w1, t0, outcome, effect)
+  m0 <- .fit_outcome(X[i0, , drop = FALSE], .subset_Y(Y, i0), lb[["m0"]], w0, t0, outcome, effect)
 
   D1 <- Yv[i1] - m0$predict(X[i1, , drop = FALSE])     # 治疗组：实际 - 若未治
   D0 <- m1$predict(X[i0, , drop = FALSE]) - Yv[i0]     # 对照组：若治 - 实际
-  tau1 <- .fit_regr(X[i1, , drop = FALSE], D1, lb_tau)
-  tau0 <- .fit_regr(X[i0, , drop = FALSE], D0, lb_tau)
+  tau1 <- .fit_regr(X[i1, , drop = FALSE], D1, lb_tau[["tau1"]])
+  tau0 <- .fit_regr(X[i0, , drop = FALSE], D0, lb_tau[["tau0"]])
 
   pred_fn <- function(newX) {
     nd <- as.data.frame(newX)
@@ -403,8 +440,25 @@ ml_fit <- function(type, X, A, Y, learner_base = NULL, learner_tau = NULL,
                                 learner_ps, stabilize, t0, effect))
   }
 
-  kind <- .lb_kind(learner_base)
-  .check_outcome_kind(outcome, kind)
+  # learner_base 既可以是单个 learner，也可以是按角色命名的 list（T / X 专用）：
+  # 单个 -> 这里做统一的「结局类型 vs 基学习器种类」校验；
+  # list  -> 交给 .fit_T / .fit_X 内部按角色逐个校验，这里只做「类型 / 引擎」层面的放行。
+  if (is.list(learner_base)) {
+    if (engine == "survlearners") {
+      stop('按角色命名的 learner_base 列表暂不支持 survlearners 引擎；该引擎请传单个 learner（"coxph"/"grf"/"lasso"）。')
+    }
+    if (!type %in% c("T", "X")) {
+      stop("按角色命名的 learner_base 列表只支持 T-Learner（list(treated=, control=)）与 X-Learner（list(m1=, m0=)）；S / R / DR 请传单个 learner。")
+    }
+    kind <- NULL
+  } else {
+    kind <- .lb_kind(learner_base)
+    .check_outcome_kind(outcome, kind)
+  }
+  # learner_tau 的 list 形式（tau1 / tau0 分阶段）只对 X-Learner 有意义
+  if (is.list(learner_tau) && type != "X") {
+    stop("按角色命名的 learner_tau 列表（list(tau1=, tau0=)）只对 X-Learner 有意义；其余 learner 请传单个 learner。")
+  }
   # RMST 只在生存结局下有定义（必须在 outcome 解析之后检查）
   if (!identical(outcome, "survival") && identical(effect, "rmst")) {
     stop('effect = "rmst" 只对生存结局有意义。')

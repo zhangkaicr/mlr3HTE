@@ -23,8 +23,13 @@
 #' @param Y 结局：连续（数值）/ 二分类（0-1 或两水平因子）/ 生存（Surv 对象）
 #' @param learner_base 结局模型基学习器，类型须与结局匹配：连续用 regr.*，
 #'   二分类用 classif.*，生存用 "coxph"/"ranger"（原生实现，不依赖 mlr3proba）；
-#'   默认 regr.ranger
-#' @param learner_tau 效应阶段回归学习器；默认沿用回归型 learner_base，否则 regr.ranger
+#'   默认 regr.ranger。可传单个 learner（所有分组 / 阶段共用，向后兼容），
+#'   也可传命名 list 为每组 / 每阶段单独指定：T-Learner 用
+#'   \code{list(treated = ..., control = ...)}；X-Learner 用
+#'   \code{list(m1 = ..., m0 = ...)}。S / R / DR 与 survlearners 引擎只接受单个 learner。
+#' @param learner_tau 效应阶段回归学习器；默认沿用回归型 learner_base，否则
+#'   regr.ranger（min.node.size = 50）。X-Learner 的两个效应回归可分别指定：
+#'   \code{list(tau1 = ..., tau0 = ...)}；其余 learner 传单个 learner 即可。
 #' @param learner_ps 倾向得分学习器（IPTW 时用，默认 classif.log_reg）
 #' @param weighting "none"（RCT）/ "iptw" / "external"
 #' @param weights 当 weighting = "external" 时的权重向量

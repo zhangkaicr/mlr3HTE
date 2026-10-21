@@ -9,12 +9,38 @@ window.SITE_PAGES.changelog = {
   /* ---------------- 中文 ---------------- */
   zh: {
     title: "更新日志",
-    lede: "mlr3HTE 的版本历史与重要变更。当前版本 v0.21。",
+    lede: "mlr3HTE 的版本历史与重要变更。当前版本 v0.22。",
     sections: [
 
       {
+        id: "v022",
+        heading: "v0.22 · 2026-10-21（当前版本）",
+        body:
+          '<div class="callout ok"><div class="callout-title">学习器可按分组 / 阶段单独指定</div>' +
+          '<p>除了「整包换一个基学习器」，现在还能为每个分组、每个阶段分别选算法：' +
+          'T-Learner 用 <code>list(treated = ..., control = ...)</code> 让两组各用一套；' +
+          'X-Learner 用 <code>list(m1 = ..., m0 = ...)</code> 指定两个结局模型，' +
+          '用 <code>list(tau1 = ..., tau0 = ...)</code> 指定两个效应回归。' +
+          '单 learner 仍是默认（全部共用），完全向后兼容；S / R / DR 与 ' +
+          '<code>survlearners</code> 引擎传命名 list 会明确报错。</p></div>' +
+          '<h3>新增</h3>' +
+          '<ul>' +
+          '<li>教程脚本 13 补回 <code>kknn</code>（此前本机未装、临时换成 rpart），' +
+          '六类基学习器 ranger / xgboost / glmnet / rpart / kknn / lm 全部回归，' +
+          '并新增一节演示「每个分组 / 阶段单独换算法」。</li>' +
+          '<li>新增 <code>tests/testthat/test-learners-flexible.R</code>（7 个 ' +
+          '<code>test_that</code>）：覆盖 T 两组不同、X 各阶段不同、缺角色 / 未知角色 / ' +
+          'S·R·DR 拒绝 list / 生存按组字符串 / R6 透传。</li>' +
+          '</ul>' +
+          '<h3>测试</h3>' +
+          '<ul>' +
+          '<li>全量测试 <strong>FAIL 0 | WARN 2 | SKIP 0 | PASS 314</strong>。</li>' +
+          '</ul>'
+      },
+
+      {
         id: "v021",
-        heading: "v0.21 · 2026-10-21（当前版本）",
+        heading: "v0.21 · 2026-10-21",
         body:
           '<div class="callout ok"><div class="callout-title">版本号改为两位小数递增，每次推送 +0.01</div>' +
           '<p>版本号不再用三段式，改成两位小数的批次计数：<code>0.20</code> → <code>0.21</code> → ' +
@@ -184,12 +210,39 @@ window.SITE_PAGES.changelog = {
   /* ---------------- English ---------------- */
   en: {
     title: "Changelog",
-    lede: "Version history and notable changes for mlr3HTE. Current version: v0.21.",
+    lede: "Version history and notable changes for mlr3HTE. Current version: v0.22.",
     sections: [
 
       {
+        id: "v022",
+        heading: "v0.22 · 2026-10-21 (current)",
+        body:
+          '<div class="callout ok"><div class="callout-title">Learners can now be specified per group / per stage</div>' +
+          '<p>Beyond swapping one base learner for the whole recipe, you can now pick a different ' +
+          'algorithm for each group and each stage: T-Learner takes ' +
+          '<code>list(treated = ..., control = ...)</code> for the two arms; X-Learner takes ' +
+          '<code>list(m1 = ..., m0 = ...)</code> for the two outcome models and ' +
+          '<code>list(tau1 = ..., tau0 = ...)</code> for the two effect regressions. ' +
+          'A single learner is still the default (shared everywhere) and remains fully backward ' +
+          'compatible; S / R / DR and <code>survlearners</code> reject a named list with a clear error.</p></div>' +
+          '<h3>Added</h3>' +
+          '<ul>' +
+          '<li>Tutorial script 13 brings back <code>kknn</code> (it was unavailable locally and ' +
+          'temporarily swapped for rpart): all six base learners ranger / xgboost / glmnet / rpart / ' +
+          'kknn / lm are restored, with a new section demonstrating per-group / per-stage swapping.</li>' +
+          '<li>New <code>tests/testthat/test-learners-flexible.R</code> (7 <code>test_that</code> blocks): ' +
+          'T with distinct arms, X with distinct stages, missing / unknown role, S·R·DR rejecting the ' +
+          'list, survival per-group strings, and R6 pass-through.</li>' +
+          '</ul>' +
+          '<h3>Tests</h3>' +
+          '<ul>' +
+          '<li>Full suite: <strong>FAIL 0 | WARN 2 | SKIP 0 | PASS 314</strong>.</li>' +
+          '</ul>'
+      },
+
+      {
         id: "v021",
-        heading: "v0.21 · 2026-10-21 (current)",
+        heading: "v0.21 · 2026-10-21",
         body:
           '<div class="callout ok"><div class="callout-title">Version now increments by 0.01 on every push</div>' +
           '<p>The version is no longer three-part: it is a two-decimal batch counter, ' +
