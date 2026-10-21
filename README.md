@@ -319,7 +319,7 @@ Rscript tutorial/code/01_连续结局_随机化RCT.R
 | 操作系统 | Windows 11 x64 (build 26200) |
 | 语言环境 | 需 `en_US.UTF-8`（LC_CTYPE）——R 在 `LC_CTYPE=C` 下解析含 UTF-8 字节的源码会改写字符串常量，本项目实测有此坑 |
 | 测试命令 | `Rscript -e 'Sys.setlocale("LC_CTYPE","en_US.UTF-8"); pkgload::load_all("."); testthat::test_local()'` |
-| 测试规模 | 288 个用例 / 55 个文件，全部通过 |
+| 测试规模 | 8 个测试文件 / 58 个 `test_that` 块 / 293 个期望，全部通过 |
 | 持续集成 | GitHub Actions `R-CMD-check.yaml`，运行于 `ubuntu-latest` |
 
 ### 6.2 直接依赖（DESCRIPTION · Imports）
@@ -344,7 +344,7 @@ Rscript tutorial/code/01_连续结局_随机化RCT.R
 
 | 包 | 版本 | 角色 |
 |---|---|---|
-| `testthat` | 3.3.2 | 单元测试（288 用例 / 55 文件） |
+| `testthat` | 3.3.2 | 单元测试（8 文件 / 58 块 / 293 期望） |
 | `patchwork` | 1.3.2 | 多图拼接 |
 | `ggdag` | 0.2.13 | DAG 绘图（教程示意图） |
 | `survlearners` | 0.0.1 | 生存 learner 演示（可选） |
@@ -452,3 +452,28 @@ Rscript tutorial/code/01_连续结局_随机化RCT.R
 - **版本锁定**：仓库根目录的 `renv.lock` 记录了全部依赖的精确版本；先 `renv::restore()` 再 `pkgload::load_all('.')` 即可回到本节所列环境。
 - **实时核对**：在 R 里运行 `sessionInfo()` 可打印当前加载的全部包版本。
 - **生存分支无 `mlr3proba` 依赖**：基学习器用字符串 `"coxph"` / `"ranger"` 指定，不引入额外包。
+
+### 6.6 版本号规则：每次推送 +0.01
+
+版本号是**两位小数的批次计数**，不是语义化三段式：`0.20` → `0.21` → `0.22` → …，
+每推送一次更新就加 `0.01`（功能、修复、纯文档一视同仁）。
+
+发布一个批次时，四处必须同步：
+
+| 位置 | 内容 |
+|---|---|
+| `DESCRIPTION` | `Version: 0.21` |
+| `CHANGELOG.md` | 顶部新增 `## [0.21]` 小节 |
+| `docs/assets/js/content-home.js` | `SITE_META.version`（页脚读它） |
+| `docs/assets/js/content-changelog.js` | `lede` 的「当前版本」与当前小节 `heading` |
+
+前两处的机器部分交给脚本，后两处的文字仍要人写：
+
+```r
+# 在包根目录执行：改 DESCRIPTION 与 SITE_META，并列出还引用旧版本号的文件
+Rscript dev/bump_version.R 0.22
+```
+
+`tests/testthat/test-version.R` 会断言 `DESCRIPTION` 与 `SITE_META.version` 一致、
+更新日志页中英 lede 都标了当前版本——版本号再漂移，CI 直接红。
+

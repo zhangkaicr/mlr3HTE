@@ -9,12 +9,40 @@ window.SITE_PAGES.changelog = {
   /* ---------------- 中文 ---------------- */
   zh: {
     title: "更新日志",
-    lede: "mlr3HTE 的版本历史与重要变更。当前版本 v0.2.0。",
+    lede: "mlr3HTE 的版本历史与重要变更。当前版本 v0.21。",
     sections: [
 
       {
+        id: "v021",
+        heading: "v0.21 · 2026-10-21（当前版本）",
+        body:
+          '<div class="callout ok"><div class="callout-title">版本号改为两位小数递增，每次推送 +0.01</div>' +
+          '<p>版本号不再用三段式，改成两位小数的批次计数：<code>0.20</code> → <code>0.21</code> → ' +
+          '<code>0.22</code> …，每推送一次更新加 0.01。历史批次按规则折算（<code>0.1.0</code> → ' +
+          '<code>0.10</code>、<code>0.2.0</code> → <code>0.20</code>）。</p></div>' +
+          '<h3>修复</h3>' +
+          '<ul>' +
+          '<li>站内版本号此前一直停在 <strong>v0.1.0</strong>：<code>SITE_META</code> 没跟着 ' +
+          '<code>DESCRIPTION</code> 更新，页脚和更新日志页头都在报旧版本。现在统一为 v0.21。</li>' +
+          '<li>新增 <code>tests/testthat/test-version.R</code>：断言 <code>DESCRIPTION</code> 的 ' +
+          '<code>Version:</code> 与站内 <code>SITE_META.version</code> 一致（<code>docs/</code> ' +
+          '不存在时跳过，不影响 <code>R CMD check</code>）。</li>' +
+          '</ul>' +
+          '<h3>工程</h3>' +
+          '<ul>' +
+          '<li>新增 <code>dev/bump_version.R</code>：<code>Rscript dev/bump_version.R 0.22</code> ' +
+          '一条命令写好 <code>DESCRIPTION</code> 与 <code>SITE_META</code>，并列出仍在引用旧版本号的文件。</li>' +
+          '</ul>' +
+          '<h3>订正</h3>' +
+          '<ul>' +
+          '<li>文档里的「288 个用例 / 55 个文件」与实测不符（<code>tests/testthat/</code> 下只有 8 个文件）。' +
+          '改为可复核的口径：<strong>8 个测试文件 / 58 个 <code>test_that</code> 块 / 293 个期望，全部通过</strong>。</li>' +
+          '</ul>'
+      },
+
+      {
         id: "v020",
-        heading: "v0.2.0 · 2026-10-21（当前版本）",
+        heading: "v0.20 · 2026-10-21",
         body:
           '<div class="callout ok"><div class="callout-title">评价指标现在覆盖三类结局</div>' +
           '<p>Qini / TOC / c-for-benefit / DR 伪结局过去只接受数值型结局，' +
@@ -64,7 +92,7 @@ window.SITE_PAGES.changelog = {
 
       {
         id: "v010",
-        heading: "v0.1.0 · 2026-10-20",
+        heading: "v0.10 · 2026-10-20",
         body:
           '<div class="callout ok"><div class="callout-title">首个完整版本</div>' +
           '<p>S / T / X / R / DR 五种 Meta-Learner，覆盖连续、二分类、生存三类结局，' +
@@ -99,7 +127,7 @@ window.SITE_PAGES.changelog = {
 
       {
         id: "v001",
-        heading: "v0.0.1 · 2026-10-18（初始骨架）",
+        heading: "v0.01 · 2026-10-18（初始骨架）",
         body:
           '<h3>新增</h3>' +
           '<ul>' +
@@ -156,12 +184,44 @@ window.SITE_PAGES.changelog = {
   /* ---------------- English ---------------- */
   en: {
     title: "Changelog",
-    lede: "Version history and notable changes for mlr3HTE. Current version: v0.2.0.",
+    lede: "Version history and notable changes for mlr3HTE. Current version: v0.21.",
     sections: [
 
       {
+        id: "v021",
+        heading: "v0.21 · 2026-10-21 (current)",
+        body:
+          '<div class="callout ok"><div class="callout-title">Version now increments by 0.01 on every push</div>' +
+          '<p>The version is no longer three-part: it is a two-decimal batch counter, ' +
+          '<code>0.20</code> → <code>0.21</code> → <code>0.22</code> …, with a +0.01 bump on every ' +
+          'pushed update. Earlier batches were renumbered accordingly (<code>0.1.0</code> → ' +
+          '<code>0.10</code>, <code>0.2.0</code> → <code>0.20</code>).</p></div>' +
+          '<h3>Fixed</h3>' +
+          '<ul>' +
+          '<li>The site version had been stuck at <strong>v0.1.0</strong>: <code>SITE_META</code> was ' +
+          'never updated alongside <code>DESCRIPTION</code>, so the footer and the changelog header ' +
+          'both advertised a stale version. Both now read v0.21.</li>' +
+          '<li>New <code>tests/testthat/test-version.R</code>: asserts that ' +
+          '<code>DESCRIPTION</code>\'s <code>Version:</code> matches <code>SITE_META.version</code> ' +
+          '(skipped when <code>docs/</code> is absent, so <code>R CMD check</code> is unaffected).</li>' +
+          '</ul>' +
+          '<h3>Engineering</h3>' +
+          '<ul>' +
+          '<li>New <code>dev/bump_version.R</code>: <code>Rscript dev/bump_version.R 0.22</code> writes ' +
+          'both <code>DESCRIPTION</code> and <code>SITE_META</code> and lists any file still referencing ' +
+          'the old version.</li>' +
+          '</ul>' +
+          '<h3>Correction</h3>' +
+          '<ul>' +
+          '<li>The docs claimed 288 cases / 55 files, which did not match the repo ' +
+          '(<code>tests/testthat/</code> holds only 8 files). Restated in a checkable form: ' +
+          '<strong>8 test files / 58 <code>test_that</code> blocks / 293 expectations, all passing</strong>.</li>' +
+          '</ul>'
+      },
+
+      {
         id: "v020",
-        heading: "v0.2.0 · 2026-10-21 (current)",
+        heading: "v0.20 · 2026-10-21",
         body:
           '<div class="callout ok"><div class="callout-title">Evaluation metrics now cover all three outcome types</div>' +
           '<p>Qini / TOC / c-for-benefit / the DR pseudo-outcome used to accept numeric outcomes ' +
@@ -221,7 +281,7 @@ window.SITE_PAGES.changelog = {
 
       {
         id: "v010",
-        heading: "v0.1.0 · 2026-10-20",
+        heading: "v0.10 · 2026-10-20",
         body:
           '<div class="callout ok"><div class="callout-title">First complete release</div>' +
           '<p>The S, T, X, R and DR meta-learners covering continuous, binary and survival ' +
@@ -262,7 +322,7 @@ window.SITE_PAGES.changelog = {
 
       {
         id: "v001",
-        heading: "v0.0.1 · 2026-10-18 (initial scaffold)",
+        heading: "v0.01 · 2026-10-18 (initial scaffold)",
         body:
           '<h3>Added</h3>' +
           '<ul>' +

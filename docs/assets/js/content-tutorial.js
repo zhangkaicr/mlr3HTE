@@ -692,7 +692,7 @@ window.SITE_PAGES.tutorial = {
           '<code>mlr3 1.8.0</code> · <code>mlr3learners 0.16.0</code> · <code>paradox 1.0.1</code> · ' +
           '<code>R6 2.6.1</code> · <code>survival 3.8-3</code> · <code>ranger 0.18.0</code> · ' +
           '<code>dplyr 1.2.1</code> · <code>cli 3.6.6</code> · <code>ggplot2 4.0.3</code>。' +
-          '测试：<code>testthat 3.3.2</code>，共 288 个用例 / 55 个文件全部通过。</p>'
+          '测试：<code>testthat 3.3.2</code>，共 8 个测试文件 / 58 个 test_that 块 / 293 个期望，全部通过。</p>'
       }
     ]
   },
@@ -1423,7 +1423,7 @@ window.SITE_PAGES.tutorial = {
           '<code>mlr3 1.8.0</code> · <code>mlr3learners 0.16.0</code> · <code>paradox 1.0.1</code> · ' +
           '<code>R6 2.6.1</code> · <code>survival 3.8-3</code> · <code>ranger 0.18.0</code> · ' +
           '<code>dplyr 1.2.1</code> · <code>cli 3.6.6</code> · <code>ggplot2 4.0.3</code>. ' +
-          'Testing: <code>testthat 3.3.2</code>, 288 cases / 55 files, all passing.</p>'
+          'Testing: <code>testthat 3.3.2</code>, 8 test files / 58 test_that blocks / 293 expectations, all passing.</p>'
       }
     ]
   }

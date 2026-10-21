@@ -6,3 +6,4 @@
 ^HANDOFF\.md$
 ^\.github$
 ^run_checks\.R$
+^dev$
