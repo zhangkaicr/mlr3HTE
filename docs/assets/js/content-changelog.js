@@ -53,6 +53,9 @@ window.SITE_PAGES.changelog = {
           '全局连续编号、每条注明在本包中的用途与引用位置），' +
           '收录 meta-learner 五族、HTE 评价指标、生存删失、因果基础等全部出处。' +
           '中文 18 条、英文 18 条，中英两版同步。</li>' +
+          '<li>新增教程脚本 <code>13_换基学习器_基准对比.R</code> 与教程页「换基学习器：mlr3 生态随便挑」小节' +
+          '（中英）：演示用 mlr3 体系换基学习器只需改 <code>learner_base = lrn("regr.xxx")</code> 一行，' +
+          '并复用 <code>benchmark()</code> 横向对比；README 顶部也加了一段「为什么基于 mlr3：基学习器想换就换」callout。</li>' +
           '</ul>'
       },
 
@@ -201,6 +204,11 @@ window.SITE_PAGES.changelog = {
           'sectioned, globally numbered, each entry annotated with its use in this package), ' +
           'covering meta-learner families, HTE metrics, survival censoring and causal foundations. ' +
           '18 entries per language, synced across zh and en.</li>' +
+          '<li>New tutorial script <code>13_换基学习器_基准对比.R</code> and the tutorial section ' +
+          '"Swap the base learner: pick any algorithm in the mlr3 ecosystem" (zh + en): ' +
+          'swapping the base learner in the mlr3 system is a one-line <code>learner_base = lrn("regr.xxx")</code> change, ' +
+          'and <code>benchmark()</code> reuses the workflow directly. The README top also gained a ' +
+          '"why mlr3: swap the base learner freely" callout.</li>' +
           '</ul>'
       },
 

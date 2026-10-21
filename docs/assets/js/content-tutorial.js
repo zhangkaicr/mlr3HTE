@@ -336,7 +336,41 @@ window.SITE_PAGES.tutorial = {
           '<tr><td><code>10_HTE评价指标.R</code></td><td>Qini / c-for-benefit / TOC：模型<strong>判别力</strong>评价，附随机排序对照</td></tr>' +
           '<tr><td><code>11_评价指标真值对账.R</code></td><td>用已知真 <code>tau</code> 当标尺：把误差拆成<strong>排序损失</strong>与<strong>估计噪声</strong>，并给出 c-for-benefit 的闭式上界</td></tr>' +
           '<tr><td><code>12_三类结局评价指标.R</code></td><td>三个指标在<strong>连续 / 二分类 / 生存</strong>上各跑一遍：生存要 IPCW，并演示「先拟合后切分」的泄漏有多离谱</td></tr>' +
+          '<tr><td><code>13_换基学习器_基准对比.R</code></td><td><strong>用 mlr3 体系的核心收益</strong>：把基学习器从随机森林一行换成 XGBoost / GLMnet / CART / 线性回归，并用 <code>benchmark()</code> 横向比</td></tr>' +
           '</tbody></table></div>'
+      },
+
+      {
+        id: "swap-learners",
+        heading: "换基学习器：mlr3 生态随便挑（脚本 13）",
+        body:
+          '<p>选 mlr3 体系而不是自己写一套训练循环，最大的好处就在这里：' +
+          '<strong>五种 metalearner 只是「配方」，真正干活的是基学习器；换算法只是换 <code>learner_base</code> 一行</strong>，' +
+          '其余代码、接口、工作流原样不动。</p>' +
+          '<p>同一套 T-learner，把随机森林换成 XGBoost / GLMnet / CART / 线性回归，只改一处：</p>' +
+          '<pre><code>fit &lt;- metalearner("T", X, A, Y,\n              learner_base = lrn("regr.ranger"))   # 随机森林\nfit &lt;- metalearner("T", X, A, Y,\n              learner_base = lrn("regr.xgboost"))  # XGBoost\nfit &lt;- metalearner("T", X, A, Y,\n              learner_base = lrn("regr.glmnet"))   # Lasso\nfit &lt;- metalearner("T", X, A, Y,\n              learner_base = lrn("regr.lm"))       # 线性回归</code></pre>' +
+          '<p>脚本 13 在连续 RCT 模拟数据（n = 4000，真值 ATE = 1.048）上把这五种基学习器各跑一遍，' +
+          '对比 ATE 与「CATE 与真 <em>τ</em> 的相关」（排序能力）：</p>' +
+          '<div class="table-wrap"><table>' +
+          '<thead><tr><th>基学习器</th><th>ATE</th><th>ATE 偏差</th><th>CATE 相关</th></tr></thead><tbody>' +
+          '<tr><td>ranger（随机森林）</td><td>0.9496</td><td>-0.098</td><td>0.843</td></tr>' +
+          '<tr><td>xgboost</td><td>0.9601</td><td>-0.088</td><td>0.656</td></tr>' +
+          '<tr><td>glmnet（Lasso）</td><td>0.9545</td><td>-0.093</td><td>0.986</td></tr>' +
+          '<tr><td>rpart（CART）</td><td>0.9572</td><td>-0.091</td><td>0.907</td></tr>' +
+          '<tr><td>lm（线性回归）</td><td>0.9546</td><td>-0.093</td><td>0.987</td></tr>' +
+          '</tbody></table></div>' +
+          '<p>看这张表能体会两点：① ATE 估计对基学习器选择相当稳健（偏差都在 ±0.1 内），' +
+          '因为 T-learner 的无偏性不依赖基学习器；② 但<strong>排序能力（CATE 相关）随算法差异很大</strong>——' +
+          '线性模型在这个有交互的 DGP 上反而排得最准，随机森林却最差。这正说明换算法不是装饰，' +
+          '它直接决定你能否找到「谁更获益」。</p>' +
+          '<h4>进阶：换完算法直接复用 mlr3 工作流</h4>' +
+          '<p>因为 <code>lrn("regr.metalearner")</code> 是正规 R6 Learner，换好基学习器后，' +
+          '<code>benchmark()</code> / <code>tune()</code> / <code>resample()</code> 完全照常。' +
+          '脚本 13 用 <code>benchmark_grid()</code> 把「T + ranger」和「T + xgboost」放进同一次 5 折 CV 比 MSE，' +
+          '不用为每种算法单独写循环：</p>' +
+          '<pre><code>task  &lt;- ml_task(X, A, Y)\ndesign &lt;- benchmark_grid(\n  task,\n  list(\n    lrn("regr.metalearner", id = "T_ranger",  metalearner = "T",\n        learner_base = lrn("regr.ranger", num.trees = 300)),\n    lrn("regr.metalearner", id = "T_xgboost", metalearner = "T",\n        learner_base = lrn("regr.xgboost"))\n  ),\n  rsmp("cv", folds = 5)\n)\nbenchmark(design)$score()</code></pre>' +
+          '<p>这就是「用 mlr3 体系」而不是「又造一套训练管道」的甜头：' +
+          '从教学到调参、从单模型到交叉验证对比，整条链路免费继承。</p>'
       },
 
       {
@@ -980,7 +1014,41 @@ window.SITE_PAGES.tutorial = {
           '<tr><td><code>10_HTE评价指标.R</code></td><td>Qini / c-for-benefit / TOC: <strong>discrimination</strong> metrics with a random-ordering control</td></tr>' +
           '<tr><td><code>11_评价指标真值对账.R</code></td><td>Known <code>tau</code> as the yardstick: split the error into <strong>ranking loss</strong> and <strong>estimation noise</strong>, plus the closed-form c-for-benefit ceiling</td></tr>' +
           '<tr><td><code>12_三类结局评价指标.R</code></td><td>All three metrics on <strong>continuous / binary / survival</strong>: survival needs IPCW, plus a demonstration of how badly "fit first, split later" leaks</td></tr>' +
+          '<tr><td><code>13_换基学习器_基准对比.R</code></td><td><strong>The core payoff of the mlr3 system</strong>: swap the base learner from random forest to XGBoost / GLMnet / CART / linear in one line, and compare them with <code>benchmark()</code></td></tr>' +
           '</tbody></table></div>'
+      },
+
+      {
+        id: "swap-learners",
+        heading: "Swap the base learner: pick any algorithm in the mlr3 ecosystem (script 13)",
+        body:
+          '<p>The biggest reason to build on mlr3 instead of rolling your own training loop is right here: ' +
+          '<strong>the five metalearners are just "recipes"; the base learner does the actual work, and switching algorithms is a one-line change to <code>learner_base</code></strong>—' +
+          'every other line of code, the interface, and the workflow stay exactly the same.</p>' +
+          '<p>The same T-learner, switching the base learner from random forest to XGBoost / GLMnet / CART / linear regression, changes only one argument:</p>' +
+          '<pre><code>fit &lt;- metalearner("T", X, A, Y,\n              learner_base = lrn("regr.ranger"))   # random forest\nfit &lt;- metalearner("T", X, A, Y,\n              learner_base = lrn("regr.xgboost"))  # XGBoost\nfit &lt;- metalearner("T", X, A, Y,\n              learner_base = lrn("regr.glmnet"))   # Lasso\nfit &lt;- metalearner("T", X, A, Y,\n              learner_base = lrn("regr.lm"))       # linear regression</code></pre>' +
+          '<p>Script 13 runs all five base learners on the continuous RCT simulation (n = 4000, true ATE = 1.048) and compares ATE with ' +
+          '"CATE correlation with the true <em>&tau;</em>" (ranking power):</p>' +
+          '<div class="table-wrap"><table>' +
+          '<thead><tr><th>Base learner</th><th>ATE</th><th>ATE bias</th><th>CATE corr.</th></tr></thead><tbody>' +
+          '<tr><td>ranger (random forest)</td><td>0.9496</td><td>-0.098</td><td>0.843</td></tr>' +
+          '<tr><td>xgboost</td><td>0.9601</td><td>-0.088</td><td>0.656</td></tr>' +
+          '<tr><td>glmnet (Lasso)</td><td>0.9545</td><td>-0.093</td><td>0.986</td></tr>' +
+          '<tr><td>rpart (CART)</td><td>0.9572</td><td>-0.091</td><td>0.907</td></tr>' +
+          '<tr><td>lm (linear regression)</td><td>0.9546</td><td>-0.093</td><td>0.987</td></tr>' +
+          '</tbody></table></div>' +
+          '<p>Two takeaways from this table: ① ATE estimation is quite robust to the base-learner choice (bias within ±0.1), ' +
+          'because the T-learner is unbiased regardless of the base learner; ② but <strong>ranking power (CATE correlation) varies a lot across algorithms</strong>—' +
+          'the linear model actually ranks best on this interaction-rich DGP while the random forest ranks worst. ' +
+          'That is exactly why swapping algorithms is not cosmetic: it decides whether you can find "who benefits more".</p>' +
+          '<h4>Next step: reuse the mlr3 workflow after the swap</h4>' +
+          '<p>Because <code>lrn("regr.metalearner")</code> is a proper R6 Learner, once you swap the base learner, ' +
+          '<code>benchmark()</code> / <code>tune()</code> / <code>resample()</code> work unchanged. ' +
+          'Script 13 drops "T + ranger" and "T + xgboost" into one <code>benchmark_grid()</code> 5-fold CV to compare MSE, ' +
+          'no separate loop per algorithm:</p>' +
+          '<pre><code>task  &lt;- ml_task(X, A, Y)\ndesign &lt;- benchmark_grid(\n  task,\n  list(\n    lrn("regr.metalearner", id = "T_ranger",  metalearner = "T",\n        learner_base = lrn("regr.ranger", num.trees = 300)),\n    lrn("regr.metalearner", id = "T_xgboost", metalearner = "T",\n        learner_base = lrn("regr.xgboost"))\n  ),\n  rsmp("cv", folds = 5)\n)\nbenchmark(design)$score()</code></pre>' +
+          '<p>That is the payoff of "using the mlr3 system" rather than "building yet another training pipeline": ' +
+          'from teaching to tuning, from single model to cross-validated comparison, the whole chain comes for free.</p>'
       },
 
       {

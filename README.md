@@ -29,6 +29,22 @@ S- / T- / X- / R- / DR-learner 做成了正规可安装的 mlr3 学习器。
 引擎只有一套：五种 metalearner 的公式与结局类型无关，它们统一通过「结局模型」打交道——
 `predict(newX)` 对连续结局返回 `E[Y|X]`、对二分类返回 `P(Y=1|X)`、对生存返回 `S(t0|X)`。
 
+> **为什么基于 mlr3？——基学习器想换就换。**
+> 五种 metalearner 只是「配方」，真正干活的是基学习器。因为 `metalearner()` 直接吃 `lrn()` 对象，
+> **把随机森林换成 XGBoost、GLMnet、kNN、SVM……只是一行 `learner_base = lrn("regr.xgboost")` 的事**，
+> 其余代码、接口、工作流原样不动：
+>
+> ```r
+> fit <- metalearner("T", X, A, Y, learner_base = lrn("regr.ranger"))   # 随机森林
+> fit <- metalearner("T", X, A, Y, learner_base = lrn("regr.xgboost"))  # XGBoost
+> fit <- metalearner("T", X, A, Y, learner_base = lrn("regr.glmnet"))   # Lasso
+> fit <- metalearner("T", X, A, Y, learner_base = lrn("regr.lm"))       # 线性回归
+> ```
+>
+> mlr3 自带的全套 learner（`ranger` / `xgboost` / `glmnet` / `kknn` / `svm` / `nnet` / `rpart` / `lm` …）
+> 与调参、重采样、基准对比工作流（`tune` / `resample` / `benchmark`）也一并免费继承。
+> 这正是用 mlr3 体系而非自写训练管道的核心收益——详见教程「[换基学习器：mlr3 生态随便挑](https://zhangkaicr.github.io/mlr3HTE/#/tutorial)」。
+
 ---
 
 ## 1 安装与加载
@@ -282,6 +298,11 @@ Rscript tutorial/code/01_连续结局_随机化RCT.R
 | `06_生存结局_观察性研究.R` | 生存 + 观察性，IPTW × IPCW |
 | `07_五种metalearner横向对比.R` | 三种结局 × 五种 learner 对比表 |
 | `08_mlr3工作流集成.R` | `ml_task` + `resample` + `benchmark` |
+| `09_生存结局_survlearners引擎.R` | 生存第二套引擎 `engine = "survlearners"`，与原生引擎同题对比 |
+| `10_HTE评价指标.R` | Qini / c-for-benefit / TOC：模型判别力评价，附随机排序对照 |
+| `11_评价指标真值对账.R` | 用已知真 `tau` 当标尺：误差拆成排序损失与估计噪声，c-for-benefit 闭式上界 |
+| `12_三类结局评价指标.R` | 三个指标在连续 / 二分类 / 生存上各跑一遍；生存要 IPCW，并演示「先拟合后切分」的泄漏 |
+| `13_换基学习器_基准对比.R` | **用 mlr3 体系的核心收益**：基学习器一行互换（ranger / xgboost / glmnet / rpart / lm），并复用 `benchmark()` 横向比 |
 
 ---
 
