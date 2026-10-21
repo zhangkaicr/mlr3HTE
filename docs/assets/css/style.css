@@ -351,6 +351,35 @@ pre code {
   background: none; border: none; padding: 0; font-size: 13px;
 }
 
+/* 11 参考文献列表（博士论文式：分节 + 全局连续编号 + 用途一行）--------- */
+.ref-list {
+  margin: 0 0 24px;
+  padding-left: 46px;
+  font-size: 14px;
+}
+.ref-list li {
+  margin-bottom: 20px;
+  padding-left: 6px;
+  scroll-margin-top: calc(var(--nav-h) + 16px);
+}
+.ref-list li::marker {
+  color: var(--fg-faint);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+.ref-cite { margin-bottom: 5px; line-height: 1.65; }
+.ref-links { margin-bottom: 5px; font-size: 13px; }
+.ref-links a { margin-right: 4px; }
+.ref-note { color: var(--fg-faint); font-style: italic; }
+.ref-use {
+  color: var(--fg-muted);
+  font-size: 13px;
+  line-height: 1.65;
+  border-left: 2px solid var(--border);
+  padding-left: 10px;
+}
+.ref-use strong { color: var(--fg); }
+
 /* 11 表格 -------------------------------------------------------------- */
 .table-wrap { overflow-x: auto; margin: 0 0 20px; }
 table {

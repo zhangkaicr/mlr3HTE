@@ -47,7 +47,8 @@
       builtWith:    "本站为纯静态页面，随 mlr3HTE 包一同维护。",
       linkSrc:      "源码",
       linkIssues:   "报告问题",
-      linkPkg:      "安装"
+      linkPkg:      "安装",
+      linkRefs:     "参考文献"
     },
     en: {
       searchPh:     "Search docs…",
@@ -66,7 +67,8 @@
       builtWith:    "This site is a static page maintained alongside the mlr3HTE package.",
       linkSrc:      "Source",
       linkIssues:   "Report a bug",
-      linkPkg:      "Install"
+      linkPkg:      "Install",
+      linkRefs:     "References"
     }
   };
 
@@ -456,6 +458,7 @@
           '<a href="https://github.com/zhangkaicr/mlr3HTE" target="_blank" rel="noopener">' + t("linkSrc") + '</a>' +
           '<a href="https://github.com/zhangkaicr/mlr3HTE/issues" target="_blank" rel="noopener">' + t("linkIssues") + '</a>' +
           '<a href="#/guide">' + t("linkPkg") + '</a>' +
+          '<a href="#/references">' + t("linkRefs") + '</a>' +
         '</div>' +
         '<div class="footer-col">' +
           '<div class="footer-title">' + t("footerDev") + '</div>' +

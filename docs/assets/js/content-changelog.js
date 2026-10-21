@@ -46,7 +46,14 @@ window.SITE_PAGES.changelog = {
           '<p>先在全集拟合、再切一块当留出集，等于把 <code>Y</code> 泄漏进 CATE。' +
           '二分类下最致命（观测获益就是 <code>Y<sub>treated</sub> − Y<sub>control</sub></code>）：' +
           'c-for-benefit 从 0.558 虚高到 <strong>0.891</strong>，反超 oracle 的 0.605，' +
-          '尽管它与真 <em>τ</em> 的相关反而更低（0.542 &lt; 0.655）。<strong>先切分、后拟合。</strong></p>'
+          '尽管它与真 <em>τ</em> 的相关反而更低（0.542 &lt; 0.655）。<strong>先切分、后拟合。</strong></p>' +
+          '<h3>文档站</h3>' +
+          '<ul>' +
+          '<li>新增独立的 <a href="#/references">参考文献</a> 页（博士论文式：按主题分节、' +
+          '全局连续编号、每条注明在本包中的用途与引用位置），' +
+          '收录 meta-learner 五族、HTE 评价指标、生存删失、因果基础等全部出处。' +
+          '中文 18 条、英文 18 条，中英两版同步。</li>' +
+          '</ul>'
       },
 
       {
@@ -187,7 +194,14 @@ window.SITE_PAGES.changelog = {
           '<code>Y<sub>treated</sub> − Y<sub>control</sub></code>): c-for-benefit jumps from 0.558 ' +
           'to <strong>0.891</strong>, beating the oracle\'s 0.605, even though its correlation ' +
           'with the true <em>τ</em> is <em>worse</em> (0.542 &lt; 0.655). ' +
-          '<strong>Split first, fit second.</strong></p>'
+          '<strong>Split first, fit second.</strong></p>' +
+          '<h3>Docs site</h3>' +
+          '<ul>' +
+          '<li>New standalone <a href="#/references">References</a> page (thesis-style: ' +
+          'sectioned, globally numbered, each entry annotated with its use in this package), ' +
+          'covering meta-learner families, HTE metrics, survival censoring and causal foundations. ' +
+          '18 entries per language, synced across zh and en.</li>' +
+          '</ul>'
       },
 
       {
