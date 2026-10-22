@@ -25,7 +25,7 @@ var TUT_MATRIX = {
 window.SITE_PAGES.tutorial = {
   zh: {
     title: "教程与模型评价",
-    lede: "六篇文章，每篇一张独立网页；按研究设计与结局类型组织，数据自带真值，可以逐人对账。",
+    lede: "六篇文章，每篇一张独立网页；按研究设计与结局类型组织，数据自带真值。所有对账都按同一套口径：ATE 偏差 + CATE 相关 + RMSE + 估计 SD，不能只报 ATE。",
     sections: [
       {
         id: "articles",
@@ -100,7 +100,7 @@ window.SITE_PAGES.tutorial = {
   },
   en: {
     title: "Tutorials & model evaluation",
-    lede: "Six standalone articles; organized by study design and outcome type, each on simulated data with known ground truth.",
+    lede: "Six standalone articles; organized by study design and outcome type, each on simulated data with known ground truth. Every reconciliation uses the same template: ATE bias + CATE correlation + RMSE + estimated SD — never ATE alone.",
     sections: [
       {
         id: "articles",
@@ -267,6 +267,35 @@ window.SITE_PAGES.tutorialbasics = {
           '所以粗差分偏出 +0.69 纯粹是混杂造成的，不是效应真的变了。</p>'
       },
       {
+        id: "recon",
+        heading: "对账指标约定：为什么不能只报 ATE",
+        body:
+          '<div class="callout warn"><div class="callout-title">ATE 是一个数，CATE 是一张图</div>' +
+          '<p>ATE 只回答「人群平均效应估得准不准」。可 CATE 的全部意义在于' +
+          '<strong>异质性</strong>——报告里只有 ATE，就没法回答「模型到底有没有把谁更获益排出来」。' +
+          '在自带真值的模拟数据上，下面几组指标要<strong>一起报</strong>。</p></div>' +
+          '<div class="table-wrap"><table>' +
+          '<thead><tr><th>指标</th><th>算法</th><th>回答什么</th></tr></thead><tbody>' +
+          '<tr><td><strong>ATE 偏差</strong></td><td>估计 ATE − 真实 ATE</td>' +
+          '<td>平均层面偏没偏；观察性数据上这是混杂的照妖镜</td></tr>' +
+          '<tr><td><strong>CATE 相关</strong></td><td><code>cor(估计 CATE, 真实 tau)</code>（Pearson）</td>' +
+          '<td>有没有抓住异质性的方向与排序；接近 1 才说明真的在区分病人</td></tr>' +
+          '<tr><td><strong>RMSE</strong></td><td><code>sqrt(mean((估计 CATE - tau)^2))</code></td>' +
+          '<td>逐人估计误差的绝对尺度，可跨结局类型横向比较</td></tr>' +
+          '<tr><td><strong>估计 SD vs 真实 SD</strong></td>' +
+          '<td><code>sd(估计 CATE)</code> 与 <code>sd(tau)</code> 对比</td>' +
+          '<td>有没有被「压平」——S-learner 常把异质性抹掉，SD 明显小于真值就是信号</td></tr>' +
+          '<tr><td><strong>分位数对照</strong></td><td>估计/真实的 0/25/50/75/100% 分位</td>' +
+          '<td>分布形状是否一致，比单一相关系数更直观</td></tr>' +
+          '</tbody></table></div>' +
+          '<p><strong>一句话读法</strong>：ATE 偏差小 + 相关低 = 平均对、异质性没学到' +
+          '（常见于基学习器太弱或正则化过头）；相关高 + RMSE 大 = 排序对、绝对尺度偏' +
+          '（R/DR 的二阶段对伪结果回归没有尺度约束，容易出现）；两个都好，这个 learner ' +
+          '才敢说在这份数据上真的可用。</p>' +
+          '<p>后面六个场景的对账表全部按这套口径出数；如果只关心排序（例如做治疗推荐），' +
+          '把 Pearson 换成 Spearman 即可，其余口径不变。</p>'
+      },
+      {
         id: "next",
         notoc: true,
         heading: "继续读",
@@ -372,6 +401,37 @@ window.SITE_PAGES.tutorialbasics = {
           'their RCT counterparts (1.05 / 0.131 / 0.152) — only the <strong>assignment ' +
           'mechanism</strong> differs, so the +0.69 crude bias is pure confounding, not a real ' +
           'change in the effect.</p>'
+      },
+      {
+        id: "recon",
+        heading: "Reconciliation metrics: why ATE alone is not enough",
+        body:
+          '<div class="callout warn"><div class="callout-title">ATE is one number; CATE is a picture</div>' +
+          '<p>ATE only answers "is the population-average effect estimated correctly". The whole point ' +
+          'of CATE, though, is <strong>heterogeneity</strong> — a report with only ATE cannot answer ' +
+          '"did the model actually rank who benefits more?". On simulated data with known truth, ' +
+          'report all the metric groups below, <strong>together</strong>.</p></div>' +
+          '<div class="table-wrap"><table>' +
+          '<thead><tr><th>Metric</th><th>Formula</th><th>What it answers</th></tr></thead><tbody>' +
+          '<tr><td><strong>ATE bias</strong></td><td>estimated ATE − true ATE</td>' +
+          '<td>Is the average biased? On observational data this is the confounding detector</td></tr>' +
+          '<tr><td><strong>CATE correlation</strong></td><td><code>cor(estimated CATE, true tau)</code> (Pearson)</td>' +
+          '<td>Did it capture the direction and ranking of heterogeneity? Close to 1 means patients are genuinely separated</td></tr>' +
+          '<tr><td><strong>RMSE</strong></td><td><code>sqrt(mean((estimated CATE - tau)^2))</code></td>' +
+          '<td>Absolute per-person error; comparable across outcome types</td></tr>' +
+          '<tr><td><strong>Estimated SD vs true SD</strong></td>' +
+          '<td>compare <code>sd(estimated CATE)</code> with <code>sd(tau)</code></td>' +
+          '<td>Was heterogeneity flattened? S-learners often shrink it; an SD clearly below truth is the tell</td></tr>' +
+          '<tr><td><strong>Quantile comparison</strong></td><td>0/25/50/75/100% quantiles, estimated vs true</td>' +
+          '<td>Whether the distribution shape matches — more intuitive than a single correlation</td></tr>' +
+          '</tbody></table></div>' +
+          '<p><strong>How to read it in one line</strong>: small ATE bias + low correlation = right on ' +
+          'average but heterogeneity not learned (usually a weak base learner or over-regularisation); ' +
+          'high correlation + large RMSE = right ranking, wrong scale (common for R/DR, whose second ' +
+          'stage regresses pseudo-outcomes with no scale constraint). Only when both are good can you ' +
+          'say the learner is genuinely usable on this dataset.</p>' +
+          '<p>Every scenario below reports on this same template. If only ranking matters (e.g. for ' +
+          'treatment recommendation), swap Pearson for Spearman and keep everything else.</p>'
       },
       {
         id: "next",
@@ -587,10 +647,10 @@ window.SITE_PAGES.tutorialobs = {
           '<thead><tr><th>场景</th><th>脚本</th><th>关键结论</th></tr></thead><tbody>' +
           '<tr><td><a href="#/tutorialobs/s2">场景 2 · 连续 × 观察性</a></td>' +
           '<td><code>02_连续结局_观察性研究.R</code></td>' +
-          '<td>未调整 <strong>+0.689</strong> → 加权后偏差 ≤ 0.05（真实 ATE 1.049）</td></tr>' +
+          '<td>未调整 <strong>+0.689</strong> → 加权后 ATE 偏差 ≤ 0.04；X-learner 的 CATE 相关 <strong>0.951</strong>、RMSE 0.327（真实 ATE 1.049）</td></tr>' +
           '<tr><td><a href="#/tutorialobs/s4">场景 4 · 二分类 × 观察性</a></td>' +
           '<td><code>04_二分类结局_观察性研究.R</code></td>' +
-          '<td>未调整风险差 <strong>+0.125</strong> → IPTW + X 偏差 −0.002（真实 0.131）</td></tr>' +
+          '<td>未调整风险差 <strong>+0.125</strong> → IPTW + X 偏差 −0.002；CATE 相关 <strong>0.742</strong>、RMSE 0.110（真实 0.131）</td></tr>' +
           '</tbody></table></div>' +
           '<div class="callout warn"><div class="callout-title">前提</div>' +
           '<p>本数据的混杂全部来自<strong>已测量</strong>协变量，所以校正能奏效。' +
@@ -615,14 +675,35 @@ window.SITE_PAGES.tutorialobs = {
           '<p>病情越重（<code>z1</code> 高）越容易接受处理，而病情本身又影响结局。' +
           '所以粗差分会同时混进病情的影响。实测两组基线：对照组 lac 均值 2.15，处理组 3.03。</p></div>' +
           '<div class="table-wrap"><table>' +
-          '<thead><tr><th>方法</th><th>估计</th><th>偏差</th></tr></thead>' +
+          '<thead><tr><th>方法</th><th>估计</th><th>偏差</th><th>与真相关</th>' +
+          '<th>RMSE</th><th>估计 SD</th></tr></thead>' +
           '<tbody>' +
-          '<tr><td>未调整差分</td><td>1.738</td><td><strong>+0.689</strong></td></tr>' +
-          '<tr><td>IPTW + X</td><td>1.007</td><td>−0.043</td></tr>' +
-          '<tr><td>IPTW（稳定化）+ X</td><td>1.011</td><td>−0.038</td></tr>' +
-          '<tr><td>真实 PS 外部权重 + DR</td><td>1.086</td><td>+0.037</td></tr>' +
+          '<tr><td>未调整差分</td><td>1.738</td><td><strong>+0.689</strong></td>' +
+          '<td>—</td><td>—</td><td>—</td></tr>' +
+          '<tr><td>IPTW + X</td><td>1.007</td><td>−0.043</td>' +
+          '<td>0.950</td><td>0.333</td><td>0.930</td></tr>' +
+          '<tr><td>IPTW（稳定化）+ X</td><td>1.011</td><td>−0.038</td>' +
+          '<td>0.951</td><td>0.327</td><td>0.940</td></tr>' +
+          '<tr><td>真实 PS 外部权重 + DR</td><td>1.086</td><td>+0.037</td>' +
+          '<td>0.849</td><td>0.581</td><td>1.070</td></tr>' +
           '</tbody></table></div>' +
-          '<p>真实 ATE = <strong>1.049</strong>。加权把 +0.69 的偏差压到 0.04 以内。</p>' +
+          '<p>真实 ATE = <strong>1.049</strong>，真实 CATE 的 SD = <strong>1.04</strong>。' +
+          '加权把 +0.69 的偏差压到 0.04 以内；注意最后一行的<strong>估计 SD 1.07 超过真值 1.04</strong>，' +
+          '说明它的 ATE 虽接近，逐人尺度已经放大——这正是「ATE 对不代表 CATE 对」的实例。</p>' +
+          '<div class="table-wrap"><table>' +
+          '<thead><tr><th>Learner</th><th>IPTW ATE</th><th>偏差</th><th>与真相关</th>' +
+          '<th>RMSE</th><th>估计 SD</th></tr></thead>' +
+          '<tbody>' +
+          '<tr><td>S</td><td>0.943</td><td>−0.106</td><td>0.864</td><td>0.542</td><td>0.989</td></tr>' +
+          '<tr><td>T</td><td>1.000</td><td>−0.048</td><td>0.793</td><td>0.719</td><td>1.160</td></tr>' +
+          '<tr><td><strong>X</strong></td><td>1.000</td><td>−0.046</td>' +
+          '<td><strong>0.951</strong></td><td><strong>0.327</strong></td><td>0.943</td></tr>' +
+          '<tr><td>R</td><td>0.468</td><td>−0.582</td><td>0.642</td><td>0.987</td><td>0.634</td></tr>' +
+          '<tr><td>DR</td><td>0.931</td><td>−0.119</td><td>0.854</td><td>0.613</td><td>1.150</td></tr>' +
+          '</tbody></table></div>' +
+          '<p>权重校正的是<strong>混杂</strong>，不是某个 learner 的拟合能力：' +
+          '五种 learner 的 ATE 都回到真值附近，但 CATE 相关从 0.642（R）到 0.951（X）差得很远。' +
+          '真实 SD = 1.04；R 的估计 SD 只有 0.634，典型的「压平」。</p>' +
           '<div class="callout warn"><div class="callout-title">提醒</div>' +
           '<p>本数据的混杂全部来自<strong>已测量</strong>协变量，所以校正能奏效。' +
           '真实研究里若有未测量混杂，任何方法都救不回来。</p></div>'
@@ -649,14 +730,19 @@ window.SITE_PAGES.tutorialobs = {
           '</tbody></table></div>' +
           '<p>五种 learner 在 IPTW 下的表现：</p>' +
           '<div class="table-wrap"><table>' +
-          '<thead><tr><th>Learner</th><th>IPTW ATE</th><th>偏差</th><th>与真相关</th></tr></thead>' +
+          '<thead><tr><th>Learner</th><th>IPTW ATE</th><th>偏差</th><th>与真相关</th>' +
+          '<th>RMSE</th><th>估计 SD</th></tr></thead>' +
           '<tbody>' +
-          '<tr><td>S</td><td>0.144</td><td>+0.013</td><td>0.552</td></tr>' +
-          '<tr><td>T</td><td>0.117</td><td>−0.014</td><td>0.444</td></tr>' +
-          '<tr><td><strong>X</strong></td><td>0.129</td><td><strong>−0.002</strong></td><td><strong>0.742</strong></td></tr>' +
-          '<tr><td>R</td><td>0.109</td><td>−0.022</td><td>0.423</td></tr>' +
-          '<tr><td>DR</td><td>0.132</td><td>+0.001</td><td>0.426</td></tr>' +
-          '</tbody></table></div>'
+          '<tr><td>S</td><td>0.144</td><td>+0.013</td><td>0.552</td><td>0.188</td><td>0.225</td></tr>' +
+          '<tr><td>T</td><td>0.117</td><td>−0.014</td><td>0.444</td><td>0.257</td><td>0.286</td></tr>' +
+          '<tr><td><strong>X</strong></td><td>0.129</td><td><strong>−0.002</strong></td>' +
+          '<td><strong>0.742</strong></td><td><strong>0.110</strong></td><td>0.164</td></tr>' +
+          '<tr><td>R</td><td>0.109</td><td>−0.022</td><td>0.423</td><td>0.206</td><td>0.223</td></tr>' +
+          '<tr><td>DR</td><td>0.132</td><td>+0.001</td><td>0.426</td><td>0.271</td><td>0.300</td></tr>' +
+          '</tbody></table></div>' +
+          '<p>真实 CATE 的 SD = <strong>0.132</strong>。二分类的 CATE 落在风险差尺度上，' +
+          '所以 RMSE 的量纲和连续结局不可直接比，只能在同一张表内横向看：' +
+          'X 的 RMSE 0.110 不到其他 learner 的一半，估计 SD 0.164 也最接近真值。</p>'
       },
       {
         id: "next",
@@ -685,10 +771,10 @@ window.SITE_PAGES.tutorialobs = {
           '<thead><tr><th>Scenario</th><th>Script</th><th>Key result</th></tr></thead><tbody>' +
           '<tr><td><a href="#/tutorialobs/s2">Scenario 2 · Continuous × observational</a></td>' +
           '<td><code>02_连续结局_观察性研究.R</code></td>' +
-          '<td>Naive <strong>+0.689</strong> → bias ≤ 0.05 after weighting (true ATE 1.049)</td></tr>' +
+          '<td>Naive <strong>+0.689</strong> → ATE bias ≤ 0.04 after weighting; the X-learner reaches CATE correlation <strong>0.951</strong> with RMSE 0.327 (true ATE 1.049)</td></tr>' +
           '<tr><td><a href="#/tutorialobs/s4">Scenario 4 · Binary × observational</a></td>' +
           '<td><code>04_二分类结局_观察性研究.R</code></td>' +
-          '<td>Naive risk difference <strong>+0.125</strong> → IPTW + X bias −0.002 (true 0.131)</td></tr>' +
+          '<td>Naive risk difference <strong>+0.125</strong> → IPTW + X bias −0.002; CATE correlation <strong>0.742</strong> with RMSE 0.110 (true 0.131)</td></tr>' +
           '</tbody></table></div>' +
           '<div class="callout warn"><div class="callout-title">Caveat</div>' +
           '<p>All confounding here comes from <strong>measured</strong> covariates, which is why adjustment works. ' +
@@ -714,13 +800,36 @@ window.SITE_PAGES.tutorialobs = {
           'also affects the outcome — so the crude difference picks up severity as well. ' +
           'Observed baseline: mean lac 2.15 in controls vs 3.03 in treated.</p></div>' +
           '<div class="table-wrap"><table>' +
-          '<thead><tr><th>Method</th><th>Estimate</th><th>Bias</th></tr></thead>' +
+          '<thead><tr><th>Method</th><th>Estimate</th><th>Bias</th><th>Corr. with truth</th>' +
+          '<th>RMSE</th><th>Est. SD</th></tr></thead>' +
           '<tbody>' +
-          '<tr><td>Unadjusted difference</td><td>1.738</td><td><strong>+0.689</strong></td></tr>' +
-          '<tr><td>IPTW + X</td><td>1.007</td><td>−0.043</td></tr>' +
-          '<tr><td>Stabilised IPTW + X</td><td>1.011</td><td>−0.038</td></tr>' +
-          '<tr><td>True-PS external weights + DR</td><td>1.086</td><td>+0.037</td></tr>' +
+          '<tr><td>Unadjusted difference</td><td>1.738</td><td><strong>+0.689</strong></td>' +
+          '<td>—</td><td>—</td><td>—</td></tr>' +
+          '<tr><td>IPTW + X</td><td>1.007</td><td>−0.043</td>' +
+          '<td>0.950</td><td>0.333</td><td>0.930</td></tr>' +
+          '<tr><td>Stabilised IPTW + X</td><td>1.011</td><td>−0.038</td>' +
+          '<td>0.951</td><td>0.327</td><td>0.940</td></tr>' +
+          '<tr><td>True-PS external weights + DR</td><td>1.086</td><td>+0.037</td>' +
+          '<td>0.849</td><td>0.581</td><td>1.070</td></tr>' +
           '</tbody></table></div>' +
+          '<p>True ATE = <strong>1.049</strong>; true CATE SD = <strong>1.04</strong>. ' +
+          'Weighting pulls the +0.69 bias back within 0.04. Note the last row: its ' +
+          '<strong>estimated SD of 1.07 exceeds the truth of 1.04</strong> — the average is close, ' +
+          'but the per-person scale has blown up. That is exactly "a right ATE does not mean a right CATE".</p>' +
+          '<div class="table-wrap"><table>' +
+          '<thead><tr><th>Learner</th><th>IPTW ATE</th><th>Bias</th><th>Corr. with truth</th>' +
+          '<th>RMSE</th><th>Est. SD</th></tr></thead>' +
+          '<tbody>' +
+          '<tr><td>S</td><td>0.943</td><td>−0.106</td><td>0.864</td><td>0.542</td><td>0.989</td></tr>' +
+          '<tr><td>T</td><td>1.000</td><td>−0.048</td><td>0.793</td><td>0.719</td><td>1.160</td></tr>' +
+          '<tr><td><strong>X</strong></td><td>1.000</td><td>−0.046</td>' +
+          '<td><strong>0.951</strong></td><td><strong>0.327</strong></td><td>0.943</td></tr>' +
+          '<tr><td>R</td><td>0.468</td><td>−0.582</td><td>0.642</td><td>0.987</td><td>0.634</td></tr>' +
+          '<tr><td>DR</td><td>0.931</td><td>−0.119</td><td>0.854</td><td>0.613</td><td>1.150</td></tr>' +
+          '</tbody></table></div>' +
+          '<p>Weights correct <strong>confounding</strong>, not a learner\'s fitting ability: all five ' +
+          'learners land near the true ATE, yet CATE correlation ranges from 0.642 (R) to 0.951 (X). ' +
+          'True SD = 1.04; R\'s estimated SD of 0.634 is a textbook case of flattening.</p>' +
           '<p>True ATE = <strong>1.049</strong>. Weighting shrinks a +0.69 bias to under 0.04.</p>' +
           '<div class="callout warn"><div class="callout-title">Caveat</div>' +
           '<p>All confounding here comes from <strong>measured</strong> covariates, so correction ' +
@@ -748,14 +857,20 @@ window.SITE_PAGES.tutorialobs = {
           '</tbody></table></div>' +
           '<p>All five learners under IPTW:</p>' +
           '<div class="table-wrap"><table>' +
-          '<thead><tr><th>Learner</th><th>IPTW ATE</th><th>Bias</th><th>Corr. with truth</th></tr></thead>' +
+          '<thead><tr><th>Learner</th><th>IPTW ATE</th><th>Bias</th><th>Corr. with truth</th>' +
+          '<th>RMSE</th><th>Est. SD</th></tr></thead>' +
           '<tbody>' +
-          '<tr><td>S</td><td>0.144</td><td>+0.013</td><td>0.552</td></tr>' +
-          '<tr><td>T</td><td>0.117</td><td>−0.014</td><td>0.444</td></tr>' +
-          '<tr><td><strong>X</strong></td><td>0.129</td><td><strong>−0.002</strong></td><td><strong>0.742</strong></td></tr>' +
-          '<tr><td>R</td><td>0.109</td><td>−0.022</td><td>0.423</td></tr>' +
-          '<tr><td>DR</td><td>0.132</td><td>+0.001</td><td>0.426</td></tr>' +
-          '</tbody></table></div>'
+          '<tr><td>S</td><td>0.144</td><td>+0.013</td><td>0.552</td><td>0.188</td><td>0.225</td></tr>' +
+          '<tr><td>T</td><td>0.117</td><td>−0.014</td><td>0.444</td><td>0.257</td><td>0.286</td></tr>' +
+          '<tr><td><strong>X</strong></td><td>0.129</td><td><strong>−0.002</strong></td>' +
+          '<td><strong>0.742</strong></td><td><strong>0.110</strong></td><td>0.164</td></tr>' +
+          '<tr><td>R</td><td>0.109</td><td>−0.022</td><td>0.423</td><td>0.206</td><td>0.223</td></tr>' +
+          '<tr><td>DR</td><td>0.132</td><td>+0.001</td><td>0.426</td><td>0.271</td><td>0.300</td></tr>' +
+          '</tbody></table></div>' +
+          '<p>True CATE SD = <strong>0.132</strong>. Because the binary CATE lives on the risk-difference ' +
+          'scale, its RMSE is not comparable in magnitude with the continuous scenario — compare rows ' +
+          'within the table only: X\'s RMSE of 0.110 is less than half of every other learner\'s, and ' +
+          'its estimated SD of 0.164 is closest to the truth.</p>'
       },
       {
         id: "next",
@@ -790,7 +905,7 @@ window.SITE_PAGES.tutorialsurv = {
           '<td>T-learner + Cox：CATE 与真 <em>τ</em> 相关 <strong>0.993</strong></td></tr>' +
           '<tr><td><a href="#/tutorialsurv/s6">场景 6 · 生存 × 观察性</a></td>' +
           '<td><code>06_生存结局_观察性研究.R</code></td>' +
-          '<td>IPTW × IPCW 两层权重；删失比例约 30%</td></tr>' +
+          '<td>IPTW × IPCW 两层权重；T-learner 的 CATE 相关 <strong>0.967</strong>、RMSE 0.042，而外部权重 + DR 的 ATE 只偏 +0.007 但相关仅 0.123——<strong>只看 ATE 会看错</strong></td></tr>' +
           '<tr><td><a href="#/tutorialsurv/sl-engine">第二套引擎 survlearners</a></td>' +
           '<td><code>09_生存结局_survlearners引擎.R</code></td>' +
           '<td>同一道题两种引擎，结果可对账</td></tr>' +
@@ -855,12 +970,32 @@ window.SITE_PAGES.tutorialsurv = {
           '<tr><td>相乘后</td><td>0.14</td><td>1.37</td><td>12.28</td></tr>' +
           '</tbody></table></div></div>' +
           '<div class="table-wrap"><table>' +
-          '<thead><tr><th>方法</th><th>估计</th><th>真实 ATE</th><th>偏差</th></tr></thead>' +
+          '<thead><tr><th>方法</th><th>估计</th><th>真实 ATE</th><th>偏差</th>' +
+          '<th>与真相关</th><th>RMSE</th></tr></thead>' +
           '<tbody>' +
-          '<tr><td>未调整 KM 差</td><td>0.079</td><td>0.152</td><td><strong>−0.072</strong></td></tr>' +
-          '<tr><td>IPTW + X</td><td>0.125</td><td>0.152</td><td>−0.027</td></tr>' +
-          '<tr><td>真实 PS 外部权重 + DR</td><td>0.159</td><td>0.152</td><td>+0.007</td></tr>' +
-          '</tbody></table></div>'
+          '<tr><td>未调整 KM 差</td><td>0.079</td><td>0.152</td><td><strong>−0.072</strong></td>' +
+          '<td>—</td><td>—</td></tr>' +
+          '<tr><td>IPTW + X</td><td>0.125</td><td>0.152</td><td>−0.027</td>' +
+          '<td>0.822</td><td>0.090</td></tr>' +
+          '<tr><td>真实 PS 外部权重 + DR</td><td>0.159</td><td>0.152</td><td>+0.007</td>' +
+          '<td>0.123</td><td>0.563</td></tr>' +
+          '</tbody></table></div>' +
+          '<div class="table-wrap"><table>' +
+          '<thead><tr><th>Learner</th><th>IPTW ATE</th><th>偏差</th><th>与真相关</th>' +
+          '<th>RMSE</th><th>估计 SD</th></tr></thead>' +
+          '<tbody>' +
+          '<tr><td>S</td><td>0.138</td><td>−0.013</td><td>0.033</td><td>0.151</td><td>0.011</td></tr>' +
+          '<tr><td><strong>T</strong></td><td>0.142</td><td>−0.010</td>' +
+          '<td><strong>0.967</strong></td><td><strong>0.042</strong></td><td>0.131</td></tr>' +
+          '<tr><td>X</td><td>0.125</td><td>−0.027</td><td>0.822</td><td>0.090</td><td>0.131</td></tr>' +
+          '<tr><td>R</td><td>0.118</td><td>−0.033</td><td>0.165</td><td>0.331</td><td>0.319</td></tr>' +
+          '<tr><td>DR</td><td>0.025</td><td>−0.127</td><td>0.123</td><td>0.563</td><td>0.546</td></tr>' +
+          '</tbody></table></div>' +
+          '<p>真实 CATE 的 SD = <strong>0.150</strong>。两种「平均看起来都不错」的方法，' +
+          'CATE 表现天差地别：IPTW + X 相关 0.822、RMSE 0.090；' +
+          '而外部权重 + DR 的 ATE 只偏 +0.007，相关却只有 0.123、RMSE 0.563，' +
+          '估计 SD 0.546 是真值的 3.6 倍——<strong>只看 ATE 会把它误判为好方法</strong>。' +
+          'S-learner 的估计 SD 仅 0.011，异质性被完全压平。</p>'
       },
       {
         id: "sl-engine",
@@ -944,7 +1079,7 @@ window.SITE_PAGES.tutorialsurv = {
           '<td>T-learner + Cox: CATE vs true <em>τ</em> correlation <strong>0.993</strong></td></tr>' +
           '<tr><td><a href="#/tutorialsurv/s6">Scenario 6 · Survival × observational</a></td>' +
           '<td><code>06_生存结局_观察性研究.R</code></td>' +
-          '<td>IPTW × IPCW two-layer weights; censoring around 30%</td></tr>' +
+          '<td>IPTW × IPCW two-layer weights; the T-learner reaches CATE correlation <strong>0.967</strong> with RMSE 0.042, while external weights + DR has an ATE bias of only +0.007 but correlation 0.123 — <strong>ATE alone would mislead you</strong></td></tr>' +
           '<tr><td><a href="#/tutorialsurv/sl-engine">Second engine: survlearners</a></td>' +
           '<td><code>09_生存结局_survlearners引擎.R</code></td>' +
           '<td>Same question, two engines — results can be reconciled</td></tr>' +
@@ -1011,12 +1146,32 @@ window.SITE_PAGES.tutorialsurv = {
           '<tr><td>Multiplied</td><td>0.14</td><td>1.37</td><td>12.28</td></tr>' +
           '</tbody></table></div></div>' +
           '<div class="table-wrap"><table>' +
-          '<thead><tr><th>Method</th><th>Estimate</th><th>True ATE</th><th>Bias</th></tr></thead>' +
+          '<thead><tr><th>Method</th><th>Estimate</th><th>True ATE</th><th>Bias</th>' +
+          '<th>Corr. with truth</th><th>RMSE</th></tr></thead>' +
           '<tbody>' +
-          '<tr><td>Unadjusted KM difference</td><td>0.079</td><td>0.152</td><td><strong>−0.072</strong></td></tr>' +
-          '<tr><td>IPTW + X</td><td>0.125</td><td>0.152</td><td>−0.027</td></tr>' +
-          '<tr><td>True-PS external weights + DR</td><td>0.159</td><td>0.152</td><td>+0.007</td></tr>' +
-          '</tbody></table></div>'
+          '<tr><td>Unadjusted KM difference</td><td>0.079</td><td>0.152</td><td><strong>−0.072</strong></td>' +
+          '<td>—</td><td>—</td></tr>' +
+          '<tr><td>IPTW + X</td><td>0.125</td><td>0.152</td><td>−0.027</td>' +
+          '<td>0.822</td><td>0.090</td></tr>' +
+          '<tr><td>True-PS external weights + DR</td><td>0.159</td><td>0.152</td><td>+0.007</td>' +
+          '<td>0.123</td><td>0.563</td></tr>' +
+          '</tbody></table></div>' +
+          '<div class="table-wrap"><table>' +
+          '<thead><tr><th>Learner</th><th>IPTW ATE</th><th>Bias</th><th>Corr. with truth</th>' +
+          '<th>RMSE</th><th>Est. SD</th></tr></thead>' +
+          '<tbody>' +
+          '<tr><td>S</td><td>0.138</td><td>−0.013</td><td>0.033</td><td>0.151</td><td>0.011</td></tr>' +
+          '<tr><td><strong>T</strong></td><td>0.142</td><td>−0.010</td>' +
+          '<td><strong>0.967</strong></td><td><strong>0.042</strong></td><td>0.131</td></tr>' +
+          '<tr><td>X</td><td>0.125</td><td>−0.027</td><td>0.822</td><td>0.090</td><td>0.131</td></tr>' +
+          '<tr><td>R</td><td>0.118</td><td>−0.033</td><td>0.165</td><td>0.331</td><td>0.319</td></tr>' +
+          '<tr><td>DR</td><td>0.025</td><td>−0.127</td><td>0.123</td><td>0.563</td><td>0.546</td></tr>' +
+          '</tbody></table></div>' +
+          '<p>True CATE SD = <strong>0.150</strong>. Two methods that both "look fine on average" differ ' +
+          'wildly on CATE: IPTW + X has correlation 0.822 and RMSE 0.090, while external weights + DR ' +
+          'has an ATE bias of only +0.007 yet correlation 0.123 and RMSE 0.563, with an estimated SD ' +
+          'of 0.546 — 3.6x the truth. <strong>Judging on ATE alone would call it a good method.</strong> ' +
+          'The S-learner\'s estimated SD of 0.011 shows heterogeneity fully flattened.</p>'
       },
       {
         id: "sl-engine",

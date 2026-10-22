@@ -73,17 +73,33 @@ fit_ext <- metalearner("DR", d$X, d$A, d$Y, learner_base = lb,
                        weighting = "external", weights = w_true)
 
 # 5 偏倚对照表（tidyverse）----
+# 对账四件套：ATE 偏差（平均对不对）/ CATE 相关（异质性抓没抓到）/
+#           RMSE（逐人误差）/ 估计SD vs 真实SD（有没有被压平）
+cate_cols <- list(
+  未调整            = rep(NA_real_, 3),
+  `IPTW + X`       = c(cor(fit_iptw$cate_train, d$tau),
+                       sqrt(mean((fit_iptw$cate_train - d$tau)^2)),
+                       sd(fit_iptw$cate_train)),
+  `IPTW稳定化 + X` = c(cor(fit_stab$cate_train, d$tau),
+                       sqrt(mean((fit_stab$cate_train - d$tau)^2)),
+                       sd(fit_stab$cate_train)),
+  `真实PS + DR`    = c(cor(fit_ext$cate_train, d$tau),
+                       sqrt(mean((fit_ext$cate_train - d$tau)^2)),
+                       sd(fit_ext$cate_train))
+)
 tibble(
   方法     = c("未调整差分", "IPTW + X-learner", "IPTW(稳定化) + X-learner",
                "真实PS外部权重 + DR"),
   估计     = c(naive, fit_iptw$ate, fit_stab$ate, fit_ext$ate),
   真实ATE  = d$ate,
   偏差     = c(naive, fit_iptw$ate, fit_stab$ate, fit_ext$ate) - d$ate,
-  与真相关 = c(NA, cor(fit_iptw$cate_train, d$tau),
-               cor(fit_stab$cate_train, d$tau),
-               cor(fit_ext$cate_train, d$tau))
+  与真相关 = vapply(cate_cols, \(x) x[1], numeric(1)),
+  RMSE     = vapply(cate_cols, \(x) x[2], numeric(1)),
+  估计SD   = vapply(cate_cols, \(x) x[3], numeric(1)),
+  真实SD   = sd(d$tau)
 ) |>
-  mutate(across(c(估计, 真实ATE, 偏差, 与真相关), \(x) round(x, 4))) |>
+  mutate(across(c(估计, 真实ATE, 偏差, 与真相关, RMSE, 估计SD, 真实SD),
+                \(x) round(x, 4))) |>
   print()
 
 # 6 偏倚可视化：一眼看出"未调整 vs 校正" ----
@@ -113,9 +129,13 @@ tibble(
   IPTW_ATE = vapply(iptw_fits, \(f) f$ate, numeric(1)),
   真实ATE  = d$ate,
   偏差     = vapply(iptw_fits, \(f) f$ate, numeric(1)) - d$ate,
-  与真相关 = vapply(iptw_fits, \(f) cor(f$cate_train, d$tau), numeric(1))
+  与真相关 = vapply(iptw_fits, \(f) cor(f$cate_train, d$tau), numeric(1)),
+  RMSE     = vapply(iptw_fits, \(f) sqrt(mean((f$cate_train - d$tau)^2)), numeric(1)),
+  估计SD   = vapply(iptw_fits, \(f) sd(f$cate_train), numeric(1)),
+  真实SD   = sd(d$tau)
 ) |>
-  mutate(across(c(IPTW_ATE, 真实ATE, 偏差, 与真相关), \(x) round(x, 4))) |>
+  mutate(across(c(IPTW_ATE, 真实ATE, 偏差, 与真相关, RMSE, 估计SD, 真实SD),
+                \(x) round(x, 4))) |>
   print()
 
 # 8 一个重要的提醒 ----

@@ -9,9 +9,26 @@ window.SITE_PAGES.changelog = {
   /* ---------------- 中文 ---------------- */
   zh: {
     title: "更新日志",
-    lede: "mlr3HTE 的版本历史与重要变更。当前版本 v0.29。",
+    lede: "mlr3HTE 的版本历史与重要变更。当前版本 v0.30。",
     sections: [
 
+
+      {
+        id: "v030",
+        heading: "v0.30 · 2026-10-22",
+        body:
+          '<div class="callout ok"><div class="callout-title">对账口径统一：不能只报 ATE</div>' +
+          '<p>新增 <a href="#/tutorialbasics/recon">「对账指标约定」</a> 一节：' +
+          '模拟数据上要同时报 <strong>ATE 偏差、CATE 相关、RMSE、' +
+          '估计 SD vs 真实 SD、分位数对照</strong>。' +
+          '只报 ATE 无法回答「模型到底把谁更受益排出来了没有」。</p>' +
+          '<p>脚本 02 / 04 / 06 的对账表补齐 RMSE 与估计 SD 列；' +
+          '场景 2 与场景 6 是「ATE 对但 CATE 错」的现成反例——' +
+          '外部真实 PS 权重 + DR 的 ATE 偏差仅 +0.007，' +
+          '但 CATE 相兰只有 0.123、RMSE 0.563、估计 SD 超出真值 3.6 倍。' +
+          '只看 ATE 会把它误判为好方法。</p>' +
+          '<p>顶栏「场景教程与模型评价」同步简化为「教程」。</p></div>'
+      },
 
       {
         id: "v029",
@@ -301,9 +318,25 @@ window.SITE_PAGES.changelog = {
   /* ---------------- English ---------------- */
   en: {
     title: "Changelog",
-    lede: "Version history and notable changes for mlr3HTE. Current version: v0.29.",
+    lede: "Version history and notable changes for mlr3HTE. Current version: v0.30.",
     sections: [
 
+
+      {
+        id: "v030",
+        heading: "v0.30 · 2026-10-22",
+        body:
+          '<div class="callout ok"><div class="callout-title">Unified reconciliation template: never ATE alone</div>' +
+          '<p>New <a href="#/tutorialbasics/recon">"Reconciliation metrics"</a> section: on simulated data, ' +
+          'report <strong>ATE bias, CATE correlation, RMSE, estimated SD vs true SD, and quantile ' +
+          'comparison</strong> together. ATE alone cannot answer "did the model actually rank who ' +
+          'benefits more?".</p>' +
+          '<p>Scripts 02 / 04 / 06 now include RMSE and estimated SD columns; scenarios 2 and 6 are ' +
+          'ready-made counter-examples of "right ATE, wrong CATE" — external true-PS weights + DR has ' +
+          'an ATE bias of only +0.007, yet CATE correlation of 0.123, RMSE 0.563, and an estimated SD ' +
+          '3.6x the truth. Judging on ATE alone would call it a good method.</p>' +
+          '<p>The top nav item is also shortened from "Tutorial & Model Evaluation" to "Tutorial".</p></div>'
+      },
 
       {
         id: "v029",

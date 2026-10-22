@@ -85,9 +85,13 @@ tibble(
   IPTW_ATE = vapply(fits, \(f) f$ate, numeric(1)),
   真实ATE  = d$ate,
   偏差     = vapply(fits, \(f) f$ate, numeric(1)) - d$ate,
-  与真相关 = vapply(fits, \(f) cor(f$cate_train, d$tau), numeric(1))
+  与真相关 = vapply(fits, \(f) cor(f$cate_train, d$tau), numeric(1)),
+  RMSE     = vapply(fits, \(f) sqrt(mean((f$cate_train - d$tau)^2)), numeric(1)),
+  估计SD   = vapply(fits, \(f) sd(f$cate_train), numeric(1)),
+  真实SD   = sd(d$tau)
 ) |>
-  mutate(across(c(IPTW_ATE, 真实ATE, 偏差, 与真相关), \(x) round(x, 4))) |>
+  mutate(across(c(IPTW_ATE, 真实ATE, 偏差, 与真相关, RMSE, 估计SD, 真实SD),
+                \(x) round(x, 4))) |>
   print()
 
 # 5 两层权重分别长什么样（tidyverse）----

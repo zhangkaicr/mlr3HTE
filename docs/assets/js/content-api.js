@@ -424,8 +424,7 @@ window.SITE_PAGES.apidemo = {
           '<div class="callout"><div class="callout-title">观察性数据的混杂结构</div>' +
           '<p>三个 <code>*_obs_*</code> 数据集共用同一套混杂：' +
           '<code>e = plogis(−0.5 + 0.8·z1 + 0.4·z2)</code>，即病情越重越容易接受处理。' +
-          '所以未调整的差分必然有偏，正好用来演示 IPTW 的校正效果。</p></div>' +
-          '</div>'
+          '所以未调整的差分必然有偏，正好用来演示 IPTW 的校正效果。</p></div>'
       }
     ]
   },
@@ -458,8 +457,7 @@ window.SITE_PAGES.apidemo = {
           '<p>All three <code>*_obs_*</code> datasets share the same confounding mechanism: ' +
           '<code>e = plogis(−0.5 + 0.8·z1 + 0.4·z2)</code> — sicker patients are more likely to be ' +
           'treated. The crude difference is therefore biased by construction, which is exactly what ' +
-          'IPTW is meant to fix.</p></div>' +
-          '</div>'
+          'IPTW is meant to fix.</p></div>'
       }
     ]
   }

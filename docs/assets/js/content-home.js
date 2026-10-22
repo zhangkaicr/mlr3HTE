@@ -2,15 +2,15 @@
    content-home.js —— 导航定义 + 站点元信息 + 首页（中英双语）
    ===================================================================== */
 
-window.SITE_META = { version: "0.29", date: "2026-10-22" };
+window.SITE_META = { version: "0.30", date: "2026-10-22" };
 
 window.SITE_NAV = [
   { id: "home",      zh: "首页",           en: "Home"                    },
   { id: "guide",     zh: "架构与快速开始", en: "Architecture & Quickstart" },
   {
     id: "tutorial",
-    zh: "场景教程与模型评价",
-    en: "Tutorial & Model Evaluation",
+    zh: "教程",
+    en: "Tutorial",
     children: [
       { id: "tutorial",         zh: "目录",                       en: "Contents"                          },
       { id: "tutorialbasics",   zh: "0 数据生成机制与 DAG", en: "0 Data-generating process & DAG"   },
