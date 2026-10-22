@@ -39,7 +39,7 @@ window.SITE_PAGES.guide = {
           '<div class="callout ok">' +
           '<div class="callout-title">想看数据是怎么造出来的？</div>' +
           '<p>六个教程场景共用一套<strong>数据生成过程</strong>，附带 DAG、真实 CATE/ATE ' +
-          '与分层真值表，见 <a href="#/tutorial/dgp">数据生成机制与 DAG</a>。</p>' +
+          '与分层真值表，见 <a href="#/tutorialbasics/dgp">数据生成机制与 DAG</a>。</p>' +
           '</div>'
       },
 
@@ -215,7 +215,7 @@ window.SITE_PAGES.guide = {
           '<div class="callout-title">Curious how the data is made?</div>' +
           '<p>All six tutorial scenarios share one <strong>data-generating process</strong>, with ' +
           'DAGs, the true CATE/ATE and stratified truth tables — see ' +
-          '<a href="#/tutorial/dgp">Data-generating process &amp; DAGs</a>.</p>' +
+          '<a href="#/tutorialbasics/dgp">Data-generating process &amp; DAGs</a>.</p>' +
           '</div>'
       },
 

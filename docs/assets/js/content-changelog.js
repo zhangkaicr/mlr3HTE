@@ -9,9 +9,23 @@ window.SITE_PAGES.changelog = {
   /* ---------------- 中文 ---------------- */
   zh: {
     title: "更新日志",
-    lede: "mlr3HTE 的版本历史与重要变更。当前版本 v0.27。",
+    lede: "mlr3HTE 的版本历史与重要变更。当前版本 v0.28。",
     sections: [
 
+
+      {
+        id: "v028",
+        heading: "v0.28 · 2026-10-22",
+        body:
+          '<div class="callout ok"><div class="callout-title">教程拆成目录页 + 六篇独立文章</div>' +
+          '<p>教程不再是一个长页：<code>#/tutorial</code> 只放<strong>目录</strong>（六篇列表 + 六格速查表），' +
+          '五大框架各自独立成页——点导航进目录、再点条目进正文。每篇都能单独读、单独分享，' +
+          '末尾带「下一篇」链路。</p>' +
+          '<p>配套细节：旧锚点全部迁移（<code>#/tutorial/s1</code> → <code>#/tutorialrct/s1</code>）；' +
+          '<code>style.css</code> 新增 <code>.article-list</code> 目录列表样式；' +
+          '顶栏高亮支持子页（进 <code>tutorialrct</code> 时「教程」仍选中）；' +
+          '节级 <code>notoc</code> 字段让页内导航不进右侧目录。</p></div>'
+      },
 
       {
         id: "v027",
@@ -273,9 +287,25 @@ window.SITE_PAGES.changelog = {
   /* ---------------- English ---------------- */
   en: {
     title: "Changelog",
-    lede: "Version history and notable changes for mlr3HTE. Current version: v0.27.",
+    lede: "Version history and notable changes for mlr3HTE. Current version: v0.28.",
     sections: [
 
+
+      {
+        id: "v028",
+        heading: "v0.28 · 2026-10-22",
+        body:
+          '<div class="callout ok"><div class="callout-title">Tutorial split into an index plus six standalone articles</div>' +
+          '<p>The tutorial is no longer one long page: <code>#/tutorial</code> now holds only the ' +
+          '<strong>table of contents</strong> (six entries plus the 2 x 3 lookup table), and each framework ' +
+          'has its own page. Click the nav item to reach the index, click an entry to read the article. ' +
+          'Every article stands alone and can be shared on its own, with a "next" link at the bottom.</p>' +
+          '<p>Supporting changes: all old anchors migrated ' +
+          '(<code>#/tutorial/s1</code> to <code>#/tutorialrct/s1</code>); a new <code>.article-list</code> ' +
+          'style in <code>style.css</code>; the top nav stays highlighted on sub-pages ' +
+          '(<code>tutorialrct</code> keeps "Tutorial" active); and a per-section <code>notoc</code> flag ' +
+          'keeps in-page navigation out of the right-hand TOC.</p></div>'
+      },
 
       {
         id: "v027",

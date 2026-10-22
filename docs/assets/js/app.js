@@ -169,7 +169,8 @@
     for (var i = 0; i < items.length; i++) {
       var it = items[i];
       var label = state.lang === "zh" ? it.zh : it.en;
-      var active = (it.id === state.page) ? " active" : "";
+      // 子页（apimetalearner、tutorialrct…）也要让所属顶栏项保持高亮
+      var active = (it.id === state.page || state.page.indexOf(it.id) === 0) ? " active" : "";
       html += '<a class="nav-link' + active + '" href="#/' + it.id + '">' +
               escapeHtml(label) + "</a>";
     }
@@ -181,7 +182,9 @@
     sfx = sfx || "";
     var html = "";
     for (var i = 0; i < secs.length; i++) {
-      html += '<h2 id="' + secs[i].id + sfx + '">' + secs[i].heading + "</h2>";
+      html += '<h2 id="' + secs[i].id + sfx + '"' +
+              (secs[i].notoc ? ' class="no-toc"' : "") + ">" +
+              secs[i].heading + "</h2>";
       html += secs[i].body;
     }
     return html;
@@ -256,6 +259,8 @@
       var h = heads[i];
       // 首页同屏双语：只收录当前语言那一半，遇到另一语言的标题就停
       if (h.classList.contains("lang-block-title")) break;
+      // 页内“继续读”这类导航节不占目录位
+      if (h.classList.contains("no-toc")) continue;
       if (!h.id) {
         var base = slug(h.textContent);
         var id = base, k = 2;

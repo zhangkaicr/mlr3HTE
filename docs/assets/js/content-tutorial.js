@@ -9,45 +9,38 @@ var TUT_MATRIX = {
   zh: '<div class="table-wrap"><table>' +
       '<thead><tr><th></th><th>随机化试验（RCT）</th><th>观察性研究</th></tr></thead>' +
       '<tbody>' +
-      '<tr><td><strong>连续</strong></td><td><a href="#/tutorial/s1">场景 1</a></td><td><a href="#/tutorial/s2">场景 2</a></td></tr>' +
-      '<tr><td><strong>二分类</strong></td><td><a href="#/tutorial/s3">场景 3</a></td><td><a href="#/tutorial/s4">场景 4</a></td></tr>' +
-      '<tr><td><strong>生存</strong></td><td><a href="#/tutorial/s5">场景 5</a></td><td><a href="#/tutorial/s6">场景 6</a></td></tr>' +
+      '<tr><td><strong>连续</strong></td><td><a href="#/tutorialrct/s1">场景 1</a></td><td><a href="#/tutorialobs/s2">场景 2</a></td></tr>' +
+      '<tr><td><strong>二分类</strong></td><td><a href="#/tutorialrct/s3">场景 3</a></td><td><a href="#/tutorialobs/s4">场景 4</a></td></tr>' +
+      '<tr><td><strong>生存</strong></td><td><a href="#/tutorialsurv/s5">场景 5</a></td><td><a href="#/tutorialsurv/s6">场景 6</a></td></tr>' +
       '</tbody></table></div>',
   en: '<div class="table-wrap"><table>' +
       '<thead><tr><th></th><th>Randomized trial (RCT)</th><th>Observational study</th></tr></thead>' +
       '<tbody>' +
-      '<tr><td><strong>Continuous</strong></td><td><a href="#/tutorial/s1">Scenario 1</a></td><td><a href="#/tutorial/s2">Scenario 2</a></td></tr>' +
-      '<tr><td><strong>Binary</strong></td><td><a href="#/tutorial/s3">Scenario 3</a></td><td><a href="#/tutorial/s4">Scenario 4</a></td></tr>' +
-      '<tr><td><strong>Survival</strong></td><td><a href="#/tutorial/s5">Scenario 5</a></td><td><a href="#/tutorial/s6">Scenario 6</a></td></tr>' +
+      '<tr><td><strong>Continuous</strong></td><td><a href="#/tutorialrct/s1">Scenario 1</a></td><td><a href="#/tutorialobs/s2">Scenario 2</a></td></tr>' +
+      '<tr><td><strong>Binary</strong></td><td><a href="#/tutorialrct/s3">Scenario 3</a></td><td><a href="#/tutorialobs/s4">Scenario 4</a></td></tr>' +
+      '<tr><td><strong>Survival</strong></td><td><a href="#/tutorialsurv/s5">Scenario 5</a></td><td><a href="#/tutorialsurv/s6">Scenario 6</a></td></tr>' +
       '</tbody></table></div>'
 };
 
 window.SITE_PAGES.tutorial = {
-
-  /* ---------------- 中文 ---------------- */
   zh: {
-    title: "场景教程与模型评价",
-    lede: "三类结局 × 随机/观察性，共六格，按下手方式归为五大框架：RCT 分析、观察性分析、生存结局、换不同学习器、模型评价指标。每格都用自带真值的模拟数据，可逐人对账。",
+    title: "教程与模型评价",
+    lede: "六篇文章，每篇一张独立网页；按研究设计与结局类型组织，数据自带真值，可以逐人对账。",
     sections: [
       {
-        id: "frameworks",
-        heading: "五大框架导航",
+        id: "articles",
+        heading: "全部教程",
         body:
-          '<p>这一页按<strong>上手时真正会遇到的五类问题</strong>来组织：先选方向（下面五张卡片），' +
-          '再按结局类型挑场景（下一节的六格矩阵）。每个框架都复用同一套<strong>自带真值</strong>的模拟数据，' +
-          '算完能逐人对账。</p>' +
-          '<div class="cards">' +
-          '<a class="card" href="#/tutorial/fw-rct"><div class="card-title">1 RCT 设计下的分析</div><div class="card-desc">连续 / 二分类结局在随机化试验里的 CATE 估计与对账。</div></a>' +
-          '<a class="card" href="#/tutorial/fw-obs"><div class="card-title">2 观察性研究分析</div><div class="card-desc">混杂结构、IPTW / 外部权重校正，偏差从 +0.69 压到 0.04 以内。</div></a>' +
-          '<a class="card" href="#/tutorial/fw-surv"><div class="card-title">3 生存结局分析</div><div class="card-desc">t0 时点生存概率差、删失 IPCW、第二套 survlearners 引擎。</div></a>' +
-          '<a class="card" href="#/tutorial/fw-learners"><div class="card-title">4 换不同学习器</div><div class="card-desc">一行换 mlr3 生态任意算法，按分组 / 阶段单独指定。</div></a>' +
-          '<a class="card" href="#/tutorial/fw-metrics"><div class="card-title">5 模型评价指标</div><div class="card-desc">Qini / c-for-benefit / TOC：判别力而非无偏性。</div></a>' +
-          '</div>' +
-          '<div class="callout"><div class="callout-title">建议阅读顺序</div>' +
-          '<p>第一次用本包：先读下一节 <a href="#/tutorial/dgp">数据生成机制与 DAG</a>，' +
-          '再按 1 → 2 → 3 走一遍；已经有明确研究设计、只想查某个结局类型怎么调，' +
-          '直接从六格矩阵点进对应场景即可。</p></div>'
-
+          '<p>下面每一条都是一篇<strong>独立成页</strong>的教程：数据 → 代码 → 实测输出 → 与真值对账，照着敲一遍就能跑。第一次用建议从第 0 篇读起；已经有明确研究设计，直接跳到对应框架。每篇都可以独立阅读，不必按顺序。</p>' +
+          '<ul class="article-list">' +
+          '<li><a href="#/tutorialbasics"><span class="art-num">0</span><span class="art-body"><strong>数据生成机制与 DAG</strong><em>六种设计共用一套模拟数据，每个场景都带真值 tau / ate，所以能逐人对账。先看因果结构。</em></span></a></li>' +
+          '<li><a href="#/tutorialrct"><span class="art-num">1</span><span class="art-body"><strong>RCT 设计下的分析</strong><em>随机化下 A 与 X 独立，粗差分即无偏；重点看五种 meta-learner 各能抓到多少异质性。</em></span></a></li>' +
+          '<li><a href="#/tutorialobs"><span class="art-num">2</span><span class="art-body"><strong>观察性研究分析</strong><em>混杂后门 X → e → A 让粗差分开局就偏；IPTW 与外部真实 PS 权重把偏差压回 0.05 以内。</em></span></a></li>' +
+          '<li><a href="#/tutorialsurv"><span class="art-num">3</span><span class="art-body"><strong>生存结局分析</strong><em>效应是时间点依赖的：报告必须写清 t0，删失用 IPCW，观察性再叠一层 IPTW。</em></span></a></li>' +
+          '<li><a href="#/tutoriallearners"><span class="art-num">4</span><span class="art-body"><strong>换不同学习器</strong><em>五种 meta-learner 只是配方，干活的是基学习器；换算法只改一行，还能按分组 / 阶段分开指定。</em></span></a></li>' +
+          '<li><a href="#/tutorialmetrics"><span class="art-num">5</span><span class="art-body"><strong>模型评价指标</strong><em>Qini / c-for-benefit / TOC 回答的是「排序能力」，不是「估得准不准」，两者要分开看。</em></span></a></li>' +
+          '</ul>' +
+          '<p>下面是按「研究设计 × 结局类型」排的六格速查表，与配套脚本的编号一一对应。</p>'
       },
       {
         id: "overview",
@@ -65,6 +58,132 @@ window.SITE_PAGES.tutorial = {
               '但如果你要自己接 <code>resample()</code> / <code>benchmark()</code> / <code>rsmp()</code> ' +
               '这些 mlr3 工作流函数，请再补一行 <code>library(mlr3)</code>。</p></div>'
       },
+      {
+        id: "scripts",
+        heading: "配套可运行脚本",
+        body:
+          '<p>在 <code>mlr3HTE/</code> 目录下：</p>' +
+          '<pre><code>Rscript tutorial/code/01_连续结局_随机化RCT.R</code></pre>' +
+          '<div class="table-wrap"><table>' +
+          '<thead><tr><th>脚本</th><th>内容</th></tr></thead>' +
+          '<tbody>' +
+          '<tr><td><code>00_数据生成机制与DAG.R</code></td><td><strong>先跑这个</strong>：DGP 逐步展开、DAG、真值分层表</td></tr>' +
+          '<tr><td><code>01_连续结局_随机化RCT.R</code></td><td>连续 + RCT，五种 learner 对账</td></tr>' +
+          '<tr><td><code>02_连续结局_观察性研究.R</code></td><td>连续 + 观察性，IPTW vs 未调整</td></tr>' +
+          '<tr><td><code>03_二分类结局_随机化RCT.R</code></td><td>二分类 + RCT，风险差尺度</td></tr>' +
+          '<tr><td><code>04_二分类结局_观察性研究.R</code></td><td>二分类 + 观察性</td></tr>' +
+          '<tr><td><code>05_生存结局_随机化RCT.R</code></td><td>生存 + RCT，t0 生存概率差</td></tr>' +
+          '<tr><td><code>06_生存结局_观察性研究.R</code></td><td>生存 + 观察性，IPTW × IPCW</td></tr>' +
+          '<tr><td><code>07_五种metalearner横向对比.R</code></td><td>三种结局 × 五种 learner 对比表</td></tr>' +
+          '<tr><td><code>08_mlr3工作流集成.R</code></td><td><code>ml_task</code> + <code>resample</code> + <code>benchmark</code></td></tr>' +
+          '<tr><td><code>09_生存结局_survlearners引擎.R</code></td><td>生存第二套引擎 <code>engine="survlearners"</code>，与原生引擎同题对比</td></tr>' +
+          '<tr><td><code>10_HTE评价指标.R</code></td><td>Qini / c-for-benefit / TOC：模型<strong>判别力</strong>评价，附随机排序对照</td></tr>' +
+          '<tr><td><code>11_评价指标真值对账.R</code></td><td>用已知真 <code>tau</code> 当标尺：把误差拆成<strong>排序损失</strong>与<strong>估计噪声</strong>，并给出 c-for-benefit 的闭式上界</td></tr>' +
+          '<tr><td><code>12_三类结局评价指标.R</code></td><td>三个指标在<strong>连续 / 二分类 / 生存</strong>上各跑一遍：生存要 IPCW，并演示「先拟合后切分」的泄漏有多离谱</td></tr>' +
+          '<tr><td><code>13_换基学习器_基准对比.R</code></td><td><strong>用 mlr3 体系的核心收益</strong>：把基学习器从随机森林一行换成 XGBoost / GLMnet / CART / 线性回归，并用 <code>benchmark()</code> 横向比</td></tr>' +
+          '</tbody></table></div>'
+      },
+      {
+        id: "environment",
+        heading: "依赖与运行环境",
+        body:
+          '<p>复现本教程所有结果所需的<strong>依赖包版本</strong>与<strong>测试环境</strong>（R 版本、操作系统、' +
+          '测试规模、CI 配置）已单独立页整理，含直接依赖、建议依赖、关键传递依赖与<strong>完整 89 个递归依赖清单</strong>：</p>' +
+          '<p><a href="#/environment" class="btn">查看运行环境与依赖版本 →</a></p>' +
+          '<p>简表（直接依赖，完整见上页）：' +
+          '<code>mlr3 1.8.0</code> · <code>mlr3learners 0.16.0</code> · <code>paradox 1.0.1</code> · ' +
+          '<code>R6 2.6.1</code> · <code>survival 3.8-3</code> · <code>ranger 0.18.0</code> · ' +
+          '<code>dplyr 1.2.1</code> · <code>cli 3.6.6</code> · <code>ggplot2 4.0.3</code>。' +
+          '测试：<code>testthat 3.3.2</code>，共 8 个测试文件 / 58 个 test_that 块 / 293 个期望，全部通过。</p>'
+      }
+    ]
+  },
+  en: {
+    title: "Tutorials & model evaluation",
+    lede: "Six standalone articles; organized by study design and outcome type, each on simulated data with known ground truth.",
+    sections: [
+      {
+        id: "articles",
+        heading: "All tutorials",
+        body:
+          '<p>Each entry below is a <strong>standalone article</strong>: data → code → actual output → reconciliation against the truth. Type it out once and it runs. Start with article 0 if this is your first time; otherwise jump straight to the framework that matches your study design. Every article stands on its own.</p>' +
+          '<ul class="article-list">' +
+          '<li><a href="#/tutorialbasics"><span class="art-num">0</span><span class="art-body"><strong>Data-generating process & DAGs</strong><em>All six designs share one simulated dataset carrying the true tau / ate, which is what makes unit-by-unit reconciliation possible.</em></span></a></li>' +
+          '<li><a href="#/tutorialrct"><span class="art-num">1</span><span class="art-body"><strong>Analysis under RCT design</strong><em>Under randomization A is independent of X, so the naive difference is already unbiased; the question is how much heterogeneity each meta-learner captures.</em></span></a></li>' +
+          '<li><a href="#/tutorialobs"><span class="art-num">2</span><span class="art-body"><strong>Observational studies</strong><em>The back-door X → e → A biases the naive difference from the start; IPTW and external true-PS weights pull it back within 0.05.</em></span></a></li>' +
+          '<li><a href="#/tutorialsurv"><span class="art-num">3</span><span class="art-body"><strong>Survival outcomes</strong><em>Effects are time-point dependent: always state t0, correct censoring with IPCW, and multiply an IPTW layer on top for observational data.</em></span></a></li>' +
+          '<li><a href="#/tutoriallearners"><span class="art-num">4</span><span class="art-body"><strong>Swapping the base learner</strong><em>The five meta-learners are recipes; the real work is done by the base learner. Swap it in one line, per group or per stage if you like.</em></span></a></li>' +
+          '<li><a href="#/tutorialmetrics"><span class="art-num">5</span><span class="art-body"><strong>Model evaluation metrics</strong><em>Qini / c-for-benefit / TOC answer "how well does it rank" — not "is the estimate unbiased". Keep the two questions apart.</em></span></a></li>' +
+          '</ul>' +
+          '<p>Below is the 2 × 3 lookup table (design × outcome), numbered the same way as the companion scripts.</p>'
+      },
+      {
+        id: "overview",
+        heading: "The 2 × 3 matrix (quick lookup)",
+        body:
+              '<p>The six scenarios are numbered by "design × outcome type", which is also how the ' +
+              '<strong>companion scripts</strong> are numbered. Click a cell for a ready-to-run analysis.</p>' +
+              TUT_MATRIX.en +
+              '<p>Every demo dataset returns the true <code>tau</code> and <code>ate</code> — ' +
+              'the most useful part for teaching, since you can see directly which learner ' +
+              'actually captured the heterogeneity.</p>' +
+              '<pre><code>library(mlr3HTE)   # the only line you need: lrn() is re-exported from mlr3</code></pre>' +
+              '<div class="callout"><div class="callout-title">Before you run</div>' +
+              '<p>Every code block on this page relies on <code>library(mlr3HTE)</code> alone — ' +
+              '<code>lrn()</code> is re-exported from mlr3, so no extra <code>library(mlr3)</code> ' +
+              'is required. If you chain into mlr3 workflow functions such as ' +
+              '<code>resample()</code> / <code>benchmark()</code> / <code>rsmp()</code>, add ' +
+              '<code>library(mlr3)</code> as well.</p></div>'
+      },
+      {
+        id: "scripts",
+        heading: "Runnable companion scripts",
+        body:
+          '<p>From the <code>mlr3HTE/</code> directory:</p>' +
+          '<pre><code>Rscript tutorial/code/01_continuous_RCT.R</code></pre>' +
+          '<div class="table-wrap"><table>' +
+          '<thead><tr><th>Script</th><th>Content</th></tr></thead>' +
+          '<tbody>' +
+          '<tr><td><code>00_数据生成机制与DAG.R</code></td><td><strong>Run this first</strong>: the DGP step by step, DAGs, truth tables</td></tr>' +
+          '<tr><td><code>01_连续结局_随机化RCT.R</code></td><td>Continuous + RCT, all five learners</td></tr>' +
+          '<tr><td><code>02_连续结局_观察性研究.R</code></td><td>Continuous + observational, IPTW vs unadjusted</td></tr>' +
+          '<tr><td><code>03_二分类结局_随机化RCT.R</code></td><td>Binary + RCT, risk-difference scale</td></tr>' +
+          '<tr><td><code>04_二分类结局_观察性研究.R</code></td><td>Binary + observational</td></tr>' +
+          '<tr><td><code>05_生存结局_随机化RCT.R</code></td><td>Survival + RCT, survival difference at t0</td></tr>' +
+          '<tr><td><code>06_生存结局_观察性研究.R</code></td><td>Survival + observational, IPTW × IPCW</td></tr>' +
+          '<tr><td><code>07_五种metalearner横向对比.R</code></td><td>3 outcomes × 5 learners comparison tables</td></tr>' +
+          '<tr><td><code>08_mlr3工作流集成.R</code></td><td><code>ml_task</code> + <code>resample</code> + <code>benchmark</code></td></tr>' +
+          '<tr><td><code>09_生存结局_survlearners引擎.R</code></td><td>The second survival engine <code>engine="survlearners"</code>, head-to-head with native</td></tr>' +
+          '<tr><td><code>10_HTE评价指标.R</code></td><td>Qini / c-for-benefit / TOC: <strong>discrimination</strong> metrics with a random-ordering control</td></tr>' +
+          '<tr><td><code>11_评价指标真值对账.R</code></td><td>Known <code>tau</code> as the yardstick: split the error into <strong>ranking loss</strong> and <strong>estimation noise</strong>, plus the closed-form c-for-benefit ceiling</td></tr>' +
+          '<tr><td><code>12_三类结局评价指标.R</code></td><td>All three metrics on <strong>continuous / binary / survival</strong>: survival needs IPCW, plus a demonstration of how badly "fit first, split later" leaks</td></tr>' +
+          '<tr><td><code>13_换基学习器_基准对比.R</code></td><td><strong>The core payoff of the mlr3 system</strong>: swap the base learner from random forest to XGBoost / GLMnet / CART / linear in one line, and compare them with <code>benchmark()</code></td></tr>' +
+          '</tbody></table></div>'
+      },
+      {
+        id: "environment",
+        heading: "Dependencies & environment",
+        body:
+          '<p>The <strong>dependency versions</strong> and <strong>testing environment</strong> needed to ' +
+          'reproduce every result in this tutorial (R version, OS, test scale, CI config) are collected on a ' +
+          'dedicated page, with direct deps, suggested deps, key transitive deps and the <strong>full 89-package ' +
+          'recursive list</strong>:</p>' +
+          '<p><a href="#/environment" class="btn">Open environment & dependency versions →</a></p>' +
+          '<p>Quick table (direct deps; full list on the page above): ' +
+          '<code>mlr3 1.8.0</code> · <code>mlr3learners 0.16.0</code> · <code>paradox 1.0.1</code> · ' +
+          '<code>R6 2.6.1</code> · <code>survival 3.8-3</code> · <code>ranger 0.18.0</code> · ' +
+          '<code>dplyr 1.2.1</code> · <code>cli 3.6.6</code> · <code>ggplot2 4.0.3</code>. ' +
+          'Testing: <code>testthat 3.3.2</code>, 8 test files / 58 test_that blocks / 293 expectations, all passing.</p>'
+      }
+    ]
+  }
+};
+
+window.SITE_PAGES.tutorialbasics = {
+  zh: {
+    title: "0 · 数据生成机制与 DAG",
+    lede: "六种设计共用一套模拟数据，每个场景都带真值。先弄清这张因果结构图，后面的对账才看得懂。",
+    sections: [
       {
         id: "dgp",
         heading: "数据生成机制与 DAG（先读这个）",
@@ -148,18 +267,144 @@ window.SITE_PAGES.tutorial = {
           '所以粗差分偏出 +0.69 纯粹是混杂造成的，不是效应真的变了。</p>'
       },
       {
+        id: "next",
+        notoc: true,
+        heading: "继续读",
+        body:
+          '<div class="callout"><div class="callout-title">继续读</div><p>' +
+          '<a href="#/tutorial">← 返回全部教程</a>' +
+          '　·　下一篇：<a href="#/tutorialrct">1 RCT 设计下的分析 →</a>' +
+          '</p></div>'
+      }
+    ]
+  },
+  en: {
+    title: "0 · Data-generating process & DAGs",
+    lede: "All six designs share one simulated dataset carrying the truth. Understand this causal structure first, and the reconciliation tables later will make sense.",
+    sections: [
+      {
+        id: "dgp",
+        heading: "Data-generating process & DAGs (read this first)",
+        body:
+          '<p>All six scenarios share one <strong>data-generating process (DGP)</strong>. ' +
+          'Only two things change: the outcome distribution (continuous / binary / survival) ' +
+          'and how treatment <code>A</code> arises (randomised / driven by covariates). ' +
+          'Understanding the DGP is a prerequisite for every scenario below — only the data ' +
+          'itself knows the truth, and that is how you judge whether an estimator works. ' +
+          'Every formula below is copied line by line from <code>R/api.R</code>.</p>' +
+
+          '<h3>Shared skeleton: covariates</h3>' +
+          '<div class="formula">' +
+          'age ~ N(60, 12)    lac ~ N(2.5, 1.2)    tumor ~ N(5, 2)    sex ~ Bern(0.45)<br>' +
+          'z1 = scale(lac)    z2 = scale(tumor)   ' +
+          '# z1 lactate (higher = sicker), z2 tumor burden</div>' +
+
+          '<h3>Three outcomes, three sets of equations</h3>' +
+          '<div class="table-wrap"><table>' +
+          '<thead><tr><th>Outcome</th><th>Generating equations (verbatim from source)</th><th>Effect scale</th></tr></thead><tbody>' +
+          '<tr><td>Continuous</td><td><code>tau = 1.0 + 0.8·z1 − 0.5·z2 + 0.6·(z1&gt;1 &amp; z2&lt;0)</code><br>' +
+          '<code>mu = 6 + 0.4·z1 + 0.5·z2 − 0.02·(age−60) + 0.3·sex</code><br>' +
+          '<code>Y = mu + A·tau + N(0,1)</code></td>' +
+          '<td>mean difference <code>tau</code></td></tr>' +
+          '<tr><td>Binary</td><td><code>p0 = plogis(−1.2 + 0.5·z1 + 0.4·z2 + 0.1·(age−60)/12 + 0.2·sex)</code><br>' +
+          '<code>tau_logit = 0.6 + 0.5·z1 − 0.4·z2</code> (log-odds scale)<br>' +
+          '<code>p1 = plogis(qlogis(p0) + tau_logit)</code>; <code>Y ~ Bern(p_A)</code></td>' +
+          '<td>risk difference <code>p1 − p0</code></td></tr>' +
+          '<tr><td>Survival</td><td><code>tau = 0.5 + 0.4·z1 − 0.3·z2</code> (log-hazard scale)<br>' +
+          '<code>base_rate = exp(−1.0 + 0.3·z1 + 0.2·z2 + 0.1·(age−60)/12 + 0.15·sex)</code><br>' +
+          '<code>rate = base_rate·exp(−A·tau)</code>; <code>T ~ Exp(rate)</code>; ' +
+          'censoring <code>C ~ Exp(0.12)</code>, <code>time = min(T,C)</code></td>' +
+          '<td>difference in <code>S(t₀)</code> (default t₀=2), plus an RMST difference</td></tr>' +
+          '</tbody></table></div>' +
+          '<p>Note the <strong>interaction</strong> inside the continuous ' +
+          '<code>tau</code>: the treatment effect only gains an extra +0.6 when lactate is ' +
+          'high <em>and</em> tumor burden is low — that is where heterogeneity comes from, ' +
+          'and any method that reports a single average cannot capture it.</p>' +
+
+          '<h3>Two assignment mechanisms, two DAGs</h3>' +
+          '<div class="fig-grid">' +
+          '<figure class="fig"><img src="assets/img/dag/dag_rct_continuous.png" ' +
+          'alt="RCT DAG: A randomised, independent of X">' +
+          '<figcaption>RCT: <code>A</code> is a coin flip, no parents</figcaption></figure>' +
+          '<figure class="fig"><img src="assets/img/dag/dag_obs_continuous.png" ' +
+          'alt="Observational DAG: X → e → A confounding">' +
+          '<figcaption>Observational: <code>X → e → A</code>; the red path is the open backdoor</figcaption></figure>' +
+          '</div>' +
+          '<p>Under randomisation <code>A ~ Bern(0.5)</code> and <code>A ⊥ X</code>, so ' +
+          'covariates only modify the effect and never confound. In the observational design ' +
+          'the treatment probability is <code>e = plogis(−0.5 + 0.8·z1 + 0.4·z2)</code>, ' +
+          'making <code>X</code> a common cause of both <code>A</code> and <code>Y</code> — ' +
+          'the backdoor path <code>A ← e ← X → outcome → Y</code> is open, so crude ' +
+          'differences are biased.</p>' +
+
+          '<div class="callout ok"><div class="callout-title">Truth ships with the data</div>' +
+          '<p>Every <code>mlr3HTE_demo_*</code> function returns <code>tau</code> (unit-level ' +
+          'true CATE), <code>ate</code> (true average effect) and, for observational scenarios, ' +
+          '<code>ps_true</code> (the true propensity score). Run ' +
+          '<code>00_数据生成机制与DAG.R</code> to print these truths and stratify them by ' +
+          'covariates.</p></div>' +
+
+          '<h3>Actual output: truths for all six datasets</h3>' +
+          '<p>Below is the real console output of <code>00_数据生成机制与DAG.R</code> ' +
+          '(tidyverse tibbles, verbatim):</p>' +
+          '<pre><code># A tibble: 6 × 8\n' +
+          '  dataset         outcome       true_ate cate_mean cate_sd cate_min cate_max ate_rmst\n' +
+          '  &lt;chr&gt;           &lt;chr&gt;        &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt;   &lt;dbl&gt;\n' +
+          '1 cont × RCT      continuous   1.05    1.05    1.04  -2.58   4.85   NA\n' +
+          '2 binary × RCT    risk diff    0.131   0.131   0.133 -0.232  0.563  NA\n' +
+          '3 surv × RCT      S(t0) diff   0.152   0.152   0.151 -0.460  0.590  0.192\n' +
+          '4 cont × obs      continuous   1.05    1.05    1.04  -2.14   5.03   NA\n' +
+          '5 binary × obs    risk diff    0.131   0.131   0.132 -0.243  0.616  NA\n' +
+          '6 surv × obs      S(t0) diff   0.152   0.152   0.150 -0.371  0.664  0.192\n\n' +
+          '# A tibble: 3 × 2      # crude difference vs truth (observational)\n' +
+          '  quantity                             value\n' +
+          '  &lt;chr&gt;                                &lt;dbl&gt;\n' +
+          '1 crude diff mean(Y|A=1)-mean(Y|A=0)  1.74\n' +
+          '2 true ATE                            1.05\n' +
+          '3 crude bias                          0.689\n\n' +
+          'ℹ survival censoring proportion = 0.299</code></pre>' +
+          '<p>Three takeaways: <strong>(1)</strong> the mean CATE always equals the ATE, but the ' +
+          'standard deviation exceeds 1.0 — the average hides enormous unit-level variation; ' +
+          '<strong>(2)</strong> survival scenarios additionally report ' +
+          '<code>ATE_RMST = 0.192</code> (difference in restricted mean survival time), the same ' +
+          'effect as the 0.152 probability difference at t₀=2 on a different scale; ' +
+          '<strong>(3)</strong> the true ATEs for the observational datasets are identical to ' +
+          'their RCT counterparts (1.05 / 0.131 / 0.152) — only the <strong>assignment ' +
+          'mechanism</strong> differs, so the +0.69 crude bias is pure confounding, not a real ' +
+          'change in the effect.</p>'
+      },
+      {
+        id: "next",
+        notoc: true,
+        heading: "Keep reading",
+        body:
+          '<div class="callout"><div class="callout-title">Keep reading</div><p>' +
+          '<a href="#/tutorial">← All tutorials</a>' +
+          ' &middot; Next: <a href="#/tutorialrct">1 Analysis under RCT design →</a>' +
+          '</p></div>'
+      }
+    ]
+  }
+};
+
+window.SITE_PAGES.tutorialrct = {
+  zh: {
+    title: "1 · RCT 设计下的分析",
+    lede: "随机化下 A 与 X 独立，粗差分即无偏；难的是五种 meta-learner 各能抓到多少异质性。",
+    sections: [
+      {
         id: "fw-rct",
-        heading: "框架一 - RCT 设计下的分析",
+        heading: "本篇速览",
         body:
           '<p>随机化试验里 <code>A ⊥ X</code>，协变量只修饰效应、不混杂，所以粗差分本身就是无偏的因果估计。' +
           '这里的重点不是「纠偏」，而是<strong>五种 meta-learner 各自能抓到多少异质性</strong>' +
           '（CATE 与真 <em>τ</em> 的相关）。</p>' +
           '<div class="table-wrap"><table>' +
           '<thead><tr><th>场景</th><th>脚本</th><th>关键结论</th></tr></thead><tbody>' +
-          '<tr><td><a href="#/tutorial/s1">场景 1 · 连续 × RCT</a></td>' +
+          '<tr><td><a href="#/tutorialrct/s1">场景 1 · 连续 × RCT</a></td>' +
           '<td><code>01_连续结局_随机化RCT.R</code></td>' +
           '<td>X-learner 最贴合真值：CATE 与真 <em>τ</em> 相关 <strong>0.963</strong></td></tr>' +
-          '<tr><td><a href="#/tutorial/s3">场景 3 · 二分类 × RCT</a></td>' +
+          '<tr><td><a href="#/tutorialrct/s3">场景 3 · 二分类 × RCT</a></td>' +
           '<td><code>03_二分类结局_随机化RCT.R</code></td>' +
           '<td>效应尺度换成风险差；X-learner 相关 <strong>0.794</strong></td></tr>' +
           '</tbody></table></div>'
@@ -221,18 +466,129 @@ window.SITE_PAGES.tutorial = {
           '<p>真实 ATE（风险差）= <strong>0.131</strong>。</p>'
       },
       {
+        id: "next",
+        notoc: true,
+        heading: "继续读",
+        body:
+          '<div class="callout"><div class="callout-title">继续读</div><p>' +
+          '<a href="#/tutorial">← 返回全部教程</a>' +
+          '　·　下一篇：<a href="#/tutorialobs">2 观察性研究分析 →</a>' +
+          '</p></div>'
+      }
+    ]
+  },
+  en: {
+    title: "1 · Analysis under RCT design",
+    lede: "Under randomization A is independent of X, so the naive difference is already unbiased; the hard part is how much heterogeneity each meta-learner captures.",
+    sections: [
+      {
+        id: "fw-rct",
+        heading: "At a glance",
+        body:
+          '<p>Under randomization <code>A ⊥ X</code>, so covariates only modify the effect, they do not confound; ' +
+          'the naive difference is already an unbiased causal estimate. The point here is not "debiasing" but ' +
+          '<strong>how much heterogeneity each meta-learner captures</strong> (correlation of CATE with the true <em>τ</em>).</p>' +
+          '<div class="table-wrap"><table>' +
+          '<thead><tr><th>Scenario</th><th>Script</th><th>Key result</th></tr></thead><tbody>' +
+          '<tr><td><a href="#/tutorialrct/s1">Scenario 1 · Continuous × RCT</a></td>' +
+          '<td><code>01_连续结局_随机化RCT.R</code></td>' +
+          '<td>X-learner closest to truth: CATE vs true <em>τ</em> correlation <strong>0.963</strong></td></tr>' +
+          '<tr><td><a href="#/tutorialrct/s3">Scenario 3 · Binary × RCT</a></td>' +
+          '<td><code>03_二分类结局_随机化RCT.R</code></td>' +
+          '<td>Effect scale becomes risk difference; X-learner correlation <strong>0.794</strong></td></tr>' +
+          '</tbody></table></div>'
+
+      },
+      {
+        id: "s1",
+        heading: "Scenario 1 · Continuous outcome × RCT",
+        body:
+          '<figure class="fig"><img src="assets/img/dag/dag_rct_continuous.png" ' +
+          'alt="Scenario 1 DAG: randomised continuous outcome">' +
+          '<figcaption>Figure 1 · Scenario 1 DAG: <code>A</code> is randomised; ' +
+          '<code>X</code> modifies the effect but does not confound</figcaption></figure>' +
+          '<pre><code>d <- mlr3HTE_demo_data(n = 4000, seed = 1201)\n' +
+          'lb <- lrn("regr.ranger", num.trees = 300, seed = 1)\n\n' +
+          'for (tp in c("S","T","X","R","DR")) {\n' +
+          '  fit <- metalearner(tp, d$X, d$A, d$Y, learner_base = lb)\n' +
+          '  cat(tp, fit$ate, cor(fit$cate_train, d$tau), "\\n")\n' +
+          '}</code></pre>' +
+          '<div class="callout"><div class="callout-title">Data-generating process</div>' +
+          '<p>True CATE <code>tau = 1.0 + 0.8·z1 − 0.5·z2 + 0.6·(z1&gt;1 &amp; z2&lt;0)</code>; ' +
+          'true baseline <code>mu = 6 + 0.4·z1 + 0.5·z2 − 0.02·(age−60) + 0.3·sex</code>.</p></div>' +
+          '<div class="table-wrap"><table>' +
+          '<thead><tr><th>Learner</th><th>ATE</th><th>Corr. with truth</th><th>RMSE</th></tr></thead>' +
+          '<tbody>' +
+          '<tr><td>S</td><td>0.935</td><td>0.895</td><td>0.483</td></tr>' +
+          '<tr><td>T</td><td>0.951</td><td>0.845</td><td>0.653</td></tr>' +
+          '<tr><td><strong>X</strong></td><td>0.950</td><td><strong>0.963</strong></td><td><strong>0.296</strong></td></tr>' +
+          '<tr><td>R</td><td>0.450</td><td>0.812</td><td>0.907</td></tr>' +
+          '<tr><td>DR</td><td>0.954</td><td>0.924</td><td>0.430</td></tr>' +
+          '</tbody></table></div>' +
+          '<p>True ATE = <strong>1.048</strong>. X wins; R\'s ATE is clearly low because of ' +
+          'pseudo-outcome noise plus insufficient stage-2 regularisation ' +
+          '(see <a href="#/guide/pitfalls">tuning notes</a>).</p>'
+      },
+      {
+        id: "s3",
+        heading: "Scenario 3 · Binary outcome × RCT",
+        body:
+          '<figure class="fig"><img src="assets/img/dag/dag_rct_binary.png" ' +
+          'alt="Scenario 3 DAG: randomised binary outcome">' +
+          '<figcaption>Figure 3 · Scenario 3 DAG: same structure as Scenario 1, with the ' +
+          'outcome swapped for <code>Y ~ Bern(plogis(qlogis(p0) + tau_logit))</code></figcaption></figure>' +
+          '<pre><code>d <- mlr3HTE_demo_binary(n = 4000, seed = 1202)\n' +
+          'lb <- lrn("classif.ranger", num.trees = 300, seed = 1)\n' +
+          'fit <- metalearner("T", d$X, d$A, d$Y, learner_base = lb)\n' +
+          'fit$ate   # average risk difference</code></pre>' +
+          '<div class="callout ok"><div class="callout-title">The effect scale is the risk difference</div>' +
+          '<p>The base learner must be <code>classif.*</code>; the engine detects ' +
+          '<code>outcome = "binary"</code>, the outcome model returns <code>P(Y=1|X)</code>, and the ' +
+          'CATE therefore lives on the <strong>risk-difference</strong> scale (not log-odds, not ' +
+          'odds ratio).</p></div>' +
+          '<div class="table-wrap"><table>' +
+          '<thead><tr><th>Learner</th><th>ATE</th><th>Corr. with truth</th><th>RMSE</th></tr></thead>' +
+          '<tbody>' +
+          '<tr><td>S</td><td>0.129</td><td>0.603</td><td>0.157</td></tr>' +
+          '<tr><td>T</td><td>0.128</td><td>0.492</td><td>0.223</td></tr>' +
+          '<tr><td><strong>X</strong></td><td>0.129</td><td><strong>0.794</strong></td><td><strong>0.096</strong></td></tr>' +
+          '<tr><td>R</td><td>0.078</td><td>0.477</td><td>0.167</td></tr>' +
+          '<tr><td>DR</td><td>0.132</td><td>0.601</td><td>0.172</td></tr>' +
+          '</tbody></table></div>' +
+          '<p>True ATE (risk difference) = <strong>0.131</strong>.</p>'
+      },
+      {
+        id: "next",
+        notoc: true,
+        heading: "Keep reading",
+        body:
+          '<div class="callout"><div class="callout-title">Keep reading</div><p>' +
+          '<a href="#/tutorial">← All tutorials</a>' +
+          ' &middot; Next: <a href="#/tutorialobs">2 Observational studies →</a>' +
+          '</p></div>'
+      }
+    ]
+  }
+};
+
+window.SITE_PAGES.tutorialobs = {
+  zh: {
+    title: "2 · 观察性研究分析",
+    lede: "混杂后门让粗差分开局就偏；IPTW 与外部真实 PS 权重把它压回 0.05 以内——前提是混杂全部已测量。",
+    sections: [
+      {
         id: "fw-obs",
-        heading: "框架二 - 观察性研究分析",
+        heading: "本篇速览",
         body:
           '<p>观察性研究里 <code>X → e → A</code> 形成混杂后门路径，粗差分开局就偏' +
           '（连续 +0.689、二分类 +0.125、生存 −0.072）。本框架演示 IPTW 与外部真实 PS 权重' +
           '如何把偏差压回去——前提是混杂全部已测量。</p>' +
           '<div class="table-wrap"><table>' +
           '<thead><tr><th>场景</th><th>脚本</th><th>关键结论</th></tr></thead><tbody>' +
-          '<tr><td><a href="#/tutorial/s2">场景 2 · 连续 × 观察性</a></td>' +
+          '<tr><td><a href="#/tutorialobs/s2">场景 2 · 连续 × 观察性</a></td>' +
           '<td><code>02_连续结局_观察性研究.R</code></td>' +
           '<td>未调整 <strong>+0.689</strong> → 加权后偏差 ≤ 0.05（真实 ATE 1.049）</td></tr>' +
-          '<tr><td><a href="#/tutorial/s4">场景 4 · 二分类 × 观察性</a></td>' +
+          '<tr><td><a href="#/tutorialobs/s4">场景 4 · 二分类 × 观察性</a></td>' +
           '<td><code>04_二分类结局_观察性研究.R</code></td>' +
           '<td>未调整风险差 <strong>+0.125</strong> → IPTW + X 偏差 −0.002（真实 0.131）</td></tr>' +
           '</tbody></table></div>' +
@@ -303,21 +659,139 @@ window.SITE_PAGES.tutorial = {
           '</tbody></table></div>'
       },
       {
+        id: "next",
+        notoc: true,
+        heading: "继续读",
+        body:
+          '<div class="callout"><div class="callout-title">继续读</div><p>' +
+          '<a href="#/tutorial">← 返回全部教程</a>' +
+          '　·　下一篇：<a href="#/tutorialsurv">3 生存结局分析 →</a>' +
+          '</p></div>'
+      }
+    ]
+  },
+  en: {
+    title: "2 · Observational studies",
+    lede: "The confounding back-door biases the naive difference from the start; IPTW and external true-PS weights pull it back within 0.05 — provided all confounding is measured.",
+    sections: [
+      {
+        id: "fw-obs",
+        heading: "At a glance",
+        body:
+          '<p>In observational data <code>X → e → A</code> opens a confounding back-door, so the naive ' +
+          'difference starts biased (continuous +0.689, binary +0.125, survival −0.072). This framework shows ' +
+          'how IPTW and external true-PS weighting pull the bias back — provided all confounding is measured.</p>' +
+          '<div class="table-wrap"><table>' +
+          '<thead><tr><th>Scenario</th><th>Script</th><th>Key result</th></tr></thead><tbody>' +
+          '<tr><td><a href="#/tutorialobs/s2">Scenario 2 · Continuous × observational</a></td>' +
+          '<td><code>02_连续结局_观察性研究.R</code></td>' +
+          '<td>Naive <strong>+0.689</strong> → bias ≤ 0.05 after weighting (true ATE 1.049)</td></tr>' +
+          '<tr><td><a href="#/tutorialobs/s4">Scenario 4 · Binary × observational</a></td>' +
+          '<td><code>04_二分类结局_观察性研究.R</code></td>' +
+          '<td>Naive risk difference <strong>+0.125</strong> → IPTW + X bias −0.002 (true 0.131)</td></tr>' +
+          '</tbody></table></div>' +
+          '<div class="callout warn"><div class="callout-title">Caveat</div>' +
+          '<p>All confounding here comes from <strong>measured</strong> covariates, which is why adjustment works. ' +
+          'With unmeasured confounding in a real study, no weighting scheme rescues you.</p></div>'
+
+      },
+      {
+        id: "s2",
+        heading: "Scenario 2 · Continuous outcome × observational",
+        body:
+          '<figure class="fig"><img src="assets/img/dag/dag_obs_continuous.png" ' +
+          'alt="Scenario 2 DAG: observational continuous outcome with confounding">' +
+          '<figcaption>Figure 2 · Scenario 2 DAG: the red path <code>X → e → A</code> makes ' +
+          '<code>X</code> a common cause; crude differences are biased</figcaption></figure>' +
+          '<pre><code>d <- mlr3HTE_demo_obs(n = 4000, seed = 1204)   # confounded\n\n' +
+          'naive <- mean(d$Y[d$A == 1]) - mean(d$Y[d$A == 0])     # biased\n' +
+          'fit   <- metalearner("X", d$X, d$A, d$Y, weighting = "iptw")\n\n' +
+          '# External weights from the true PS\n' +
+          'w <- ifelse(d$A == 1, d$ps_true, 1 - d$ps_true)\n' +
+          'metalearner("DR", d$X, d$A, d$Y, weighting = "external", weights = w)</code></pre>' +
+          '<div class="callout danger"><div class="callout-title">Confounding structure</div>' +
+          '<p>Sicker patients (higher <code>z1</code>) are more likely to be treated, and severity ' +
+          'also affects the outcome — so the crude difference picks up severity as well. ' +
+          'Observed baseline: mean lac 2.15 in controls vs 3.03 in treated.</p></div>' +
+          '<div class="table-wrap"><table>' +
+          '<thead><tr><th>Method</th><th>Estimate</th><th>Bias</th></tr></thead>' +
+          '<tbody>' +
+          '<tr><td>Unadjusted difference</td><td>1.738</td><td><strong>+0.689</strong></td></tr>' +
+          '<tr><td>IPTW + X</td><td>1.007</td><td>−0.043</td></tr>' +
+          '<tr><td>Stabilised IPTW + X</td><td>1.011</td><td>−0.038</td></tr>' +
+          '<tr><td>True-PS external weights + DR</td><td>1.086</td><td>+0.037</td></tr>' +
+          '</tbody></table></div>' +
+          '<p>True ATE = <strong>1.049</strong>. Weighting shrinks a +0.69 bias to under 0.04.</p>' +
+          '<div class="callout warn"><div class="callout-title">Caveat</div>' +
+          '<p>All confounding here comes from <strong>measured</strong> covariates, so correction ' +
+          'works. With unmeasured confounding in a real study, no method can save you.</p></div>'
+      },
+      {
+        id: "s4",
+        heading: "Scenario 4 · Binary outcome × observational",
+        body:
+          '<figure class="fig"><img src="assets/img/dag/dag_obs_binary.png" ' +
+          'alt="Scenario 4 DAG: observational binary outcome">' +
+          '<figcaption>Figure 4 · Scenario 4 DAG: the same confounding structure; ' +
+          'unadjusted risk difference 0.256 vs true 0.131</figcaption></figure>' +
+          '<pre><code>d <- mlr3HTE_demo_obs_binary(n = 4000, seed = 1205)\n\n' +
+          'naive <- mean(d$Y[d$A == 1]) - mean(d$Y[d$A == 0])\n' +
+          'fit <- metalearner("X", d$X, d$A, d$Y,\n' +
+          '                   learner_base = lrn("classif.ranger", num.trees = 300, seed = 1),\n' +
+          '                   weighting = "iptw")</code></pre>' +
+          '<div class="table-wrap"><table>' +
+          '<thead><tr><th>Method</th><th>Estimate</th><th>True ATE</th><th>Bias</th></tr></thead>' +
+          '<tbody>' +
+          '<tr><td>Unadjusted risk difference</td><td>0.256</td><td>0.131</td><td><strong>+0.125</strong></td></tr>' +
+          '<tr><td>IPTW + X</td><td>0.146</td><td>0.131</td><td>+0.015</td></tr>' +
+          '<tr><td>True-PS external weights + DR</td><td>0.163</td><td>0.131</td><td>+0.033</td></tr>' +
+          '</tbody></table></div>' +
+          '<p>All five learners under IPTW:</p>' +
+          '<div class="table-wrap"><table>' +
+          '<thead><tr><th>Learner</th><th>IPTW ATE</th><th>Bias</th><th>Corr. with truth</th></tr></thead>' +
+          '<tbody>' +
+          '<tr><td>S</td><td>0.144</td><td>+0.013</td><td>0.552</td></tr>' +
+          '<tr><td>T</td><td>0.117</td><td>−0.014</td><td>0.444</td></tr>' +
+          '<tr><td><strong>X</strong></td><td>0.129</td><td><strong>−0.002</strong></td><td><strong>0.742</strong></td></tr>' +
+          '<tr><td>R</td><td>0.109</td><td>−0.022</td><td>0.423</td></tr>' +
+          '<tr><td>DR</td><td>0.132</td><td>+0.001</td><td>0.426</td></tr>' +
+          '</tbody></table></div>'
+      },
+      {
+        id: "next",
+        notoc: true,
+        heading: "Keep reading",
+        body:
+          '<div class="callout"><div class="callout-title">Keep reading</div><p>' +
+          '<a href="#/tutorial">← All tutorials</a>' +
+          ' &middot; Next: <a href="#/tutorialsurv">3 Survival outcomes →</a>' +
+          '</p></div>'
+      }
+    ]
+  }
+};
+
+window.SITE_PAGES.tutorialsurv = {
+  zh: {
+    title: "3 · 生存结局分析",
+    lede: "效应是时间点依赖的：必须写清 t0，删失用 IPCW 校正，观察性还要再叠一层 IPTW。",
+    sections: [
+      {
         id: "fw-surv",
-        heading: "框架三 - 生存结局分析",
+        heading: "本篇速览",
         body:
           '<p>生存结局的效应是<strong>时间点依赖</strong>的：报告必须写清 <code>t0</code>，' +
           'CATE = S(t0) 差（默认 t0 = 事件时间中位数）。删失要用 IPCW 校正，' +
           '观察性下还要再叠一层 IPTW（两层权重相乘）。</p>' +
           '<div class="table-wrap"><table>' +
           '<thead><tr><th>场景</th><th>脚本</th><th>关键结论</th></tr></thead><tbody>' +
-          '<tr><td><a href="#/tutorial/s5">场景 5 · 生存 × RCT</a></td>' +
+          '<tr><td><a href="#/tutorialsurv/s5">场景 5 · 生存 × RCT</a></td>' +
           '<td><code>05_生存结局_随机化RCT.R</code></td>' +
           '<td>T-learner + Cox：CATE 与真 <em>τ</em> 相关 <strong>0.993</strong></td></tr>' +
-          '<tr><td><a href="#/tutorial/s6">场景 6 · 生存 × 观察性</a></td>' +
+          '<tr><td><a href="#/tutorialsurv/s6">场景 6 · 生存 × 观察性</a></td>' +
           '<td><code>06_生存结局_观察性研究.R</code></td>' +
           '<td>IPTW × IPCW 两层权重；删失比例约 30%</td></tr>' +
-          '<tr><td><a href="#/tutorial/sl-engine">第二套引擎 survlearners</a></td>' +
+          '<tr><td><a href="#/tutorialsurv/sl-engine">第二套引擎 survlearners</a></td>' +
           '<td><code>09_生存结局_survlearners引擎.R</code></td>' +
           '<td>同一道题两种引擎，结果可对账</td></tr>' +
           '</tbody></table></div>'
@@ -441,18 +915,196 @@ window.SITE_PAGES.tutorial = {
           '两次运行有 ~0.001 量级抖动——如实说明，不假装确定。</p></div>'
       },
       {
+        id: "next",
+        notoc: true,
+        heading: "继续读",
+        body:
+          '<div class="callout"><div class="callout-title">继续读</div><p>' +
+          '<a href="#/tutorial">← 返回全部教程</a>' +
+          '　·　下一篇：<a href="#/tutoriallearners">4 换不同学习器 →</a>' +
+          '</p></div>'
+      }
+    ]
+  },
+  en: {
+    title: "3 · Survival outcomes",
+    lede: "Effects are time-point dependent: state t0, correct censoring with IPCW, and multiply an IPTW layer on top for observational data.",
+    sections: [
+      {
+        id: "fw-surv",
+        heading: "At a glance",
+        body:
+          '<p>The survival effect is <strong>time-point dependent</strong>: you must state <code>t0</code>, and ' +
+          'CATE = S(t0) difference (default t0 = median event time). Censoring is corrected with IPCW; under ' +
+          'observationality a second IPTW layer is multiplied on top.</p>' +
+          '<div class="table-wrap"><table>' +
+          '<thead><tr><th>Scenario</th><th>Script</th><th>Key result</th></tr></thead><tbody>' +
+          '<tr><td><a href="#/tutorialsurv/s5">Scenario 5 · Survival × RCT</a></td>' +
+          '<td><code>05_生存结局_随机化RCT.R</code></td>' +
+          '<td>T-learner + Cox: CATE vs true <em>τ</em> correlation <strong>0.993</strong></td></tr>' +
+          '<tr><td><a href="#/tutorialsurv/s6">Scenario 6 · Survival × observational</a></td>' +
+          '<td><code>06_生存结局_观察性研究.R</code></td>' +
+          '<td>IPTW × IPCW two-layer weights; censoring around 30%</td></tr>' +
+          '<tr><td><a href="#/tutorialsurv/sl-engine">Second engine: survlearners</a></td>' +
+          '<td><code>09_生存结局_survlearners引擎.R</code></td>' +
+          '<td>Same question, two engines — results can be reconciled</td></tr>' +
+          '</tbody></table></div>'
+
+      },
+      {
+        id: "s5",
+        heading: "Scenario 5 · Survival outcome × RCT",
+        body:
+          '<figure class="fig"><img src="assets/img/dag/dag_rct_survival.png" ' +
+          'alt="Scenario 5 DAG: randomised survival outcome">' +
+          '<figcaption>Figure 5 · Scenario 5 DAG: <code>Y</code> is a (time, event) pair; ' +
+          'exponential censoring applies on top (omitted from the figure)</figcaption></figure>' +
+          '<pre><code>d <- mlr3HTE_demo_surv(n = 4000, t0 = 2, seed = 1203)\n\n' +
+          'fit <- metalearner("T", d$X, d$A, d$Y, learner_base = "coxph", t0 = 2)\n' +
+          'fit$ate   # mean S₁(2) − S₀(2)\n\n' +
+          '# Or a non-linear base learner\n' +
+          'metalearner("T", d$X, d$A, d$Y, learner_base = "ranger", t0 = 2)</code></pre>' +
+          '<div class="callout"><div class="callout-title">The effect is time-point dependent</div>' +
+          '<p>The survival difference takes different values at different <code>t0</code>; always ' +
+          'report the horizon:</p>' +
+          '<div class="table-wrap"><table>' +
+          '<thead><tr><th>t0</th><th>1</th><th>2</th><th>4</th></tr></thead>' +
+          '<tbody><tr><td>ATE</td><td>0.104</td><td>0.129</td><td>0.124</td></tr></tbody></table></div>' +
+          '</div>' +
+          '<div class="table-wrap"><table>' +
+          '<thead><tr><th>Learner</th><th>ATE</th><th>Corr. with truth</th><th>RMSE</th></tr></thead>' +
+          '<tbody>' +
+          '<tr><td>S</td><td>0.130</td><td><strong>−0.017</strong></td><td>0.153</td></tr>' +
+          '<tr><td><strong>T</strong></td><td>0.129</td><td><strong>0.993</strong></td><td><strong>0.030</strong></td></tr>' +
+          '<tr><td>X</td><td>0.123</td><td>0.840</td><td>0.088</td></tr>' +
+          '<tr><td>R</td><td>0.087</td><td>0.261</td><td>0.305</td></tr>' +
+          '<tr><td>DR</td><td>0.088</td><td>0.232</td><td>0.304</td></tr>' +
+          '</tbody></table></div>' +
+          '<p>True ATE = <strong>0.152</strong>, 29.9% censoring.</p>' +
+          '<div class="callout warn"><div class="callout-title">Near-zero correlation for S is expected</div>' +
+          '<p>Cox is proportional hazards with a linear predictor, so A entered as an ordinary ' +
+          'covariate cannot express the <code>A × X</code> interaction and the CATE degenerates to a ' +
+          'constant. Use T or X to capture heterogeneity.</p></div>'
+      },
+      {
+        id: "s6",
+        heading: "Scenario 6 · Survival outcome × observational",
+        body:
+          '<figure class="fig"><img src="assets/img/dag/dag_obs_survival.png" ' +
+          'alt="Scenario 6 DAG: observational survival outcome">' +
+          '<figcaption>Figure 6 · Scenario 6 DAG: on top of confounding (red) there is ' +
+          'censoring, so IPTW × IPCW layers are multiplied</figcaption></figure>' +
+          '<pre><code>d <- mlr3HTE_demo_obs_surv(n = 4000, t0 = 2, seed = 1206)\n\n' +
+          '# Unadjusted: separate Kaplan-Meier per arm, take the difference at t0\n' +
+          'km    <- survfit(Surv(d$Y[,1], d$Y[,2]) ~ d$A)\n' +
+          's_at  <- summary(km, times = 2)$surv\n' +
+          'naive <- s_at[2] - s_at[1]\n\n' +
+          '# IPTW (confounding) × IPCW (censoring)\n' +
+          'fit <- metalearner("X", d$X, d$A, d$Y, learner_base = "coxph",\n' +
+          '                   weighting = "iptw", t0 = 2)</code></pre>' +
+          '<div class="callout"><div class="callout-title">Two layers of weights are multiplied</div>' +
+          '<div class="table-wrap"><table>' +
+          '<thead><tr><th>Weights</th><th>Min</th><th>Median</th><th>Max</th></tr></thead>' +
+          '<tbody>' +
+          '<tr><td>IPTW (confounding)</td><td>1.02</td><td>1.66</td><td>16.73</td></tr>' +
+          '<tr><td>IPCW (censoring)</td><td>0.10</td><td>0.85</td><td>1.00</td></tr>' +
+          '<tr><td>Multiplied</td><td>0.14</td><td>1.37</td><td>12.28</td></tr>' +
+          '</tbody></table></div></div>' +
+          '<div class="table-wrap"><table>' +
+          '<thead><tr><th>Method</th><th>Estimate</th><th>True ATE</th><th>Bias</th></tr></thead>' +
+          '<tbody>' +
+          '<tr><td>Unadjusted KM difference</td><td>0.079</td><td>0.152</td><td><strong>−0.072</strong></td></tr>' +
+          '<tr><td>IPTW + X</td><td>0.125</td><td>0.152</td><td>−0.027</td></tr>' +
+          '<tr><td>True-PS external weights + DR</td><td>0.159</td><td>0.152</td><td>+0.007</td></tr>' +
+          '</tbody></table></div>'
+      },
+      {
+        id: "sl-engine",
+        heading: "A second survival engine: survlearners (script 09)",
+        body:
+          '<p>Besides the default <strong>native engine</strong> (<code>engine = "native"</code>, ' +
+          'Cox/ranger, all five learners), survival outcomes can explicitly switch to ' +
+          '<code>engine = "survlearners"</code>, delegating estimation to ' +
+          '<a href="https://som-shahlab.github.io/survlearners/">survlearners</a> ' +
+          '(Shah Lab, GPL-3). It lives on GitHub only, so mlr3HTE keeps it in Suggests ' +
+          'and prints an install hint when missing:</p>' +
+          '<pre><code>remotes::install_github("som-shahlab/survlearners", subdir = "r-package/survlearners")\n\n' +
+          'd <- mlr3HTE_demo_surv(n = 2000, t0 = 2, seed = 1203)\n' +
+          'fit <- metalearner("X", d$X, d$A, d$Y, learner_base = "grf",\n' +
+          '                   t0 = 2, engine = "survlearners")</code></pre>' +
+
+          '<div class="table-wrap"><table>' +
+          '<thead><tr><th>Capability</th><th>native (default)</th><th>survlearners</th></tr></thead><tbody>' +
+          '<tr><td>Metalearners</td><td>S/T/X/R/DR</td><td>S/T/X/R (no DR; an extra M)</td></tr>' +
+          '<tr><td>Effect scale</td><td>S(t0) difference + RMST difference</td><td>S(t0) difference only</td></tr>' +
+          '<tr><td>Base learners</td><td><code>"coxph"</code>/<code>"ranger"</code> + any mlr3 learner</td>' +
+          '<td><code>"coxph"</code>/<code>"grf"</code>/<code>"lasso"</code> (<code>"ranger"</code> aliases grf)</td></tr>' +
+          '<tr><td>Censoring / cross-fitting</td><td>IPTW × IPCW; <code>cross_fitting=TRUE</code></td>' +
+          '<td>built-in IPCW; R family cross-fits internally</td></tr>' +
+          '</tbody></table></div>' +
+
+          '<h3>Actual output: full grid at n=2000 (true ATE = 0.151)</h3>' +
+          '<pre><code># A tibble: 11 × 5\n' +
+          '   tp    kind    ATE  cor   bias\n' +
+          ' 1 S     coxph 0.156 0.993  0.005\n' +
+          ' 2 S     grf   0.129 0.910 -0.022\n' +
+          ' 3 S     lasso 0.156 0.997  0.006\n' +
+          ' 4 T     coxph 0.067 0.952 -0.084   # avoid this cell, see below\n' +
+          ' 5 T     grf   0.147 0.922 -0.004\n' +
+          ' 6 T     lasso 0.146 0.992 -0.004\n' +
+          ' 7 X     grf   0.149 0.934 -0.001\n' +
+          ' 8 X     lasso 0.150 0.978 -0.001\n' +
+          ' 9 R     coxph 0.152 0.963  0.001\n' +
+          '10 R     grf   0.152 0.923  0.001\n' +
+          '11 R     lasso 0.155 0.961  0.004</code></pre>' +
+
+          '<div class="callout warn"><div class="callout-title">Avoid the T-coxph cell</div>' +
+          '<p>Measured ATE for T-coxph is only 0.067 (bias −0.084) while T-grf/T-lasso are fine. ' +
+          'Mechanism (read from source and verified, not guessed): <code>surv_tl_coxph</code> multiplies ' +
+          'the <strong>uncentred</strong> baseline cumulative hazard (<code>basehaz(centered = FALSE)</code>) ' +
+          'with <code>predict(type = "risk")</code>, whose linear predictor is <strong>centred at the ' +
+          'training-sample mean</strong>; the mismatched reference scales distort S(t0). By contrast ' +
+          '<code>surv_sl_coxph</code> builds its links manually (uncentred), so S-coxph is accurate. ' +
+          'For a Cox-based T-learner, use the native engine.</p></div>' +
+
+          '<div class="callout"><div class="callout-title">Reproducibility</div>' +
+          '<p>The grf family is seeded (<code>seed = 1</code>) inside the mlr3HTE engine, so repeated ' +
+          'runs are bit-identical. The lasso family cross-validates lambda with glmnet using random ' +
+          'folds (survlearners exposes no foldid), so repeated runs jitter by ~0.001 — stated plainly ' +
+          'rather than pretended away.</p></div>'
+      },
+      {
+        id: "next",
+        notoc: true,
+        heading: "Keep reading",
+        body:
+          '<div class="callout"><div class="callout-title">Keep reading</div><p>' +
+          '<a href="#/tutorial">← All tutorials</a>' +
+          ' &middot; Next: <a href="#/tutoriallearners">4 Swapping the base learner →</a>' +
+          '</p></div>'
+      }
+    ]
+  }
+};
+
+window.SITE_PAGES.tutoriallearners = {
+  zh: {
+    title: "4 · 换不同学习器",
+    lede: "五种 meta-learner 只是配方，真正干活的是基学习器；换算法只改一行，还能按分组 / 阶段分开指定。",
+    sections: [
+      {
         id: "fw-learners",
-        heading: "框架四 - 换不同学习器",
+        heading: "本篇速览",
         body:
           '<p>选 mlr3 体系的核心收益：五种 meta-learner 只是「配方」，真正干活的是基学习器，' +
           '换算法只改 <code>learner_base</code> 一行。更细一层还能为每个分组 / 阶段单独指定算法。</p>' +
           '<div class="table-wrap"><table>' +
           '<thead><tr><th>内容</th><th>脚本</th><th>关键结论</th></tr></thead><tbody>' +
-          '<tr><td><a href="#/tutorial/swap-learners">换基学习器：mlr3 生态随便挑</a></td>' +
+          '<tr><td><a href="#/tutoriallearners/swap-learners">换基学习器：mlr3 生态随便挑</a></td>' +
           '<td><code>13_换基学习器_基准对比.R</code></td>' +
           '<td>ATE 对算法稳健（偏差都在 ±0.1 内），<strong>排序能力差异巨大</strong>：' +
           '线性模型 CATE 相关 0.987，随机森林只有 0.843</td></tr>' +
-          '<tr><td><a href="#/tutorial/swap-learners">按角色命名 list（v0.22+）</a></td>' +
+          '<tr><td><a href="#/tutoriallearners/swap-learners">按角色命名 list（v0.22+）</a></td>' +
           '<td><code>13_换基学习器_基准对比.R</code></td>' +
           '<td>T 两组 ranger / lm 混用 → CATE 相关 0.913；X 各阶段混用 → 0.988</td></tr>' +
           '</tbody></table></div>'
@@ -506,21 +1158,123 @@ window.SITE_PAGES.tutorial = {
           '传命名 list 会明确报错。</p>'
       },
       {
+        id: "next",
+        notoc: true,
+        heading: "继续读",
+        body:
+          '<div class="callout"><div class="callout-title">继续读</div><p>' +
+          '<a href="#/tutorial">← 返回全部教程</a>' +
+          '　·　下一篇：<a href="#/tutorialmetrics">5 模型评价指标 →</a>' +
+          '</p></div>'
+      }
+    ]
+  },
+  en: {
+    title: "4 · Swapping the base learner",
+    lede: "The five meta-learners are recipes; the base learner does the work. Swap it in one line, and specify per group or per stage when needed.",
+    sections: [
+      {
+        id: "fw-learners",
+        heading: "At a glance",
+        body:
+          '<p>The core payoff of the mlr3 stack: the five meta-learners are just "recipes"; the real work is ' +
+          'done by the base learner, so swapping algorithms changes only one line, <code>learner_base</code>. ' +
+          'A finer level lets you specify a different algorithm per group / per stage.</p>' +
+          '<div class="table-wrap"><table>' +
+          '<thead><tr><th>Topic</th><th>Script</th><th>Key result</th></tr></thead><tbody>' +
+          '<tr><td><a href="#/tutoriallearners/swap-learners">Swap the base learner</a></td>' +
+          '<td><code>13_换基学习器_基准对比.R</code></td>' +
+          '<td>ATE is robust to the algorithm (bias within ±0.1), but <strong>ranking ability varies wildly</strong>: ' +
+          'linear model CATE correlation 0.987 vs random forest 0.843</td></tr>' +
+          '<tr><td><a href="#/tutoriallearners/swap-learners">Per-role named lists (v0.22+)</a></td>' +
+          '<td><code>13_换基学习器_基准对比.R</code></td>' +
+          '<td>T with ranger / lm per arm → CATE correlation 0.913; X mixing stages → 0.988</td></tr>' +
+          '</tbody></table></div>'
+
+      },
+      {
+        id: "swap-learners",
+        heading: "Swap the base learner: pick any algorithm in the mlr3 ecosystem (script 13)",
+        body:
+          '<p>The biggest reason to build on mlr3 instead of rolling your own training loop is right here: ' +
+          '<strong>the five metalearners are just "recipes"; the base learner does the actual work, and switching algorithms is a one-line change to <code>learner_base</code></strong>—' +
+          'every other line of code, the interface, and the workflow stay exactly the same.</p>' +
+          '<p>The same T-learner, switching the base learner from random forest to XGBoost / GLMnet / CART / linear regression, changes only one argument:</p>' +
+          '<pre><code>fit &lt;- metalearner("T", X, A, Y,\n              learner_base = lrn("regr.ranger"))   # random forest\nfit &lt;- metalearner("T", X, A, Y,\n              learner_base = lrn("regr.xgboost"))  # XGBoost\nfit &lt;- metalearner("T", X, A, Y,\n              learner_base = lrn("regr.glmnet"))   # Lasso\nfit &lt;- metalearner("T", X, A, Y,\n              learner_base = lrn("regr.lm"))       # linear regression</code></pre>' +
+          '<p>Script 13 runs all five base learners on the continuous RCT simulation (n = 4000, true ATE = 1.048) and compares ATE with ' +
+          '"CATE correlation with the true <em>&tau;</em>" (ranking power):</p>' +
+          '<div class="table-wrap"><table>' +
+          '<thead><tr><th>Base learner</th><th>ATE</th><th>ATE bias</th><th>CATE corr.</th></tr></thead><tbody>' +
+          '<tr><td>ranger (random forest)</td><td>0.9496</td><td>-0.098</td><td>0.843</td></tr>' +
+          '<tr><td>xgboost</td><td>0.9601</td><td>-0.088</td><td>0.656</td></tr>' +
+          '<tr><td>glmnet (Lasso)</td><td>0.9545</td><td>-0.093</td><td>0.986</td></tr>' +
+          '<tr><td>rpart (CART)</td><td>0.9572</td><td>-0.091</td><td>0.907</td></tr>' +
+          '<tr><td>lm (linear regression)</td><td>0.9546</td><td>-0.093</td><td>0.987</td></tr>' +
+          '</tbody></table></div>' +
+          '<p>Two takeaways from this table: ① ATE estimation is quite robust to the base-learner choice (bias within ±0.1), ' +
+          'because the T-learner is unbiased regardless of the base learner; ② but <strong>ranking power (CATE correlation) varies a lot across algorithms</strong>—' +
+          'the linear model actually ranks best on this interaction-rich DGP while the random forest ranks worst. ' +
+          'That is exactly why swapping algorithms is not cosmetic: it decides whether you can find "who benefits more".</p>' +
+          '<h4>Next step: reuse the mlr3 workflow after the swap</h4>' +
+          '<p>Because <code>lrn("regr.metalearner")</code> is a proper R6 Learner, once you swap the base learner, ' +
+          '<code>benchmark()</code> / <code>tune()</code> / <code>resample()</code> work unchanged. ' +
+          'Script 13 drops "T + ranger" and "T + xgboost" into one <code>benchmark_grid()</code> 5-fold CV to compare MSE, ' +
+          'no separate loop per algorithm:</p>' +
+          '<pre><code>task  &lt;- ml_task(X, A, Y)\ndesign &lt;- benchmark_grid(\n  task,\n  list(\n    lrn("regr.metalearner", id = "T_ranger",  metalearner = "T",\n        learner_base = lrn("regr.ranger", num.trees = 300)),\n    lrn("regr.metalearner", id = "T_xgboost", metalearner = "T",\n        learner_base = lrn("regr.xgboost"))\n  ),\n  rsmp("cv", folds = 5)\n)\nbenchmark(design)$score()</code></pre>' +
+          '<p>That is the payoff of "using the mlr3 system" rather than "building yet another training pipeline": ' +
+          'from teaching to tuning, from single model to cross-validated comparison, the whole chain comes for free.</p>' +
+          '<h4>One step further: pick a different algorithm per group / per stage</h4>' +
+          '<p>"Swap one base learner in one line" is the coarsest grain. A finer grain lets you specify a different ' +
+          'algorithm for each <strong>group</strong> and each <strong>stage</strong>—usually a better fit to the numeric ' +
+          'character of each stage:</p>' +
+          '<ul>' +
+          '<li><strong>T-Learner</strong>: one learner per arm, <code>list(treated = ..., control = ...)</code>; ' +
+          'e.g. random forest for the treated arm and a linear model for the control arm (smaller, more stable).</li>' +
+          '<li><strong>X-Learner</strong>: the two outcome models <code>list(m1 = ..., m0 = ...)</code> can differ, and ' +
+          'the two effect regressions <code>list(tau1 = ..., tau0 = ...)</code> can differ too; ' +
+          'e.g. kNN for <code>m1</code>, random forest for <code>m0</code>, and linear models for both tau regressions.</li>' +
+          '</ul>' +
+          '<pre><code>metalearner("T", X, A, Y,\n  learner_base = list(treated = lrn("regr.ranger"),\n                      control  = lrn("regr.lm")))\n\nmetalearner("X", X, A, Y,\n  learner_base = list(m1 = lrn("regr.kknn"), m0 = lrn("regr.ranger")),\n  learner_tau  = list(tau1 = lrn("regr.lm"), tau0 = lrn("regr.lm")))</code></pre>' +
+          '<p>The new section of Script 13 runs this role-named-list recipe (n = 4000, true ATE = 1.048): ' +
+          'T with ranger / lm across arms reaches CATE correlation 0.913, and X with mixed stages reaches 0.988—' +
+          'with the right division of labour, ranking power climbs another notch. S / R / DR and the ' +
+          '<code>survlearners</code> engine accept only a single learner and error clearly on a named list.</p>'
+      },
+      {
+        id: "next",
+        notoc: true,
+        heading: "Keep reading",
+        body:
+          '<div class="callout"><div class="callout-title">Keep reading</div><p>' +
+          '<a href="#/tutorial">← All tutorials</a>' +
+          ' &middot; Next: <a href="#/tutorialmetrics">5 Model evaluation metrics →</a>' +
+          '</p></div>'
+      }
+    ]
+  }
+};
+
+window.SITE_PAGES.tutorialmetrics = {
+  zh: {
+    title: "5 · 模型评价指标",
+    lede: "Qini / c-for-benefit / TOC 回答的是「排序能力」，不是「估得准不准」——这两件事必须分开看。",
+    sections: [
+      {
         id: "fw-metrics",
-        heading: "框架五 - 模型评价指标",
+        heading: "本篇速览",
         body:
           '<p>前面四个框架回答「ATE 估得准不准」；本框架独立回答<strong>「模型把谁更获益排前面的能力如何」</strong>' +
           '——判别力，不是无偏性。三个指标 Qini / c-for-benefit / TOC 全部定义在测试集上，' +
           '训练集上的判别力是自欺欺人。</p>' +
           '<div class="table-wrap"><table>' +
           '<thead><tr><th>内容</th><th>脚本</th><th>关键结论（n = 4000 连续结局）</th></tr></thead><tbody>' +
-          '<tr><td><a href="#/tutorial/metrics">三个指标怎么算、怎么读</a></td>' +
+          '<tr><td><a href="#/tutorialmetrics/metrics">三个指标怎么算、怎么读</a></td>' +
           '<td><code>10_HTE评价指标.R</code></td>' +
           '<td>Qini 系数 <strong>0.312</strong>（随机排序 0.020）；c-for-benefit <strong>0.646</strong>（随机 0.508）</td></tr>' +
-          '<tr><td><a href="#/tutorial/metrics">用真 <em>τ</em> 当标尺对账</a></td>' +
+          '<tr><td><a href="#/tutorialmetrics/metrics">用真 <em>τ</em> 当标尺对账</a></td>' +
           '<td><code>11_评价指标真值对账.R</code></td>' +
           '<td>把误差拆成<strong>排序损失</strong>与<strong>估计噪声</strong>；cor(CATE, τ) = 0.904</td></tr>' +
-          '<tr><td><a href="#/tutorial/metrics">三类结局各跑一遍</a></td>' +
+          '<tr><td><a href="#/tutorialmetrics/metrics">三类结局各跑一遍</a></td>' +
           '<td><code>12_三类结局评价指标.R</code></td>' +
           '<td>生存结局必须走 IPCW；「先拟合后切分」的泄漏会把指标虚高</td></tr>' +
           '</tbody></table></div>'
@@ -781,566 +1535,37 @@ window.SITE_PAGES.tutorial = {
           '</ul>'
       },
       {
-        id: "scripts",
-        heading: "配套可运行脚本",
+        id: "next",
+        notoc: true,
+        heading: "继续读",
         body:
-          '<p>在 <code>mlr3HTE/</code> 目录下：</p>' +
-          '<pre><code>Rscript tutorial/code/01_连续结局_随机化RCT.R</code></pre>' +
-          '<div class="table-wrap"><table>' +
-          '<thead><tr><th>脚本</th><th>内容</th></tr></thead>' +
-          '<tbody>' +
-          '<tr><td><code>00_数据生成机制与DAG.R</code></td><td><strong>先跑这个</strong>：DGP 逐步展开、DAG、真值分层表</td></tr>' +
-          '<tr><td><code>01_连续结局_随机化RCT.R</code></td><td>连续 + RCT，五种 learner 对账</td></tr>' +
-          '<tr><td><code>02_连续结局_观察性研究.R</code></td><td>连续 + 观察性，IPTW vs 未调整</td></tr>' +
-          '<tr><td><code>03_二分类结局_随机化RCT.R</code></td><td>二分类 + RCT，风险差尺度</td></tr>' +
-          '<tr><td><code>04_二分类结局_观察性研究.R</code></td><td>二分类 + 观察性</td></tr>' +
-          '<tr><td><code>05_生存结局_随机化RCT.R</code></td><td>生存 + RCT，t0 生存概率差</td></tr>' +
-          '<tr><td><code>06_生存结局_观察性研究.R</code></td><td>生存 + 观察性，IPTW × IPCW</td></tr>' +
-          '<tr><td><code>07_五种metalearner横向对比.R</code></td><td>三种结局 × 五种 learner 对比表</td></tr>' +
-          '<tr><td><code>08_mlr3工作流集成.R</code></td><td><code>ml_task</code> + <code>resample</code> + <code>benchmark</code></td></tr>' +
-          '<tr><td><code>09_生存结局_survlearners引擎.R</code></td><td>生存第二套引擎 <code>engine="survlearners"</code>，与原生引擎同题对比</td></tr>' +
-          '<tr><td><code>10_HTE评价指标.R</code></td><td>Qini / c-for-benefit / TOC：模型<strong>判别力</strong>评价，附随机排序对照</td></tr>' +
-          '<tr><td><code>11_评价指标真值对账.R</code></td><td>用已知真 <code>tau</code> 当标尺：把误差拆成<strong>排序损失</strong>与<strong>估计噪声</strong>，并给出 c-for-benefit 的闭式上界</td></tr>' +
-          '<tr><td><code>12_三类结局评价指标.R</code></td><td>三个指标在<strong>连续 / 二分类 / 生存</strong>上各跑一遍：生存要 IPCW，并演示「先拟合后切分」的泄漏有多离谱</td></tr>' +
-          '<tr><td><code>13_换基学习器_基准对比.R</code></td><td><strong>用 mlr3 体系的核心收益</strong>：把基学习器从随机森林一行换成 XGBoost / GLMnet / CART / 线性回归，并用 <code>benchmark()</code> 横向比</td></tr>' +
-          '</tbody></table></div>'
-      },
-      {
-        id: "environment",
-        heading: "依赖与运行环境",
-        body:
-          '<p>复现本教程所有结果所需的<strong>依赖包版本</strong>与<strong>测试环境</strong>（R 版本、操作系统、' +
-          '测试规模、CI 配置）已单独立页整理，含直接依赖、建议依赖、关键传递依赖与<strong>完整 89 个递归依赖清单</strong>：</p>' +
-          '<p><a href="#/environment" class="btn">查看运行环境与依赖版本 →</a></p>' +
-          '<p>简表（直接依赖，完整见上页）：' +
-          '<code>mlr3 1.8.0</code> · <code>mlr3learners 0.16.0</code> · <code>paradox 1.0.1</code> · ' +
-          '<code>R6 2.6.1</code> · <code>survival 3.8-3</code> · <code>ranger 0.18.0</code> · ' +
-          '<code>dplyr 1.2.1</code> · <code>cli 3.6.6</code> · <code>ggplot2 4.0.3</code>。' +
-          '测试：<code>testthat 3.3.2</code>，共 8 个测试文件 / 58 个 test_that 块 / 293 个期望，全部通过。</p>'
+          '<div class="callout"><div class="callout-title">继续读</div><p>' +
+          '<a href="#/tutorial">← 返回全部教程</a>' +
+          '　·　<a href="#/api">去看函数文档 →</a>' +
+          '</p></div>'
       }
     ]
   },
-
-  /* ---------------- English ---------------- */
   en: {
-    title: "Scenario tutorial & model evaluation",
-    lede: "Three outcome types × randomized / observational = six cells, organized into five " +
-          "hands-on frameworks: RCT analysis, observational analysis, survival outcomes, " +
-          "swapping the learner, and model evaluation. Every cell uses simulated data with " +
-          "known ground truth, so you can check estimates unit by unit.",
+    title: "5 · Model evaluation metrics",
+    lede: "Qini / c-for-benefit / TOC answer \"how well does it rank\", not \"is the estimate unbiased\" — keep the two questions apart.",
     sections: [
       {
-        id: "frameworks",
-        heading: "Five frameworks",
-        body:
-          '<p>This page is organized around the <strong>five questions you actually hit when analysing data</strong>: pick a direction from the cards below, then pick a scenario from the 2 × 3 matrix in the next section. Every framework reuses the same simulated data with <strong>known ground truth</strong>, so you can reconcile estimates unit by unit.</p>' +
-          '<div class="cards">' +
-          '<a class="card" href="#/tutorial/fw-rct"><div class="card-title">1 RCT design</div><div class="card-desc">CATE estimation and reconciliation for continuous / binary outcomes under randomization.</div></a>' +
-          '<a class="card" href="#/tutorial/fw-obs"><div class="card-title">2 Observational studies</div><div class="card-desc">Confounding structure, IPTW / external-PS weighting; bias pulled from +0.69 back within 0.04.</div></a>' +
-          '<a class="card" href="#/tutorial/fw-surv"><div class="card-title">3 Survival outcomes</div><div class="card-desc">S(t0) difference at a fixed t0, censoring IPCW, and the second survlearners engine.</div></a>' +
-          '<a class="card" href="#/tutorial/fw-learners"><div class="card-title">4 Swap the learner</div><div class="card-desc">Swap any mlr3 algorithm in one line, or per group / per stage.</div></a>' +
-          '<a class="card" href="#/tutorial/fw-metrics"><div class="card-title">5 Model evaluation</div><div class="card-desc">Qini / c-for-benefit / TOC: discrimination, not unbiasedness.</div></a>' +
-          '</div>' +
-          '<div class="callout"><div class="callout-title">Suggested reading order</div>' +
-          '<p>First time with the package: read <a href="#/tutorial/dgp">the data-generating process</a> ' +
-          'next, then walk 1 → 2 → 3. If you already know your design and just need the ' +
-          'incantation for a given outcome type, jump straight from the matrix.</p></div>'
-
-      },
-      {
-        id: "overview",
-        heading: "The 2 × 3 matrix (quick lookup)",
-        body:
-              '<p>The six scenarios are numbered by "design × outcome type", which is also how the ' +
-              '<strong>companion scripts</strong> are numbered. Click a cell for a ready-to-run analysis.</p>' +
-              TUT_MATRIX.en +
-              '<p>Every demo dataset returns the true <code>tau</code> and <code>ate</code> — ' +
-              'the most useful part for teaching, since you can see directly which learner ' +
-              'actually captured the heterogeneity.</p>' +
-              '<pre><code>library(mlr3HTE)   # the only line you need: lrn() is re-exported from mlr3</code></pre>' +
-              '<div class="callout"><div class="callout-title">Before you run</div>' +
-              '<p>Every code block on this page relies on <code>library(mlr3HTE)</code> alone — ' +
-              '<code>lrn()</code> is re-exported from mlr3, so no extra <code>library(mlr3)</code> ' +
-              'is required. If you chain into mlr3 workflow functions such as ' +
-              '<code>resample()</code> / <code>benchmark()</code> / <code>rsmp()</code>, add ' +
-              '<code>library(mlr3)</code> as well.</p></div>'
-      },
-      {
-        id: "dgp",
-        heading: "Data-generating process & DAGs (read this first)",
-        body:
-          '<p>All six scenarios share one <strong>data-generating process (DGP)</strong>. ' +
-          'Only two things change: the outcome distribution (continuous / binary / survival) ' +
-          'and how treatment <code>A</code> arises (randomised / driven by covariates). ' +
-          'Understanding the DGP is a prerequisite for every scenario below — only the data ' +
-          'itself knows the truth, and that is how you judge whether an estimator works. ' +
-          'Every formula below is copied line by line from <code>R/api.R</code>.</p>' +
-
-          '<h3>Shared skeleton: covariates</h3>' +
-          '<div class="formula">' +
-          'age ~ N(60, 12)    lac ~ N(2.5, 1.2)    tumor ~ N(5, 2)    sex ~ Bern(0.45)<br>' +
-          'z1 = scale(lac)    z2 = scale(tumor)   ' +
-          '# z1 lactate (higher = sicker), z2 tumor burden</div>' +
-
-          '<h3>Three outcomes, three sets of equations</h3>' +
-          '<div class="table-wrap"><table>' +
-          '<thead><tr><th>Outcome</th><th>Generating equations (verbatim from source)</th><th>Effect scale</th></tr></thead><tbody>' +
-          '<tr><td>Continuous</td><td><code>tau = 1.0 + 0.8·z1 − 0.5·z2 + 0.6·(z1&gt;1 &amp; z2&lt;0)</code><br>' +
-          '<code>mu = 6 + 0.4·z1 + 0.5·z2 − 0.02·(age−60) + 0.3·sex</code><br>' +
-          '<code>Y = mu + A·tau + N(0,1)</code></td>' +
-          '<td>mean difference <code>tau</code></td></tr>' +
-          '<tr><td>Binary</td><td><code>p0 = plogis(−1.2 + 0.5·z1 + 0.4·z2 + 0.1·(age−60)/12 + 0.2·sex)</code><br>' +
-          '<code>tau_logit = 0.6 + 0.5·z1 − 0.4·z2</code> (log-odds scale)<br>' +
-          '<code>p1 = plogis(qlogis(p0) + tau_logit)</code>; <code>Y ~ Bern(p_A)</code></td>' +
-          '<td>risk difference <code>p1 − p0</code></td></tr>' +
-          '<tr><td>Survival</td><td><code>tau = 0.5 + 0.4·z1 − 0.3·z2</code> (log-hazard scale)<br>' +
-          '<code>base_rate = exp(−1.0 + 0.3·z1 + 0.2·z2 + 0.1·(age−60)/12 + 0.15·sex)</code><br>' +
-          '<code>rate = base_rate·exp(−A·tau)</code>; <code>T ~ Exp(rate)</code>; ' +
-          'censoring <code>C ~ Exp(0.12)</code>, <code>time = min(T,C)</code></td>' +
-          '<td>difference in <code>S(t₀)</code> (default t₀=2), plus an RMST difference</td></tr>' +
-          '</tbody></table></div>' +
-          '<p>Note the <strong>interaction</strong> inside the continuous ' +
-          '<code>tau</code>: the treatment effect only gains an extra +0.6 when lactate is ' +
-          'high <em>and</em> tumor burden is low — that is where heterogeneity comes from, ' +
-          'and any method that reports a single average cannot capture it.</p>' +
-
-          '<h3>Two assignment mechanisms, two DAGs</h3>' +
-          '<div class="fig-grid">' +
-          '<figure class="fig"><img src="assets/img/dag/dag_rct_continuous.png" ' +
-          'alt="RCT DAG: A randomised, independent of X">' +
-          '<figcaption>RCT: <code>A</code> is a coin flip, no parents</figcaption></figure>' +
-          '<figure class="fig"><img src="assets/img/dag/dag_obs_continuous.png" ' +
-          'alt="Observational DAG: X → e → A confounding">' +
-          '<figcaption>Observational: <code>X → e → A</code>; the red path is the open backdoor</figcaption></figure>' +
-          '</div>' +
-          '<p>Under randomisation <code>A ~ Bern(0.5)</code> and <code>A ⊥ X</code>, so ' +
-          'covariates only modify the effect and never confound. In the observational design ' +
-          'the treatment probability is <code>e = plogis(−0.5 + 0.8·z1 + 0.4·z2)</code>, ' +
-          'making <code>X</code> a common cause of both <code>A</code> and <code>Y</code> — ' +
-          'the backdoor path <code>A ← e ← X → outcome → Y</code> is open, so crude ' +
-          'differences are biased.</p>' +
-
-          '<div class="callout ok"><div class="callout-title">Truth ships with the data</div>' +
-          '<p>Every <code>mlr3HTE_demo_*</code> function returns <code>tau</code> (unit-level ' +
-          'true CATE), <code>ate</code> (true average effect) and, for observational scenarios, ' +
-          '<code>ps_true</code> (the true propensity score). Run ' +
-          '<code>00_数据生成机制与DAG.R</code> to print these truths and stratify them by ' +
-          'covariates.</p></div>' +
-
-          '<h3>Actual output: truths for all six datasets</h3>' +
-          '<p>Below is the real console output of <code>00_数据生成机制与DAG.R</code> ' +
-          '(tidyverse tibbles, verbatim):</p>' +
-          '<pre><code># A tibble: 6 × 8\n' +
-          '  dataset         outcome       true_ate cate_mean cate_sd cate_min cate_max ate_rmst\n' +
-          '  &lt;chr&gt;           &lt;chr&gt;        &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt;   &lt;dbl&gt;\n' +
-          '1 cont × RCT      continuous   1.05    1.05    1.04  -2.58   4.85   NA\n' +
-          '2 binary × RCT    risk diff    0.131   0.131   0.133 -0.232  0.563  NA\n' +
-          '3 surv × RCT      S(t0) diff   0.152   0.152   0.151 -0.460  0.590  0.192\n' +
-          '4 cont × obs      continuous   1.05    1.05    1.04  -2.14   5.03   NA\n' +
-          '5 binary × obs    risk diff    0.131   0.131   0.132 -0.243  0.616  NA\n' +
-          '6 surv × obs      S(t0) diff   0.152   0.152   0.150 -0.371  0.664  0.192\n\n' +
-          '# A tibble: 3 × 2      # crude difference vs truth (observational)\n' +
-          '  quantity                             value\n' +
-          '  &lt;chr&gt;                                &lt;dbl&gt;\n' +
-          '1 crude diff mean(Y|A=1)-mean(Y|A=0)  1.74\n' +
-          '2 true ATE                            1.05\n' +
-          '3 crude bias                          0.689\n\n' +
-          'ℹ survival censoring proportion = 0.299</code></pre>' +
-          '<p>Three takeaways: <strong>(1)</strong> the mean CATE always equals the ATE, but the ' +
-          'standard deviation exceeds 1.0 — the average hides enormous unit-level variation; ' +
-          '<strong>(2)</strong> survival scenarios additionally report ' +
-          '<code>ATE_RMST = 0.192</code> (difference in restricted mean survival time), the same ' +
-          'effect as the 0.152 probability difference at t₀=2 on a different scale; ' +
-          '<strong>(3)</strong> the true ATEs for the observational datasets are identical to ' +
-          'their RCT counterparts (1.05 / 0.131 / 0.152) — only the <strong>assignment ' +
-          'mechanism</strong> differs, so the +0.69 crude bias is pure confounding, not a real ' +
-          'change in the effect.</p>'
-      },
-      {
-        id: "fw-rct",
-        heading: "Framework 1 - RCT design",
-        body:
-          '<p>Under randomization <code>A ⊥ X</code>, so covariates only modify the effect, they do not confound; ' +
-          'the naive difference is already an unbiased causal estimate. The point here is not "debiasing" but ' +
-          '<strong>how much heterogeneity each meta-learner captures</strong> (correlation of CATE with the true <em>τ</em>).</p>' +
-          '<div class="table-wrap"><table>' +
-          '<thead><tr><th>Scenario</th><th>Script</th><th>Key result</th></tr></thead><tbody>' +
-          '<tr><td><a href="#/tutorial/s1">Scenario 1 · Continuous × RCT</a></td>' +
-          '<td><code>01_连续结局_随机化RCT.R</code></td>' +
-          '<td>X-learner closest to truth: CATE vs true <em>τ</em> correlation <strong>0.963</strong></td></tr>' +
-          '<tr><td><a href="#/tutorial/s3">Scenario 3 · Binary × RCT</a></td>' +
-          '<td><code>03_二分类结局_随机化RCT.R</code></td>' +
-          '<td>Effect scale becomes risk difference; X-learner correlation <strong>0.794</strong></td></tr>' +
-          '</tbody></table></div>'
-
-      },
-      {
-        id: "s1",
-        heading: "Scenario 1 · Continuous outcome × RCT",
-        body:
-          '<figure class="fig"><img src="assets/img/dag/dag_rct_continuous.png" ' +
-          'alt="Scenario 1 DAG: randomised continuous outcome">' +
-          '<figcaption>Figure 1 · Scenario 1 DAG: <code>A</code> is randomised; ' +
-          '<code>X</code> modifies the effect but does not confound</figcaption></figure>' +
-          '<pre><code>d <- mlr3HTE_demo_data(n = 4000, seed = 1201)\n' +
-          'lb <- lrn("regr.ranger", num.trees = 300, seed = 1)\n\n' +
-          'for (tp in c("S","T","X","R","DR")) {\n' +
-          '  fit <- metalearner(tp, d$X, d$A, d$Y, learner_base = lb)\n' +
-          '  cat(tp, fit$ate, cor(fit$cate_train, d$tau), "\\n")\n' +
-          '}</code></pre>' +
-          '<div class="callout"><div class="callout-title">Data-generating process</div>' +
-          '<p>True CATE <code>tau = 1.0 + 0.8·z1 − 0.5·z2 + 0.6·(z1&gt;1 &amp; z2&lt;0)</code>; ' +
-          'true baseline <code>mu = 6 + 0.4·z1 + 0.5·z2 − 0.02·(age−60) + 0.3·sex</code>.</p></div>' +
-          '<div class="table-wrap"><table>' +
-          '<thead><tr><th>Learner</th><th>ATE</th><th>Corr. with truth</th><th>RMSE</th></tr></thead>' +
-          '<tbody>' +
-          '<tr><td>S</td><td>0.935</td><td>0.895</td><td>0.483</td></tr>' +
-          '<tr><td>T</td><td>0.951</td><td>0.845</td><td>0.653</td></tr>' +
-          '<tr><td><strong>X</strong></td><td>0.950</td><td><strong>0.963</strong></td><td><strong>0.296</strong></td></tr>' +
-          '<tr><td>R</td><td>0.450</td><td>0.812</td><td>0.907</td></tr>' +
-          '<tr><td>DR</td><td>0.954</td><td>0.924</td><td>0.430</td></tr>' +
-          '</tbody></table></div>' +
-          '<p>True ATE = <strong>1.048</strong>. X wins; R\'s ATE is clearly low because of ' +
-          'pseudo-outcome noise plus insufficient stage-2 regularisation ' +
-          '(see <a href="#/guide/pitfalls">tuning notes</a>).</p>'
-      },
-      {
-        id: "s3",
-        heading: "Scenario 3 · Binary outcome × RCT",
-        body:
-          '<figure class="fig"><img src="assets/img/dag/dag_rct_binary.png" ' +
-          'alt="Scenario 3 DAG: randomised binary outcome">' +
-          '<figcaption>Figure 3 · Scenario 3 DAG: same structure as Scenario 1, with the ' +
-          'outcome swapped for <code>Y ~ Bern(plogis(qlogis(p0) + tau_logit))</code></figcaption></figure>' +
-          '<pre><code>d <- mlr3HTE_demo_binary(n = 4000, seed = 1202)\n' +
-          'lb <- lrn("classif.ranger", num.trees = 300, seed = 1)\n' +
-          'fit <- metalearner("T", d$X, d$A, d$Y, learner_base = lb)\n' +
-          'fit$ate   # average risk difference</code></pre>' +
-          '<div class="callout ok"><div class="callout-title">The effect scale is the risk difference</div>' +
-          '<p>The base learner must be <code>classif.*</code>; the engine detects ' +
-          '<code>outcome = "binary"</code>, the outcome model returns <code>P(Y=1|X)</code>, and the ' +
-          'CATE therefore lives on the <strong>risk-difference</strong> scale (not log-odds, not ' +
-          'odds ratio).</p></div>' +
-          '<div class="table-wrap"><table>' +
-          '<thead><tr><th>Learner</th><th>ATE</th><th>Corr. with truth</th><th>RMSE</th></tr></thead>' +
-          '<tbody>' +
-          '<tr><td>S</td><td>0.129</td><td>0.603</td><td>0.157</td></tr>' +
-          '<tr><td>T</td><td>0.128</td><td>0.492</td><td>0.223</td></tr>' +
-          '<tr><td><strong>X</strong></td><td>0.129</td><td><strong>0.794</strong></td><td><strong>0.096</strong></td></tr>' +
-          '<tr><td>R</td><td>0.078</td><td>0.477</td><td>0.167</td></tr>' +
-          '<tr><td>DR</td><td>0.132</td><td>0.601</td><td>0.172</td></tr>' +
-          '</tbody></table></div>' +
-          '<p>True ATE (risk difference) = <strong>0.131</strong>.</p>'
-      },
-      {
-        id: "fw-obs",
-        heading: "Framework 2 - Observational studies",
-        body:
-          '<p>In observational data <code>X → e → A</code> opens a confounding back-door, so the naive ' +
-          'difference starts biased (continuous +0.689, binary +0.125, survival −0.072). This framework shows ' +
-          'how IPTW and external true-PS weighting pull the bias back — provided all confounding is measured.</p>' +
-          '<div class="table-wrap"><table>' +
-          '<thead><tr><th>Scenario</th><th>Script</th><th>Key result</th></tr></thead><tbody>' +
-          '<tr><td><a href="#/tutorial/s2">Scenario 2 · Continuous × observational</a></td>' +
-          '<td><code>02_连续结局_观察性研究.R</code></td>' +
-          '<td>Naive <strong>+0.689</strong> → bias ≤ 0.05 after weighting (true ATE 1.049)</td></tr>' +
-          '<tr><td><a href="#/tutorial/s4">Scenario 4 · Binary × observational</a></td>' +
-          '<td><code>04_二分类结局_观察性研究.R</code></td>' +
-          '<td>Naive risk difference <strong>+0.125</strong> → IPTW + X bias −0.002 (true 0.131)</td></tr>' +
-          '</tbody></table></div>' +
-          '<div class="callout warn"><div class="callout-title">Caveat</div>' +
-          '<p>All confounding here comes from <strong>measured</strong> covariates, which is why adjustment works. ' +
-          'With unmeasured confounding in a real study, no weighting scheme rescues you.</p></div>'
-
-      },
-      {
-        id: "s2",
-        heading: "Scenario 2 · Continuous outcome × observational",
-        body:
-          '<figure class="fig"><img src="assets/img/dag/dag_obs_continuous.png" ' +
-          'alt="Scenario 2 DAG: observational continuous outcome with confounding">' +
-          '<figcaption>Figure 2 · Scenario 2 DAG: the red path <code>X → e → A</code> makes ' +
-          '<code>X</code> a common cause; crude differences are biased</figcaption></figure>' +
-          '<pre><code>d <- mlr3HTE_demo_obs(n = 4000, seed = 1204)   # confounded\n\n' +
-          'naive <- mean(d$Y[d$A == 1]) - mean(d$Y[d$A == 0])     # biased\n' +
-          'fit   <- metalearner("X", d$X, d$A, d$Y, weighting = "iptw")\n\n' +
-          '# External weights from the true PS\n' +
-          'w <- ifelse(d$A == 1, d$ps_true, 1 - d$ps_true)\n' +
-          'metalearner("DR", d$X, d$A, d$Y, weighting = "external", weights = w)</code></pre>' +
-          '<div class="callout danger"><div class="callout-title">Confounding structure</div>' +
-          '<p>Sicker patients (higher <code>z1</code>) are more likely to be treated, and severity ' +
-          'also affects the outcome — so the crude difference picks up severity as well. ' +
-          'Observed baseline: mean lac 2.15 in controls vs 3.03 in treated.</p></div>' +
-          '<div class="table-wrap"><table>' +
-          '<thead><tr><th>Method</th><th>Estimate</th><th>Bias</th></tr></thead>' +
-          '<tbody>' +
-          '<tr><td>Unadjusted difference</td><td>1.738</td><td><strong>+0.689</strong></td></tr>' +
-          '<tr><td>IPTW + X</td><td>1.007</td><td>−0.043</td></tr>' +
-          '<tr><td>Stabilised IPTW + X</td><td>1.011</td><td>−0.038</td></tr>' +
-          '<tr><td>True-PS external weights + DR</td><td>1.086</td><td>+0.037</td></tr>' +
-          '</tbody></table></div>' +
-          '<p>True ATE = <strong>1.049</strong>. Weighting shrinks a +0.69 bias to under 0.04.</p>' +
-          '<div class="callout warn"><div class="callout-title">Caveat</div>' +
-          '<p>All confounding here comes from <strong>measured</strong> covariates, so correction ' +
-          'works. With unmeasured confounding in a real study, no method can save you.</p></div>'
-      },
-      {
-        id: "s4",
-        heading: "Scenario 4 · Binary outcome × observational",
-        body:
-          '<figure class="fig"><img src="assets/img/dag/dag_obs_binary.png" ' +
-          'alt="Scenario 4 DAG: observational binary outcome">' +
-          '<figcaption>Figure 4 · Scenario 4 DAG: the same confounding structure; ' +
-          'unadjusted risk difference 0.256 vs true 0.131</figcaption></figure>' +
-          '<pre><code>d <- mlr3HTE_demo_obs_binary(n = 4000, seed = 1205)\n\n' +
-          'naive <- mean(d$Y[d$A == 1]) - mean(d$Y[d$A == 0])\n' +
-          'fit <- metalearner("X", d$X, d$A, d$Y,\n' +
-          '                   learner_base = lrn("classif.ranger", num.trees = 300, seed = 1),\n' +
-          '                   weighting = "iptw")</code></pre>' +
-          '<div class="table-wrap"><table>' +
-          '<thead><tr><th>Method</th><th>Estimate</th><th>True ATE</th><th>Bias</th></tr></thead>' +
-          '<tbody>' +
-          '<tr><td>Unadjusted risk difference</td><td>0.256</td><td>0.131</td><td><strong>+0.125</strong></td></tr>' +
-          '<tr><td>IPTW + X</td><td>0.146</td><td>0.131</td><td>+0.015</td></tr>' +
-          '<tr><td>True-PS external weights + DR</td><td>0.163</td><td>0.131</td><td>+0.033</td></tr>' +
-          '</tbody></table></div>' +
-          '<p>All five learners under IPTW:</p>' +
-          '<div class="table-wrap"><table>' +
-          '<thead><tr><th>Learner</th><th>IPTW ATE</th><th>Bias</th><th>Corr. with truth</th></tr></thead>' +
-          '<tbody>' +
-          '<tr><td>S</td><td>0.144</td><td>+0.013</td><td>0.552</td></tr>' +
-          '<tr><td>T</td><td>0.117</td><td>−0.014</td><td>0.444</td></tr>' +
-          '<tr><td><strong>X</strong></td><td>0.129</td><td><strong>−0.002</strong></td><td><strong>0.742</strong></td></tr>' +
-          '<tr><td>R</td><td>0.109</td><td>−0.022</td><td>0.423</td></tr>' +
-          '<tr><td>DR</td><td>0.132</td><td>+0.001</td><td>0.426</td></tr>' +
-          '</tbody></table></div>'
-      },
-      {
-        id: "fw-surv",
-        heading: "Framework 3 - Survival outcomes",
-        body:
-          '<p>The survival effect is <strong>time-point dependent</strong>: you must state <code>t0</code>, and ' +
-          'CATE = S(t0) difference (default t0 = median event time). Censoring is corrected with IPCW; under ' +
-          'observationality a second IPTW layer is multiplied on top.</p>' +
-          '<div class="table-wrap"><table>' +
-          '<thead><tr><th>Scenario</th><th>Script</th><th>Key result</th></tr></thead><tbody>' +
-          '<tr><td><a href="#/tutorial/s5">Scenario 5 · Survival × RCT</a></td>' +
-          '<td><code>05_生存结局_随机化RCT.R</code></td>' +
-          '<td>T-learner + Cox: CATE vs true <em>τ</em> correlation <strong>0.993</strong></td></tr>' +
-          '<tr><td><a href="#/tutorial/s6">Scenario 6 · Survival × observational</a></td>' +
-          '<td><code>06_生存结局_观察性研究.R</code></td>' +
-          '<td>IPTW × IPCW two-layer weights; censoring around 30%</td></tr>' +
-          '<tr><td><a href="#/tutorial/sl-engine">Second engine: survlearners</a></td>' +
-          '<td><code>09_生存结局_survlearners引擎.R</code></td>' +
-          '<td>Same question, two engines — results can be reconciled</td></tr>' +
-          '</tbody></table></div>'
-
-      },
-      {
-        id: "s5",
-        heading: "Scenario 5 · Survival outcome × RCT",
-        body:
-          '<figure class="fig"><img src="assets/img/dag/dag_rct_survival.png" ' +
-          'alt="Scenario 5 DAG: randomised survival outcome">' +
-          '<figcaption>Figure 5 · Scenario 5 DAG: <code>Y</code> is a (time, event) pair; ' +
-          'exponential censoring applies on top (omitted from the figure)</figcaption></figure>' +
-          '<pre><code>d <- mlr3HTE_demo_surv(n = 4000, t0 = 2, seed = 1203)\n\n' +
-          'fit <- metalearner("T", d$X, d$A, d$Y, learner_base = "coxph", t0 = 2)\n' +
-          'fit$ate   # mean S₁(2) − S₀(2)\n\n' +
-          '# Or a non-linear base learner\n' +
-          'metalearner("T", d$X, d$A, d$Y, learner_base = "ranger", t0 = 2)</code></pre>' +
-          '<div class="callout"><div class="callout-title">The effect is time-point dependent</div>' +
-          '<p>The survival difference takes different values at different <code>t0</code>; always ' +
-          'report the horizon:</p>' +
-          '<div class="table-wrap"><table>' +
-          '<thead><tr><th>t0</th><th>1</th><th>2</th><th>4</th></tr></thead>' +
-          '<tbody><tr><td>ATE</td><td>0.104</td><td>0.129</td><td>0.124</td></tr></tbody></table></div>' +
-          '</div>' +
-          '<div class="table-wrap"><table>' +
-          '<thead><tr><th>Learner</th><th>ATE</th><th>Corr. with truth</th><th>RMSE</th></tr></thead>' +
-          '<tbody>' +
-          '<tr><td>S</td><td>0.130</td><td><strong>−0.017</strong></td><td>0.153</td></tr>' +
-          '<tr><td><strong>T</strong></td><td>0.129</td><td><strong>0.993</strong></td><td><strong>0.030</strong></td></tr>' +
-          '<tr><td>X</td><td>0.123</td><td>0.840</td><td>0.088</td></tr>' +
-          '<tr><td>R</td><td>0.087</td><td>0.261</td><td>0.305</td></tr>' +
-          '<tr><td>DR</td><td>0.088</td><td>0.232</td><td>0.304</td></tr>' +
-          '</tbody></table></div>' +
-          '<p>True ATE = <strong>0.152</strong>, 29.9% censoring.</p>' +
-          '<div class="callout warn"><div class="callout-title">Near-zero correlation for S is expected</div>' +
-          '<p>Cox is proportional hazards with a linear predictor, so A entered as an ordinary ' +
-          'covariate cannot express the <code>A × X</code> interaction and the CATE degenerates to a ' +
-          'constant. Use T or X to capture heterogeneity.</p></div>'
-      },
-      {
-        id: "s6",
-        heading: "Scenario 6 · Survival outcome × observational",
-        body:
-          '<figure class="fig"><img src="assets/img/dag/dag_obs_survival.png" ' +
-          'alt="Scenario 6 DAG: observational survival outcome">' +
-          '<figcaption>Figure 6 · Scenario 6 DAG: on top of confounding (red) there is ' +
-          'censoring, so IPTW × IPCW layers are multiplied</figcaption></figure>' +
-          '<pre><code>d <- mlr3HTE_demo_obs_surv(n = 4000, t0 = 2, seed = 1206)\n\n' +
-          '# Unadjusted: separate Kaplan-Meier per arm, take the difference at t0\n' +
-          'km    <- survfit(Surv(d$Y[,1], d$Y[,2]) ~ d$A)\n' +
-          's_at  <- summary(km, times = 2)$surv\n' +
-          'naive <- s_at[2] - s_at[1]\n\n' +
-          '# IPTW (confounding) × IPCW (censoring)\n' +
-          'fit <- metalearner("X", d$X, d$A, d$Y, learner_base = "coxph",\n' +
-          '                   weighting = "iptw", t0 = 2)</code></pre>' +
-          '<div class="callout"><div class="callout-title">Two layers of weights are multiplied</div>' +
-          '<div class="table-wrap"><table>' +
-          '<thead><tr><th>Weights</th><th>Min</th><th>Median</th><th>Max</th></tr></thead>' +
-          '<tbody>' +
-          '<tr><td>IPTW (confounding)</td><td>1.02</td><td>1.66</td><td>16.73</td></tr>' +
-          '<tr><td>IPCW (censoring)</td><td>0.10</td><td>0.85</td><td>1.00</td></tr>' +
-          '<tr><td>Multiplied</td><td>0.14</td><td>1.37</td><td>12.28</td></tr>' +
-          '</tbody></table></div></div>' +
-          '<div class="table-wrap"><table>' +
-          '<thead><tr><th>Method</th><th>Estimate</th><th>True ATE</th><th>Bias</th></tr></thead>' +
-          '<tbody>' +
-          '<tr><td>Unadjusted KM difference</td><td>0.079</td><td>0.152</td><td><strong>−0.072</strong></td></tr>' +
-          '<tr><td>IPTW + X</td><td>0.125</td><td>0.152</td><td>−0.027</td></tr>' +
-          '<tr><td>True-PS external weights + DR</td><td>0.159</td><td>0.152</td><td>+0.007</td></tr>' +
-          '</tbody></table></div>'
-      },
-      {
-        id: "sl-engine",
-        heading: "A second survival engine: survlearners (script 09)",
-        body:
-          '<p>Besides the default <strong>native engine</strong> (<code>engine = "native"</code>, ' +
-          'Cox/ranger, all five learners), survival outcomes can explicitly switch to ' +
-          '<code>engine = "survlearners"</code>, delegating estimation to ' +
-          '<a href="https://som-shahlab.github.io/survlearners/">survlearners</a> ' +
-          '(Shah Lab, GPL-3). It lives on GitHub only, so mlr3HTE keeps it in Suggests ' +
-          'and prints an install hint when missing:</p>' +
-          '<pre><code>remotes::install_github("som-shahlab/survlearners", subdir = "r-package/survlearners")\n\n' +
-          'd <- mlr3HTE_demo_surv(n = 2000, t0 = 2, seed = 1203)\n' +
-          'fit <- metalearner("X", d$X, d$A, d$Y, learner_base = "grf",\n' +
-          '                   t0 = 2, engine = "survlearners")</code></pre>' +
-
-          '<div class="table-wrap"><table>' +
-          '<thead><tr><th>Capability</th><th>native (default)</th><th>survlearners</th></tr></thead><tbody>' +
-          '<tr><td>Metalearners</td><td>S/T/X/R/DR</td><td>S/T/X/R (no DR; an extra M)</td></tr>' +
-          '<tr><td>Effect scale</td><td>S(t0) difference + RMST difference</td><td>S(t0) difference only</td></tr>' +
-          '<tr><td>Base learners</td><td><code>"coxph"</code>/<code>"ranger"</code> + any mlr3 learner</td>' +
-          '<td><code>"coxph"</code>/<code>"grf"</code>/<code>"lasso"</code> (<code>"ranger"</code> aliases grf)</td></tr>' +
-          '<tr><td>Censoring / cross-fitting</td><td>IPTW × IPCW; <code>cross_fitting=TRUE</code></td>' +
-          '<td>built-in IPCW; R family cross-fits internally</td></tr>' +
-          '</tbody></table></div>' +
-
-          '<h3>Actual output: full grid at n=2000 (true ATE = 0.151)</h3>' +
-          '<pre><code># A tibble: 11 × 5\n' +
-          '   tp    kind    ATE  cor   bias\n' +
-          ' 1 S     coxph 0.156 0.993  0.005\n' +
-          ' 2 S     grf   0.129 0.910 -0.022\n' +
-          ' 3 S     lasso 0.156 0.997  0.006\n' +
-          ' 4 T     coxph 0.067 0.952 -0.084   # avoid this cell, see below\n' +
-          ' 5 T     grf   0.147 0.922 -0.004\n' +
-          ' 6 T     lasso 0.146 0.992 -0.004\n' +
-          ' 7 X     grf   0.149 0.934 -0.001\n' +
-          ' 8 X     lasso 0.150 0.978 -0.001\n' +
-          ' 9 R     coxph 0.152 0.963  0.001\n' +
-          '10 R     grf   0.152 0.923  0.001\n' +
-          '11 R     lasso 0.155 0.961  0.004</code></pre>' +
-
-          '<div class="callout warn"><div class="callout-title">Avoid the T-coxph cell</div>' +
-          '<p>Measured ATE for T-coxph is only 0.067 (bias −0.084) while T-grf/T-lasso are fine. ' +
-          'Mechanism (read from source and verified, not guessed): <code>surv_tl_coxph</code> multiplies ' +
-          'the <strong>uncentred</strong> baseline cumulative hazard (<code>basehaz(centered = FALSE)</code>) ' +
-          'with <code>predict(type = "risk")</code>, whose linear predictor is <strong>centred at the ' +
-          'training-sample mean</strong>; the mismatched reference scales distort S(t0). By contrast ' +
-          '<code>surv_sl_coxph</code> builds its links manually (uncentred), so S-coxph is accurate. ' +
-          'For a Cox-based T-learner, use the native engine.</p></div>' +
-
-          '<div class="callout"><div class="callout-title">Reproducibility</div>' +
-          '<p>The grf family is seeded (<code>seed = 1</code>) inside the mlr3HTE engine, so repeated ' +
-          'runs are bit-identical. The lasso family cross-validates lambda with glmnet using random ' +
-          'folds (survlearners exposes no foldid), so repeated runs jitter by ~0.001 — stated plainly ' +
-          'rather than pretended away.</p></div>'
-      },
-      {
-        id: "fw-learners",
-        heading: "Framework 4 - Swap the learner",
-        body:
-          '<p>The core payoff of the mlr3 stack: the five meta-learners are just "recipes"; the real work is ' +
-          'done by the base learner, so swapping algorithms changes only one line, <code>learner_base</code>. ' +
-          'A finer level lets you specify a different algorithm per group / per stage.</p>' +
-          '<div class="table-wrap"><table>' +
-          '<thead><tr><th>Topic</th><th>Script</th><th>Key result</th></tr></thead><tbody>' +
-          '<tr><td><a href="#/tutorial/swap-learners">Swap the base learner</a></td>' +
-          '<td><code>13_换基学习器_基准对比.R</code></td>' +
-          '<td>ATE is robust to the algorithm (bias within ±0.1), but <strong>ranking ability varies wildly</strong>: ' +
-          'linear model CATE correlation 0.987 vs random forest 0.843</td></tr>' +
-          '<tr><td><a href="#/tutorial/swap-learners">Per-role named lists (v0.22+)</a></td>' +
-          '<td><code>13_换基学习器_基准对比.R</code></td>' +
-          '<td>T with ranger / lm per arm → CATE correlation 0.913; X mixing stages → 0.988</td></tr>' +
-          '</tbody></table></div>'
-
-      },
-      {
-        id: "swap-learners",
-        heading: "Swap the base learner: pick any algorithm in the mlr3 ecosystem (script 13)",
-        body:
-          '<p>The biggest reason to build on mlr3 instead of rolling your own training loop is right here: ' +
-          '<strong>the five metalearners are just "recipes"; the base learner does the actual work, and switching algorithms is a one-line change to <code>learner_base</code></strong>—' +
-          'every other line of code, the interface, and the workflow stay exactly the same.</p>' +
-          '<p>The same T-learner, switching the base learner from random forest to XGBoost / GLMnet / CART / linear regression, changes only one argument:</p>' +
-          '<pre><code>fit &lt;- metalearner("T", X, A, Y,\n              learner_base = lrn("regr.ranger"))   # random forest\nfit &lt;- metalearner("T", X, A, Y,\n              learner_base = lrn("regr.xgboost"))  # XGBoost\nfit &lt;- metalearner("T", X, A, Y,\n              learner_base = lrn("regr.glmnet"))   # Lasso\nfit &lt;- metalearner("T", X, A, Y,\n              learner_base = lrn("regr.lm"))       # linear regression</code></pre>' +
-          '<p>Script 13 runs all five base learners on the continuous RCT simulation (n = 4000, true ATE = 1.048) and compares ATE with ' +
-          '"CATE correlation with the true <em>&tau;</em>" (ranking power):</p>' +
-          '<div class="table-wrap"><table>' +
-          '<thead><tr><th>Base learner</th><th>ATE</th><th>ATE bias</th><th>CATE corr.</th></tr></thead><tbody>' +
-          '<tr><td>ranger (random forest)</td><td>0.9496</td><td>-0.098</td><td>0.843</td></tr>' +
-          '<tr><td>xgboost</td><td>0.9601</td><td>-0.088</td><td>0.656</td></tr>' +
-          '<tr><td>glmnet (Lasso)</td><td>0.9545</td><td>-0.093</td><td>0.986</td></tr>' +
-          '<tr><td>rpart (CART)</td><td>0.9572</td><td>-0.091</td><td>0.907</td></tr>' +
-          '<tr><td>lm (linear regression)</td><td>0.9546</td><td>-0.093</td><td>0.987</td></tr>' +
-          '</tbody></table></div>' +
-          '<p>Two takeaways from this table: ① ATE estimation is quite robust to the base-learner choice (bias within ±0.1), ' +
-          'because the T-learner is unbiased regardless of the base learner; ② but <strong>ranking power (CATE correlation) varies a lot across algorithms</strong>—' +
-          'the linear model actually ranks best on this interaction-rich DGP while the random forest ranks worst. ' +
-          'That is exactly why swapping algorithms is not cosmetic: it decides whether you can find "who benefits more".</p>' +
-          '<h4>Next step: reuse the mlr3 workflow after the swap</h4>' +
-          '<p>Because <code>lrn("regr.metalearner")</code> is a proper R6 Learner, once you swap the base learner, ' +
-          '<code>benchmark()</code> / <code>tune()</code> / <code>resample()</code> work unchanged. ' +
-          'Script 13 drops "T + ranger" and "T + xgboost" into one <code>benchmark_grid()</code> 5-fold CV to compare MSE, ' +
-          'no separate loop per algorithm:</p>' +
-          '<pre><code>task  &lt;- ml_task(X, A, Y)\ndesign &lt;- benchmark_grid(\n  task,\n  list(\n    lrn("regr.metalearner", id = "T_ranger",  metalearner = "T",\n        learner_base = lrn("regr.ranger", num.trees = 300)),\n    lrn("regr.metalearner", id = "T_xgboost", metalearner = "T",\n        learner_base = lrn("regr.xgboost"))\n  ),\n  rsmp("cv", folds = 5)\n)\nbenchmark(design)$score()</code></pre>' +
-          '<p>That is the payoff of "using the mlr3 system" rather than "building yet another training pipeline": ' +
-          'from teaching to tuning, from single model to cross-validated comparison, the whole chain comes for free.</p>' +
-          '<h4>One step further: pick a different algorithm per group / per stage</h4>' +
-          '<p>"Swap one base learner in one line" is the coarsest grain. A finer grain lets you specify a different ' +
-          'algorithm for each <strong>group</strong> and each <strong>stage</strong>—usually a better fit to the numeric ' +
-          'character of each stage:</p>' +
-          '<ul>' +
-          '<li><strong>T-Learner</strong>: one learner per arm, <code>list(treated = ..., control = ...)</code>; ' +
-          'e.g. random forest for the treated arm and a linear model for the control arm (smaller, more stable).</li>' +
-          '<li><strong>X-Learner</strong>: the two outcome models <code>list(m1 = ..., m0 = ...)</code> can differ, and ' +
-          'the two effect regressions <code>list(tau1 = ..., tau0 = ...)</code> can differ too; ' +
-          'e.g. kNN for <code>m1</code>, random forest for <code>m0</code>, and linear models for both tau regressions.</li>' +
-          '</ul>' +
-          '<pre><code>metalearner("T", X, A, Y,\n  learner_base = list(treated = lrn("regr.ranger"),\n                      control  = lrn("regr.lm")))\n\nmetalearner("X", X, A, Y,\n  learner_base = list(m1 = lrn("regr.kknn"), m0 = lrn("regr.ranger")),\n  learner_tau  = list(tau1 = lrn("regr.lm"), tau0 = lrn("regr.lm")))</code></pre>' +
-          '<p>The new section of Script 13 runs this role-named-list recipe (n = 4000, true ATE = 1.048): ' +
-          'T with ranger / lm across arms reaches CATE correlation 0.913, and X with mixed stages reaches 0.988—' +
-          'with the right division of labour, ranking power climbs another notch. S / R / DR and the ' +
-          '<code>survlearners</code> engine accept only a single learner and error clearly on a named list.</p>'
-      },
-      {
         id: "fw-metrics",
-        heading: "Framework 5 - Model evaluation",
+        heading: "At a glance",
         body:
           '<p>The first four frameworks answer "is the ATE unbiased?"; this one independently answers ' +
           '<strong>"how well does the model rank who benefits more?"</strong> — discrimination, not unbiasedness. ' +
           'Three metrics, Qini / c-for-benefit / TOC, are all defined on a test set; in-sample discrimination is self-deception.</p>' +
           '<div class="table-wrap"><table>' +
           '<thead><tr><th>Topic</th><th>Script</th><th>Key result (n = 4000, continuous)</th></tr></thead><tbody>' +
-          '<tr><td><a href="#/tutorial/metrics">How the three metrics work</a></td>' +
+          '<tr><td><a href="#/tutorialmetrics/metrics">How the three metrics work</a></td>' +
           '<td><code>10_HTE评价指标.R</code></td>' +
           '<td>Qini coefficient <strong>0.312</strong> (random ordering 0.020); c-for-benefit <strong>0.646</strong> (random 0.508)</td></tr>' +
-          '<tr><td><a href="#/tutorial/metrics">Reconcile against the true <em>τ</em></a></td>' +
+          '<tr><td><a href="#/tutorialmetrics/metrics">Reconcile against the true <em>τ</em></a></td>' +
           '<td><code>11_评价指标真值对账.R</code></td>' +
           '<td>Splits error into <strong>ranking loss</strong> and <strong>estimation noise</strong>; cor(CATE, τ) = 0.904</td></tr>' +
-          '<tr><td><a href="#/tutorial/metrics">All three outcome types</a></td>' +
+          '<tr><td><a href="#/tutorialmetrics/metrics">All three outcome types</a></td>' +
           '<td><code>12_三类结局评价指标.R</code></td>' +
           '<td>Survival needs IPCW; "fit first, split later" leakage inflates every metric</td></tr>' +
           '</tbody></table></div>'
@@ -1635,45 +1860,16 @@ window.SITE_PAGES.tutorial = {
           '</ul>'
       },
       {
-        id: "scripts",
-        heading: "Runnable companion scripts",
+        id: "next",
+        notoc: true,
+        heading: "Keep reading",
         body:
-          '<p>From the <code>mlr3HTE/</code> directory:</p>' +
-          '<pre><code>Rscript tutorial/code/01_continuous_RCT.R</code></pre>' +
-          '<div class="table-wrap"><table>' +
-          '<thead><tr><th>Script</th><th>Content</th></tr></thead>' +
-          '<tbody>' +
-          '<tr><td><code>00_数据生成机制与DAG.R</code></td><td><strong>Run this first</strong>: the DGP step by step, DAGs, truth tables</td></tr>' +
-          '<tr><td><code>01_连续结局_随机化RCT.R</code></td><td>Continuous + RCT, all five learners</td></tr>' +
-          '<tr><td><code>02_连续结局_观察性研究.R</code></td><td>Continuous + observational, IPTW vs unadjusted</td></tr>' +
-          '<tr><td><code>03_二分类结局_随机化RCT.R</code></td><td>Binary + RCT, risk-difference scale</td></tr>' +
-          '<tr><td><code>04_二分类结局_观察性研究.R</code></td><td>Binary + observational</td></tr>' +
-          '<tr><td><code>05_生存结局_随机化RCT.R</code></td><td>Survival + RCT, survival difference at t0</td></tr>' +
-          '<tr><td><code>06_生存结局_观察性研究.R</code></td><td>Survival + observational, IPTW × IPCW</td></tr>' +
-          '<tr><td><code>07_五种metalearner横向对比.R</code></td><td>3 outcomes × 5 learners comparison tables</td></tr>' +
-          '<tr><td><code>08_mlr3工作流集成.R</code></td><td><code>ml_task</code> + <code>resample</code> + <code>benchmark</code></td></tr>' +
-          '<tr><td><code>09_生存结局_survlearners引擎.R</code></td><td>The second survival engine <code>engine="survlearners"</code>, head-to-head with native</td></tr>' +
-          '<tr><td><code>10_HTE评价指标.R</code></td><td>Qini / c-for-benefit / TOC: <strong>discrimination</strong> metrics with a random-ordering control</td></tr>' +
-          '<tr><td><code>11_评价指标真值对账.R</code></td><td>Known <code>tau</code> as the yardstick: split the error into <strong>ranking loss</strong> and <strong>estimation noise</strong>, plus the closed-form c-for-benefit ceiling</td></tr>' +
-          '<tr><td><code>12_三类结局评价指标.R</code></td><td>All three metrics on <strong>continuous / binary / survival</strong>: survival needs IPCW, plus a demonstration of how badly "fit first, split later" leaks</td></tr>' +
-          '<tr><td><code>13_换基学习器_基准对比.R</code></td><td><strong>The core payoff of the mlr3 system</strong>: swap the base learner from random forest to XGBoost / GLMnet / CART / linear in one line, and compare them with <code>benchmark()</code></td></tr>' +
-          '</tbody></table></div>'
-      },
-      {
-        id: "environment",
-        heading: "Dependencies & environment",
-        body:
-          '<p>The <strong>dependency versions</strong> and <strong>testing environment</strong> needed to ' +
-          'reproduce every result in this tutorial (R version, OS, test scale, CI config) are collected on a ' +
-          'dedicated page, with direct deps, suggested deps, key transitive deps and the <strong>full 89-package ' +
-          'recursive list</strong>:</p>' +
-          '<p><a href="#/environment" class="btn">Open environment & dependency versions →</a></p>' +
-          '<p>Quick table (direct deps; full list on the page above): ' +
-          '<code>mlr3 1.8.0</code> · <code>mlr3learners 0.16.0</code> · <code>paradox 1.0.1</code> · ' +
-          '<code>R6 2.6.1</code> · <code>survival 3.8-3</code> · <code>ranger 0.18.0</code> · ' +
-          '<code>dplyr 1.2.1</code> · <code>cli 3.6.6</code> · <code>ggplot2 4.0.3</code>. ' +
-          'Testing: <code>testthat 3.3.2</code>, 8 test files / 58 test_that blocks / 293 expectations, all passing.</p>'
+          '<div class="callout"><div class="callout-title">Keep reading</div><p>' +
+          '<a href="#/tutorial">← All tutorials</a>' +
+          ' &middot; <a href="#/api">Browse the API reference →</a>' +
+          '</p></div>'
       }
     ]
   }
 };
+

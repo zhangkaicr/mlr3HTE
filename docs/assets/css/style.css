@@ -471,6 +471,47 @@ tbody tr:nth-child(even) { background: var(--bg-soft); }
 .card-title { font-weight: 700; margin-bottom: 5px; }
 .card-desc  { font-size: 13.5px; color: var(--fg-muted); }
 
+/* 14b 文章目录列表（pkgdown / dplyr Articles 风格）---------------------- */
+.article-list {
+  list-style: none;
+  margin: 18px 0 26px;
+  padding: 0;
+  border-top: 1px solid var(--border);
+}
+.article-list > li { border-bottom: 1px solid var(--border); }
+.article-list > li > a {
+  display: flex;
+  gap: 14px;
+  padding: 13px 6px;
+  color: inherit;
+  transition: background .12s ease;
+}
+.article-list > li > a:hover {
+  background: var(--bg-soft);
+  text-decoration: none;
+}
+.article-list .art-num {
+  flex: 0 0 26px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--fg-faint);
+  line-height: 1.55;
+}
+.article-list .art-body { display: block; min-width: 0; }
+.article-list .art-body strong {
+  display: block;
+  font-size: 15.5px;
+  color: var(--accent);
+}
+.article-list .art-body em {
+  display: block;
+  margin-top: 3px;
+  font-style: normal;
+  font-size: 13.5px;
+  line-height: 1.62;
+  color: var(--fg-muted);
+}
+
 /* 15 API 函数块 -------------------------------------------------------- */
 .fn {
   border: 1px solid var(--border);
