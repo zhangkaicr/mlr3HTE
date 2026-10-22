@@ -9,12 +9,24 @@ window.SITE_PAGES.changelog = {
   /* ---------------- 中文 ---------------- */
   zh: {
     title: "更新日志",
-    lede: "mlr3HTE 的版本历史与重要变更。当前版本 v0.22。",
+    lede: "mlr3HTE 的版本历史与重要变更。当前版本 v0.23。",
     sections: [
 
       {
+        id: "v023",
+        heading: "v0.23 · 2026-10-22（当前版本）",
+        body:
+          '<div class="callout ok"><div class="callout-title">补生成 man/ 文档</div>' +
+          '<p>重新运行 <code>roxygen2::roxygenise()</code>，让 <code>man/metalearner.Rd</code> 与 ' +
+          '<code>man/LearnerRegrMetalearner.Rd</code> 同步到 0.22 新增的 roxygen 注释：' +
+          '<code>learner_base</code> / <code>learner_tau</code> 现在支持按角色命名的 list' +
+          '（T 两组、X 各阶段分别指定）。此前 0.22 只改了源码注释、漏跑 roxygenise，' +
+          '导致 <code>man/</code> 落后一个批次。</p></div>'
+      },
+
+      {
         id: "v022",
-        heading: "v0.22 · 2026-10-21（当前版本）",
+        heading: "v0.22 · 2026-10-21",
         body:
           '<div class="callout ok"><div class="callout-title">学习器可按分组 / 阶段单独指定</div>' +
           '<p>除了「整包换一个基学习器」，现在还能为每个分组、每个阶段分别选算法：' +
@@ -210,12 +222,24 @@ window.SITE_PAGES.changelog = {
   /* ---------------- English ---------------- */
   en: {
     title: "Changelog",
-    lede: "Version history and notable changes for mlr3HTE. Current version: v0.22.",
+    lede: "Version history and notable changes for mlr3HTE. Current version: v0.23.",
     sections: [
 
       {
+        id: "v023",
+        heading: "v0.23 · 2026-10-22 (current)",
+        body:
+          '<div class="callout ok"><div class="callout-title">Regenerate man/ docs</div>' +
+          '<p>Re-ran <code>roxygen2::roxygenise()</code> so <code>man/metalearner.Rd</code> and ' +
+          '<code>man/LearnerRegrMetalearner.Rd</code> catch up with the 0.22 roxygen comments: ' +
+          '<code>learner_base</code> / <code>learner_tau</code> now accept a named list per role ' +
+          '(separate learner for each T-Learner arm, each X-Learner stage). The 0.22 batch edited ' +
+          'the source comments but skipped roxygenise, leaving <code>man/</code> one batch behind.</p></div>'
+      },
+
+      {
         id: "v022",
-        heading: "v0.22 · 2026-10-21 (current)",
+        heading: "v0.22 · 2026-10-21",
         body:
           '<div class="callout ok"><div class="callout-title">Learners can now be specified per group / per stage</div>' +
           '<p>Beyond swapping one base learner for the whole recipe, you can now pick a different ' +

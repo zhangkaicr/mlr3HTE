@@ -15,6 +15,14 @@
 - `0.21` 之前的历史批次沿用旧编号折算（`0.1.0` → `0.10`，10-21 那批观察性指标 →
   `0.11`，`0.2.0` → `0.20`）；`0.21` 起严格执行上面的 +0.01。
 
+## [0.23] — 2026-10-22（补生成 man/ 文档）
+
+### 文档
+- 重新运行 `roxygen2::roxygenise()`，使 `man/metalearner.Rd` 与
+  `man/LearnerRegrMetalearner.Rd` 同步到 0.22 新增的 roxygen 注释：
+  `learner_base` / `learner_tau` 现在支持按角色命名的 list（T 两组、X 各阶段分别指定）。
+  此前 0.22 只改了源码注释、漏跑 roxygenise，导致 `man/` 落后一个批次。
+
 ## [0.22] — 2026-10-21（学习器可按分组 / 阶段单独指定）
 
 ### 新增：learner_base / learner_tau 支持按角色命名的 list

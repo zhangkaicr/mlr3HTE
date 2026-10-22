@@ -38,9 +38,11 @@
   \if{html}{\out{<div class="r6-fields">}}
   \describe{
     \item{\code{learner_base}}{结局模型基学习器（类型须与结局匹配；生存用 "coxph"/"ranger"，
-survlearners 引擎下用 "coxph"/"grf"/"lasso"）}
+survlearners 引擎下用 "coxph"/"grf"/"lasso"）。T / X Learner 可传命名 list
+（\code{list(treated=, control=)} 或 \code{list(m1=, m0=)}）让分组 / 阶段各自用不同算法。}
 
-    \item{\code{learner_tau}}{效应阶段回归学习器；NULL 时引擎用偏正则化的 ranger}
+    \item{\code{learner_tau}}{效应阶段回归学习器；NULL 时引擎用偏正则化的 ranger。
+X-Learner 可传 \code{list(tau1=, tau0=)} 分别指定两个效应回归。}
 
     \item{\code{learner_ps}}{倾向得分学习器（weighting = "iptw" 时）}
 
