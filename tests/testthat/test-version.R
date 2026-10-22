@@ -63,3 +63,20 @@ test_that("更新日志页的中英 lede 都标注了当前版本", {
   # 中英各有一节以该版本号开头，说明新批次的小节没漏写
   expect_gte(sum(grepl(paste0('heading: "v', ver), js, fixed = TRUE)), 2L)
 })
+
+# 5 静态资源的缓存戳 ----------------------------------------------------------
+
+# 背景：GitHub Pages 走 CDN，浏览器还会再缓存一层。曾经改完 content-tutorial.js
+# 推送上去，用户强刷后看到的仍是旧页面——因为 index.html 里引用的是同一个 URL。
+# 现在 bump_version.R 会把 ?v= 统一改成当前版本，这里钉住「不能忘」。
+test_that("index.html 的静态资源缓存戳与当前版本一致", {
+  html_file <- file.path(pkg_root, "docs", "index.html")
+  skip_if_not(file.exists(html_file), "docs/ 未随源码分发（R CMD check 环境）")
+
+  html <- readLines(html_file, warn = FALSE)
+  stamped <- regmatches(html, regexpr("assets/(js|css)/[^\"']+\\?v=[0-9.]+", html))
+  skip_if_not(length(stamped) > 0L, "index.html 里没有带 ?v= 的资源引用")
+
+  stamp_ver <- sub(".*\\?v=", "", stamped)
+  expect_true(all(stamp_ver == read_version()))
+})

@@ -69,7 +69,27 @@ writeLines(meta, meta_file, useBytes = TRUE)
 
 cli_alert_success("{.file {meta_file}}: SITE_META 已设为 {.val {new_ver}}（{today}）")
 
-# 4 扫出仍在引用旧版本号的文件（内容要人写，脚本不代劳）----
+# 4 给文档站静态资源打缓存戳 ----
+#
+# GitHub Pages 走 CDN，浏览器还会按 Last-Modified 再缓存一层。改完 JS 不换 URL，
+# 用户刷新后仍可能拿到旧脚本 —— 现场表现就是「明明改了却没变化」。这里把
+# index.html 里所有 js/css 引用的 ?v= 统一改到当前版本。
+
+html_file <- "docs/index.html"
+html <- readLines(html_file, encoding = "UTF-8", warn = FALSE)
+
+# 先剥旧戳再加新戳，避免出现 ?v=0.26?v=0.27 这种叠罗汉
+html <- gsub(
+  "(assets/(?:js|css)/[A-Za-z0-9_.-]+\\.(?:js|css))(\\?v=[0-9.]+)?",
+  paste0("\\1?v=", new_ver),
+  html
+)
+
+writeLines(html, html_file, useBytes = TRUE)
+
+cli_alert_success("{.file {html_file}}: 静态资源缓存戳统一为 {.val {new_ver}}")
+
+# 5 扫出仍在引用旧版本号的文件（内容要人写，脚本不代劳）----
 
 # 只扫会被人读到的文本与文档站源码，不碰 renv.lock 之类的机器文件
 scan_files <- c(
@@ -89,7 +109,7 @@ hits_old <- vapply(
 cli_alert_info("以下文件仍含旧版本号 {.val {old_ver}}，需人工判断是否更新：")
 print(scan_files[hits_old])
 
-# 5 下一步提示 ----
+# 6 下一步提示 ----
 
 cli_alert_warning("还剩两处要手写（版本号规则见 CHANGELOG.md 开头）：")
 cli_ul(c(
@@ -97,7 +117,7 @@ cli_ul(c(
   "docs/assets/js/content-changelog.js 加对应小节，并改 lede 的「当前版本」与上一节的 heading"
 ))
 
-# 6 自检 ----
+# 7 自检 ----
 
 if (requireNamespace("testthat", quietly = TRUE)) {
   testthat::test_file("tests/testthat/test-version.R")

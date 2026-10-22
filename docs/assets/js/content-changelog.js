@@ -9,10 +9,23 @@ window.SITE_PAGES.changelog = {
   /* ---------------- 中文 ---------------- */
   zh: {
     title: "更新日志",
-    lede: "mlr3HTE 的版本历史与重要变更。当前版本 v0.26。",
+    lede: "mlr3HTE 的版本历史与重要变更。当前版本 v0.27。",
     sections: [
 
 
+      {
+        id: "v027",
+        heading: "v0.27 · 2026-10-22",
+        body:
+          '<div class="callout ok"><div class="callout-title">教程改为框架优先 + 静态资源缓存戳</div>' +
+          '<p>教程页把「五大框架导航」提到<strong>页面最前面</strong>——上一版它被一段很长的 DGP 压在中段，' +
+          '第一屏看起来和重构前一模一样。原「六格导航」降级为「六格矩阵（速查）」，跟在框架卡片后面查场景编号。' +
+          '五个框架的分隔节由两句列表升级为「场景 / 脚本 / 关键结论」小表，每张表都填真实对账数值。</p>' +
+          '<p>另修一个隐蔽问题：<code>index.html</code> 的 js/css 引用原本不带版本号，' +
+          'GitHub Pages 的 CDN 与浏览器双层缓存会让「明明改了却没变化」变成常态。' +
+          '现在资源引用统一带 <code>?v=</code> 缓存戳，<code>dev/bump_version.R</code> 自动改写，' +
+          '<code>test-version.R</code> 新增断言钉住。</p></div>'
+      },
 
       {
         id: "v026",
@@ -260,10 +273,25 @@ window.SITE_PAGES.changelog = {
   /* ---------------- English ---------------- */
   en: {
     title: "Changelog",
-    lede: "Version history and notable changes for mlr3HTE. Current version: v0.26.",
+    lede: "Version history and notable changes for mlr3HTE. Current version: v0.27.",
     sections: [
 
 
+      {
+        id: "v027",
+        heading: "v0.27 · 2026-10-22",
+        body:
+          '<div class="callout ok"><div class="callout-title">Framework-first tutorial page + asset cache stamps</div>' +
+          '<p>The tutorial page now puts the <strong>Five frameworks index at the very top</strong> — in the ' +
+          'previous release it sat behind a long DGP section, so the first screen looked identical to the ' +
+          'pre-refactor version. The old "six cells" block is demoted to a "2 × 3 matrix (quick lookup)" that ' +
+          'follows the cards. Each framework divider is upgraded from a two-line list to a ' +
+          '"scenario / script / key result" table with the real reconciliation numbers.</p>' +
+          '<p>Also fixed a silent problem: the js/css references in <code>index.html</code> carried no version ' +
+          'query, so GitHub Pages CDN plus browser caching made "I changed it but nothing changed" the norm. ' +
+          'Assets now carry a <code>?v=</code> stamp, rewritten automatically by ' +
+          '<code>dev/bump_version.R</code> and pinned by a new assertion in <code>test-version.R</code>.</p></div>'
+      },
 
       {
         id: "v026",

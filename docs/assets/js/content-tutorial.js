@@ -30,9 +30,32 @@ window.SITE_PAGES.tutorial = {
     lede: "三类结局 × 随机/观察性，共六格，按下手方式归为五大框架：RCT 分析、观察性分析、生存结局、换不同学习器、模型评价指标。每格都用自带真值的模拟数据，可逐人对账。",
     sections: [
       {
+        id: "frameworks",
+        heading: "五大框架导航",
+        body:
+          '<p>这一页按<strong>上手时真正会遇到的五类问题</strong>来组织：先选方向（下面五张卡片），' +
+          '再按结局类型挑场景（下一节的六格矩阵）。每个框架都复用同一套<strong>自带真值</strong>的模拟数据，' +
+          '算完能逐人对账。</p>' +
+          '<div class="cards">' +
+          '<a class="card" href="#/tutorial/fw-rct"><div class="card-title">1 RCT 设计下的分析</div><div class="card-desc">连续 / 二分类结局在随机化试验里的 CATE 估计与对账。</div></a>' +
+          '<a class="card" href="#/tutorial/fw-obs"><div class="card-title">2 观察性研究分析</div><div class="card-desc">混杂结构、IPTW / 外部权重校正，偏差从 +0.69 压到 0.04 以内。</div></a>' +
+          '<a class="card" href="#/tutorial/fw-surv"><div class="card-title">3 生存结局分析</div><div class="card-desc">t0 时点生存概率差、删失 IPCW、第二套 survlearners 引擎。</div></a>' +
+          '<a class="card" href="#/tutorial/fw-learners"><div class="card-title">4 换不同学习器</div><div class="card-desc">一行换 mlr3 生态任意算法，按分组 / 阶段单独指定。</div></a>' +
+          '<a class="card" href="#/tutorial/fw-metrics"><div class="card-title">5 模型评价指标</div><div class="card-desc">Qini / c-for-benefit / TOC：判别力而非无偏性。</div></a>' +
+          '</div>' +
+          '<div class="callout"><div class="callout-title">建议阅读顺序</div>' +
+          '<p>第一次用本包：先读下一节 <a href="#/tutorial/dgp">数据生成机制与 DAG</a>，' +
+          '再按 1 → 2 → 3 走一遍；已经有明确研究设计、只想查某个结局类型怎么调，' +
+          '直接从六格矩阵点进对应场景即可。</p></div>'
+
+      },
+      {
         id: "overview",
-        heading: "六格导航",
-        body: TUT_MATRIX.zh +
+        heading: "六格矩阵（速查）",
+        body:
+              '<p>六个场景按「研究设计 × 结局类型」编号，这也是<strong>配套脚本</strong>的编号依据。' +
+              '点格子进对应场景，每格都是一份可以原样跑的分析。</p>' +
+              TUT_MATRIX.zh +
               '<p>所有演示数据都返回真实的 <code>tau</code> 与 <code>ate</code>，' +
               '这是教学时最有用的部分——你可以直接看出哪个 learner 真的捕捉到了异质性。</p>' +
               '<pre><code>library(mlr3HTE)   # 装完只需这一行：lrn() 已从 mlr3 再导出</code></pre>' +
@@ -125,28 +148,21 @@ window.SITE_PAGES.tutorial = {
           '所以粗差分偏出 +0.69 纯粹是混杂造成的，不是效应真的变了。</p>'
       },
       {
-        id: "frameworks",
-        heading: "五大框架导航",
-        body:
-          '<p>六个场景按「研究设计 x 结局类型」组织，但真正上手时更自然的切法是下面五个框架。点卡片直接跳到对应章节；每个框架都复用同一套自带真值的模拟数据，可逐人对账。</p>' +
-          '<div class="cards">' +
-          '<a class="card" href="#/tutorial/fw-rct"><div class="card-title">1 RCT 设计下的分析</div><div class="card-desc">连续 / 二分类结局在随机化试验里的 CATE 估计与对账。</div></a>' +
-          '<a class="card" href="#/tutorial/fw-obs"><div class="card-title">2 观察性研究分析</div><div class="card-desc">混杂结构、IPTW / 外部权重校正，偏差从 +0.69 压到 0.04 以内。</div></a>' +
-          '<a class="card" href="#/tutorial/fw-surv"><div class="card-title">3 生存结局分析</div><div class="card-desc">t0 时点生存概率差、删失 IPCW、第二套 survlearners 引擎。</div></a>' +
-          '<a class="card" href="#/tutorial/fw-learners"><div class="card-title">4 换不同学习器</div><div class="card-desc">一行换 mlr3 生态任意算法，按分组 / 阶段单独指定。</div></a>' +
-          '<a class="card" href="#/tutorial/fw-metrics"><div class="card-title">5 模型评价指标</div><div class="card-desc">Qini / c-for-benefit / TOC：判别力而非无偏性。</div></a>' +
-          '</div>'
-
-      },
-      {
         id: "fw-rct",
         heading: "框架一 - RCT 设计下的分析",
         body:
-          '<p>随机化试验里 <code>A 与 X 独立</code>，协变量只修饰效应、不混杂，所以粗差分就是无偏的因果估计。这里的重点不是「纠偏」，而是五种 meta-learner 各自能抓多少异质性（CATE 与真 tau 的相关）。</p>' +
-          '<ul>' +
-          '<li><a href="#/tutorial/s1">场景 1 - 连续结局 x RCT</a>：X-learner 最好，CATE 相关 0.963。</li>' +
-          '<li><a href="#/tutorial/s3">场景 3 - 二分类结局 x RCT</a>：效应尺度是风险差，X-learner CATE 相关 0.794。</li>' +
-          '</ul>'
+          '<p>随机化试验里 <code>A ⊥ X</code>，协变量只修饰效应、不混杂，所以粗差分本身就是无偏的因果估计。' +
+          '这里的重点不是「纠偏」，而是<strong>五种 meta-learner 各自能抓到多少异质性</strong>' +
+          '（CATE 与真 <em>τ</em> 的相关）。</p>' +
+          '<div class="table-wrap"><table>' +
+          '<thead><tr><th>场景</th><th>脚本</th><th>关键结论</th></tr></thead><tbody>' +
+          '<tr><td><a href="#/tutorial/s1">场景 1 · 连续 × RCT</a></td>' +
+          '<td><code>01_连续结局_随机化RCT.R</code></td>' +
+          '<td>X-learner 最贴合真值：CATE 与真 <em>τ</em> 相关 <strong>0.963</strong></td></tr>' +
+          '<tr><td><a href="#/tutorial/s3">场景 3 · 二分类 × RCT</a></td>' +
+          '<td><code>03_二分类结局_随机化RCT.R</code></td>' +
+          '<td>效应尺度换成风险差；X-learner 相关 <strong>0.794</strong></td></tr>' +
+          '</tbody></table></div>'
 
       },
       {
@@ -208,11 +224,21 @@ window.SITE_PAGES.tutorial = {
         id: "fw-obs",
         heading: "框架二 - 观察性研究分析",
         body:
-          '<p>观察性研究里 <code>X 到 e 到 A</code> 形成混杂后门路径，粗差分开局就偏（连续 +0.69、二分类 +0.125、生存 -0.072）。本框架演示 IPTW 与外部真实 PS 权重如何把偏差压回 0.04 以内——前提是混杂全部已测量。</p>' +
-          '<ul>' +
-          '<li><a href="#/tutorial/s2">场景 2 - 连续结局 x 观察性</a></li>' +
-          '<li><a href="#/tutorial/s4">场景 4 - 二分类结局 x 观察性</a></li>' +
-          '</ul>'
+          '<p>观察性研究里 <code>X → e → A</code> 形成混杂后门路径，粗差分开局就偏' +
+          '（连续 +0.689、二分类 +0.125、生存 −0.072）。本框架演示 IPTW 与外部真实 PS 权重' +
+          '如何把偏差压回去——前提是混杂全部已测量。</p>' +
+          '<div class="table-wrap"><table>' +
+          '<thead><tr><th>场景</th><th>脚本</th><th>关键结论</th></tr></thead><tbody>' +
+          '<tr><td><a href="#/tutorial/s2">场景 2 · 连续 × 观察性</a></td>' +
+          '<td><code>02_连续结局_观察性研究.R</code></td>' +
+          '<td>未调整 <strong>+0.689</strong> → 加权后偏差 ≤ 0.05（真实 ATE 1.049）</td></tr>' +
+          '<tr><td><a href="#/tutorial/s4">场景 4 · 二分类 × 观察性</a></td>' +
+          '<td><code>04_二分类结局_观察性研究.R</code></td>' +
+          '<td>未调整风险差 <strong>+0.125</strong> → IPTW + X 偏差 −0.002（真实 0.131）</td></tr>' +
+          '</tbody></table></div>' +
+          '<div class="callout warn"><div class="callout-title">前提</div>' +
+          '<p>本数据的混杂全部来自<strong>已测量</strong>协变量，所以校正能奏效。' +
+          '真实研究里若有未测量混杂，任何权重都救不回来。</p></div>'
 
       },
       {
@@ -280,12 +306,21 @@ window.SITE_PAGES.tutorial = {
         id: "fw-surv",
         heading: "框架三 - 生存结局分析",
         body:
-          '<p>生存结局的效应是<strong>时间点依赖</strong>的：报告必须写清 <code>t0</code>，CATE = S(t0) 差（默认 t0 = 事件时间中位数）。删失要用 IPCW 校正，观察性下还要再叠一层 IPTW（两层权重相乘）。</p>' +
-          '<ul>' +
-          '<li><a href="#/tutorial/s5">场景 5 - 生存结局 x RCT</a>：T-learner + Cox 相关 0.993。</li>' +
-          '<li><a href="#/tutorial/s6">场景 6 - 生存结局 x 观察性</a>：IPTW x IPCW 两层权重。</li>' +
-          '<li><a href="#/tutorial/sl-engine">生存第二套引擎：survlearners</a>：与原生引擎同题对比。</li>' +
-          '</ul>'
+          '<p>生存结局的效应是<strong>时间点依赖</strong>的：报告必须写清 <code>t0</code>，' +
+          'CATE = S(t0) 差（默认 t0 = 事件时间中位数）。删失要用 IPCW 校正，' +
+          '观察性下还要再叠一层 IPTW（两层权重相乘）。</p>' +
+          '<div class="table-wrap"><table>' +
+          '<thead><tr><th>场景</th><th>脚本</th><th>关键结论</th></tr></thead><tbody>' +
+          '<tr><td><a href="#/tutorial/s5">场景 5 · 生存 × RCT</a></td>' +
+          '<td><code>05_生存结局_随机化RCT.R</code></td>' +
+          '<td>T-learner + Cox：CATE 与真 <em>τ</em> 相关 <strong>0.993</strong></td></tr>' +
+          '<tr><td><a href="#/tutorial/s6">场景 6 · 生存 × 观察性</a></td>' +
+          '<td><code>06_生存结局_观察性研究.R</code></td>' +
+          '<td>IPTW × IPCW 两层权重；删失比例约 30%</td></tr>' +
+          '<tr><td><a href="#/tutorial/sl-engine">第二套引擎 survlearners</a></td>' +
+          '<td><code>09_生存结局_survlearners引擎.R</code></td>' +
+          '<td>同一道题两种引擎，结果可对账</td></tr>' +
+          '</tbody></table></div>'
 
       },
       {
@@ -409,10 +444,18 @@ window.SITE_PAGES.tutorial = {
         id: "fw-learners",
         heading: "框架四 - 换不同学习器",
         body:
-          '<p>选 mlr3 体系的核心收益：五种 meta-learner 只是「配方」，真正干活的是基学习器，换算法只改 <code>learner_base</code> 一行。更细一层还能为每个分组 / 阶段单独指定算法。</p>' +
-          '<ul>' +
-          '<li><a href="#/tutorial/swap-learners">换基学习器：mlr3 生态随便挑</a>：ranger / xgboost / glmnet / rpart / lm 横向对比，并复用 benchmark() 工作流。</li>' +
-          '</ul>'
+          '<p>选 mlr3 体系的核心收益：五种 meta-learner 只是「配方」，真正干活的是基学习器，' +
+          '换算法只改 <code>learner_base</code> 一行。更细一层还能为每个分组 / 阶段单独指定算法。</p>' +
+          '<div class="table-wrap"><table>' +
+          '<thead><tr><th>内容</th><th>脚本</th><th>关键结论</th></tr></thead><tbody>' +
+          '<tr><td><a href="#/tutorial/swap-learners">换基学习器：mlr3 生态随便挑</a></td>' +
+          '<td><code>13_换基学习器_基准对比.R</code></td>' +
+          '<td>ATE 对算法稳健（偏差都在 ±0.1 内），<strong>排序能力差异巨大</strong>：' +
+          '线性模型 CATE 相关 0.987，随机森林只有 0.843</td></tr>' +
+          '<tr><td><a href="#/tutorial/swap-learners">按角色命名 list（v0.22+）</a></td>' +
+          '<td><code>13_换基学习器_基准对比.R</code></td>' +
+          '<td>T 两组 ranger / lm 混用 → CATE 相关 0.913；X 各阶段混用 → 0.988</td></tr>' +
+          '</tbody></table></div>'
 
       },
       {
@@ -466,10 +509,21 @@ window.SITE_PAGES.tutorial = {
         id: "fw-metrics",
         heading: "框架五 - 模型评价指标",
         body:
-          '<p>前面四个框架回答「ATE 估得准不准」；本框架独立回答「模型把谁更获益排前面的能力如何」——判别力，不是无偏性。三个指标：Qini / c-for-benefit / TOC，全部定义在测试集上。</p>' +
-          '<ul>' +
-          '<li><a href="#/tutorial/metrics">Qini / c-for-benefit / TOC</a>：连续 / 二分类 / 生存三类结局各跑一遍，附真值标尺与泄漏对照。</li>' +
-          '</ul>'
+          '<p>前面四个框架回答「ATE 估得准不准」；本框架独立回答<strong>「模型把谁更获益排前面的能力如何」</strong>' +
+          '——判别力，不是无偏性。三个指标 Qini / c-for-benefit / TOC 全部定义在测试集上，' +
+          '训练集上的判别力是自欺欺人。</p>' +
+          '<div class="table-wrap"><table>' +
+          '<thead><tr><th>内容</th><th>脚本</th><th>关键结论（n = 4000 连续结局）</th></tr></thead><tbody>' +
+          '<tr><td><a href="#/tutorial/metrics">三个指标怎么算、怎么读</a></td>' +
+          '<td><code>10_HTE评价指标.R</code></td>' +
+          '<td>Qini 系数 <strong>0.312</strong>（随机排序 0.020）；c-for-benefit <strong>0.646</strong>（随机 0.508）</td></tr>' +
+          '<tr><td><a href="#/tutorial/metrics">用真 <em>τ</em> 当标尺对账</a></td>' +
+          '<td><code>11_评价指标真值对账.R</code></td>' +
+          '<td>把误差拆成<strong>排序损失</strong>与<strong>估计噪声</strong>；cor(CATE, τ) = 0.904</td></tr>' +
+          '<tr><td><a href="#/tutorial/metrics">三类结局各跑一遍</a></td>' +
+          '<td><code>12_三类结局评价指标.R</code></td>' +
+          '<td>生存结局必须走 IPCW；「先拟合后切分」的泄漏会把指标虚高</td></tr>' +
+          '</tbody></table></div>'
 
       },
       {
@@ -776,9 +830,30 @@ window.SITE_PAGES.tutorial = {
           "known ground truth, so you can check estimates unit by unit.",
     sections: [
       {
+        id: "frameworks",
+        heading: "Five frameworks",
+        body:
+          '<p>This page is organized around the <strong>five questions you actually hit when analysing data</strong>: pick a direction from the cards below, then pick a scenario from the 2 × 3 matrix in the next section. Every framework reuses the same simulated data with <strong>known ground truth</strong>, so you can reconcile estimates unit by unit.</p>' +
+          '<div class="cards">' +
+          '<a class="card" href="#/tutorial/fw-rct"><div class="card-title">1 RCT design</div><div class="card-desc">CATE estimation and reconciliation for continuous / binary outcomes under randomization.</div></a>' +
+          '<a class="card" href="#/tutorial/fw-obs"><div class="card-title">2 Observational studies</div><div class="card-desc">Confounding structure, IPTW / external-PS weighting; bias pulled from +0.69 back within 0.04.</div></a>' +
+          '<a class="card" href="#/tutorial/fw-surv"><div class="card-title">3 Survival outcomes</div><div class="card-desc">S(t0) difference at a fixed t0, censoring IPCW, and the second survlearners engine.</div></a>' +
+          '<a class="card" href="#/tutorial/fw-learners"><div class="card-title">4 Swap the learner</div><div class="card-desc">Swap any mlr3 algorithm in one line, or per group / per stage.</div></a>' +
+          '<a class="card" href="#/tutorial/fw-metrics"><div class="card-title">5 Model evaluation</div><div class="card-desc">Qini / c-for-benefit / TOC: discrimination, not unbiasedness.</div></a>' +
+          '</div>' +
+          '<div class="callout"><div class="callout-title">Suggested reading order</div>' +
+          '<p>First time with the package: read <a href="#/tutorial/dgp">the data-generating process</a> ' +
+          'next, then walk 1 → 2 → 3. If you already know your design and just need the ' +
+          'incantation for a given outcome type, jump straight from the matrix.</p></div>'
+
+      },
+      {
         id: "overview",
-        heading: "The six cells",
-        body: TUT_MATRIX.en +
+        heading: "The 2 × 3 matrix (quick lookup)",
+        body:
+              '<p>The six scenarios are numbered by "design × outcome type", which is also how the ' +
+              '<strong>companion scripts</strong> are numbered. Click a cell for a ready-to-run analysis.</p>' +
+              TUT_MATRIX.en +
               '<p>Every demo dataset returns the true <code>tau</code> and <code>ate</code> — ' +
               'the most useful part for teaching, since you can see directly which learner ' +
               'actually captured the heterogeneity.</p>' +
@@ -882,28 +957,21 @@ window.SITE_PAGES.tutorial = {
           'change in the effect.</p>'
       },
       {
-        id: "frameworks",
-        heading: "Five frameworks",
-        body:
-          '<p>The six cells are organized by "design x outcome", but the more natural way to work through them is the five frameworks below. Click a card to jump to that section; every framework reuses the same simulated data with known ground truth, so you can check estimates unit by unit.</p>' +
-          '<div class="cards">' +
-          '<a class="card" href="#/tutorial/fw-rct"><div class="card-title">1 RCT design</div><div class="card-desc">CATE estimation and reconciliation for continuous / binary outcomes under randomization.</div></a>' +
-          '<a class="card" href="#/tutorial/fw-obs"><div class="card-title">2 Observational studies</div><div class="card-desc">Confounding structure, IPTW / external-PS weighting; bias pulled from +0.69 back within 0.04.</div></a>' +
-          '<a class="card" href="#/tutorial/fw-surv"><div class="card-title">3 Survival outcomes</div><div class="card-desc">S(t0) difference at a fixed t0, censoring IPCW, and the second survlearners engine.</div></a>' +
-          '<a class="card" href="#/tutorial/fw-learners"><div class="card-title">4 Swap the learner</div><div class="card-desc">Swap any mlr3 algorithm in one line, or per group / per stage.</div></a>' +
-          '<a class="card" href="#/tutorial/fw-metrics"><div class="card-title">5 Model evaluation</div><div class="card-desc">Qini / c-for-benefit / TOC: discrimination, not unbiasedness.</div></a>' +
-          '</div>'
-
-      },
-      {
         id: "fw-rct",
         heading: "Framework 1 - RCT design",
         body:
-          '<p>Under randomization A is independent of X, so covariates only modify the effect, they do not confound; the naive difference is already an unbiased causal estimate. The point here is not "debiasing" but how much heterogeneity each meta-learner captures (correlation of CATE with the true tau).</p>' +
-          '<ul>' +
-          '<li><a href="#/tutorial/s1">Scenario 1 - Continuous x RCT</a>: X-learner wins, CATE correlation 0.963.</li>' +
-          '<li><a href="#/tutorial/s3">Scenario 3 - Binary x RCT</a>: effect scale is risk difference, X-learner CATE correlation 0.794.</li>' +
-          '</ul>'
+          '<p>Under randomization <code>A ⊥ X</code>, so covariates only modify the effect, they do not confound; ' +
+          'the naive difference is already an unbiased causal estimate. The point here is not "debiasing" but ' +
+          '<strong>how much heterogeneity each meta-learner captures</strong> (correlation of CATE with the true <em>τ</em>).</p>' +
+          '<div class="table-wrap"><table>' +
+          '<thead><tr><th>Scenario</th><th>Script</th><th>Key result</th></tr></thead><tbody>' +
+          '<tr><td><a href="#/tutorial/s1">Scenario 1 · Continuous × RCT</a></td>' +
+          '<td><code>01_连续结局_随机化RCT.R</code></td>' +
+          '<td>X-learner closest to truth: CATE vs true <em>τ</em> correlation <strong>0.963</strong></td></tr>' +
+          '<tr><td><a href="#/tutorial/s3">Scenario 3 · Binary × RCT</a></td>' +
+          '<td><code>03_二分类结局_随机化RCT.R</code></td>' +
+          '<td>Effect scale becomes risk difference; X-learner correlation <strong>0.794</strong></td></tr>' +
+          '</tbody></table></div>'
 
       },
       {
@@ -968,11 +1036,21 @@ window.SITE_PAGES.tutorial = {
         id: "fw-obs",
         heading: "Framework 2 - Observational studies",
         body:
-          '<p>In observational data X to e to A opens a confounding back-door, so the naive difference starts biased (continuous +0.69, binary +0.125, survival -0.072). This framework shows how IPTW and external true-PS weighting pull the bias back within 0.04 -- provided all confounding is measured.</p>' +
-          '<ul>' +
-          '<li><a href="#/tutorial/s2">Scenario 2 - Continuous x Observational</a></li>' +
-          '<li><a href="#/tutorial/s4">Scenario 4 - Binary x Observational</a></li>' +
-          '</ul>'
+          '<p>In observational data <code>X → e → A</code> opens a confounding back-door, so the naive ' +
+          'difference starts biased (continuous +0.689, binary +0.125, survival −0.072). This framework shows ' +
+          'how IPTW and external true-PS weighting pull the bias back — provided all confounding is measured.</p>' +
+          '<div class="table-wrap"><table>' +
+          '<thead><tr><th>Scenario</th><th>Script</th><th>Key result</th></tr></thead><tbody>' +
+          '<tr><td><a href="#/tutorial/s2">Scenario 2 · Continuous × observational</a></td>' +
+          '<td><code>02_连续结局_观察性研究.R</code></td>' +
+          '<td>Naive <strong>+0.689</strong> → bias ≤ 0.05 after weighting (true ATE 1.049)</td></tr>' +
+          '<tr><td><a href="#/tutorial/s4">Scenario 4 · Binary × observational</a></td>' +
+          '<td><code>04_二分类结局_观察性研究.R</code></td>' +
+          '<td>Naive risk difference <strong>+0.125</strong> → IPTW + X bias −0.002 (true 0.131)</td></tr>' +
+          '</tbody></table></div>' +
+          '<div class="callout warn"><div class="callout-title">Caveat</div>' +
+          '<p>All confounding here comes from <strong>measured</strong> covariates, which is why adjustment works. ' +
+          'With unmeasured confounding in a real study, no weighting scheme rescues you.</p></div>'
 
       },
       {
@@ -1041,12 +1119,21 @@ window.SITE_PAGES.tutorial = {
         id: "fw-surv",
         heading: "Framework 3 - Survival outcomes",
         body:
-          '<p>The survival effect is <strong>time-point dependent</strong>: you must state <code>t0</code>, and CATE = S(t0) difference (default t0 = median event time). Censoring is corrected with IPCW; under observationality a second IPTW layer is multiplied on top.</p>' +
-          '<ul>' +
-          '<li><a href="#/tutorial/s5">Scenario 5 - Survival x RCT</a>: T-learner + Cox correlation 0.993.</li>' +
-          '<li><a href="#/tutorial/s6">Scenario 6 - Survival x Observational</a>: IPTW x IPCW two-layer weights.</li>' +
-          '<li><a href="#/tutorial/sl-engine">Second survival engine: survlearners</a>: head-to-head with the native engine.</li>' +
-          '</ul>'
+          '<p>The survival effect is <strong>time-point dependent</strong>: you must state <code>t0</code>, and ' +
+          'CATE = S(t0) difference (default t0 = median event time). Censoring is corrected with IPCW; under ' +
+          'observationality a second IPTW layer is multiplied on top.</p>' +
+          '<div class="table-wrap"><table>' +
+          '<thead><tr><th>Scenario</th><th>Script</th><th>Key result</th></tr></thead><tbody>' +
+          '<tr><td><a href="#/tutorial/s5">Scenario 5 · Survival × RCT</a></td>' +
+          '<td><code>05_生存结局_随机化RCT.R</code></td>' +
+          '<td>T-learner + Cox: CATE vs true <em>τ</em> correlation <strong>0.993</strong></td></tr>' +
+          '<tr><td><a href="#/tutorial/s6">Scenario 6 · Survival × observational</a></td>' +
+          '<td><code>06_生存结局_观察性研究.R</code></td>' +
+          '<td>IPTW × IPCW two-layer weights; censoring around 30%</td></tr>' +
+          '<tr><td><a href="#/tutorial/sl-engine">Second engine: survlearners</a></td>' +
+          '<td><code>09_生存结局_survlearners引擎.R</code></td>' +
+          '<td>Same question, two engines — results can be reconciled</td></tr>' +
+          '</tbody></table></div>'
 
       },
       {
@@ -1175,10 +1262,19 @@ window.SITE_PAGES.tutorial = {
         id: "fw-learners",
         heading: "Framework 4 - Swap the learner",
         body:
-          '<p>The core payoff of the mlr3 stack: the five meta-learners are just "recipes"; the real work is done by the base learner, so swapping algorithms changes only one line, <code>learner_base</code>. A finer level lets you specify a different algorithm per group / per stage.</p>' +
-          '<ul>' +
-          '<li><a href="#/tutorial/swap-learners">Swap the base learner: pick any in mlr3</a>: ranger / xgboost / glmnet / rpart / lm compared, reusing the benchmark() workflow.</li>' +
-          '</ul>'
+          '<p>The core payoff of the mlr3 stack: the five meta-learners are just "recipes"; the real work is ' +
+          'done by the base learner, so swapping algorithms changes only one line, <code>learner_base</code>. ' +
+          'A finer level lets you specify a different algorithm per group / per stage.</p>' +
+          '<div class="table-wrap"><table>' +
+          '<thead><tr><th>Topic</th><th>Script</th><th>Key result</th></tr></thead><tbody>' +
+          '<tr><td><a href="#/tutorial/swap-learners">Swap the base learner</a></td>' +
+          '<td><code>13_换基学习器_基准对比.R</code></td>' +
+          '<td>ATE is robust to the algorithm (bias within ±0.1), but <strong>ranking ability varies wildly</strong>: ' +
+          'linear model CATE correlation 0.987 vs random forest 0.843</td></tr>' +
+          '<tr><td><a href="#/tutorial/swap-learners">Per-role named lists (v0.22+)</a></td>' +
+          '<td><code>13_换基学习器_基准对比.R</code></td>' +
+          '<td>T with ranger / lm per arm → CATE correlation 0.913; X mixing stages → 0.988</td></tr>' +
+          '</tbody></table></div>'
 
       },
       {
@@ -1233,10 +1329,21 @@ window.SITE_PAGES.tutorial = {
         id: "fw-metrics",
         heading: "Framework 5 - Model evaluation",
         body:
-          '<p>The first four frameworks answer "is the ATE unbiased?"; this one independently answers "how well does the model rank who benefits more?" -- discrimination, not unbiasedness. Three metrics: Qini / c-for-benefit / TOC, all defined on a test set.</p>' +
-          '<ul>' +
-          '<li><a href="#/tutorial/metrics">Qini / c-for-benefit / TOC</a>: run on continuous / binary / survival, with truth yardsticks and a leakage contrast.</li>' +
-          '</ul>'
+          '<p>The first four frameworks answer "is the ATE unbiased?"; this one independently answers ' +
+          '<strong>"how well does the model rank who benefits more?"</strong> — discrimination, not unbiasedness. ' +
+          'Three metrics, Qini / c-for-benefit / TOC, are all defined on a test set; in-sample discrimination is self-deception.</p>' +
+          '<div class="table-wrap"><table>' +
+          '<thead><tr><th>Topic</th><th>Script</th><th>Key result (n = 4000, continuous)</th></tr></thead><tbody>' +
+          '<tr><td><a href="#/tutorial/metrics">How the three metrics work</a></td>' +
+          '<td><code>10_HTE评价指标.R</code></td>' +
+          '<td>Qini coefficient <strong>0.312</strong> (random ordering 0.020); c-for-benefit <strong>0.646</strong> (random 0.508)</td></tr>' +
+          '<tr><td><a href="#/tutorial/metrics">Reconcile against the true <em>τ</em></a></td>' +
+          '<td><code>11_评价指标真值对账.R</code></td>' +
+          '<td>Splits error into <strong>ranking loss</strong> and <strong>estimation noise</strong>; cor(CATE, τ) = 0.904</td></tr>' +
+          '<tr><td><a href="#/tutorial/metrics">All three outcome types</a></td>' +
+          '<td><code>12_三类结局评价指标.R</code></td>' +
+          '<td>Survival needs IPCW; "fit first, split later" leakage inflates every metric</td></tr>' +
+          '</tbody></table></div>'
 
       },
       {
