@@ -9,9 +9,23 @@ window.SITE_PAGES.changelog = {
   /* ---------------- 中文 ---------------- */
   zh: {
     title: "更新日志",
-    lede: "mlr3HTE 的版本历史与重要变更。当前版本 v0.28。",
+    lede: "mlr3HTE 的版本历史与重要变更。当前版本 v0.29。",
     sections: [
 
+
+      {
+        id: "v029",
+        heading: "v0.29 · 2026-10-22",
+        body:
+          '<div class="callout ok"><div class="callout-title">顶栏导航改为下拉菜单</div>' +
+          '<p>「场景教程与模型评价」与「函数文档」两个项目现在是' +
+          '<strong>下拉菜单</strong>（和 dplyr 官网一样）：点标题进总览，' +
+          '点右侧三角展开子项；桌面端鼠标悬停也会展开。' +
+          '子项分别列出 6 篇教程文章与 7 个函数文档分组。</p>' +
+          '<p>当前页命中子项时抽屉默认展开，一眼就知道自己站在哪里；' +
+          '子项高亮用精确匹配，不会让「目录」在子页上一起亮。' +
+          '寝屏（≤900px）下拉改为抽屉内静态展开，不再悬浮。</p></div>'
+      },
 
       {
         id: "v028",
@@ -287,9 +301,24 @@ window.SITE_PAGES.changelog = {
   /* ---------------- English ---------------- */
   en: {
     title: "Changelog",
-    lede: "Version history and notable changes for mlr3HTE. Current version: v0.28.",
+    lede: "Version history and notable changes for mlr3HTE. Current version: v0.29.",
     sections: [
 
+
+      {
+        id: "v029",
+        heading: "v0.29 · 2026-10-22",
+        body:
+          '<div class="callout ok"><div class="callout-title">Top nav now uses dropdown menus</div>' +
+          '<p>The "Tutorial &amp; Model Evaluation" and "API Reference" nav items are now ' +
+          '<strong>dropdown menus</strong>, just like the dplyr website: click the title to open ' +
+          'the overview, click the caret on the right to expand the list; on desktop, hovering ' +
+          'also opens it. Children list the six tutorial articles and the seven API groups.</p>' +
+          '<p>When the current page matches a child, the dropdown opens by default so you can ' +
+          'see where you are; child highlighting uses exact matching, so "Contents" no longer ' +
+          'lights up together with the article you are reading. On narrow screens (≤900px) ' +
+          'the dropdown expands statically inside the drawer instead of floating.</p></div>'
+      },
 
       {
         id: "v028",

@@ -162,20 +162,90 @@
     renderPage(r.section);
   });
 
-  // 8 顶栏导航（pkgdown navbar 风格）-------------------------------------
+  // 8 顶栏导航（pkgdown navbar 风格，带下拉子菜单）------------------------
+  function navActive(id) {
+    // 父项在子页（apimetalearner、tutorialrct…）下同样保持高亮
+    return (id === state.page || state.page.indexOf(id) === 0) ? " active" : "";
+  }
+
   function renderNavbar() {
     var items = nav();
     var html = "";
     for (var i = 0; i < items.length; i++) {
       var it = items[i];
       var label = state.lang === "zh" ? it.zh : it.en;
-      // 子页（apimetalearner、tutorialrct…）也要让所属顶栏项保持高亮
-      var active = (it.id === state.page || state.page.indexOf(it.id) === 0) ? " active" : "";
-      html += '<a class="nav-link' + active + '" href="#/' + it.id + '">' +
+      var kids = it.children || [];
+
+      if (kids.length === 0) {
+        html += '<a class="nav-link' + navActive(it.id) + '" href="#/' + it.id + '">' +
+                escapeHtml(label) + "</a>";
+        continue;
+      }
+
+      // 有子菜单：父项保留跳转（点标题进总览），右侧三角按钮负责展开
+      // 当前页命中任一子项时，抽屉默认展开，便于看出自己站在哪
+      var open = false;
+      for (var k = 0; k < kids.length; k++) {
+        if (kids[k].id === state.page) { open = true; break; }
+      }
+      html += '<div class="nav-item' + (open ? " open" : "") + '">';
+      html += '<a class="nav-link' + navActive(it.id) + '" href="#/' + it.id + '">' +
               escapeHtml(label) + "</a>";
+      html += '<button class="nav-caret" type="button" aria-haspopup="true" ' +
+              'aria-expanded="' + (open ? "true" : "false") + '" title="' +
+              escapeHtml(state.lang === "zh" ? "展开子菜单" : "Show submenu") + '">' +
+              '<span class="caret-tri"></span></button>';
+      html += '<div class="nav-dropdown" role="menu">';
+      for (var m = 0; m < kids.length; m++) {
+        var kid = kids[m];
+        var klabel = state.lang === "zh" ? kid.zh : kid.en;
+        // 子项用精确匹配：在 tutorialrct 页时「目录」不该跟着高亮
+        var kActive = (kid.id === state.page) ? " active" : "";
+        html += '<a class="nav-link' + kActive + '" role="menuitem" href="#/' +
+                kid.id + '">' + escapeHtml(klabel) + "</a>";
+      }
+      html += "</div></div>";
     }
     el.navbar.innerHTML = html;
   }
+
+  // 下拉菜单开关：点三角 / 点父项标题 / 点外部 / Esc ----------------------
+  function closeAllDropdowns() {
+    var open = el.navbar.querySelectorAll(".nav-item.open");
+    for (var i = 0; i < open.length; i++) {
+      open[i].classList.remove("open");
+      var btn = open[i].querySelector(".nav-caret");
+      if (btn) btn.setAttribute("aria-expanded", "false");
+    }
+  }
+
+  el.navbar.addEventListener("click", function (e) {
+    var caret = e.target.closest ? e.target.closest(".nav-caret") : null;
+    if (caret) {
+      var item = caret.parentNode;
+      var wasOpen = item.classList.contains("open");
+      closeAllDropdowns();
+      if (!wasOpen) {
+        item.classList.add("open");
+        caret.setAttribute("aria-expanded", "true");
+      }
+      e.preventDefault();
+      return;
+    }
+    // 点到子菜单项或普通链接：关闭抽屉（移动端）与所有下拉
+    if (e.target.classList.contains("nav-link")) {
+      closeAllDropdowns();
+      el.navbar.classList.remove("open");
+    }
+  });
+
+  document.addEventListener("click", function (e) {
+    if (!e.target.closest || !e.target.closest(".nav-item")) closeAllDropdowns();
+  });
+
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "Escape") closeAllDropdowns();
+  });
 
   // 9 正文 ---------------------------------------------------------------
   function sectionsHtml(secs, sfx) {
@@ -442,9 +512,6 @@
   // 11 移动端菜单（导航项收进抽屉）--------------------------------------
   el.menuBtn.addEventListener("click", function () {
     el.navbar.classList.toggle("open");
-  });
-  el.navbar.addEventListener("click", function (e) {
-    if (e.target.classList.contains("nav-link")) el.navbar.classList.remove("open");
   });
 
   // 12 页脚 --------------------------------------------------------------

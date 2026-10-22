@@ -135,6 +135,91 @@ a:hover { text-decoration: underline; }
   font-weight: 600;
 }
 
+/* 带下拉子菜单的导航项（dplyr 官网风格） */
+.nav-item { position: relative; display: inline-flex; align-items: center; }
+.nav-item > .nav-link { border-top-right-radius: 0; border-bottom-right-radius: 0; }
+.nav-caret {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 30px;
+  width: 20px;
+  margin-left: -3px;
+  padding: 0 4px 0 0;
+  border: 0;
+  border-radius: 0 var(--radius) var(--radius) 0;
+  background: none;
+  color: var(--nav-fg-dim);
+  cursor: pointer;
+}
+.nav-item.open > .nav-link,
+.nav-item.open > .nav-caret,
+.nav-caret:hover { background: var(--nav-hover); color: var(--nav-fg); }
+.nav-caret:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+
+/* 小三角：用 border 画，不依赖字体 */
+.caret-tri {
+  width: 0;
+  height: 0;
+  border-left: 4px solid transparent;
+  border-right: 4px solid transparent;
+  border-top: 4.5px solid currentColor;
+}
+
+.nav-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  z-index: 70;
+  display: none;
+  min-width: 250px;
+  max-width: 340px;
+  padding: 6px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-lg);
+}
+.nav-item.open > .nav-dropdown { display: block; }
+/* 桌面端 hover 即展开；触屏/窄屏走 .open（JS 点击） */
+@media (hover: hover) and (min-width: 901px) {
+  .nav-item:hover > .nav-dropdown { display: block; }
+  .nav-item:hover > .nav-caret { background: var(--nav-hover); color: var(--nav-fg); }
+}
+.nav-dropdown .nav-link {
+  display: block;
+  padding: 7px 10px;
+  border-radius: var(--radius);
+  color: var(--fg);
+  font-size: 13.5px;
+  line-height: 1.35;
+  white-space: normal;
+}
+.nav-dropdown .nav-link:hover { background: var(--bg-soft); color: var(--accent); text-decoration: none; }
+.nav-dropdown .nav-link.active { background: var(--accent-soft); color: var(--accent); font-weight: 600; }
+
+/* 窄屏：下拉在抽屉里静态展开，不再悬浮 */
+@media (max-width: 900px) {
+  .nav-item { display: block; }
+  .nav-caret { display: none; }
+  .nav-item > .nav-link { border-radius: var(--radius); }
+  .nav-dropdown {
+    position: static;
+    display: none;
+    min-width: 0;
+    max-width: none;
+    padding: 2px 0 4px 14px;
+    border: 0;
+    border-left: 2px solid var(--border);
+    border-radius: 0;
+    box-shadow: none;
+    background: none;
+  }
+  .nav-item.open > .nav-dropdown { display: block; }
+  .nav-item:hover > .nav-dropdown { display: none; }
+  .nav-item.open:hover > .nav-dropdown { display: block; }
+}
+
 .topbar .spacer { flex: 1; }
 
 /* 顶栏上的按钮：深色底上要反色 */
@@ -605,6 +690,12 @@ tbody tr:nth-child(even) { background: var(--bg-soft); }
 
 /* 18 移动端 ------------------------------------------------------------ */
 .menu-btn { display: none; }
+
+/* 顶栏空间紧张时先收搜索快捷键提示，给下拉三角让位 */
+@media (max-width: 1180px) {
+  .search-kbd { display: none; }
+  .nav-link { padding: 6px 9px; font-size: 13.5px; }
+}
 
 @media (max-width: 1080px) {
   .toc { display: none !important; }

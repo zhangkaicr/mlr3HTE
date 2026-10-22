@@ -2,14 +2,41 @@
    content-home.js —— 导航定义 + 站点元信息 + 首页（中英双语）
    ===================================================================== */
 
-window.SITE_META = { version: "0.28", date: "2026-10-22" };
+window.SITE_META = { version: "0.29", date: "2026-10-22" };
 
 window.SITE_NAV = [
   { id: "home",      zh: "首页",           en: "Home"                    },
   { id: "guide",     zh: "架构与快速开始", en: "Architecture & Quickstart" },
-  { id: "tutorial",  zh: "场景教程与模型评价", en: "Tutorial & Model Evaluation" },
-  { id: "api",       zh: "函数文档",       en: "API Reference"             },
-  { id: "changelog", zh: "更新日志",       en: "Changelog"                 },
+  {
+    id: "tutorial",
+    zh: "场景教程与模型评价",
+    en: "Tutorial & Model Evaluation",
+    children: [
+      { id: "tutorial",         zh: "目录",                       en: "Contents"                          },
+      { id: "tutorialbasics",   zh: "0 数据生成机制与 DAG", en: "0 Data-generating process & DAG"   },
+      { id: "tutorialrct",      zh: "1 RCT 设计下的分析",     en: "1 Analysis under RCT design"       },
+      { id: "tutorialobs",      zh: "2 观察性研究分析",   en: "2 Observational studies"           },
+      { id: "tutorialsurv",     zh: "3 生存结局分析",         en: "3 Survival outcomes"               },
+      { id: "tutoriallearners", zh: "4 换不同学习器",         en: "4 Swapping the base learner"       },
+      { id: "tutorialmetrics",  zh: "5 模型评价指标",         en: "5 Model evaluation metrics"        }
+    ]
+  },
+  {
+    id: "api",
+    zh: "函数文档",
+    en: "API Reference",
+    children: [
+      { id: "api",            zh: "总览",                                    en: "Overview"                                },
+      { id: "apimetalearner", zh: "metalearner() 与五种 meta-learner", en: "metalearner() and the five meta-learners" },
+      { id: "apishortcuts",   zh: "s_/t_/x_/r_/dr_learner() 快捷函数", en: "s_/t_/x_/r_/dr_learner() shortcuts" },
+      { id: "apimltask",      zh: "ml_task()",                            en: "ml_task()"                               },
+      { id: "apilearner",     zh: "learner_base / learner_tau",           en: "learner_base / learner_tau"              },
+      { id: "apidemo",        zh: "mlr3HTE_demo_*() 演示数据",     en: "mlr3HTE_demo_*() datasets"               },
+      { id: "apimetrics",     zh: "HTE 评价指标",                 en: "HTE evaluation metrics"                  },
+      { id: "apihelpers",     zh: "辅助函数",                       en: "Helpers"                                 }
+    ]
+  },
+  { id: "changelog", zh: "更新日志",      en: "Changelog"                 },
   { id: "references", zh: "参考文献",      en: "References"                },
   { id: "environment", zh: "运行环境",     en: "Environment"               }
 ];

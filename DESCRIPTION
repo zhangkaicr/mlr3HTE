@@ -1,6 +1,6 @@
 Package: mlr3HTE
 Title: Metalearner Learners for Heterogeneous Treatment Effects in mlr3
-Version: 0.28
+Version: 0.29
 Author: Flexible Pangzi <zhangkaicr@foxmail.com> [cre, aut]
 Maintainer: Flexible Pangzi <zhangkaicr@foxmail.com>
 Description: A small, mlr3-native R package that implements the S-, T-, X-, R- and DR-learners
