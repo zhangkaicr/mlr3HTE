@@ -28,6 +28,27 @@ window.SITE_PAGES.tutorial = {
     lede: "七篇文章，每篇一张独立网页。前六篇按研究设计与结局类型组织，数据自带真值，对账口径统一为 ATE 偏差 + CATE 相关 + RMSE + 估计 SD；第七篇换成现实形态——没有真实 tau，只用 Qini / TOC / c-for-benefit 比 learner。",
     sections: [
       {
+        id: "about",
+        heading: "这个包做什么",
+        body:
+          '<p><code>mlr3HTE</code> 是一个基于 mlr3 的异质性治疗效应（HTE / CATE）估计包。' +
+          '它把 S- / T- / X- / R- / DR-Learner 做成可安装的 mlr3 学习器，核心设计只有一句话：' +
+          '五种 meta-learner 的公式<strong>与结局类型无关</strong>，它们只跟「结局模型」打交道——' +
+          '一个能返回 <code>predict(newX)</code> 的对象。</p>' +
+          '<p>连续结局返回 <code>E[Y|X]</code>，二分类返回 <code>P(Y=1|X)</code>，' +
+          '生存返回 <code>S(t0|X)</code>；CATE 的含义随之变成<strong>均值差</strong>、' +
+          '<strong>风险差</strong>与<strong>t0 时点生存概率差</strong>。换掉结局模型就换了结局类型，' +
+          '800 余行引擎代码因此覆盖 3 类结局 × 2 种数据 × 5 种 learner 共 <strong>30 种组合</strong>。</p>' +
+          '<p>数据来源分成两档。随机化试验里处理与协变量独立，粗差分就是无偏估计，' +
+          '重点在于各 learner 能抓到多少异质性；观察性研究存在混杂后门路径，' +
+          '必须先做 IPTW 或外部权重校正，否则再好的 learner 也只是在拟合偏倚。</p>' +
+          '<p>下面七篇教程按上手方式组织，每篇一张独立网页。前六篇用自带真值的模拟数据逐人对账：' +
+          '真实 tau 只有模拟数据才拿得到，所以对账口径统一为 <strong>ATE 偏差 + CATE 相关 + RMSE + 估计 SD</strong>——' +
+          '只报 ATE 会漏掉「平均对、个体全错」的情形。第七篇换成现实研究的形态：没有真值，' +
+          '改用 <a href="#/tutorialbenchmark">Qini 系数、TOC 增益与 c-for-benefit</a> 比较排序能力，' +
+          '这三个指标只依赖随机化带来的可交换性，因此现实 RCT 数据上同样可用。</p>'
+      },
+      {
         id: "articles",
         heading: "全部教程",
         body:
@@ -103,6 +124,35 @@ window.SITE_PAGES.tutorial = {
     title: "Tutorials & model evaluation",
     lede: "Seven standalone articles. The first six are organized by study design and outcome type on simulated data with known ground truth, all reconciled on one template: ATE bias + CATE correlation + RMSE + estimated SD. The seventh switches to the real-world setting — no true tau, comparing learners with Qini / TOC / c-for-benefit only.",
     sections: [
+      {
+        id: "about",
+        heading: "What this package does",
+        body:
+          '<p><code>mlr3HTE</code> is an mlr3-based package for estimating heterogeneous ' +
+          'treatment effects (HTE / CATE). It turns the S-, T-, X-, R- and DR-learners into ' +
+          'installable mlr3 learners. The design rests on a single idea: the formulas of the five ' +
+          'meta-learners are <strong>independent of the outcome type</strong>. They only ever talk to ' +
+          'an <strong>outcome model</strong> — an object that returns <code>predict(newX)</code>.</p>' +
+          '<p>A continuous outcome returns <code>E[Y|X]</code>, a binary outcome returns ' +
+          '<code>P(Y=1|X)</code>, and a survival outcome returns <code>S(t0|X)</code>. The CATE ' +
+          'then means a <strong>difference in means</strong>, a <strong>risk difference</strong>, ' +
+          'or a <strong>difference in survival probability at t0</strong>. Swap the outcome model ' +
+          'and you swap the outcome type, which is why roughly 800 lines of engine code cover ' +
+          '3 outcome types × 2 data regimes × 5 learners = <strong>30 combinations</strong>.</p>' +
+          '<p>The data side has two regimes. In a randomized trial, treatment is independent of the ' +
+          'covariates, so the crude difference is already unbiased and the question is how much ' +
+          'heterogeneity each learner can recover. In an observational study a confounding ' +
+          'back-door path is present, so IPTW or externally supplied weights must be applied first; ' +
+          'otherwise even the best learner is only fitting the bias.</p>' +
+          '<p>The seven articles below are organised by how you approach the package, one page each. ' +
+          'The first six use simulated data with known truth, so the reconciliation protocol is fixed: ' +
+          '<strong>ATE bias + CATE correlation + RMSE + SD of the estimates</strong> — reporting the ' +
+          'ATE alone hides the case where the average is right but every individual effect is wrong. ' +
+          'The seventh article switches to the shape of a real study: no true tau, so learners are ' +
+          'compared by <a href="#/tutorialbenchmark">Qini coefficient, TOC gain and c-for-benefit</a>, ' +
+          'three metrics that rely only on the exchangeability that randomization provides and ' +
+          'therefore work on real RCT data as well.</p>'
+      },
       {
         id: "articles",
         heading: "All tutorials",
@@ -479,10 +529,10 @@ window.SITE_PAGES.tutorialrct = {
           '<figure class="fig"><img src="assets/img/dag/dag_rct_continuous.png" ' +
           'alt="场景 1 的 DAG：随机化连续结局">' +
           '<figcaption>图 1 · 场景 1 因果图：<code>A</code> 随机分配，<code>X</code> 只修饰效应、不混杂</figcaption></figure>' +
-          '<pre><code>d <- mlr3HTE_demo_data(n = 4000, seed = 1201)\n' +
-          'lb <- lrn("regr.ranger", num.trees = 300, seed = 1)\n\n' +
+          '<pre><code>d &lt;- mlr3HTE_demo_data(n = 4000, seed = 1201)\n' +
+          'lb &lt;- lrn("regr.ranger", num.trees = 300, seed = 1)\n\n' +
           'for (tp in c("S","T","X","R","DR")) {\n' +
-          '  fit <- metalearner(tp, d$X, d$A, d$Y, learner_base = lb)\n' +
+          '  fit &lt;- metalearner(tp, d$X, d$A, d$Y, learner_base = lb)\n' +
           '  cat(tp, fit$ate, cor(fit$cate_train, d$tau), "\\n")\n' +
           '}</code></pre>' +
           '<div class="callout"><div class="callout-title">数据生成过程</div>' +
@@ -508,9 +558,9 @@ window.SITE_PAGES.tutorialrct = {
           'alt="场景 3 的 DAG：随机化二分类结局">' +
           '<figcaption>图 3 · 场景 3 因果图：结构与场景 1 相同，结局换成 ' +
           '<code>Y ~ Bern(plogis(qlogis(p0) + tau_logit))</code></figcaption></figure>' +
-          '<pre><code>d <- mlr3HTE_demo_binary(n = 4000, seed = 1202)\n' +
-          'lb <- lrn("classif.ranger", num.trees = 300, seed = 1)\n' +
-          'fit <- metalearner("T", d$X, d$A, d$Y, learner_base = lb)\n' +
+          '<pre><code>d &lt;- mlr3HTE_demo_binary(n = 4000, seed = 1202)\n' +
+          'lb &lt;- lrn("classif.ranger", num.trees = 300, seed = 1)\n' +
+          'fit &lt;- metalearner("T", d$X, d$A, d$Y, learner_base = lb)\n' +
           'fit$ate   # 平均风险差</code></pre>' +
           '<div class="callout ok"><div class="callout-title">效应尺度是风险差</div>' +
           '<p>基学习器必须是 <code>classif.*</code>，引擎自动判定 <code>outcome = "binary"</code>，' +
@@ -569,10 +619,10 @@ window.SITE_PAGES.tutorialrct = {
           'alt="Scenario 1 DAG: randomised continuous outcome">' +
           '<figcaption>Figure 1 · Scenario 1 DAG: <code>A</code> is randomised; ' +
           '<code>X</code> modifies the effect but does not confound</figcaption></figure>' +
-          '<pre><code>d <- mlr3HTE_demo_data(n = 4000, seed = 1201)\n' +
-          'lb <- lrn("regr.ranger", num.trees = 300, seed = 1)\n\n' +
+          '<pre><code>d &lt;- mlr3HTE_demo_data(n = 4000, seed = 1201)\n' +
+          'lb &lt;- lrn("regr.ranger", num.trees = 300, seed = 1)\n\n' +
           'for (tp in c("S","T","X","R","DR")) {\n' +
-          '  fit <- metalearner(tp, d$X, d$A, d$Y, learner_base = lb)\n' +
+          '  fit &lt;- metalearner(tp, d$X, d$A, d$Y, learner_base = lb)\n' +
           '  cat(tp, fit$ate, cor(fit$cate_train, d$tau), "\\n")\n' +
           '}</code></pre>' +
           '<div class="callout"><div class="callout-title">Data-generating process</div>' +
@@ -599,9 +649,9 @@ window.SITE_PAGES.tutorialrct = {
           'alt="Scenario 3 DAG: randomised binary outcome">' +
           '<figcaption>Figure 3 · Scenario 3 DAG: same structure as Scenario 1, with the ' +
           'outcome swapped for <code>Y ~ Bern(plogis(qlogis(p0) + tau_logit))</code></figcaption></figure>' +
-          '<pre><code>d <- mlr3HTE_demo_binary(n = 4000, seed = 1202)\n' +
-          'lb <- lrn("classif.ranger", num.trees = 300, seed = 1)\n' +
-          'fit <- metalearner("T", d$X, d$A, d$Y, learner_base = lb)\n' +
+          '<pre><code>d &lt;- mlr3HTE_demo_binary(n = 4000, seed = 1202)\n' +
+          'lb &lt;- lrn("classif.ranger", num.trees = 300, seed = 1)\n' +
+          'fit &lt;- metalearner("T", d$X, d$A, d$Y, learner_base = lb)\n' +
           'fit$ate   # average risk difference</code></pre>' +
           '<div class="callout ok"><div class="callout-title">The effect scale is the risk difference</div>' +
           '<p>The base learner must be <code>classif.*</code>; the engine detects ' +
@@ -667,11 +717,11 @@ window.SITE_PAGES.tutorialobs = {
           'alt="场景 2 的 DAG：观察性连续结局，X 混杂">' +
           '<figcaption>图 2 · 场景 2 因果图：红色路径 <code>X → e → A</code> 使 ' +
           '<code>X</code> 成为共同原因，粗差分有偏</figcaption></figure>' +
-          '<pre><code>d <- mlr3HTE_demo_obs(n = 4000, seed = 1204)   # 含混杂\n\n' +
-          'naive <- mean(d$Y[d$A == 1]) - mean(d$Y[d$A == 0])     # 有偏\n' +
-          'fit   <- metalearner("X", d$X, d$A, d$Y, weighting = "iptw")\n\n' +
+          '<pre><code>d &lt;- mlr3HTE_demo_obs(n = 4000, seed = 1204)   # 含混杂\n\n' +
+          'naive &lt;- mean(d$Y[d$A == 1]) - mean(d$Y[d$A == 0])     # 有偏\n' +
+          'fit   &lt;- metalearner("X", d$X, d$A, d$Y, weighting = "iptw")\n\n' +
           '# 用真实 PS 走外部权重\n' +
-          'w <- ifelse(d$A == 1, d$ps_true, 1 - d$ps_true)\n' +
+          'w &lt;- ifelse(d$A == 1, d$ps_true, 1 - d$ps_true)\n' +
           'metalearner("DR", d$X, d$A, d$Y, weighting = "external", weights = w)</code></pre>' +
           '<div class="callout danger"><div class="callout-title">混杂结构</div>' +
           '<p>病情越重（<code>z1</code> 高）越容易接受处理，而病情本身又影响结局。' +
@@ -718,9 +768,9 @@ window.SITE_PAGES.tutorialobs = {
           'alt="场景 4 的 DAG：观察性二分类结局">' +
           '<figcaption>图 4 · 场景 4 因果图：同样的混杂结构，未调整风险差 ' +
           '0.256 vs 真实 0.131</figcaption></figure>' +
-          '<pre><code>d <- mlr3HTE_demo_obs_binary(n = 4000, seed = 1205)\n\n' +
-          'naive <- mean(d$Y[d$A == 1]) - mean(d$Y[d$A == 0])\n' +
-          'fit <- metalearner("X", d$X, d$A, d$Y,\n' +
+          '<pre><code>d &lt;- mlr3HTE_demo_obs_binary(n = 4000, seed = 1205)\n\n' +
+          'naive &lt;- mean(d$Y[d$A == 1]) - mean(d$Y[d$A == 0])\n' +
+          'fit &lt;- metalearner("X", d$X, d$A, d$Y,\n' +
           '                   learner_base = lrn("classif.ranger", num.trees = 300, seed = 1),\n' +
           '                   weighting = "iptw")</code></pre>' +
           '<div class="table-wrap"><table>' +
@@ -791,11 +841,11 @@ window.SITE_PAGES.tutorialobs = {
           'alt="Scenario 2 DAG: observational continuous outcome with confounding">' +
           '<figcaption>Figure 2 · Scenario 2 DAG: the red path <code>X → e → A</code> makes ' +
           '<code>X</code> a common cause; crude differences are biased</figcaption></figure>' +
-          '<pre><code>d <- mlr3HTE_demo_obs(n = 4000, seed = 1204)   # confounded\n\n' +
-          'naive <- mean(d$Y[d$A == 1]) - mean(d$Y[d$A == 0])     # biased\n' +
-          'fit   <- metalearner("X", d$X, d$A, d$Y, weighting = "iptw")\n\n' +
+          '<pre><code>d &lt;- mlr3HTE_demo_obs(n = 4000, seed = 1204)   # confounded\n\n' +
+          'naive &lt;- mean(d$Y[d$A == 1]) - mean(d$Y[d$A == 0])     # biased\n' +
+          'fit   &lt;- metalearner("X", d$X, d$A, d$Y, weighting = "iptw")\n\n' +
           '# External weights from the true PS\n' +
-          'w <- ifelse(d$A == 1, d$ps_true, 1 - d$ps_true)\n' +
+          'w &lt;- ifelse(d$A == 1, d$ps_true, 1 - d$ps_true)\n' +
           'metalearner("DR", d$X, d$A, d$Y, weighting = "external", weights = w)</code></pre>' +
           '<div class="callout danger"><div class="callout-title">Confounding structure</div>' +
           '<p>Sicker patients (higher <code>z1</code>) are more likely to be treated, and severity ' +
@@ -845,9 +895,9 @@ window.SITE_PAGES.tutorialobs = {
           'alt="Scenario 4 DAG: observational binary outcome">' +
           '<figcaption>Figure 4 · Scenario 4 DAG: the same confounding structure; ' +
           'unadjusted risk difference 0.256 vs true 0.131</figcaption></figure>' +
-          '<pre><code>d <- mlr3HTE_demo_obs_binary(n = 4000, seed = 1205)\n\n' +
-          'naive <- mean(d$Y[d$A == 1]) - mean(d$Y[d$A == 0])\n' +
-          'fit <- metalearner("X", d$X, d$A, d$Y,\n' +
+          '<pre><code>d &lt;- mlr3HTE_demo_obs_binary(n = 4000, seed = 1205)\n\n' +
+          'naive &lt;- mean(d$Y[d$A == 1]) - mean(d$Y[d$A == 0])\n' +
+          'fit &lt;- metalearner("X", d$X, d$A, d$Y,\n' +
           '                   learner_base = lrn("classif.ranger", num.trees = 300, seed = 1),\n' +
           '                   weighting = "iptw")</code></pre>' +
           '<div class="table-wrap"><table>' +
@@ -922,8 +972,8 @@ window.SITE_PAGES.tutorialsurv = {
           'alt="场景 5 的 DAG：随机化生存结局">' +
           '<figcaption>图 5 · 场景 5 因果图：<code>Y</code> 是 (时间, 事件) 二元组，' +
           '另有指数删失（图中略）</figcaption></figure>' +
-          '<pre><code>d <- mlr3HTE_demo_surv(n = 4000, t0 = 2, seed = 1203)\n\n' +
-          'fit <- metalearner("T", d$X, d$A, d$Y, learner_base = "coxph", t0 = 2)\n' +
+          '<pre><code>d &lt;- mlr3HTE_demo_surv(n = 4000, t0 = 2, seed = 1203)\n\n' +
+          'fit &lt;- metalearner("T", d$X, d$A, d$Y, learner_base = "coxph", t0 = 2)\n' +
           'fit$ate   # 平均 S₁(2) − S₀(2)\n\n' +
           '# 也可以换非线性基学习器\n' +
           'metalearner("T", d$X, d$A, d$Y, learner_base = "ranger", t0 = 2)</code></pre>' +
@@ -955,13 +1005,13 @@ window.SITE_PAGES.tutorialsurv = {
           'alt="场景 6 的 DAG：观察性生存结局">' +
           '<figcaption>图 6 · 场景 6 因果图：混杂（红）之外还有删失，' +
           'IPTW × IPCW 两层权重相乘</figcaption></figure>' +
-          '<pre><code>d <- mlr3HTE_demo_obs_surv(n = 4000, t0 = 2, seed = 1206)\n\n' +
+          '<pre><code>d &lt;- mlr3HTE_demo_obs_surv(n = 4000, t0 = 2, seed = 1206)\n\n' +
           '# 未调整：分两组做 Kaplan-Meier，再取 t0 处差值\n' +
-          'km    <- survfit(Surv(d$Y[,1], d$Y[,2]) ~ d$A)\n' +
-          's_at  <- summary(km, times = 2)$surv\n' +
-          'naive <- s_at[2] - s_at[1]\n\n' +
+          'km    &lt;- survfit(Surv(d$Y[,1], d$Y[,2]) ~ d$A)\n' +
+          's_at  &lt;- summary(km, times = 2)$surv\n' +
+          'naive &lt;- s_at[2] - s_at[1]\n\n' +
           '# IPTW（混杂）× IPCW（删失）\n' +
-          'fit <- metalearner("X", d$X, d$A, d$Y, learner_base = "coxph",\n' +
+          'fit &lt;- metalearner("X", d$X, d$A, d$Y, learner_base = "coxph",\n' +
           '                   weighting = "iptw", t0 = 2)</code></pre>' +
           '<div class="callout"><div class="callout-title">两层权重是相乘的</div>' +
           '<div class="table-wrap"><table>' +
@@ -1009,8 +1059,8 @@ window.SITE_PAGES.tutorialsurv = {
           '（Shah Lab，GPL-3）。该包只发布在 GitHub，所以 mlr3HTE 把它放在 Suggests，' +
           '未安装时会给出明确提示：</p>' +
           '<pre><code>remotes::install_github("som-shahlab/survlearners", subdir = "r-package/survlearners")\n\n' +
-          'd <- mlr3HTE_demo_surv(n = 2000, t0 = 2, seed = 1203)\n' +
-          'fit <- metalearner("X", d$X, d$A, d$Y, learner_base = "grf",\n' +
+          'd &lt;- mlr3HTE_demo_surv(n = 2000, t0 = 2, seed = 1203)\n' +
+          'fit &lt;- metalearner("X", d$X, d$A, d$Y, learner_base = "grf",\n' +
           '                   t0 = 2, engine = "survlearners")</code></pre>' +
 
           '<div class="table-wrap"><table>' +
@@ -1096,8 +1146,8 @@ window.SITE_PAGES.tutorialsurv = {
           'alt="Scenario 5 DAG: randomised survival outcome">' +
           '<figcaption>Figure 5 · Scenario 5 DAG: <code>Y</code> is a (time, event) pair; ' +
           'exponential censoring applies on top (omitted from the figure)</figcaption></figure>' +
-          '<pre><code>d <- mlr3HTE_demo_surv(n = 4000, t0 = 2, seed = 1203)\n\n' +
-          'fit <- metalearner("T", d$X, d$A, d$Y, learner_base = "coxph", t0 = 2)\n' +
+          '<pre><code>d &lt;- mlr3HTE_demo_surv(n = 4000, t0 = 2, seed = 1203)\n\n' +
+          'fit &lt;- metalearner("T", d$X, d$A, d$Y, learner_base = "coxph", t0 = 2)\n' +
           'fit$ate   # mean S₁(2) − S₀(2)\n\n' +
           '# Or a non-linear base learner\n' +
           'metalearner("T", d$X, d$A, d$Y, learner_base = "ranger", t0 = 2)</code></pre>' +
@@ -1131,13 +1181,13 @@ window.SITE_PAGES.tutorialsurv = {
           'alt="Scenario 6 DAG: observational survival outcome">' +
           '<figcaption>Figure 6 · Scenario 6 DAG: on top of confounding (red) there is ' +
           'censoring, so IPTW × IPCW layers are multiplied</figcaption></figure>' +
-          '<pre><code>d <- mlr3HTE_demo_obs_surv(n = 4000, t0 = 2, seed = 1206)\n\n' +
+          '<pre><code>d &lt;- mlr3HTE_demo_obs_surv(n = 4000, t0 = 2, seed = 1206)\n\n' +
           '# Unadjusted: separate Kaplan-Meier per arm, take the difference at t0\n' +
-          'km    <- survfit(Surv(d$Y[,1], d$Y[,2]) ~ d$A)\n' +
-          's_at  <- summary(km, times = 2)$surv\n' +
-          'naive <- s_at[2] - s_at[1]\n\n' +
+          'km    &lt;- survfit(Surv(d$Y[,1], d$Y[,2]) ~ d$A)\n' +
+          's_at  &lt;- summary(km, times = 2)$surv\n' +
+          'naive &lt;- s_at[2] - s_at[1]\n\n' +
           '# IPTW (confounding) × IPCW (censoring)\n' +
-          'fit <- metalearner("X", d$X, d$A, d$Y, learner_base = "coxph",\n' +
+          'fit &lt;- metalearner("X", d$X, d$A, d$Y, learner_base = "coxph",\n' +
           '                   weighting = "iptw", t0 = 2)</code></pre>' +
           '<div class="callout"><div class="callout-title">Two layers of weights are multiplied</div>' +
           '<div class="table-wrap"><table>' +
@@ -1186,8 +1236,8 @@ window.SITE_PAGES.tutorialsurv = {
           '(Shah Lab, GPL-3). It lives on GitHub only, so mlr3HTE keeps it in Suggests ' +
           'and prints an install hint when missing:</p>' +
           '<pre><code>remotes::install_github("som-shahlab/survlearners", subdir = "r-package/survlearners")\n\n' +
-          'd <- mlr3HTE_demo_surv(n = 2000, t0 = 2, seed = 1203)\n' +
-          'fit <- metalearner("X", d$X, d$A, d$Y, learner_base = "grf",\n' +
+          'd &lt;- mlr3HTE_demo_surv(n = 2000, t0 = 2, seed = 1203)\n' +
+          'fit &lt;- metalearner("X", d$X, d$A, d$Y, learner_base = "grf",\n' +
           '                   t0 = 2, engine = "survlearners")</code></pre>' +
 
           '<div class="table-wrap"><table>' +
@@ -1934,8 +1984,8 @@ window.SITE_PAGES.tutorialmetrics = {
           '| model       | 0.2618 | 0.3121  | 0.0503      |\n' +
           '| oracle      | 0.2887 | 0.3477  | 0.0591      |\n\n' +
           'oracle truth (ranking ceiling):      0.2887\n' +
-          'ranking loss (model misordered):     0.0269 -> 9.3% of ceiling\n' +
-          'estimation noise (IPW sampling):     0.0591 -> 20.5% of ceiling\n' +
+          'ranking loss (model misordered):     0.0269 -&gt; 9.3% of ceiling\n' +
+          'estimation noise (IPW sampling):     0.0591 -&gt; 20.5% of ceiling\n' +
           'ranking efficiency = model / oracle = 0.907</code></pre>' +
 
           '<div class="callout"><div class="callout-title">The most useful number: a noise ruler</div>' +
@@ -1963,8 +2013,8 @@ window.SITE_PAGES.tutorialmetrics = {
           '<code>1/2 + arcsin(ρ)/π</code>:</p>' +
           '<pre><code>signal-to-noise rho = sd(tau) / sd(observed) = 0.973 / 1.905 = 0.511\n' +
           'theoretical ceiling  = 0.5 + asin(0.511) / pi            = 0.6706\n' +
-          'oracle measured       0.6638   <- 0.007 from theory, a match\n' +
-          'model measured        0.6457   <- (0.646-0.5)/(0.671-0.5) = 85% of headroom\n' +
+          'oracle measured       0.6638   &lt;- 0.007 from theory, a match\n' +
+          'model measured        0.6457   &lt;- (0.646-0.5)/(0.671-0.5) = 85% of headroom\n' +
           'random ranking        0.5062</code></pre>' +
           '<p>So when c-for-benefit reports 0.65, do not conclude it is "not close enough to 1" — ' +
           '<strong>the information ceiling of this dataset is 0.671</strong>. The only ways to ' +
@@ -1976,9 +2026,9 @@ window.SITE_PAGES.tutorialmetrics = {
           '<code>propensity</code> fixes:</p>' +
           '<pre><code>model truth       0.2523\n' +
           'oracle truth      0.2850\n' +
-          'with propensity   0.2666   <- residual 0.014, noise\n' +
-          'without           1.0535   <- bias 0.801, confounding\n' +
-          'noise ruler       0.0383   <- the bias is 21x the ruler</code></pre>' +
+          'with propensity   0.2666   &lt;- residual 0.014, noise\n' +
+          'without           1.0535   &lt;- bias 0.801, confounding\n' +
+          'noise ruler       0.0383   &lt;- the bias is 21x the ruler</code></pre>' +
           '<p>With <code>propensity</code> the residual 0.014 sits inside the noise level (ruler ' +
           '0.038); without it the estimate is off by 0.801, twenty-one times the noise — ' +
           '<strong>that is not jitter, it is systematic error</strong>. Which is also why the ' +

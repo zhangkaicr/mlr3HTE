@@ -2,7 +2,7 @@
    content-home.js —— 导航定义 + 站点元信息 + 首页（中英双语）
    ===================================================================== */
 
-window.SITE_META = { version: "0.32", date: "2026-10-22" };
+window.SITE_META = { version: "0.33", date: "2026-10-22" };
 
 window.SITE_NAV = [
   { id: "home",      zh: "首页",           en: "Home"                    },
@@ -55,34 +55,6 @@ window.SITE_PAGES.home = {
     hero: "assets/img/social-preview.png",
     heroAlt: "mlr3HTE 封面：治疗推荐前的潜在结局重合、推荐后按治疗与对照发散",
     sections: [
-
-      {
-        id: "intro",
-        heading: "这是什么",
-        body:
-          '<div class="logo-block">' +
-          '<img src="assets/img/logo.png" alt="mlr3HTE 包图标" width="150">' +
-          '<p class="logo-caption">两条潜在结局曲线向右发散，中间琥珀色间隙即治疗效应；' +
-          '间隙越宽表示异质性越强。</p>' +
-          '</div>' +
-          '<p><code>mlr3HTE</code> 把课程里的 S- / T- / X- / R- / DR-Learner 做成了正规可安装的 ' +
-          'mlr3 学习器。它的核心设计只有一句话：</p>' +
-          '<div class="callout ok">' +
-          '<div class="callout-title">统一架构</div>' +
-          '<p>五种 Meta-Learner 的公式<strong>与结局类型无关</strong>。它们只跟一个东西打交道——' +
-          '<strong>结局模型</strong>，一个能返回 <code>predict(newX)</code> 的对象。</p>' +
-          '</div>' +
-          '<div class="table-wrap"><table>' +
-          '<thead><tr><th>结局类型</th><th>结局模型返回</th><th>CATE 的含义</th></tr></thead>' +
-          '<tbody>' +
-          '<tr><td>连续</td><td><code>E[Y | X]</code></td><td>均值差 <code>E[Y(1)-Y(0)|X]</code></td></tr>' +
-          '<tr><td>二分类</td><td><code>P(Y=1 | X)</code></td><td><strong>风险差</strong></td></tr>' +
-          '<tr><td>生存</td><td><code>S(t0 | X)</code></td><td><strong>t0 时点生存概率差</strong></td></tr>' +
-          '</tbody></table></div>' +
-          '<p>于是同一个骨架，换掉结局模型就换了结局类型——这就是为什么 800 余行代码能覆盖 ' +
-          '3 类结局 × 2 种数据 × 5 种 learner 共 <strong>30 种组合</strong>。</p>'
-      },
-
       {
         id: "matrix",
         heading: "六格矩阵：三类结局 × 两种数据",
@@ -143,8 +115,8 @@ window.SITE_PAGES.home = {
         body:
           '<pre><code>library(mlr3); library(mlr3learners); library(mlr3HTE)\n\n' +
           '# 连续结局 · RCT\n' +
-          'd <- mlr3HTE_demo_data(n = 4000)\n' +
-          'fit <- metalearner("T", d$X, d$A, d$Y,\n' +
+          'd &lt;- mlr3HTE_demo_data(n = 4000)\n' +
+          'fit &lt;- metalearner("T", d$X, d$A, d$Y,\n' +
           '                   learner_base = lrn("regr.ranger", num.trees = 300, seed = 1))\n\n' +
           'fit$ate          # ATE 估计\n' +
           'fit$cate_train   # 训练集上每个人的 CATE\n' +
@@ -193,35 +165,6 @@ window.SITE_PAGES.home = {
     hero: "assets/img/social-preview.png",
     heroAlt: "mlr3HTE cover: potential outcomes coincide before a treatment recommendation, then diverge by treatment vs control",
     sections: [
-
-      {
-        id: "intro",
-        heading: "What this is",
-        body:
-          '<div class="logo-block">' +
-          '<img src="assets/img/logo.png" alt="mlr3HTE package logo" width="150">' +
-          '<p class="logo-caption">Two potential-outcome curves diverge to the right; the amber gap ' +
-          'between them is the treatment effect, and a wider gap means stronger heterogeneity.</p>' +
-          '</div>' +
-          '<p><code>mlr3HTE</code> turns the classic S- / T- / X- / R- / DR-learners into proper, ' +
-          'installable mlr3 learners. The design boils down to one sentence:</p>' +
-          '<div class="callout ok">' +
-          '<div class="callout-title">Unified architecture</div>' +
-          '<p>The five meta-learner formulas are <strong>independent of the outcome type</strong>. ' +
-          'They only talk to one thing — the <strong>outcome model</strong>, an object exposing ' +
-          '<code>predict(newX)</code>.</p>' +
-          '</div>' +
-          '<div class="table-wrap"><table>' +
-          '<thead><tr><th>Outcome</th><th>Outcome model returns</th><th>Meaning of CATE</th></tr></thead>' +
-          '<tbody>' +
-          '<tr><td>Continuous</td><td><code>E[Y | X]</code></td><td>Mean difference <code>E[Y(1)-Y(0)|X]</code></td></tr>' +
-          '<tr><td>Binary</td><td><code>P(Y=1 | X)</code></td><td><strong>Risk difference</strong></td></tr>' +
-          '<tr><td>Survival</td><td><code>S(t0 | X)</code></td><td><strong>Difference in survival at t0</strong></td></tr>' +
-          '</tbody></table></div>' +
-          '<p>Swap the outcome model and you swap the outcome type — which is why ~800 lines of ' +
-          'code cover <strong>30 combinations</strong>: 3 outcome types × 2 data settings × 5 learners.</p>'
-      },
-
       {
         id: "matrix",
         heading: "The 6-cell matrix: 3 outcomes × 2 settings",
@@ -284,8 +227,8 @@ window.SITE_PAGES.home = {
         body:
           '<pre><code>library(mlr3); library(mlr3learners); library(mlr3HTE)\n\n' +
           '# Continuous outcome, RCT\n' +
-          'd <- mlr3HTE_demo_data(n = 4000)\n' +
-          'fit <- metalearner("T", d$X, d$A, d$Y,\n' +
+          'd &lt;- mlr3HTE_demo_data(n = 4000)\n' +
+          'fit &lt;- metalearner("T", d$X, d$A, d$Y,\n' +
           '                   learner_base = lrn("regr.ranger", num.trees = 300, seed = 1))\n\n' +
           'fit$ate          # ATE estimate\n' +
           'fit$cate_train   # CATE for every unit in the training set\n' +

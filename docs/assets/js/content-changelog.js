@@ -9,9 +9,34 @@ window.SITE_PAGES.changelog = {
   /* ---------------- 中文 ---------------- */
   zh: {
     title: "更新日志",
-    lede: "mlr3HTE 的版本历史与重要变更。当前版本 v0.32。",
+    lede: "mlr3HTE 的版本历史与重要变更。当前版本 v0.33。",
     sections: [
 
+
+      {
+        id: "v033",
+        heading: "v0.33 · 2026-10-22",
+        body:
+          '<div class="callout ok"><div class="callout-title">首页瘦身 + 教程首页加包简介</div>' +
+          '<p><strong>首页删掉「这是什么」整段</strong>（含 logo 图与三行结局对照表）——' +
+          '首页一进来就是六格矩阵，不再先读一段导论。</p>' +
+          '<p><strong>教程首页开头新增「这个包做什么」</strong>，约 400 字讲清三件事：' +
+          '五种 meta-learner 的公式与结局类型无关，只跟结局模型打交道；' +
+          'RCT 与观察性数据分别该怎么处理；' +
+          '七篇教程为什么分成「有真值对账」与「无真值排序评价」两组。</p></div>' +
+          '<div class="callout warn"><div class="callout-title">顺手修掉两个渲染 bug</div>' +
+          '<ul>' +
+          '<li><strong>代码块里的 <code>&lt;dbl&gt;</code> 不再消失。</strong>示例输出是把 R 控制台原文' +
+          '写进 <code>&lt;pre&gt;</code> 的，里面的 <code>&lt;dbl&gt;</code> / <code>&lt;int&gt;</code> / ' +
+          '<code>&lt;chr&gt;</code> 被浏览器当成未知标签直接吞掉，读者看到的 tibble 会缺掉列类型行。' +
+          '这次把 149 个 pre 块内部的尖括号统一转义成实体，真正的标记一个没动。</li>' +
+          '<li><strong>补上 3 个函数页缺失的一句话简介</strong>（<code>metalearner()</code>、' +
+          '<code>ml_task()</code>、R6 Learner），此前这三页标题下面直接跳到正文。</li>' +
+          '</ul></div>' +
+          '<p>另外新增 <code>dev/_validate.js</code>：一次性检查 44 个页面的' +
+          '中英段落 id 是否对齐、HTML 标签是否闭合、站内 <code>#/</code> 链接是否有对应页面。' +
+          '上面这两个 bug 就是它跑出来的。</p>'
+      },
 
       {
         id: "v032",
@@ -357,9 +382,38 @@ window.SITE_PAGES.changelog = {
   /* ---------------- English ---------------- */
   en: {
     title: "Changelog",
-    lede: "Version history and notable changes for mlr3HTE. Current version: v0.32.",
+    lede: "Version history and notable changes for mlr3HTE. Current version: v0.33.",
     sections: [
 
+
+      {
+        id: "v033",
+        heading: "v0.33 · 2026-10-22",
+        body:
+          '<div class="callout ok"><div class="callout-title">Leaner home page, package overview on the tutorial index</div>' +
+          '<p><strong>The whole "What this is" section is gone from the home page</strong> ' +
+          '(logo image plus the three-row outcome table). You now land directly on the ' +
+          '6-cell matrix instead of reading an introduction first.</p>' +
+          '<p><strong>A new "What this package does" section opens the tutorial index</strong>, ' +
+          'about 400 words covering three things: the five meta-learner formulas are independent ' +
+          'of the outcome type and only ever talk to the outcome model; how RCT data and ' +
+          'observational data each need to be handled; and why the seven articles split into ' +
+          'reconciliation against known truth versus ranking-based evaluation without truth.</p></div>' +
+          '<div class="callout warn"><div class="callout-title">Two rendering bugs fixed along the way</div>' +
+          '<ul>' +
+          '<li><strong><code>&lt;dbl&gt;</code> no longer vanishes from code blocks.</strong> ' +
+          'Example output is the raw R console text written into <code>&lt;pre&gt;</code>, so ' +
+          '<code>&lt;dbl&gt;</code> / <code>&lt;int&gt;</code> / <code>&lt;chr&gt;</code> were ' +
+          'parsed as unknown tags and silently dropped — tibbles lost their column-type rows. ' +
+          'Angle brackets inside 149 pre blocks are now escaped as entities; real markup untouched.</li>' +
+          '<li><strong>Three function pages got the one-line blurb they were missing</strong> ' +
+          '(<code>metalearner()</code>, <code>ml_task()</code> and the R6 Learner); ' +
+          'they previously jumped straight from the title into the body.</li>' +
+          '</ul></div>' +
+          '<p>Also new: <code>dev/_validate.js</code>, which checks all 44 pages at once for ' +
+          'zh/en section-id alignment, unbalanced HTML tags and dead <code>#/</code> links. ' +
+          'Both bugs above were found by running it.</p>'
+      },
 
       {
         id: "v032",

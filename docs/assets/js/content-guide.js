@@ -83,15 +83,15 @@ window.SITE_PAGES.guide = {
           '<td>要进 <code>resample</code> / <code>benchmark</code> / <code>tune</code></td></tr>' +
           '</tbody></table></div>' +
           '<h3>函数式</h3>' +
-          '<pre><code>fit <- metalearner("T", X, A, Y, learner_base = lrn("regr.ranger"))\n' +
+          '<pre><code>fit &lt;- metalearner("T", X, A, Y, learner_base = lrn("regr.ranger"))\n' +
           'fit$ate          # 平均治疗效应\n' +
           'fit$cate_train   # 逐人 CATE\n' +
           'fit$predict(newX)</code></pre>' +
           '<h3>R6 Learner（进 mlr3 工作流）</h3>' +
           '<pre><code>library(mlr3)                     # resample()/benchmark()/rsmp() 来自 mlr3\n' +
-          'task <- ml_task(X, A, Y)          # 三类结局统一编码\n' +
-          'l    <- lrn("regr.metalearner", metalearner = "T")\n' +
-          'l$learner_base <- lrn("regr.ranger")\n\n' +
+          'task &lt;- ml_task(X, A, Y)          # 三类结局统一编码\n' +
+          'l    &lt;- lrn("regr.metalearner", metalearner = "T")\n' +
+          'l$learner_base &lt;- lrn("regr.ranger")\n\n' +
           'resample(task, l, rsmp("cv", folds = 5))\n' +
           'benchmark(benchmark_grid(task,\n' +
           '  list(lrn("regr.metalearner", id = "a", metalearner = "T"),\n' +
@@ -118,7 +118,7 @@ window.SITE_PAGES.guide = {
           '# 观察性：内部训 PS 模型做 IPTW\n' +
           'metalearner("X", X, A, Y, weighting = "iptw", stabilize = TRUE)\n\n' +
           '# 观察性：用外部算好的权重\n' +
-          'w <- ifelse(A == 1, ps, 1 - ps)\n' +
+          'w &lt;- ifelse(A == 1, ps, 1 - ps)\n' +
           'metalearner("DR", X, A, Y, weighting = "external", weights = w)</code></pre>' +
           '<div class="callout warn">' +
           '<div class="callout-title">权重复现要设种子</div>' +
@@ -140,8 +140,8 @@ window.SITE_PAGES.guide = {
           '<p><code>G</code> 由对删失指示 <code>(1 - status)</code> 拟合的 Cox 模型得到，' +
           '权重截断在 <code>[0.01, 1]</code> 防止极端值搅坏估计。观察性数据时，' +
           '<strong>混杂 IPTW 与删失 IPCW 是相乘的</strong>。</p>' +
-          '<pre><code>d <- mlr3HTE_demo_surv(n = 4000, t0 = 2)\n' +
-          'fit <- metalearner("T", d$X, d$A, d$Y, learner_base = "coxph", t0 = 2)\n' +
+          '<pre><code>d &lt;- mlr3HTE_demo_surv(n = 4000, t0 = 2)\n' +
+          'fit &lt;- metalearner("T", d$X, d$A, d$Y, learner_base = "coxph", t0 = 2)\n' +
           'fit$ate   # 平均 S₁(2) - S₀(2)\n\n' +
           '# t0 缺省时取事件时间中位数\n' +
           'metalearner("T", d$X, d$A, d$Y, learner_base = "coxph")$t0</code></pre>'
@@ -260,15 +260,15 @@ window.SITE_PAGES.guide = {
           '<td>You need <code>resample</code> / <code>benchmark</code> / <code>tune</code></td></tr>' +
           '</tbody></table></div>' +
           '<h3>Functional</h3>' +
-          '<pre><code>fit <- metalearner("T", X, A, Y, learner_base = lrn("regr.ranger"))\n' +
+          '<pre><code>fit &lt;- metalearner("T", X, A, Y, learner_base = lrn("regr.ranger"))\n' +
           'fit$ate          # average treatment effect\n' +
           'fit$cate_train   # CATE per unit\n' +
           'fit$predict(newX)</code></pre>' +
           '<h3>R6 Learner (mlr3 workflows)</h3>' +
           '<pre><code>library(mlr3)                     # resample() / benchmark() / rsmp() live in mlr3\n' +
-          'task <- ml_task(X, A, Y)          # uniform encoding for all outcome types\n' +
-          'l    <- lrn("regr.metalearner", metalearner = "T")\n' +
-          'l$learner_base <- lrn("regr.ranger")\n\n' +
+          'task &lt;- ml_task(X, A, Y)          # uniform encoding for all outcome types\n' +
+          'l    &lt;- lrn("regr.metalearner", metalearner = "T")\n' +
+          'l$learner_base &lt;- lrn("regr.ranger")\n\n' +
           'resample(task, l, rsmp("cv", folds = 5))\n' +
           'benchmark(benchmark_grid(task,\n' +
           '  list(lrn("regr.metalearner", id = "a", metalearner = "T"),\n' +
@@ -297,7 +297,7 @@ window.SITE_PAGES.guide = {
           '# Observational: fit a PS model internally and use IPTW\n' +
           'metalearner("X", X, A, Y, weighting = "iptw", stabilize = TRUE)\n\n' +
           '# Observational: supply externally computed weights\n' +
-          'w <- ifelse(A == 1, ps, 1 - ps)\n' +
+          'w &lt;- ifelse(A == 1, ps, 1 - ps)\n' +
           'metalearner("DR", X, A, Y, weighting = "external", weights = w)</code></pre>' +
           '<div class="callout warn">' +
           '<div class="callout-title">Set a seed for reproducible weights</div>' +
@@ -321,8 +321,8 @@ window.SITE_PAGES.guide = {
           '<code>(1 - status)</code>; weights are clipped to <code>[0.01, 1]</code> to keep extreme ' +
           'values from wrecking the estimate. With observational data, <strong>confounding IPTW and ' +
           'censoring IPCW are multiplied</strong>.</p>' +
-          '<pre><code>d <- mlr3HTE_demo_surv(n = 4000, t0 = 2)\n' +
-          'fit <- metalearner("T", d$X, d$A, d$Y, learner_base = "coxph", t0 = 2)\n' +
+          '<pre><code>d &lt;- mlr3HTE_demo_surv(n = 4000, t0 = 2)\n' +
+          'fit &lt;- metalearner("T", d$X, d$A, d$Y, learner_base = "coxph", t0 = 2)\n' +
           'fit$ate   # mean S₁(2) - S₀(2)\n\n' +
           '# If t0 is omitted, the median event time is used\n' +
           'metalearner("T", d$X, d$A, d$Y, learner_base = "coxph")$t0</code></pre>'
