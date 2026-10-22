@@ -9,9 +9,30 @@ window.SITE_PAGES.changelog = {
   /* ---------------- 中文 ---------------- */
   zh: {
     title: "更新日志",
-    lede: "mlr3HTE 的版本历史与重要变更。当前版本 v0.30。",
+    lede: "mlr3HTE 的版本历史与重要变更。当前版本 v0.31。",
     sections: [
 
+
+      {
+        id: "v031",
+        heading: "v0.31 · 2026-10-22",
+        body:
+          '<div class="callout ok"><div class="callout-title">新增 RCT 基准测试（不依赖真实 tau）</div>' +
+          '<p>新出两个函数：<code>hte_benchmark()</code> 与 ' +
+          '<code>plot_hte_benchmark()</code>。用归一化 Qini 系数、' +
+          'TOC 增益、c-for-benefit 三个指标比较五族 meta-learner，' +
+          '全部建立在随机化带来的可交换性上，' +
+          '<strong>不需要倾向得分，因此现实 RCT 数据上同样可用</strong>。</p>' +
+          '<p>交叉拟合是强制的（折按处理组分层）。' +
+          '实测 in-fold 的 c-for-benefit 为 0.663，' +
+          '<strong>超过了真实 tau 的 0.624</strong>——' +
+          '那是把训练噪声也排进序里；' +
+          '交叉拟合后回落到 0.617。</p>' +
+          '<p>同时在教程里写清楚了前提：' +
+          '<strong>真实 CATE 只有模拟数据才给得出</strong>，' +
+          '“跑 mlr3 benchmark 看 CATE 相关”只适用于模拟研究。' +
+          '可选的 <code>tau</code> 参数让模拟数据能把两套指标照着看。</p></div>'
+      },
 
       {
         id: "v030",
@@ -318,9 +339,27 @@ window.SITE_PAGES.changelog = {
   /* ---------------- English ---------------- */
   en: {
     title: "Changelog",
-    lede: "Version history and notable changes for mlr3HTE. Current version: v0.30.",
+    lede: "Version history and notable changes for mlr3HTE. Current version: v0.31.",
     sections: [
 
+
+      {
+        id: "v031",
+        heading: "v0.31 · 2026-10-22",
+        body:
+          '<div class="callout ok"><div class="callout-title">New RCT benchmark (no true tau needed)</div>' +
+          '<p>Two new functions: <code>hte_benchmark()</code> and <code>plot_hte_benchmark()</code>. ' +
+          'They compare the five meta-learners with normalised Qini coefficient, TOC gain and ' +
+          'c-for-benefit, all resting on the exchangeability randomization buys, ' +
+          '<strong>so no propensity score is needed and real RCT data works the same way</strong>.</p>' +
+          '<p>Cross-fitting is enforced (folds stratified by treatment arm). Measured: the in-fold ' +
+          'c-for-benefit is 0.663, <strong>exceeding the true tau\'s 0.624</strong> &mdash; that is ' +
+          'training noise being ranked; cross-fitting brings it back to 0.617.</p>' +
+          '<p>The tutorial now states the premise plainly: <strong>true CATE only exists in ' +
+          'simulated data</strong>, so "run an mlr3 benchmark and look at CATE correlation" applies ' +
+          'to simulation studies only. An optional <code>tau</code> argument lets simulated data ' +
+          'report both metric families side by side.</p></div>'
+      },
 
       {
         id: "v030",

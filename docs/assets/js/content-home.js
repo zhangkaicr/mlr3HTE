@@ -2,7 +2,7 @@
    content-home.js —— 导航定义 + 站点元信息 + 首页（中英双语）
    ===================================================================== */
 
-window.SITE_META = { version: "0.30", date: "2026-10-22" };
+window.SITE_META = { version: "0.31", date: "2026-10-22" };
 
 window.SITE_NAV = [
   { id: "home",      zh: "首页",           en: "Home"                    },
@@ -18,7 +18,8 @@ window.SITE_NAV = [
       { id: "tutorialobs",      zh: "2 观察性研究分析",   en: "2 Observational studies"           },
       { id: "tutorialsurv",     zh: "3 生存结局分析",         en: "3 Survival outcomes"               },
       { id: "tutoriallearners", zh: "4 换不同学习器",         en: "4 Swapping the base learner"       },
-      { id: "tutorialmetrics",  zh: "5 模型评价指标",         en: "5 Model evaluation metrics"        }
+      { id: "tutorialmetrics",  zh: "5 模型评价指标",         en: "5 Model evaluation metrics"        },
+      { id: "tutorialbenchmark", zh: "6 RCT 基准测试",        en: "6 RCT benchmark"                  },
     ]
   },
   {
@@ -33,6 +34,7 @@ window.SITE_NAV = [
       { id: "apilearner",     zh: "learner_base / learner_tau",           en: "learner_base / learner_tau"              },
       { id: "apidemo",        zh: "mlr3HTE_demo_*() 演示数据",     en: "mlr3HTE_demo_*() datasets"               },
       { id: "apimetrics",     zh: "HTE 评价指标",                 en: "HTE evaluation metrics"                  },
+      { id: "apibenchmark",  zh: "RCT 基准测试",                en: "RCT benchmark"                         },
       { id: "apihelpers",     zh: "辅助函数",                       en: "Helpers"                                 }
     ]
   },

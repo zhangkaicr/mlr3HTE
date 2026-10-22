@@ -15,6 +15,35 @@
 - `0.21` 之前的历史批次沿用旧编号折算（`0.1.0` → `0.10`，10-21 那批观察性指标 →
   `0.11`，`0.2.0` → `0.20`）；`0.21` 起严格执行上面的 +0.01。
 
+## [0.31] — 2026-10-22（新增 RCT 基准测试：Qini / TOC / c-for-benefit）
+
+新增两个导出函数，回答“没有真实 tau 的现实 RCT 数据怎么比较
+learner”。前提在文档里写清楚了：**真实 CATE 只有模拟数据才给得出，
+“跑 mlr3 benchmark 看 CATE 相关”只适用于模拟研究。**
+
+- `R/benchmark.R`（新文件）：
+  - `hte_benchmark(X, A, Y, ...)`：RCT 数据上对多个 meta-learner 做基准测试。
+    指标 = 归一化 Qini 系数 + 绝对 Qini 系数 + TOC 增益 + c-for-benefit，
+    全部建立在随机化带来的可交换性上，**不需要倾向得分**。
+    可选 `tau` 参数：模拟数据上可以额多报 `tau_cor` / `tau_rmse` 两列。
+  - 交叉拟合是强制的：每个 learner 在 K 折训练折上拟合、留出折上预测，
+    折的划分**按处理组分层**。实测 in-fold 的 c-for-benefit 0.663
+    **超过真实 tau 的 0.624**（把噪声也排序），交叉拟合后回落到 0.617。
+  - `plot_hte_benchmark(x, metric, min_fraction = 0.05)`：Qini / TOC 曲线分面对比图，
+    自动加参考线。
+  - 三类结局（连续 / 二分类 / 生存）默认基学习器自动选（ranger /
+    classif.ranger / coxph）；观察性数据传 DR 三件套即可。
+- `tests/testthat/test-benchmark.R`（新建，32 个期望）：随机基线校准、
+  in-fold vs out-of-fold 虚高校验、三类结局、种子复现、参数校验、
+  观察性三件套、绘图。全量测试 FAIL 0 / PASS 347。
+- `tutorial/code/14_RCT基准测试_Qini指标.R`（新建）：标尾建立、in-fold
+  vs out-of-fold 对照、五族基准、三类结局、观察性、现实形态。
+- 文档站：`#/tutorialbenchmark` 新文章（中英，教程目录变七篇）、
+  `#/apibenchmark` 新函数页；两个下拉菜单各加一项；
+  `docs/assets/img/benchmark/` 新增 Qini / TOC 对比图。
+- `00_教程.md` 新增第 12 节（前提、交叉拟合、代码、实测结果）。
+- 同步 DESCRIPTION / SITE_META / 缓存截 / CHANGELOG / content-changelog.js 至 v0.31。
+
 ## [0.30] — 2026-10-22（导航简化 + CATE 对账口径统一）
 
 - 顶栏「场景教程与模型评价」改为「教程」（英文 Tutorial），字数缩短避免挤压其余项。

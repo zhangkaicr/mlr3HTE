@@ -25,7 +25,7 @@ var TUT_MATRIX = {
 window.SITE_PAGES.tutorial = {
   zh: {
     title: "教程与模型评价",
-    lede: "六篇文章，每篇一张独立网页；按研究设计与结局类型组织，数据自带真值。所有对账都按同一套口径：ATE 偏差 + CATE 相关 + RMSE + 估计 SD，不能只报 ATE。",
+    lede: "七篇文章，每篇一张独立网页。前六篇按研究设计与结局类型组织，数据自带真值，对账口径统一为 ATE 偏差 + CATE 相关 + RMSE + 估计 SD；第七篇换成现实形态——没有真实 tau，只用 Qini / TOC / c-for-benefit 比 learner。",
     sections: [
       {
         id: "articles",
@@ -39,6 +39,7 @@ window.SITE_PAGES.tutorial = {
           '<li><a href="#/tutorialsurv"><span class="art-num">3</span><span class="art-body"><strong>生存结局分析</strong><em>效应是时间点依赖的：报告必须写清 t0，删失用 IPCW，观察性再叠一层 IPTW。</em></span></a></li>' +
           '<li><a href="#/tutoriallearners"><span class="art-num">4</span><span class="art-body"><strong>换不同学习器</strong><em>五种 meta-learner 只是配方，干活的是基学习器；换算法只改一行，还能按分组 / 阶段分开指定。</em></span></a></li>' +
           '<li><a href="#/tutorialmetrics"><span class="art-num">5</span><span class="art-body"><strong>模型评价指标</strong><em>Qini / c-for-benefit / TOC 回答的是「排序能力」，不是「估得准不准」，两者要分开看。</em></span></a></li>' +
+          '<li><a href="#/tutorialbenchmark"><span class="art-num">6</span><span class="art-body"><strong>RCT 基准测试</strong><em>没有真实 tau 的现实 RCT 数据，怎么比 learner？用 Qini / TOC / c-for-benefit，配合交叉拟合。</em></span></a></li>' +
           '</ul>' +
           '<p>下面是按「研究设计 × 结局类型」排的六格速查表，与配套脚本的编号一一对应。</p>'
       },
@@ -100,7 +101,7 @@ window.SITE_PAGES.tutorial = {
   },
   en: {
     title: "Tutorials & model evaluation",
-    lede: "Six standalone articles; organized by study design and outcome type, each on simulated data with known ground truth. Every reconciliation uses the same template: ATE bias + CATE correlation + RMSE + estimated SD — never ATE alone.",
+    lede: "Seven standalone articles. The first six are organized by study design and outcome type on simulated data with known ground truth, all reconciled on one template: ATE bias + CATE correlation + RMSE + estimated SD. The seventh switches to the real-world setting — no true tau, comparing learners with Qini / TOC / c-for-benefit only.",
     sections: [
       {
         id: "articles",
@@ -114,6 +115,7 @@ window.SITE_PAGES.tutorial = {
           '<li><a href="#/tutorialsurv"><span class="art-num">3</span><span class="art-body"><strong>Survival outcomes</strong><em>Effects are time-point dependent: always state t0, correct censoring with IPCW, and multiply an IPTW layer on top for observational data.</em></span></a></li>' +
           '<li><a href="#/tutoriallearners"><span class="art-num">4</span><span class="art-body"><strong>Swapping the base learner</strong><em>The five meta-learners are recipes; the real work is done by the base learner. Swap it in one line, per group or per stage if you like.</em></span></a></li>' +
           '<li><a href="#/tutorialmetrics"><span class="art-num">5</span><span class="art-body"><strong>Model evaluation metrics</strong><em>Qini / c-for-benefit / TOC answer "how well does it rank" — not "is the estimate unbiased". Keep the two questions apart.</em></span></a></li>' +
+          '<li><a href="#/tutorialbenchmark"><span class="art-num">6</span><span class="art-body"><strong>RCT benchmark</strong><em>Real RCT data has no true tau — how do you compare learners? Qini / TOC / c-for-benefit with cross-fitting.</em></span></a></li>' +
           '</ul>' +
           '<p>Below is the 2 × 3 lookup table (design × outcome), numbered the same way as the companion scripts.</p>'
       },
@@ -2028,3 +2030,293 @@ window.SITE_PAGES.tutorialmetrics = {
   }
 };
 
+
+window.SITE_PAGES.tutorialbenchmark = {
+
+  /* ---------------- 中文 ---------------- */
+  zh: {
+    title: "6 · RCT 基准测试（不依赖真实 tau）",
+    lede: "前面五篇都在「有真值」的前提下对账。这一篇换成现实研究的形态：没有 tau，只用 Qini / TOC / c-for-benefit 比较 learner。",
+    sections: [
+
+      {
+        id: "premise",
+        heading: "前提：什么时候能报什么",
+        body:
+          '<div class="callout warn"><div class="callout-title">真实 CATE 只有模拟数据才有</div>' +
+          '<p>教程 01&ndash;07 的对账（CATE 相关 / RMSE）建立在<strong>知道每个人真实效应</strong>之上，' +
+          '这只有自带真值的模拟数据给得出。<strong>现实 RCT 数据永远拿不到 tau。</strong>' +
+          '所以「跑一遍 mlr3 benchmark、看 CATE 相关」这套做法只适用于模拟研究。</p></div>' +
+          '<p>那现实 RCT 数据怎么比模型？换一个问题问：<strong>模型把"谁更获益"排到前面的能力如何</strong>。' +
+          '这不需要 tau，只需要随机化保证的可交换性：</p>' +
+          '<div class="table-wrap"><table>' +
+          '<thead><tr><th>指标</th><th>随机基线</th><th>回答什么</th></tr></thead><tbody>' +
+          '<tr><td><strong>Qini 系数</strong></td><td>&asymp; 0</td>' +
+          '<td>按模型排序靶向，比随机分配多出多少额外增益</td></tr>' +
+          '<tr><td><strong>TOC 增益</strong></td><td>0</td>' +
+          '<td>TOC 曲线与全样本 ATE 水平线夹的面积；量纲 = 结局单位</td></tr>' +
+          '<tr><td><strong>c-for-benefit</strong></td><td>0.5</td>' +
+          '<td>增益匹配后的 C 统计量，0.5 = 排序等于随机</td></tr>' +
+          '</tbody></table></div>' +
+          '<div class="callout"><div class="callout-title">随机基线不是精确的 0</div>' +
+          '<p>归一化 Qini 除了随机线下的面积，而那个面积本身小，单次随机排序能在 &plusmn;0.25 摆。' +
+          '本包演示数据（n = 1500）实测 10 次随机排序，归一化 Qini 落在 &minus;0.253 到 0.227。' +
+          '<strong>比模型要看相对次序，别拿绝对阈值当基线。</strong></p></div>'
+      },
+
+      {
+        id: "crossfit",
+        heading: "为什么必须交叉拟合",
+        body:
+          '<p>在自己训练过的数据上算这些指标，模型会把训练噪声也排进序里。' +
+          '<code>hte_benchmark()</code> 的做法是：每个 learner 在 K 折训练折上拟合、' +
+          '在留出折上预测，最后用全部留出预测（out-of-fold）拼一条 CATE。</p>' +
+          '<div class="table-wrap"><table>' +
+          '<thead><tr><th>X-learner 的做法</th><th>qini_normalized</th>' +
+          '<th>c_for_benefit</th></tr></thead><tbody>' +
+          '<tr><td>in-fold（回代训练数据）</td><td>0.528</td><td><strong>0.663</strong></td></tr>' +
+          '<tr><td>out-of-fold（5 折交叉拟合）</td><td>0.404</td><td>0.617</td></tr>' +
+          '<tr><td>真实 tau（参考上界）</td><td>0.522</td><td>0.624</td></tr>' +
+          '</tbody></table></div>' +
+          '<p>in-fold 的 c-for-benefit <strong>0.663 超过了真实 tau 的 0.624</strong>&mdash;' +
+          '那不是模型好，是把噪声也排序了。交叉拟合后回落到 0.617，落在真值下方，才是该有的样子。</p>'
+      },
+
+      {
+        id: "code",
+        heading: "跑起来",
+        body:
+          '<pre><code>bm &lt;- hte_benchmark(d$X, d$A, d$Y, tau = d$tau, seed = 42)\n' +
+          'bm$table\n\n' +
+          '# 现实 RCT 数据：没有 tau，输出里就不会有 tau_cor / tau_rmse 两列\n' +
+          'bm &lt;- hte_benchmark(X, A, Y, seed = 42)\n\n' +
+          '# 曲线对比\n' +
+          'plot_hte_benchmark(bm, "qini")\n' +
+          'plot_hte_benchmark(bm, "toc")</code></pre>' +
+          '<p>参数上值得注意的几点：</p>' +
+          '<ul>' +
+          '<li><code>learner_base</code> 所有 learner 共用一个，比出来的差异才归因于 meta-learner' +
+          '而不是基学习器；默认按结局类型自动选（连续 ranger / 二分类 classif.ranger / 生存 coxph）。</li>' +
+          '<li><code>n_folds</code> 的折<strong>按处理组分层</strong>，保证每折两个臂都有样本&mdash;' +
+          '不分层时某一折可能全是同一个臂，该折的效应估计直接失效。</li>' +
+          '<li><code>tau</code> 是可选的。给了就多两列 <code>tau_cor</code> / <code>tau_rmse</code>，' +
+          '于是 Qini 三件套和「有真值」的两套指标能对着看。</li>' +
+          '<li>观察性数据把 <code>propensity</code> / <code>mu1</code> / <code>mu0</code> ' +
+          '（<a href="#/apimetrics">dr_pseudo_outcome()</a> 的输出）一起传进来即可，指标算法不变。</li>' +
+          '</ul>'
+      },
+
+      {
+        id: "results",
+        heading: "三类结局的实测结果",
+        body:
+          '<p>n = 1500，5 折交叉拟合，seed = 42。</p>' +
+          '<p><strong>连续 &times; RCT</strong>（真实 ATE 1.049）：</p>' +
+          '<div class="table-wrap"><table>' +
+          '<thead><tr><th>learner</th><th>ate</th><th>qini_normalized</th>' +
+          '<th>toc_gain</th><th>c_for_benefit</th><th>tau_cor</th></tr></thead><tbody>' +
+          '<tr><td>S</td><td>1.040</td><td>0.417</td><td>0.516</td><td>0.613</td><td>0.908</td></tr>' +
+          '<tr><td>T</td><td>1.100</td><td>0.378</td><td>0.492</td><td>0.608</td><td>0.894</td></tr>' +
+          '<tr><td>X</td><td>1.090</td><td>0.404</td><td>0.647</td><td>0.617</td><td>0.946</td></tr>' +
+          '<tr><td>R</td><td>0.498</td><td>0.460</td><td>0.946</td><td>0.599</td><td>0.857</td></tr>' +
+          '<tr><td>DR</td><td>1.090</td><td>0.413</td><td>0.568</td><td>0.617</td><td>0.932</td></tr>' +
+          '</tbody></table></div>' +
+          '<div class="callout warn"><div class="callout-title">ATE 和 Qini 要一起报</div>' +
+          '<p>R 的 ATE 只有 0.498（真值 1.049），可 qini_normalized 和 toc_gain 都是五个里最高的。' +
+          '原因：R-learner 二阶段对伪结果回归，<strong>没有尺度约束</strong>，' +
+          'CATE 可以整体缩小一半而排序不变。Qini / TOC 只看排序，对尺度错误视而不见。' +
+          '<strong>两者分别回答"平均对不对"和"排序好不好"，合起来才是完整评价。</strong></p></div>' +
+          '<p><strong>二分类 &times; RCT</strong>（真实 ATE 0.131）：</p>' +
+          '<div class="table-wrap"><table>' +
+          '<thead><tr><th>learner</th><th>ate</th><th>qini_normalized</th>' +
+          '<th>toc_gain</th><th>c_for_benefit</th><th>tau_cor</th></tr></thead><tbody>' +
+          '<tr><td>S</td><td>0.127</td><td>0.184</td><td>0.062</td><td>0.556</td><td>0.728</td></tr>' +
+          '<tr><td>T</td><td>0.139</td><td>0.193</td><td>0.078</td><td>0.554</td><td>0.643</td></tr>' +
+          '<tr><td>X</td><td>0.142</td><td>0.349</td><td>0.095</td><td>0.594</td><td>0.839</td></tr>' +
+          '<tr><td>R</td><td>0.087</td><td>0.211</td><td>0.041</td><td>0.559</td><td>0.589</td></tr>' +
+          '<tr><td>DR</td><td>0.143</td><td>0.296</td><td>0.086</td><td>0.577</td><td>0.713</td></tr>' +
+          '</tbody></table></div>' +
+          '<p><strong>生存 &times; RCT</strong>（t0 = 2，真实 ATE 0.152）：</p>' +
+          '<div class="table-wrap"><table>' +
+          '<thead><tr><th>learner</th><th>ate</th><th>qini_normalized</th>' +
+          '<th>toc_gain</th><th>c_for_benefit</th><th>tau_cor</th></tr></thead><tbody>' +
+          '<tr><td>S</td><td>0.159</td><td>&minus;0.095</td><td>0.005</td><td>0.498</td><td>&minus;0.052</td></tr>' +
+          '<tr><td>T</td><td>0.151</td><td>0.707</td><td>0.208</td><td>0.554</td><td>0.950</td></tr>' +
+          '<tr><td>X</td><td>0.142</td><td>0.462</td><td>0.125</td><td>0.544</td><td>0.884</td></tr>' +
+          '<tr><td>R</td><td>0.126</td><td>0.098</td><td>0.038</td><td>0.497</td><td>0.419</td></tr>' +
+          '<tr><td>DR</td><td>0.120</td><td>&minus;0.045</td><td>0.025</td><td>0.496</td><td>0.380</td></tr>' +
+          '</tbody></table></div>' +
+          '<p>生存场景里 S-learner 的 tau_cor 是 &minus;0.052、qini_normalized &minus;0.095&mdash;' +
+          '完全没学到异质性（Cox 单模型把处理当普通特征，异质性被压平），' +
+          '而 T-learner 两项都是最高。<strong>「ATE 差不多」和「排序能力差很多」可以同时成立。</strong></p>' +
+          '<figure class="fig"><img src="assets/img/benchmark/qini_curves.png" ' +
+          'alt="五种 meta-learner 的 Qini 曲线对比">' +
+          '<figcaption>Qini 曲线对比（连续 &times; RCT）。灰色虚线 = 随机靶向基线；前 5% 未画。</figcaption></figure>' +
+          '<figure class="fig"><img src="assets/img/benchmark/toc_curves.png" ' +
+          'alt="五种 meta-learner 的 TOC 曲线对比">' +
+          '<figcaption>TOC 曲线对比。灰色虚线 = 全样本 ATE；T / X 的曲线始终在上方，' +
+          '说明前排人群收益更高。</figcaption></figure>'
+      },
+
+      {
+        id: "next",
+        notoc: true,
+        heading: "继续读",
+        body:
+          '<div class="callout"><div class="callout-title">继续读</div><p>' +
+          '<a href="#/tutorial">← 返回全部教程</a>' +
+          '　·　<a href="#/api">去看函数文档 →</a>' +
+          '</p></div>'
+      }
+    ]
+  },
+
+  /* ---------------- English ---------------- */
+  en: {
+    title: "6 · RCT benchmark (no true tau needed)",
+    lede: "The previous five articles all reconcile against known truth. This one switches to the real-world setting: no tau, comparing learners with Qini / TOC / c-for-benefit only.",
+    sections: [
+
+      {
+        id: "premise",
+        heading: "Premise: what you can report when",
+        body:
+          '<div class="callout warn"><div class="callout-title">True CATE only exists in simulated data</div>' +
+          '<p>The reconciliation in tutorials 01&ndash;07 (CATE correlation / RMSE) rests on ' +
+          '<strong>knowing every patient&rsquo;s true effect</strong>, which only simulated data ' +
+          'provides. <strong>Real RCT data never has tau.</strong> So "run an mlr3 benchmark and ' +
+          'look at CATE correlation" only applies to simulation studies.</p></div>' +
+          '<p>How do you compare models on real RCT data then? Ask a different question: ' +
+          '<strong>how well does the model rank who benefits more</strong>. That needs no tau, only ' +
+          'the exchangeability randomization buys:</p>' +
+          '<div class="table-wrap"><table>' +
+          '<thead><tr><th>Metric</th><th>Random baseline</th><th>What it answers</th></tr></thead><tbody>' +
+          '<tr><td><strong>Qini coefficient</strong></td><td>&asymp; 0</td>' +
+          '<td>Extra gain from targeting by model ranking vs random assignment</td></tr>' +
+          '<tr><td><strong>TOC gain</strong></td><td>0</td>' +
+          '<td>Area between the TOC curve and the overall-ATE line; units = outcome</td></tr>' +
+          '<tr><td><strong>c-for-benefit</strong></td><td>0.5</td>' +
+          '<td>C statistic after gain matching; 0.5 = ranking is as good as random</td></tr>' +
+          '</tbody></table></div>' +
+          '<div class="callout"><div class="callout-title">The random baseline is not exactly 0</div>' +
+          '<p>Normalised Qini divides by the area under the random line, which is itself small, so a ' +
+          'single random ranking can swing &plusmn;0.25. On this package&rsquo;s demo data (n = 1500), ' +
+          'ten random rankings gave normalised Qini between &minus;0.253 and 0.227. ' +
+          '<strong>Compare models by relative order, not against an absolute threshold.</strong></p></div>'
+      },
+
+      {
+        id: "crossfit",
+        heading: "Why cross-fitting is mandatory",
+        body:
+          '<p>Scoring these metrics on data the model was trained on lets it rank its own training ' +
+          'noise. <code>hte_benchmark()</code> instead fits each learner on K&minus;1 folds and ' +
+          'predicts on the held-out fold, then pools all held-out predictions (out-of-fold) into one ' +
+          'CATE vector.</p>' +
+          '<div class="table-wrap"><table>' +
+          '<thead><tr><th>X-learner variant</th><th>qini_normalized</th>' +
+          '<th>c_for_benefit</th></tr></thead><tbody>' +
+          '<tr><td>in-fold (scored on training data)</td><td>0.528</td><td><strong>0.663</strong></td></tr>' +
+          '<tr><td>out-of-fold (5-fold cross-fitting)</td><td>0.404</td><td>0.617</td></tr>' +
+          '<tr><td>true tau (reference ceiling)</td><td>0.522</td><td>0.624</td></tr>' +
+          '</tbody></table></div>' +
+          '<p>The in-fold c-for-benefit of <strong>0.663 exceeds the true tau&rsquo;s 0.624</strong> ' +
+          '&mdash; that is not a better model, that is ranking noise. Cross-fitting brings it back to ' +
+          '0.617, below the truth, which is what it should be.</p>'
+      },
+
+      {
+        id: "code",
+        heading: "Running it",
+        body:
+          '<pre><code>bm &lt;- hte_benchmark(d$X, d$A, d$Y, tau = d$tau, seed = 42)\n' +
+          'bm$table\n\n' +
+          '# Real RCT data: no tau, so tau_cor / tau_rmse never appear\n' +
+          'bm &lt;- hte_benchmark(X, A, Y, seed = 42)\n\n' +
+          '# Curve comparison\n' +
+          'plot_hte_benchmark(bm, "qini")\n' +
+          'plot_hte_benchmark(bm, "toc")</code></pre>' +
+          '<p>Worth noting in the arguments:</p>' +
+          '<ul>' +
+          '<li><code>learner_base</code> is shared by all learners, so differences are attributable to ' +
+          'the meta-learner rather than the base learner; it is auto-chosen by outcome type ' +
+          '(ranger / classif.ranger / coxph).</li>' +
+          '<li><code>n_folds</code> splits <strong>stratified by treatment arm</strong>, so every fold ' +
+          'has both arms &mdash; without stratification a fold could end up single-armed and its effect ' +
+          'estimate collapses.</li>' +
+          '<li><code>tau</code> is optional. Supplying it adds <code>tau_cor</code> / <code>tau_rmse</code>, ' +
+          'so the Qini triple and the truth-based metrics can be read side by side.</li>' +
+          '<li>For observational data, pass <code>propensity</code> / <code>mu1</code> / <code>mu0</code> ' +
+          '(the output of <a href="#/apimetrics">dr_pseudo_outcome()</a>); the metric definitions are unchanged.</li>' +
+          '</ul>'
+      },
+
+      {
+        id: "results",
+        heading: "Measured results across outcome types",
+        body:
+          '<p>n = 1500, 5-fold cross-fitting, seed = 42.</p>' +
+          '<p><strong>Continuous &times; RCT</strong> (true ATE 1.049):</p>' +
+          '<div class="table-wrap"><table>' +
+          '<thead><tr><th>learner</th><th>ate</th><th>qini_normalized</th>' +
+          '<th>toc_gain</th><th>c_for_benefit</th><th>tau_cor</th></tr></thead><tbody>' +
+          '<tr><td>S</td><td>1.040</td><td>0.417</td><td>0.516</td><td>0.613</td><td>0.908</td></tr>' +
+          '<tr><td>T</td><td>1.100</td><td>0.378</td><td>0.492</td><td>0.608</td><td>0.894</td></tr>' +
+          '<tr><td>X</td><td>1.090</td><td>0.404</td><td>0.647</td><td>0.617</td><td>0.946</td></tr>' +
+          '<tr><td>R</td><td>0.498</td><td>0.460</td><td>0.946</td><td>0.599</td><td>0.857</td></tr>' +
+          '<tr><td>DR</td><td>1.090</td><td>0.413</td><td>0.568</td><td>0.617</td><td>0.932</td></tr>' +
+          '</tbody></table></div>' +
+          '<div class="callout warn"><div class="callout-title">Report ATE and Qini together</div>' +
+          '<p>R&rsquo;s ATE is 0.498 against a truth of 1.049, yet its qini_normalized and toc_gain are ' +
+          'the highest of the five. Reason: the R-learner&rsquo;s second stage regresses ' +
+          'pseudo-outcomes with <strong>no scale constraint</strong>, so its CATE can shrink by half ' +
+          'while the ranking stays intact. Qini / TOC only look at ranking and are blind to scale ' +
+          'errors. <strong>The two answer "is the average right" and "is the ranking good"; together ' +
+          'they form a complete assessment.</strong></p></div>' +
+          '<p><strong>Binary &times; RCT</strong> (true ATE 0.131):</p>' +
+          '<div class="table-wrap"><table>' +
+          '<thead><tr><th>learner</th><th>ate</th><th>qini_normalized</th>' +
+          '<th>toc_gain</th><th>c_for_benefit</th><th>tau_cor</th></tr></thead><tbody>' +
+          '<tr><td>S</td><td>0.127</td><td>0.184</td><td>0.062</td><td>0.556</td><td>0.728</td></tr>' +
+          '<tr><td>T</td><td>0.139</td><td>0.193</td><td>0.078</td><td>0.554</td><td>0.643</td></tr>' +
+          '<tr><td>X</td><td>0.142</td><td>0.349</td><td>0.095</td><td>0.594</td><td>0.839</td></tr>' +
+          '<tr><td>R</td><td>0.087</td><td>0.211</td><td>0.041</td><td>0.559</td><td>0.589</td></tr>' +
+          '<tr><td>DR</td><td>0.143</td><td>0.296</td><td>0.086</td><td>0.577</td><td>0.713</td></tr>' +
+          '</tbody></table></div>' +
+          '<p><strong>Survival &times; RCT</strong> (t0 = 2, true ATE 0.152):</p>' +
+          '<div class="table-wrap"><table>' +
+          '<thead><tr><th>learner</th><th>ate</th><th>qini_normalized</th>' +
+          '<th>toc_gain</th><th>c_for_benefit</th><th>tau_cor</th></tr></thead><tbody>' +
+          '<tr><td>S</td><td>0.159</td><td>&minus;0.095</td><td>0.005</td><td>0.498</td><td>&minus;0.052</td></tr>' +
+          '<tr><td>T</td><td>0.151</td><td>0.707</td><td>0.208</td><td>0.554</td><td>0.950</td></tr>' +
+          '<tr><td>X</td><td>0.142</td><td>0.462</td><td>0.125</td><td>0.544</td><td>0.884</td></tr>' +
+          '<tr><td>R</td><td>0.126</td><td>0.098</td><td>0.038</td><td>0.497</td><td>0.419</td></tr>' +
+          '<tr><td>DR</td><td>0.120</td><td>&minus;0.045</td><td>0.025</td><td>0.496</td><td>0.380</td></tr>' +
+          '</tbody></table></div>' +
+          '<p>In the survival scenario the S-learner has tau_cor &minus;0.052 and qini_normalized ' +
+          '&minus;0.095 &mdash; it learned no heterogeneity at all (a single Cox model treats treatment ' +
+          'as an ordinary feature, flattening the effect), while the T-learner tops both. ' +
+          '<strong>"Similar ATE" and "very different ranking power" can hold at the same time.</strong></p>' +
+          '<figure class="fig"><img src="assets/img/benchmark/qini_curves.png" ' +
+          'alt="Qini curves for the five meta-learners">' +
+          '<figcaption>Qini curves (continuous &times; RCT). Grey dashed = random targeting baseline; ' +
+          'the first 5% is not drawn.</figcaption></figure>' +
+          '<figure class="fig"><img src="assets/img/benchmark/toc_curves.png" ' +
+          'alt="TOC curves for the five meta-learners">' +
+          '<figcaption>TOC curves. Grey dashed = overall ATE; T and X stay above it throughout, ' +
+          'meaning the top-ranked group benefits more.</figcaption></figure>'
+      },
+
+      {
+        id: "next",
+        notoc: true,
+        heading: "Keep reading",
+        body:
+          '<div class="callout"><div class="callout-title">Keep reading</div><p>' +
+          '<a href="#/tutorial">← All tutorials</a>' +
+          '　·　<a href="#/api">Go to the API reference →</a>' +
+          '</p></div>'
+      }
+    ]
+  }
+};
