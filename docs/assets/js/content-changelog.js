@@ -9,9 +9,27 @@ window.SITE_PAGES.changelog = {
   /* ---------------- 中文 ---------------- */
   zh: {
     title: "更新日志",
-    lede: "mlr3HTE 的版本历史与重要变更。当前版本 v0.31。",
+    lede: "mlr3HTE 的版本历史与重要变更。当前版本 v0.32。",
     sections: [
 
+
+      {
+        id: "v032",
+        heading: "v0.32 · 2026-10-22",
+        body:
+          '<div class="callout ok"><div class="callout-title">函数文档全量拆分：每个函数一页</div>' +
+          '<p><strong>25 个导出对象现在各有自己的页面</strong>（中英双语），' +
+          '不再几个函数搭车共用一页。' +
+          '5 个分组页改为索引页（列出组内函数并链接详情），' +
+          '总索引页重写为 25 行全量表。</p>' +
+          '<p><strong>每个页面都带实测示例</strong>：' +
+          '先写采集脚本把 25 个函数的用法各跑一遍并落盘输出，' +
+          '再把代码与输出原样写进页面。' +
+          '所有数值都是跑出来的，没有手写——' +
+          '包括那些“不好看”的数（例如 ' +
+          '<code>identical(l, mlr3::lrn(...))</code> 返回 FALSE、' +
+          '模型的 Qini 系数略高于真实 tau）。</p></div>'
+      },
 
       {
         id: "v031",
@@ -339,9 +357,24 @@ window.SITE_PAGES.changelog = {
   /* ---------------- English ---------------- */
   en: {
     title: "Changelog",
-    lede: "Version history and notable changes for mlr3HTE. Current version: v0.31.",
+    lede: "Version history and notable changes for mlr3HTE. Current version: v0.32.",
     sections: [
 
+
+      {
+        id: "v032",
+        heading: "v0.32 · 2026-10-22",
+        body:
+          '<div class="callout ok"><div class="callout-title">API docs fully split: one page per function</div>' +
+          '<p><strong>All 25 exported objects now have their own page</strong> (bilingual) instead of ' +
+          'sharing pages. The five group pages became index pages that list their functions and link to ' +
+          'the details, and the top index page was rewritten as a 25-row table.</p>' +
+          '<p><strong>Every page carries a worked example that was actually run</strong>: a collection ' +
+          'script ran each function once, wrote the output to disk, and the code plus output were then ' +
+          'embedded verbatim. Every number comes from a real run, nothing was hand-written — including ' +
+          'the unflattering ones (e.g. <code>identical(l, mlr3::lrn(...))</code> returning FALSE, or the ' +
+          'model&rsquo;s Qini coefficient sitting slightly above the true tau).</p></div>'
+      },
 
       {
         id: "v031",

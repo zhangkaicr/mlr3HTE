@@ -15,6 +15,28 @@
 - `0.21` 之前的历史批次沿用旧编号折算（`0.1.0` → `0.10`，10-21 那批观察性指标 →
   `0.11`，`0.2.0` → `0.20`）；`0.21` 起严格执行上面的 +0.01。
 
+## [0.32] — 2026-10-22（函数文档全量拆分：每个函数一页）
+
+回应反馈：「函数文档里面每个单独的函数都要有对应的页面，
+每个函数都要有例子说明详细用法，例子是实测情况。」
+
+- **25 个导出对象全部拆成独立页面**（中英双语）：
+  `apimetalearner` / `apis` `apit` `apix` `apir` `apidr` / `apimltask` / `apilearner` /
+  `apidemodata` `apidemobinary` `apidemoobs` `apidemoobsbinary` `apidemoobssurv` `apidemosurv` /
+  `apiqinicurve` `apiqinicoef` `apicforbenefit` `apitoccurve` `apidrpseudo` /
+  `apihtebenchmark` `apiplotbenchmark` / `apicateci` `apiplotqini` `apidag` / `apilrn`。
+- **每个页面都带实测示例**：先写一个采集脚本
+  把 25 个函数的代表性用法各跑一遍，输出落盘，
+  再把代码与输出原样写进页面——所有数值都是跑出来的，没有手写。
+- 5 个分组页（`apishortcuts` / `apidemo` / `apimetrics` / `apihelpers` /
+  `apibenchmark`）改为<strong>索引页</strong>：列出组内每个函数并链接到详情页。
+- 总索引页 `#/api` 重写为 25 行全量表（函数 / 类别 / 一句话说明）。
+- 顶栏下拉菜单的兩个分组入口保持不变（共 9 项），点进去先看分组索引。
+- 校验：自动化脚本逐页核对 44 个页面（国际化前 22 个）的
+  `div/table/tr/td/th/ul/li/p/a/figure/pre/code/span/strong/em` 标筻配平，
+  以及页面内所有 `#/xxx` 链接是否都能找到目标页——全部通过。
+- 同步 DESCRIPTION / SITE_META / 缓存截 / CHANGELOG / content-changelog.js 至 v0.32。
+
 ## [0.31] — 2026-10-22（新增 RCT 基准测试：Qini / TOC / c-for-benefit）
 
 新增两个导出函数，回答“没有真实 tau 的现实 RCT 数据怎么比较
