@@ -9,10 +9,21 @@ window.SITE_PAGES.changelog = {
   /* ---------------- 中文 ---------------- */
   zh: {
     title: "更新日志",
-    lede: "mlr3HTE 的版本历史与重要变更。当前版本 v0.25。",
+    lede: "mlr3HTE 的版本历史与重要变更。当前版本 v0.26。",
     sections: [
 
 
+
+      {
+        id: "v026",
+        heading: "v0.26 · 2026-10-22",
+        body:
+          '<div class="callout ok"><div class="callout-title">教程重构为五大框架（dplyr 风格导航）</div>' +
+          '<p>文档站「教程」从「六格逐个讲」重构为五大框架：RCT 设计分析 / 观察性分析 / 生存结局分析 / ' +
+          '换不同学习器 / 模型评价指标。新增「五大框架导航」卡片索引（复用既有 <code>.cards</code> / ' +
+          '<code>.card</code> 网格），索引卡片与各框架小节互链；<code>tutorial/00_教程.md</code> ' +
+          '顶部同步新增「五大框架速览」表。设计语言沿用 dplyr.tidyverse.org 的「索引卡片 + 分主题」风格。</p></div>'
+      },
 
       {
         id: "v025",
@@ -249,10 +260,23 @@ window.SITE_PAGES.changelog = {
   /* ---------------- English ---------------- */
   en: {
     title: "Changelog",
-    lede: "Version history and notable changes for mlr3HTE. Current version: v0.25.",
+    lede: "Version history and notable changes for mlr3HTE. Current version: v0.26.",
     sections: [
 
 
+
+      {
+        id: "v026",
+        heading: "v0.26 · 2026-10-22",
+        body:
+          '<div class="callout ok"><div class="callout-title">Tutorial restructured into five frameworks (dplyr-style nav)</div>' +
+          '<p>The docs-site tutorial is reorganized from "six cells one by one" into five frameworks: ' +
+          'RCT analysis / observational analysis / survival outcomes / swapping the learner / model evaluation. ' +
+          'A new "Five frameworks" card index reuses the existing <code>.cards</code> / <code>.card</code> grid; ' +
+          'the index cards cross-link to each framework section, and <code>tutorial/00_教程.md</code> gets a ' +
+          'matching "five frameworks" overview table. The design language follows dplyr.tidyverse.org ' +
+          '(index cards + per-topic sections).</p></div>'
+      },
 
       {
         id: "v025",
