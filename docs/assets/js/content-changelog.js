@@ -9,10 +9,24 @@ window.SITE_PAGES.changelog = {
   /* ---------------- 中文 ---------------- */
   zh: {
     title: "更新日志",
-    lede: "mlr3HTE 的版本历史与重要变更。当前版本 v0.24。",
+    lede: "mlr3HTE 的版本历史与重要变更。当前版本 v0.25。",
     sections: [
 
 
+
+      {
+        id: "v025",
+        heading: "v0.25 · 2026-10-22",
+        body:
+          '<div class="callout ok"><div class="callout-title">函数参考拆分为「索引页 + 每函数独立页」</div>' +
+          '<p>文档站的「函数参考」从单页长文档重构为索引页加每个函数分组的独立网页：' +
+          '<code>content-api.js</code> 现在导出 <code>SITE_PAGES.api</code>（总览索引）以及 ' +
+          '<code>apimetalearner</code> / <code>apishortcuts</code> / <code>apimltask</code> / ' +
+          '<code>apilearner</code> / <code>apidemo</code> / <code>apimetrics</code> / ' +
+          '<code>apihelpers</code> 七个独立详情页，每页沿用手写 <code>.fn</code> 模板，' +
+          '导航与站内搜索均可直达。索引页总览表与各函数页互相链接，' +
+          'README 与教程也改指新的链接形式（<code>#/apimetalearner</code> 等）。</p></div>'
+      },
 
       {
         id: "v024",
@@ -235,10 +249,26 @@ window.SITE_PAGES.changelog = {
   /* ---------------- English ---------------- */
   en: {
     title: "Changelog",
-    lede: "Version history and notable changes for mlr3HTE. Current version: v0.24.",
+    lede: "Version history and notable changes for mlr3HTE. Current version: v0.25.",
     sections: [
 
 
+
+      {
+        id: "v025",
+        heading: "v0.25 · 2026-10-22",
+        body:
+          '<div class="callout ok"><div class="callout-title">API reference split into index page + one page per function group</div>' +
+          '<p>The docs-site API reference is restructured from one long page into an index page plus ' +
+          'a separate page per function group: <code>content-api.js</code> now exports ' +
+          '<code>SITE_PAGES.api</code> (overview index) together with ' +
+          '<code>apimetalearner</code> / <code>apishortcuts</code> / <code>apimltask</code> / ' +
+          '<code>apilearner</code> / <code>apidemo</code> / <code>apimetrics</code> / ' +
+          '<code>apihelpers</code> &mdash; seven independent detail pages, each using the hand-written ' +
+          '<code>.fn</code> template so navigation and in-site search reach every function. ' +
+          'The index overview table cross-links to each function page, and the README and tutorial ' +
+          'now point at the new link form (<code>#/apimetalearner</code>, etc.).</p></div>'
+      },
 
       {
         id: "v024",
