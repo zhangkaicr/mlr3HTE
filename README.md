@@ -1,3 +1,5 @@
+<p align="center"><a href="README_EN.md">🌐 English version</a> · <a href="README.md">🇨🇳 简体中文</a></p>
+
 <p align="center">
   <img src="docs/assets/img/social-preview.png" alt="mlr3HTE 封面：潜在结局重合后按治疗与对照发散" width="720">
 </p>
@@ -462,8 +464,8 @@ Rscript tutorial/code/01_连续结局_随机化RCT.R
 
 | 位置 | 内容 |
 |---|---|
-| `DESCRIPTION` | `Version: 0.22` |
-| `CHANGELOG.md` | 顶部新增 `## [0.22]` 小节 |
+| `DESCRIPTION` | `Version: 0.24` |
+| `CHANGELOG.md` | 顶部新增 `## [0.24]` 小节 |
 | `docs/assets/js/content-home.js` | `SITE_META.version`（页脚读它） |
 | `docs/assets/js/content-changelog.js` | `lede` 的「当前版本」与当前小节 `heading` |
 
@@ -471,7 +473,7 @@ Rscript tutorial/code/01_连续结局_随机化RCT.R
 
 ```r
 # 在包根目录执行：改 DESCRIPTION 与 SITE_META，并列出还引用旧版本号的文件
-Rscript dev/bump_version.R 0.22
+Rscript dev/bump_version.R 0.24
 ```
 
 `tests/testthat/test-version.R` 会断言 `DESCRIPTION` 与 `SITE_META.version` 一致、

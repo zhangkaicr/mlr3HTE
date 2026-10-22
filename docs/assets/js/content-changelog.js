@@ -9,12 +9,25 @@ window.SITE_PAGES.changelog = {
   /* ---------------- 中文 ---------------- */
   zh: {
     title: "更新日志",
-    lede: "mlr3HTE 的版本历史与重要变更。当前版本 v0.23。",
+    lede: "mlr3HTE 的版本历史与重要变更。当前版本 v0.24。",
     sections: [
+
+
+
+      {
+        id: "v024",
+        heading: "v0.24 · 2026-10-22",
+        body:
+          '<div class="callout ok"><div class="callout-title">GitHub README 中英双语 + 顶部一键切换</div>' +
+          '<p>仓库首页改为中英双语：新增 <code>README_EN.md</code>（完整英文版），' +
+          '<code>README.md</code>（中文）顶部都加了语言切换按钮，一键跳到另一语言。' +
+          '两份 README 内容对齐（安装 / 函数式 API / R6 Learner / 方法学要点 / 文件结构 / ' +
+          '依赖与运行环境 / 版本号规则），均指向双语文档站。</p></div>'
+      },
 
       {
         id: "v023",
-        heading: "v0.23 · 2026-10-22（当前版本）",
+        heading: "v0.23 · 2026-10-22",
         body:
           '<div class="callout ok"><div class="callout-title">补生成 man/ 文档</div>' +
           '<p>重新运行 <code>roxygen2::roxygenise()</code>，让 <code>man/metalearner.Rd</code> 与 ' +
@@ -222,12 +235,25 @@ window.SITE_PAGES.changelog = {
   /* ---------------- English ---------------- */
   en: {
     title: "Changelog",
-    lede: "Version history and notable changes for mlr3HTE. Current version: v0.23.",
+    lede: "Version history and notable changes for mlr3HTE. Current version: v0.24.",
     sections: [
+
+
+
+      {
+        id: "v024",
+        heading: "v0.24 · 2026-10-22",
+        body:
+          '<div class="callout ok"><div class="callout-title">GitHub README bilingual (CN/EN) + one-click top switch</div>' +
+          '<p>The repo landing page is now bilingual: a new <code>README_EN.md</code> (full English) ' +
+          'plus <code>README.md</code> (Chinese), each with a language-switch button at the top that ' +
+          'jumps to the other language. Both READMEs are kept in sync (install / functional API / ' +
+          'R6 Learner / methodology / files / dependencies / version rule) and link to the bilingual docs site.</p></div>'
+      },
 
       {
         id: "v023",
-        heading: "v0.23 · 2026-10-22 (current)",
+        heading: "v0.23 · 2026-10-22",
         body:
           '<div class="callout ok"><div class="callout-title">Regenerate man/ docs</div>' +
           '<p>Re-ran <code>roxygen2::roxygenise()</code> so <code>man/metalearner.Rd</code> and ' +
