@@ -9,8 +9,34 @@ window.SITE_PAGES.changelog = {
   /* ---------------- 中文 ---------------- */
   zh: {
     title: "更新日志",
-    lede: "mlr3HTE 的版本历史与重要变更。当前版本 v0.35。",
+    lede: "mlr3HTE 的版本历史与重要变更。当前版本 v0.36。",
     sections: [
+
+      {
+        id: "v036",
+        heading: "v0.36 · 2026-10-23",
+        body:
+          '<div class="callout ok"><div class="callout-title">重生成 4 张过期的 DAG 图</div>' +
+          '<p><code>docs/assets/img/dag/</code> 下 binary 与 survival 的 4 张图（rct / obs 各两张）' +
+          '停留在 v0.34「任意两节点之间只允许一条箭头」的布局修正<strong>之前</strong>，' +
+          '与 continuous 两张在布局、箭头路由、画布尺寸（1080 vs 880 宽）上都不一致。' +
+          '本批次用当前 <code>mlr3HTE_dag()</code> 统一重生成全部 6 张，画布统一为 880×550，' +
+          '并在 <code>dev/_make_dag_figs.R</code> 里加了 PNG 头宽高的一致性核查。</p></div>' +
+          '<p><strong>修正 apidag 帮助页</strong>：图层说明与示例输出里的 ' +
+          '<code>GeomSegment</code> → <code>GeomCurve</code>（并说明曲率不同的边各占一层）；' +
+          '错字「协变变 X」→「协变量 X」；示例代码原来是一个 <code>for</code> 循环，' +
+          '粘贴的输出里却有 <code>===== design = rct =====</code> 表头——循环根本不打印它，' +
+          '说明那份输出来自另一段脚本。已把表头打印写进示例代码并重新跑出逐字一致的输出；' +
+          '<code>fig</code> 小节从 2 张补齐为 6 张（三种结局 × 两种设计）。</p>' +
+          '<div class="callout warn"><div class="callout-title">新增文档示例的自动对账工具链</div>' +
+          '<p>新增 <code>dev/_extract_examples.js</code> + <code>dev/_audit_run.R</code>：' +
+          '从内容文件里抽出全部「示例代码 + 实测输出」配对（当前 40 对），逐对重跑并逐行比对。' +
+          '判据三档：<code>OK</code> / <code>STALE</code>（能跑通但与文档不符）/ ' +
+          '<code>NO_CONTEXT</code>（依赖前文对象，无法独立重跑）。首次运行抓到 6 处 ' +
+          '<code>STALE</code>，全部是「输出里有 <code>--- 数据卡 ---</code> 这类小节标题、' +
+          '代码却不打印」。已给这些示例代码补上真实打印标题的语句并重跑写回。' +
+          '当前结果：<strong>STALE 0</strong>，16 对自动通过，24 对因依赖前文上下文未能独立核对。</p></div>'
+      },
 
       {
         id: "v035",
@@ -485,8 +511,39 @@ window.SITE_PAGES.changelog = {
   /* ---------------- English ---------------- */
   en: {
     title: "Changelog",
-    lede: "Version history and notable changes for mlr3HTE. Current version: v0.35.",
+    lede: "Version history and notable changes for mlr3HTE. Current version: v0.36.",
     sections: [
+
+      {
+        id: "v036",
+        heading: "v0.36 · 2026-10-23",
+        body:
+          '<div class="callout ok"><div class="callout-title">Four stale DAG figures regenerated</div>' +
+          '<p>The four binary / survival DAG figures under <code>docs/assets/img/dag/</code> ' +
+          '(two for rct, two for obs) predate the v0.34 layout fix that allows only ' +
+          '<strong>one</strong> arrow per node pair, so their layout, edge routing and canvas size ' +
+          '(1080 vs 880 px wide) all disagreed with the two continuous ones. All six are now ' +
+          'regenerated with the current <code>mlr3HTE_dag()</code> at a uniform 880×550, and ' +
+          '<code>dev/_make_dag_figs.R</code> now asserts the PNG header dimensions match.</p></div>' +
+          '<p><strong>apidag help page corrected</strong>: <code>GeomSegment</code> → ' +
+          '<code>GeomCurve</code> in both the layer description and the pasted output (edges with ' +
+          'different curvature each get their own layer); the typo "协变变 X" is fixed; the example ' +
+          'code was a <code>for</code> loop while the pasted output contained ' +
+          '<code>===== design = rct =====</code> headers the loop never printed — that output came ' +
+          'from a different script. The headers are now printed by the example itself and the output ' +
+          'was re-run to match word for word. The <code>fig</code> section grew from 2 to 6 figures ' +
+          '(three outcome types × two designs).</p>' +
+          '<div class="callout warn"><div class="callout-title">New automated audit for doc examples</div>' +
+          '<p>Added <code>dev/_extract_examples.js</code> + <code>dev/_audit_run.R</code>: they extract ' +
+          'every "example code + real output" pair from the content files (40 pairs today), re-run each ' +
+          'and diff line by line. Three verdicts: <code>OK</code> / <code>STALE</code> (runs but ' +
+          'disagrees with the page) / <code>NO_CONTEXT</code> (depends on objects from earlier examples). ' +
+          'The first run caught 6 <code>STALE</code> cases, all of the same kind: the output contained ' +
+          '<code>--- 数据卡 ---</code>-style section headers that the code never printed. Those examples ' +
+          'now print their own headers and the pages were updated from a fresh run. Current result: ' +
+          '<strong>STALE 0</strong>, 16 pairs verified automatically, 24 pairs could not be verified ' +
+          'in isolation because they rely on earlier context.</p></div>'
+      },
 
       {
         id: "v035",

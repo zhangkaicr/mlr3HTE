@@ -17,3 +17,6 @@ renv/cellar/
 # OS
 .DS_Store
 Thumbs.db
+
+# 文档示例对账的中间产物（node dev/_extract_examples.js 生成，可随时重建）
+dev/_audit/

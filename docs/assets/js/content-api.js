@@ -904,9 +904,9 @@ window.SITE_PAGES.apidemodata = {
         heading: "实测示例",
         body:
           '<p>代码与输出均为<strong>真实跑出</strong>（n = 1200，seed 如代码所示）。</p>' +
-          '<pre><code class="language-r">d &lt;- mlr3HTE_demo_data(n = 1200, seed = 1201)\ntibble(真实ATE = d$ate, CATE_SD = sd(d$tau), CATE_min = min(d$tau),\n       CATE_max = max(d$tau), 处理率 = mean(d$A))\nnames(d$X)\nhead(d$X, 3)\nclass(d$Y)\nhead(d$Y, 3)</code></pre>' +
+          '<pre><code class="language-r">d &lt;- mlr3HTE_demo_data(n = 1200, seed = 1201)\ncat("--- 数据卡 ---\\n")\ntibble(真实ATE = d$ate, CATE_SD = sd(d$tau), CATE_min = min(d$tau),\n       CATE_max = max(d$tau), 处理率 = mean(d$A))\ncat("\\n--- X 的列与前 3 行 ---\\n")\nnames(d$X)\nhead(d$X, 3)\ncat("\\n--- 结局类型 ---\\n")\nclass(d$Y)\nhead(d$Y, 3)</code></pre>' +
           '<p>实测输出：</p>' +
-          '<pre><code class="r-out">--- 数据卡 ---\n# A tibble: 1 × 5\n  真实ATE CATE_SD CATE_min CATE_max 处理率\n    &lt;dbl&gt;   &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;  &lt;dbl&gt;\n1    1.05    1.06    -2.73     4.64    0.5\n\n--- X 的列与前 3 行 ---\n[1] "age"   "lac"   "tumor" "sex"  \n       age      lac    tumor sex\n1 38.60905 3.353193 3.876882   1\n2 55.35569 1.468101 5.906637   1\n3 50.67085 3.763216 3.162722   1\n\n--- 结局类型 ---\n[1] "numeric"\n[1] 8.416564 5.474692 9.719083</code></pre>' +
+          '<pre><code class="r-out">--- 数据卡 ---\n# A tibble: 1 × 5\n  真实ATE CATE_SD CATE_min CATE_max 处理率\n    &lt;dbl&gt;   &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;  &lt;dbl&gt;\n1    1.05    1.06    -2.73     4.64    0.5\n\n--- X 的列与前 3 行 ---\n[1] "age"   "lac"   "tumor" "sex"\n       age      lac    tumor sex\n1 38.60905 3.353193 3.876882   1\n2 55.35569 1.468101 5.906637   1\n3 50.67085 3.763216 3.162722   1\n\n--- 结局类型 ---\n[1] "numeric"\n[1] 8.416564 5.474692 9.719083</code></pre>' +
           '<div class="callout"><div class="callout-title">这份数据用来干什么</div>' +
           '<p>教程 01（连续 × RCT）的数据源；也是 <a href="#/apimetalearner">metalearner()</a> 文档里所有示例的默认数据。</p></div>'
       },
@@ -948,9 +948,9 @@ window.SITE_PAGES.apidemodata = {
         heading: "Worked example (real output)",
         body:
           '<p>Both code and output are <strong>actually run</strong> (n = 1200, seed as shown).</p>' +
-          '<pre><code class="language-r">d &lt;- mlr3HTE_demo_data(n = 1200, seed = 1201)\ntibble(真实ATE = d$ate, CATE_SD = sd(d$tau), CATE_min = min(d$tau),\n       CATE_max = max(d$tau), 处理率 = mean(d$A))\nnames(d$X)\nhead(d$X, 3)\nclass(d$Y)\nhead(d$Y, 3)</code></pre>' +
+          '<pre><code class="language-r">d &lt;- mlr3HTE_demo_data(n = 1200, seed = 1201)\ncat("--- 数据卡 ---\\n")\ntibble(真实ATE = d$ate, CATE_SD = sd(d$tau), CATE_min = min(d$tau),\n       CATE_max = max(d$tau), 处理率 = mean(d$A))\ncat("\\n--- X 的列与前 3 行 ---\\n")\nnames(d$X)\nhead(d$X, 3)\ncat("\\n--- 结局类型 ---\\n")\nclass(d$Y)\nhead(d$Y, 3)</code></pre>' +
           '<p>Output:</p>' +
-          '<pre><code class="r-out">--- 数据卡 ---\n# A tibble: 1 × 5\n  真实ATE CATE_SD CATE_min CATE_max 处理率\n    &lt;dbl&gt;   &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;  &lt;dbl&gt;\n1    1.05    1.06    -2.73     4.64    0.5\n\n--- X 的列与前 3 行 ---\n[1] "age"   "lac"   "tumor" "sex"  \n       age      lac    tumor sex\n1 38.60905 3.353193 3.876882   1\n2 55.35569 1.468101 5.906637   1\n3 50.67085 3.763216 3.162722   1\n\n--- 结局类型 ---\n[1] "numeric"\n[1] 8.416564 5.474692 9.719083</code></pre>' +
+          '<pre><code class="r-out">--- 数据卡 ---\n# A tibble: 1 × 5\n  真实ATE CATE_SD CATE_min CATE_max 处理率\n    &lt;dbl&gt;   &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;  &lt;dbl&gt;\n1    1.05    1.06    -2.73     4.64    0.5\n\n--- X 的列与前 3 行 ---\n[1] "age"   "lac"   "tumor" "sex"\n       age      lac    tumor sex\n1 38.60905 3.353193 3.876882   1\n2 55.35569 1.468101 5.906637   1\n3 50.67085 3.763216 3.162722   1\n\n--- 结局类型 ---\n[1] "numeric"\n[1] 8.416564 5.474692 9.719083</code></pre>' +
           '<div class="callout"><div class="callout-title">What this dataset is for</div>' +
           '<p>Data source for tutorial 01 (continuous × RCT) and the default dataset in every <a href="#/apimetalearner">metalearner()</a> example.</p></div>'
       },
@@ -995,9 +995,9 @@ window.SITE_PAGES.apidemobinary = {
         heading: "实测示例",
         body:
           '<p>代码与输出均为<strong>真实跑出</strong>（n = 1200，seed 如代码所示）。</p>' +
-          '<pre><code class="language-r">d &lt;- mlr3HTE_demo_binary(n = 1200, seed = 1203)\ntibble(真实ATE = d$ate, CATE_SD = sd(d$tau), 处理率 = mean(d$A),\n       结局率 = mean(d$Y))\ntable(d$Y)</code></pre>' +
+          '<pre><code class="language-r">d &lt;- mlr3HTE_demo_binary(n = 1200, seed = 1203)\ncat("--- 数据卡 ---\\n")\ntibble(真实ATE = d$ate, CATE_SD = sd(d$tau), 处理率 = mean(d$A),\n       结局率 = mean(d$Y))\ncat("\\n--- Y 是 0/1 ---\\n")\ntable(d$Y)</code></pre>' +
           '<p>实测输出：</p>' +
-          '<pre><code class="r-out">--- 数据卡 ---\n# A tibble: 1 × 4\n  真实ATE CATE_SD 处理率 结局率\n    &lt;dbl&gt;   &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt;\n1   0.131   0.131    0.5  0.344\n\n--- Y 是 0/1 ---\n\n  0   1 \n787 413</code></pre>' +
+          '<pre><code class="r-out">--- 数据卡 ---\n# A tibble: 1 × 4\n  真实ATE CATE_SD 处理率 结局率\n    &lt;dbl&gt;   &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt;\n1   0.131   0.131    0.5  0.344\n\n--- Y 是 0/1 ---\n\n  0   1\n787 413</code></pre>' +
           '<div class="callout"><div class="callout-title">这份数据用来干什么</div>' +
           '<p>教程 03（二分类 × RCT）的数据源。</p></div>'
       },
@@ -1039,9 +1039,9 @@ window.SITE_PAGES.apidemobinary = {
         heading: "Worked example (real output)",
         body:
           '<p>Both code and output are <strong>actually run</strong> (n = 1200, seed as shown).</p>' +
-          '<pre><code class="language-r">d &lt;- mlr3HTE_demo_binary(n = 1200, seed = 1203)\ntibble(真实ATE = d$ate, CATE_SD = sd(d$tau), 处理率 = mean(d$A),\n       结局率 = mean(d$Y))\ntable(d$Y)</code></pre>' +
+          '<pre><code class="language-r">d &lt;- mlr3HTE_demo_binary(n = 1200, seed = 1203)\ncat("--- 数据卡 ---\\n")\ntibble(真实ATE = d$ate, CATE_SD = sd(d$tau), 处理率 = mean(d$A),\n       结局率 = mean(d$Y))\ncat("\\n--- Y 是 0/1 ---\\n")\ntable(d$Y)</code></pre>' +
           '<p>Output:</p>' +
-          '<pre><code class="r-out">--- 数据卡 ---\n# A tibble: 1 × 4\n  真实ATE CATE_SD 处理率 结局率\n    &lt;dbl&gt;   &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt;\n1   0.131   0.131    0.5  0.344\n\n--- Y 是 0/1 ---\n\n  0   1 \n787 413</code></pre>' +
+          '<pre><code class="r-out">--- 数据卡 ---\n# A tibble: 1 × 4\n  真实ATE CATE_SD 处理率 结局率\n    &lt;dbl&gt;   &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt;\n1   0.131   0.131    0.5  0.344\n\n--- Y 是 0/1 ---\n\n  0   1\n787 413</code></pre>' +
           '<div class="callout"><div class="callout-title">What this dataset is for</div>' +
           '<p>Data source for tutorial 03 (binary × RCT).</p></div>'
       },
@@ -1086,7 +1086,7 @@ window.SITE_PAGES.apidemoobs = {
         heading: "实测示例",
         body:
           '<p>代码与输出均为<strong>真实跑出</strong>（n = 1200，seed 如代码所示）。</p>' +
-          '<pre><code class="language-r">d &lt;- mlr3HTE_demo_obs(n = 1200, seed = 1204)\ntibble(真实ATE = d$ate, CATE_SD = sd(d$tau), 处理率 = mean(d$A))\nd$X |&gt; mutate(A = d$A) |&gt; group_by(A) |&gt;\n  summarise(across(where(is.numeric), mean), .groups = "drop")\nrange(d$ps_true)</code></pre>' +
+          '<pre><code class="language-r">d &lt;- mlr3HTE_demo_obs(n = 1200, seed = 1204)\ncat("--- 数据卡 ---\\n")\ntibble(真实ATE = d$ate, CATE_SD = sd(d$tau), 处理率 = mean(d$A))\ncat("\\n--- 两组基线差异（混杂的来源）---\\n")\nd$X |&gt; mutate(A = d$A) |&gt; group_by(A) |&gt;\n  summarise(across(where(is.numeric), mean), .groups = "drop")\ncat("\\n--- ps_true 范围 ---\\n")\nrange(d$ps_true)</code></pre>' +
           '<p>实测输出：</p>' +
           '<pre><code class="r-out">--- 数据卡 ---\n# A tibble: 1 × 3\n  真实ATE CATE_SD 处理率\n    &lt;dbl&gt;   &lt;dbl&gt;  &lt;dbl&gt;\n1    1.04    1.03    0.4\n\n--- 两组基线差异（混杂的来源）---\n# A tibble: 2 × 5\n      A   age   lac tumor   sex\n  &lt;int&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;\n1     0  59.7  2.17  4.77 0.431\n2     1  60.3  3.00  5.48 0.438\n\n--- ps_true 范围 ---\n[1] 0.01941862 0.94016139</code></pre>' +
           '<div class="callout"><div class="callout-title">这份数据用来干什么</div>' +
@@ -1130,7 +1130,7 @@ window.SITE_PAGES.apidemoobs = {
         heading: "Worked example (real output)",
         body:
           '<p>Both code and output are <strong>actually run</strong> (n = 1200, seed as shown).</p>' +
-          '<pre><code class="language-r">d &lt;- mlr3HTE_demo_obs(n = 1200, seed = 1204)\ntibble(真实ATE = d$ate, CATE_SD = sd(d$tau), 处理率 = mean(d$A))\nd$X |&gt; mutate(A = d$A) |&gt; group_by(A) |&gt;\n  summarise(across(where(is.numeric), mean), .groups = "drop")\nrange(d$ps_true)</code></pre>' +
+          '<pre><code class="language-r">d &lt;- mlr3HTE_demo_obs(n = 1200, seed = 1204)\ncat("--- 数据卡 ---\\n")\ntibble(真实ATE = d$ate, CATE_SD = sd(d$tau), 处理率 = mean(d$A))\ncat("\\n--- 两组基线差异（混杂的来源）---\\n")\nd$X |&gt; mutate(A = d$A) |&gt; group_by(A) |&gt;\n  summarise(across(where(is.numeric), mean), .groups = "drop")\ncat("\\n--- ps_true 范围 ---\\n")\nrange(d$ps_true)</code></pre>' +
           '<p>Output:</p>' +
           '<pre><code class="r-out">--- 数据卡 ---\n# A tibble: 1 × 3\n  真实ATE CATE_SD 处理率\n    &lt;dbl&gt;   &lt;dbl&gt;  &lt;dbl&gt;\n1    1.04    1.03    0.4\n\n--- 两组基线差异（混杂的来源）---\n# A tibble: 2 × 5\n      A   age   lac tumor   sex\n  &lt;int&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;\n1     0  59.7  2.17  4.77 0.431\n2     1  60.3  3.00  5.48 0.438\n\n--- ps_true 范围 ---\n[1] 0.01941862 0.94016139</code></pre>' +
           '<div class="callout"><div class="callout-title">What this dataset is for</div>' +
@@ -1268,7 +1268,7 @@ window.SITE_PAGES.apidemoobssurv = {
         heading: "实测示例",
         body:
           '<p>代码与输出均为<strong>真实跑出</strong>（n = 1200，seed 如代码所示）。</p>' +
-          '<pre><code class="language-r">d &lt;- mlr3HTE_demo_obs_surv(n = 1200, seed = 1205)\ntibble(真实ATE = d$ate, t0 = d$t0, 处理率 = mean(d$A),\n       删失比例 = 1 - mean(d$Y[, 2L]))\nclass(d$Y)\nhead(d$Y, 3)</code></pre>' +
+          '<pre><code class="language-r">d &lt;- mlr3HTE_demo_obs_surv(n = 1200, seed = 1205)\ntibble(真实ATE = d$ate, t0 = d$t0, 处理率 = mean(d$A),\n       删失比例 = 1 - mean(d$Y[, 2L]))\ncat("\\n--- Y 是 Surv 矩阵 ---\\n")\nclass(d$Y)\nhead(d$Y, 3)</code></pre>' +
           '<p>实测输出：</p>' +
           '<pre><code class="r-out"># A tibble: 1 × 4\n  真实ATE    t0 处理率 删失比例\n    &lt;dbl&gt; &lt;dbl&gt;  &lt;dbl&gt;    &lt;dbl&gt;\n1   0.151     2  0.387    0.292\n\n--- Y 是 Surv 矩阵 ---\n[1] "Surv"\n[1] 8.7075197+ 0.7079554  0.1362236</code></pre>' +
           '<div class="callout"><div class="callout-title">这份数据用来干什么</div>' +
@@ -1312,7 +1312,7 @@ window.SITE_PAGES.apidemoobssurv = {
         heading: "Worked example (real output)",
         body:
           '<p>Both code and output are <strong>actually run</strong> (n = 1200, seed as shown).</p>' +
-          '<pre><code class="language-r">d &lt;- mlr3HTE_demo_obs_surv(n = 1200, seed = 1205)\ntibble(真实ATE = d$ate, t0 = d$t0, 处理率 = mean(d$A),\n       删失比例 = 1 - mean(d$Y[, 2L]))\nclass(d$Y)\nhead(d$Y, 3)</code></pre>' +
+          '<pre><code class="language-r">d &lt;- mlr3HTE_demo_obs_surv(n = 1200, seed = 1205)\ntibble(真实ATE = d$ate, t0 = d$t0, 处理率 = mean(d$A),\n       删失比例 = 1 - mean(d$Y[, 2L]))\ncat("\\n--- Y 是 Surv 矩阵 ---\\n")\nclass(d$Y)\nhead(d$Y, 3)</code></pre>' +
           '<p>Output:</p>' +
           '<pre><code class="r-out"># A tibble: 1 × 4\n  真实ATE    t0 处理率 删失比例\n    &lt;dbl&gt; &lt;dbl&gt;  &lt;dbl&gt;    &lt;dbl&gt;\n1   0.151     2  0.387    0.292\n\n--- Y 是 Surv 矩阵 ---\n[1] "Surv"\n[1] 8.7075197+ 0.7079554  0.1362236</code></pre>' +
           '<div class="callout"><div class="callout-title">What this dataset is for</div>' +
@@ -1359,7 +1359,7 @@ window.SITE_PAGES.apidemosurv = {
         heading: "实测示例",
         body:
           '<p>代码与输出均为<strong>真实跑出</strong>（n = 1200，seed 如代码所示）。</p>' +
-          '<pre><code class="language-r">d &lt;- mlr3HTE_demo_surv(n = 1200, seed = 1205)\ntibble(真实ATE = d$ate, t0 = d$t0, 处理率 = mean(d$A),\n       删失比例 = 1 - mean(d$Y[, 2L]))\nclass(d$Y)\nhead(d$Y, 3)</code></pre>' +
+          '<pre><code class="language-r">d &lt;- mlr3HTE_demo_surv(n = 1200, seed = 1205)\ntibble(真实ATE = d$ate, t0 = d$t0, 处理率 = mean(d$A),\n       删失比例 = 1 - mean(d$Y[, 2L]))\ncat("\\n--- Y 是 Surv 矩阵 ---\\n")\nclass(d$Y)\nhead(d$Y, 3)</code></pre>' +
           '<p>实测输出：</p>' +
           '<pre><code class="r-out"># A tibble: 1 × 4\n  真实ATE    t0 处理率 删失比例\n    &lt;dbl&gt; &lt;dbl&gt;  &lt;dbl&gt;    &lt;dbl&gt;\n1   0.151     2  0.531    0.302\n\n--- Y 是 Surv 矩阵 ---\n[1] "Surv"\n[1] 8.7075197+ 0.7079554  0.5624068</code></pre>' +
           '<div class="callout"><div class="callout-title">这份数据用来干什么</div>' +
@@ -1403,7 +1403,7 @@ window.SITE_PAGES.apidemosurv = {
         heading: "Worked example (real output)",
         body:
           '<p>Both code and output are <strong>actually run</strong> (n = 1200, seed as shown).</p>' +
-          '<pre><code class="language-r">d &lt;- mlr3HTE_demo_surv(n = 1200, seed = 1205)\ntibble(真实ATE = d$ate, t0 = d$t0, 处理率 = mean(d$A),\n       删失比例 = 1 - mean(d$Y[, 2L]))\nclass(d$Y)\nhead(d$Y, 3)</code></pre>' +
+          '<pre><code class="language-r">d &lt;- mlr3HTE_demo_surv(n = 1200, seed = 1205)\ntibble(真实ATE = d$ate, t0 = d$t0, 处理率 = mean(d$A),\n       删失比例 = 1 - mean(d$Y[, 2L]))\ncat("\\n--- Y 是 Surv 矩阵 ---\\n")\nclass(d$Y)\nhead(d$Y, 3)</code></pre>' +
           '<p>Output:</p>' +
           '<pre><code class="r-out"># A tibble: 1 × 4\n  真实ATE    t0 处理率 删失比例\n    &lt;dbl&gt; &lt;dbl&gt;  &lt;dbl&gt;    &lt;dbl&gt;\n1   0.151     2  0.531    0.302\n\n--- Y 是 Surv 矩阵 ---\n[1] "Surv"\n[1] 8.7075197+ 0.7079554  0.5624068</code></pre>' +
           '<div class="callout"><div class="callout-title">What this dataset is for</div>' +
@@ -2022,9 +2022,9 @@ window.SITE_PAGES.apidrpseudo = {
         body:
           '<p>代码与输出均为<strong>真实跑出</strong>。' +
           '背景数据：<code>mlr3HTE_demo_data(n = 1500, seed = 1201)</code> 上拟合的 X-learner（ranger 300 树）。</p>' +
-          '<pre><code class="language-r">d &lt;- mlr3HTE_demo_obs(n = 1200, seed = 1204)\ndr &lt;- dr_pseudo_outcome(d$X, d$A, d$Y, seed = 1)\nnames(dr)\ntibble(DR_ATE = mean(dr$pseudo), 真实ATE = d$ate)\ntibble(ps_min = min(dr$propensity), ps_max = max(dr$propensity),\n       mu1_mean = mean(dr$mu1), mu0_mean = mean(dr$mu0))</code></pre>' +
+          '<pre><code class="language-r">d &lt;- mlr3HTE_demo_obs(n = 1200, seed = 1204)\ndr &lt;- dr_pseudo_outcome(d$X, d$A, d$Y, seed = 1)\ncat("--- 返回的字段 ---\\n")\nnames(dr)\ncat("\\n--- 伪结局的均值 = DR 估计的 ATE ---\\n")\ntibble(DR_ATE = mean(dr$pseudo), 真实ATE = d$ate)\ncat("\\n--- 三件套的范围 ---\\n")\ntibble(ps_min = min(dr$propensity), ps_max = max(dr$propensity),\n       mu1_mean = mean(dr$mu1), mu0_mean = mean(dr$mu0))</code></pre>' +
           '<p>实测输出：</p>' +
-          '<pre><code class="r-out">--- 返回的字段 ---\n[1] "pseudo"     "mu1"        "mu0"        "propensity" "ate"       \n[6] "t0"         "effect"    \n\n--- 伪结局的均值 = DR 估计的 ATE ---\n# A tibble: 1 × 2\n  DR_ATE 真实ATE\n   &lt;dbl&gt;   &lt;dbl&gt;\n1  0.979    1.04\n\n--- 三件套的范围 ---\n# A tibble: 1 × 4\n  ps_min ps_max mu1_mean mu0_mean\n   &lt;dbl&gt;  &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;\n1 0.0179  0.939     7.16     6.10</code></pre>' +
+          '<pre><code class="r-out">--- 返回的字段 ---\n[1] "pseudo"     "mu1"        "mu0"        "propensity" "ate"\n[6] "t0"         "effect"\n\n--- 伪结局的均值 = DR 估计的 ATE ---\n# A tibble: 1 × 2\n  DR_ATE 真实ATE\n   &lt;dbl&gt;   &lt;dbl&gt;\n1  0.979    1.04\n\n--- 三件套的范围 ---\n# A tibble: 1 × 4\n  ps_min ps_max mu1_mean mu0_mean\n   &lt;dbl&gt;  &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;\n1 0.0179  0.939     7.16     6.10</code></pre>' +
           '<p>实测里 DR 估计的 ATE 为 0.979，真值 1.04；这量级偏差在 n = 1200 上属于正常采样潮用，且它比未校正的算算本身（约 1.74）小一个数量级。</p>'
       }
     ]
@@ -2051,9 +2051,9 @@ window.SITE_PAGES.apidrpseudo = {
         body:
           '<p>Both code and output are <strong>actually run</strong>. Background data: an X-learner ' +
           '(ranger, 300 trees) fitted on <code>mlr3HTE_demo_data(n = 1500, seed = 1201)</code>.</p>' +
-          '<pre><code class="language-r">d &lt;- mlr3HTE_demo_obs(n = 1200, seed = 1204)\ndr &lt;- dr_pseudo_outcome(d$X, d$A, d$Y, seed = 1)\nnames(dr)\ntibble(DR_ATE = mean(dr$pseudo), 真实ATE = d$ate)\ntibble(ps_min = min(dr$propensity), ps_max = max(dr$propensity),\n       mu1_mean = mean(dr$mu1), mu0_mean = mean(dr$mu0))</code></pre>' +
+          '<pre><code class="language-r">d &lt;- mlr3HTE_demo_obs(n = 1200, seed = 1204)\ndr &lt;- dr_pseudo_outcome(d$X, d$A, d$Y, seed = 1)\ncat("--- 返回的字段 ---\\n")\nnames(dr)\ncat("\\n--- 伪结局的均值 = DR 估计的 ATE ---\\n")\ntibble(DR_ATE = mean(dr$pseudo), 真实ATE = d$ate)\ncat("\\n--- 三件套的范围 ---\\n")\ntibble(ps_min = min(dr$propensity), ps_max = max(dr$propensity),\n       mu1_mean = mean(dr$mu1), mu0_mean = mean(dr$mu0))</code></pre>' +
           '<p>Output:</p>' +
-          '<pre><code class="r-out">--- 返回的字段 ---\n[1] "pseudo"     "mu1"        "mu0"        "propensity" "ate"       \n[6] "t0"         "effect"    \n\n--- 伪结局的均值 = DR 估计的 ATE ---\n# A tibble: 1 × 2\n  DR_ATE 真实ATE\n   &lt;dbl&gt;   &lt;dbl&gt;\n1  0.979    1.04\n\n--- 三件套的范围 ---\n# A tibble: 1 × 4\n  ps_min ps_max mu1_mean mu0_mean\n   &lt;dbl&gt;  &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;\n1 0.0179  0.939     7.16     6.10</code></pre>' +
+          '<pre><code class="r-out">--- 返回的字段 ---\n[1] "pseudo"     "mu1"        "mu0"        "propensity" "ate"\n[6] "t0"         "effect"\n\n--- 伪结局的均值 = DR 估计的 ATE ---\n# A tibble: 1 × 2\n  DR_ATE 真实ATE\n   &lt;dbl&gt;   &lt;dbl&gt;\n1  0.979    1.04\n\n--- 三件套的范围 ---\n# A tibble: 1 × 4\n  ps_min ps_max mu1_mean mu0_mean\n   &lt;dbl&gt;  &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;\n1 0.0179  0.939     7.16     6.10</code></pre>' +
           '<p>The DR-estimated ATE here is 0.979 against a truth of 1.04; a gap of this size at n = 1200 is ordinary sampling noise, and it is an order of magnitude smaller than the unadjusted estimate (about 1.74).</p>'
       }
     ]
@@ -2341,8 +2341,8 @@ window.SITE_PAGES.apidag = {
           '<div class="fn">' +
           '<div class="fn-name">mlr3HTE_dag()<span class="badge">DAG</span></div>' +
           '<div class="fn-sig">mlr3HTE_dag(design = c("rct", "obs"), outcome = c("continuous", "binary", "survival"))</div>' +
-          '<p>按设计（<code>rct</code> / <code>obs</code>）和结局类型返回一张 DAG：协变变 X 同时影响处理 A 与结局 Y，A→Y 的效应随 X 变化。用于说明为什么要调整 X。返回值是 ggplot2 对象，可继续 <code>+</code> 定制。</p>' +
-          '<p>图层由 <code>GeomSegment</code>（边）与 <code>GeomLabel</code>（节点）组成，共 2 层。</p>' +
+          '<p>按设计（<code>rct</code> / <code>obs</code>）和结局类型返回一张 DAG：协变量 X 同时影响处理 A 与结局 Y，A→Y 的效应随 X 变化。用于说明为什么要调整 X。返回值是 ggplot2 对象，可继续 <code>+</code> 定制。</p>' +
+          '<p>边的图层是 <code>GeomCurve</code>（曲率不同的边各占一层，避免任意两节点之间出现重复箭头），节点是 <code>GeomLabel</code>；当前布局下所有边曲率为 0，因此共 2 层。</p>' +
           '</div>'
       },
       {
@@ -2350,9 +2350,9 @@ window.SITE_PAGES.apidag = {
         heading: "实测示例",
         body:
           '<p>代码与输出均为<strong>真实跑出</strong>。无额外输入。</p>' +
-          '<pre><code class="language-r">for (k in c("rct", "obs")) {\n  g &lt;- mlr3HTE_dag(k, "continuous")\n  cat("class:", paste(class(g), collapse = " / "), "\\n")\n  cat("geom layers:", length(g$layers), "\\n")\n  cat("图层类型：", paste(vapply(g$layers, function(l) class(l$geom)[1], ""),\n        collapse = ", "), "\\n")\n}</code></pre>' +
+          '<pre><code class="language-r">for (k in c("rct", "obs")) {\n  g &lt;- mlr3HTE_dag(k, "continuous")\n  cat("=====", "design =", k, "=====", "\\n")\n  cat("class:", paste(class(g), collapse = " / "), "\\n")\n  cat("geom layers:", length(g$layers), "\\n")\n  cat("图层类型：", paste(vapply(g$layers, function(l) class(l$geom)[1], ""),\n                         collapse = ", "), "\\n\\n")\n}</code></pre>' +
           '<p>实测输出：</p>' +
-          '<pre><code class="language-r">===== design =  rct  =====\nclass: ggplot2::ggplot / ggplot / ggplot2::gg / S7_object / gg \ngeom layers: 2 \n图层类型： GeomSegment, GeomLabel \n\n===== design =  obs  =====\nclass: ggplot2::ggplot / ggplot / ggplot2::gg / S7_object / gg \ngeom layers: 2 \n图层类型： GeomSegment, GeomLabel \n\n# 直接把它 print 出来就是一张 DAG 图（见 docs/assets/img/dag/）</code></pre>' +
+          '<pre><code class="r-out">===== design = rct =====\nclass: ggplot2::ggplot / ggplot / ggplot2::gg / S7_object / gg\ngeom layers: 2\n图层类型： GeomCurve, GeomLabel\n\n===== design = obs =====\nclass: ggplot2::ggplot / ggplot / ggplot2::gg / S7_object / gg\ngeom layers: 2\n图层类型： GeomCurve, GeomLabel</code></pre>' +
           '<p>教程与文档站里嵌的 DAG 图（<code>docs/assets/img/dag/</code>）就是这个函数生成后导出的。RCT 版没有 <code>X → A</code> 这条边，观察性版有——这就是两者的核心差异。</p>'
       },
       {
@@ -2360,8 +2360,12 @@ window.SITE_PAGES.apidag = {
         heading: "实跑图形",
         body:
           '<div class="fig-grid">' +
-          '<figure class="fig"><img src="assets/img/dag/dag_rct_continuous.png" alt="RCT 设计的 DAG"><figcaption>RCT 设计：<code>A</code> 无父节点，不存在 <code>X → A</code> 这条打开后门的路径。</figcaption></figure>' +
-          '<figure class="fig"><img src="assets/img/dag/dag_obs_continuous.png" alt="观察性设计的 DAG"><figcaption>观察性设计：<code>X → e → A</code> 与 <code>X → mu → Y</code> 同时存在，必须校正。</figcaption></figure>' +
+          '<figure class="fig"><img src="assets/img/dag/dag_rct_continuous.png" alt="RCT 设计的 DAG"><figcaption>RCT × 连续结局：<code>A</code> 无父节点，不存在 <code>X → A</code> 这条打开后门的路径。</figcaption></figure>' +
+          '<figure class="fig"><img src="assets/img/dag/dag_obs_continuous.png" alt="观察性设计的 DAG"><figcaption>观察性 × 连续结局：<code>X → e → A</code> 与 <code>X → mu → Y</code> 同时存在，必须校正。</figcaption></figure>' +
+          '<figure class="fig"><img src="assets/img/dag/dag_rct_binary.png" alt="RCT 二分类结局的 DAG"><figcaption>RCT × 二分类结局：因果结构完全不变，只是效应尺度换成风险差。</figcaption></figure>' +
+          '<figure class="fig"><img src="assets/img/dag/dag_obs_binary.png" alt="观察性二分类结局的 DAG"><figcaption>观察性 × 二分类结局：后门 <code>X → e → A</code> 照旧要校正，结局换成 0/1。</figcaption></figure>' +
+          '<figure class="fig"><img src="assets/img/dag/dag_rct_survival.png" alt="RCT 生存结局的 DAG"><figcaption>RCT × 生存结局：结构不变；实际分析还要处理右删失（IPCW），删失节点未画出。</figcaption></figure>' +
+          '<figure class="fig"><img src="assets/img/dag/dag_obs_survival.png" alt="观察性生存结局的 DAG"><figcaption>观察性 × 生存结局：混杂与删失并存，须 IPTW 与 IPCW 同时使用。</figcaption></figure>' +
           '</div>'
       }
     ]
@@ -2379,7 +2383,7 @@ window.SITE_PAGES.apidag = {
           '<div class="fn-name">mlr3HTE_dag()<span class="badge">DAG</span></div>' +
           '<div class="fn-sig">mlr3HTE_dag(design = c("rct", "obs"), outcome = c("continuous", "binary", "survival"))</div>' +
           '<p>Returns a DAG for a given design (<code>rct</code> / <code>obs</code>) and outcome type: covariates X affect both treatment A and outcome Y, and the A→Y effect varies with X. Useful for explaining why X must be adjusted for. The return value is a ggplot2 object.</p>' +
-          '<p>The layers are <code>GeomSegment</code> (edges) plus <code>GeomLabel</code> (nodes), two in total.</p>' +
+          '<p>The edge layer is <code>GeomCurve</code> (edges with different curvature each get their own layer, so no node pair ever shows two arrows) and the nodes are <code>GeomLabel</code>. With the current layout every edge has zero curvature, hence two layers in total.</p>' +
           '</div>'
       },
       {
@@ -2387,9 +2391,9 @@ window.SITE_PAGES.apidag = {
         heading: "Worked example (real output)",
         body:
           '<p>Both code and output are <strong>actually run</strong>. No extra input.</p>' +
-          '<pre><code class="language-r">for (k in c("rct", "obs")) {\n  g &lt;- mlr3HTE_dag(k, "continuous")\n  cat("class:", paste(class(g), collapse = " / "), "\\n")\n  cat("geom layers:", length(g$layers), "\\n")\n  cat("图层类型：", paste(vapply(g$layers, function(l) class(l$geom)[1], ""),\n        collapse = ", "), "\\n")\n}</code></pre>' +
+          '<pre><code class="language-r">for (k in c("rct", "obs")) {\n  g &lt;- mlr3HTE_dag(k, "continuous")\n  cat("=====", "design =", k, "=====", "\\n")\n  cat("class:", paste(class(g), collapse = " / "), "\\n")\n  cat("geom layers:", length(g$layers), "\\n")\n  cat("图层类型：", paste(vapply(g$layers, function(l) class(l$geom)[1], ""),\n                         collapse = ", "), "\\n\\n")\n}</code></pre>' +
           '<p>Output:</p>' +
-          '<pre><code class="language-r">===== design =  rct  =====\nclass: ggplot2::ggplot / ggplot / ggplot2::gg / S7_object / gg \ngeom layers: 2 \n图层类型： GeomSegment, GeomLabel \n\n===== design =  obs  =====\nclass: ggplot2::ggplot / ggplot / ggplot2::gg / S7_object / gg \ngeom layers: 2 \n图层类型： GeomSegment, GeomLabel \n\n# 直接把它 print 出来就是一张 DAG 图（见 docs/assets/img/dag/）</code></pre>' +
+          '<pre><code class="r-out">===== design = rct =====\nclass: ggplot2::ggplot / ggplot / ggplot2::gg / S7_object / gg\ngeom layers: 2\n图层类型： GeomCurve, GeomLabel\n\n===== design = obs =====\nclass: ggplot2::ggplot / ggplot / ggplot2::gg / S7_object / gg\ngeom layers: 2\n图层类型： GeomCurve, GeomLabel</code></pre>' +
           '<p>The DAG figures embedded in the tutorial and docs site (<code>docs/assets/img/dag/</code>) are exports of this function. The RCT version has no <code>X → A</code> edge while the observational version does — that is the core difference between the two.</p>'
       },
       {
@@ -2397,8 +2401,12 @@ window.SITE_PAGES.apidag = {
         heading: "Figures from an actual run",
         body:
           '<div class="fig-grid">' +
-          '<figure class="fig"><img src="assets/img/dag/dag_rct_continuous.png" alt="DAG of the RCT design"><figcaption>RCT design: <code>A</code> has no parent, so no <code>X → A</code> path opens a back door.</figcaption></figure>' +
-          '<figure class="fig"><img src="assets/img/dag/dag_obs_continuous.png" alt="DAG of the observational design"><figcaption>Observational design: both <code>X → e → A</code> and <code>X → mu → Y</code> are present and must be adjusted for.</figcaption></figure>' +
+          '<figure class="fig"><img src="assets/img/dag/dag_rct_continuous.png" alt="DAG of the RCT design"><figcaption>RCT × continuous: <code>A</code> has no parent, so no <code>X → A</code> path opens a back door.</figcaption></figure>' +
+          '<figure class="fig"><img src="assets/img/dag/dag_obs_continuous.png" alt="DAG of the observational design"><figcaption>Observational × continuous: both <code>X → e → A</code> and <code>X → mu → Y</code> are present and must be adjusted for.</figcaption></figure>' +
+          '<figure class="fig"><img src="assets/img/dag/dag_rct_binary.png" alt="DAG of the binary-outcome RCT"><figcaption>RCT × binary: the causal structure is unchanged; only the effect scale becomes a risk difference.</figcaption></figure>' +
+          '<figure class="fig"><img src="assets/img/dag/dag_obs_binary.png" alt="DAG of the binary-outcome observational design"><figcaption>Observational × binary: the <code>X → e → A</code> back door still needs adjustment; Y is just 0/1.</figcaption></figure>' +
+          '<figure class="fig"><img src="assets/img/dag/dag_rct_survival.png" alt="DAG of the survival-outcome RCT"><figcaption>RCT × survival: structure unchanged; the analysis additionally handles right-censoring via IPCW (the censoring node is not drawn).</figcaption></figure>' +
+          '<figure class="fig"><img src="assets/img/dag/dag_obs_survival.png" alt="DAG of the survival-outcome observational design"><figcaption>Observational × survival: confounding and censoring coexist, so IPTW and IPCW are both required.</figcaption></figure>' +
           '</div>'
       }
     ]
