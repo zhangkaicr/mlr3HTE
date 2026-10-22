@@ -9,9 +9,36 @@ window.SITE_PAGES.changelog = {
   /* ---------------- 中文 ---------------- */
   zh: {
     title: "更新日志",
-    lede: "mlr3HTE 的版本历史与重要变更。当前版本 v0.34。",
+    lede: "mlr3HTE 的版本历史与重要变更。当前版本 v0.35。",
     sections: [
 
+      {
+        id: "v035",
+        heading: "v0.35 · 2026-10-22",
+        body:
+          '<div class="callout ok"><div class="callout-title">模型可解释性并入教程下拉菜单</div>' +
+          '<p>原先「可解释性」是顶部独立菜单；本批次把它拆成 10 个页面（函数总览 + 9 个函数独立页），' +
+          '全部挂到「教程」下拉菜单下，与 rct / obs / surv / learners / metrics / benchmark / ' +
+          'benchgrid / explain 并列。函数文档索引不再重复承载可解释性内容，只做函数级索引。</p></div>' +
+          '<p><strong>函数文档索引补齐全部 40 个导出对象</strong>：' +
+          '<code>SITE_PAGES.api</code> 总览表重写为全部 40 个导出对象（含 6 个返回 ggplot 的 ' +
+          'Plot 函数，注明其数据来自对应数据函数）。</p>' +
+          '<p><strong>六个绘图函数帮助文档与教程均内嵌实跑图</strong>：' +
+          '<code>plot_hte_importance()</code> / <code>plot_hte_pdp()</code> / ' +
+          '<code>plot_hte_shap()</code> / <code>plot_hte_benchmark()</code> / ' +
+          '<code>plot_qini()</code> / <code>mlr3HTE_dag()</code> 各自帮助页新增 <code>fig</code> ' +
+          '小节，内嵌先用真实数据跑出图再落盘的 PNG；教程对应位置（explain 篇 importance / ' +
+          'pdp / shap 三节、benchgrid 篇 confounding 节）同样内嵌实跑图，而非单独成节。</p>' +
+          '<div class="callout warn"><div class="callout-title">修掉 content-api.js 的重复页面定义 bug</div>' +
+          '<p>该文件原先有 17 个页面被定义了两遍（首份为死定义，缺 title/lede、带「凂数」乱码），' +
+          '由 <code>dev/_validate.js</code> 新增的重复定义检测命中。现已删除每个 id 的首份定义、' +
+          '保留生效的第二份，48 个定义 0 重复，全站校验通过。</p></div>' +
+          '<p><strong>验证 dr_pseudo_outcome() 支持二分类与生存结局</strong>：默认 ' +
+          '<code>cross_fitting = TRUE</code>，对连续 / 二分类 / 生存（survdiff + rmst）三类结局' +
+          '均给出双重稳健伪结局列表。实测连续 DR ATE 0.9984 vs 真值 1.0000；二分类 0.1531 vs ' +
+          '0.1288；生存 survdiff 0.1576 vs 0.1543、rmst 0.2496 vs 0.1964。观察性弱混杂下 DR ' +
+          '未必优于未调整，强混杂下显著纠偏。</p>'
+      },
 
       {
         id: "v034",
@@ -458,9 +485,41 @@ window.SITE_PAGES.changelog = {
   /* ---------------- English ---------------- */
   en: {
     title: "Changelog",
-    lede: "Version history and notable changes for mlr3HTE. Current version: v0.34.",
+    lede: "Version history and notable changes for mlr3HTE. Current version: v0.35.",
     sections: [
 
+      {
+        id: "v035",
+        heading: "v0.35 · 2026-10-22",
+        body:
+          '<div class="callout ok"><div class="callout-title">Interpretability merged into the tutorial dropdown</div>' +
+          '<p>The "Interpretability" top-level menu is gone; its content is now 10 pages (an ' +
+          'overview plus 9 per-function pages) nested under the Tutorial dropdown, alongside ' +
+          'rct / obs / surv / learners / metrics / benchmark / benchgrid / explain. The API ' +
+          'index pages keep their function-level role only.</p></div>' +
+          '<p><strong>The API index now lists all 40 exported objects</strong>: the ' +
+          '<code>SITE_PAGES.api</code> overview table was rewritten to cover all 40 exports, ' +
+          'including the 6 ggplot-returning Plot functions, with a note on where their ' +
+          'underlying data comes from.</p>' +
+          '<p><strong>All six plotting functions embed actually-run figures</strong> in both ' +
+          'their help pages and the tutorial: <code>plot_hte_importance()</code>, ' +
+          '<code>plot_hte_pdp()</code>, <code>plot_hte_shap()</code>, ' +
+          '<code>plot_hte_benchmark()</code>, <code>plot_qini()</code> and ' +
+          '<code>mlr3HTE_dag()</code> each gained a <code>fig</code> section with a PNG produced ' +
+          'by running the code on real data; the tutorial places the same figures inline at the ' +
+          'relevant sections rather than in a separate block.</p>' +
+          '<div class="callout warn"><div class="callout-title">Fixed a latent duplicate page-definition bug in content-api.js</div>' +
+          '<p>17 pages were defined twice (the first copy dead, missing title/lede and with a ' +
+          'garbled typo). The new duplicate-definition check in <code>dev/_validate.js</code> ' +
+          'caught it; the first definition of each id was removed, leaving 48 clean definitions ' +
+          'and a passing site validation.</p></div>' +
+          '<p><strong>Confirmed dr_pseudo_outcome() supports binary and survival outcomes</strong>: ' +
+          'with default <code>cross_fitting = TRUE</code> it returns a doubly robust ' +
+          'pseudo-outcome list for continuous / binary / survival (survdiff + rmst). Measured: ' +
+          'continuous DR ATE 0.9984 vs true 1.0000; binary 0.1531 vs 0.1288; survival survdiff ' +
+          '0.1576 vs 0.1543, rmst 0.2496 vs 0.1964. Under weak observational confounding DR is ' +
+          'not always better than unadjusted, but it strongly corrects strong confounding.</p>'
+      },
 
       {
         id: "v034",

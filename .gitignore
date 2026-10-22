@@ -5,7 +5,8 @@
 .Ruserdata
 *.Rcheck/
 *.tar.gz
-Rplots.pdf   # 非交互会话 print(ggplot) 的默认落盘产物
+Rplots.pdf
+# 非交互会话 print(ggplot) 的默认落盘产物
 
 # renv：只保留 renv.lock 作版本快照，项目库不入库
 renv/library/

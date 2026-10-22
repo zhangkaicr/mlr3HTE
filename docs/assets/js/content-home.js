@@ -2,7 +2,7 @@
    content-home.js —— 导航定义 + 站点元信息 + 首页（中英双语）
    ===================================================================== */
 
-window.SITE_META = { version: "0.34", date: "2026-10-22" };
+window.SITE_META = { version: "0.35", date: "2026-10-22" };
 
 window.SITE_NAV = [
   { id: "home",      zh: "首页",           en: "Home"                    },
@@ -22,6 +22,16 @@ window.SITE_NAV = [
       { id: "tutorialbenchmark", zh: "6 RCT 基准测试",        en: "6 RCT benchmark"                  },
       { id: "tutorialbenchgrid", zh: "7 基准模拟数据网格", en: "7 Benchmark simulation grid" },
       { id: "tutorialexplain",   zh: "8 CATE 可解释性",   en: "8 Interpreting the CATE model" },
+      { id: "apiexplain",        zh: "8.1 可解释性 · 函数总览",  en: "8.1 Interpretability · Overview"       },
+      { id: "apiexplainer",      zh: "hte_explainer()",          en: "hte_explainer()"                       },
+      { id: "apisurrogate",      zh: "hte_surrogate()",          en: "hte_surrogate()"                       },
+      { id: "apiimportance",     zh: "hte_feature_importance()", en: "hte_feature_importance()"              },
+      { id: "apipdp",            zh: "hte_pdp()",                en: "hte_pdp()"                             },
+      { id: "apishap",           zh: "hte_shap()",               en: "hte_shap()"                            },
+      { id: "apishapdata",       zh: "hte_shap_data()",          en: "hte_shap_data()"                       },
+      { id: "apiplotimportance", zh: "plot_hte_importance()",    en: "plot_hte_importance()"                 },
+      { id: "apiplotpdp",        zh: "plot_hte_pdp()",           en: "plot_hte_pdp()"                        },
+      { id: "apiplotshap",       zh: "plot_hte_shap()",          en: "plot_hte_shap()"                       }
     ]
   },
   {
@@ -52,23 +62,6 @@ window.SITE_NAV = [
       { id: "apibenchindex",     zh: "mlr3HTE_bench_index()",   en: "mlr3HTE_bench_index()"                },
       { id: "apibenchdata",      zh: "hte_benchmark_data()",    en: "hte_benchmark_data()"                 },
       { id: "apidagdata",        zh: "mlr3HTE_dag_data()",      en: "mlr3HTE_dag_data()"                   }
-    ]
-  },
-  {
-    id: "apiexplain",
-    zh: "可解释性",
-    en: "Interpretability",
-    children: [
-      { id: "apiexplain",        zh: "总览",                    en: "Overview"                             },
-      { id: "apiexplainer",      zh: "hte_explainer()",         en: "hte_explainer()"                      },
-      { id: "apisurrogate",      zh: "hte_surrogate()",         en: "hte_surrogate()"                      },
-      { id: "apiimportance",     zh: "hte_feature_importance()", en: "hte_feature_importance()"             },
-      { id: "apipdp",            zh: "hte_pdp()",               en: "hte_pdp()"                            },
-      { id: "apishap",           zh: "hte_shap()",              en: "hte_shap()"                           },
-      { id: "apishapdata",       zh: "hte_shap_data()",         en: "hte_shap_data()"                      },
-      { id: "apiplotimportance", zh: "plot_hte_importance()",   en: "plot_hte_importance()"                },
-      { id: "apiplotpdp",        zh: "plot_hte_pdp()",          en: "plot_hte_pdp()"                       },
-      { id: "apiplotshap",       zh: "plot_hte_shap()",         en: "plot_hte_shap()"                      }
     ]
   },
   { id: "changelog", zh: "更新日志",      en: "Changelog"                 },

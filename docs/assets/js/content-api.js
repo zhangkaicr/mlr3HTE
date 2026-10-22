@@ -7,68 +7,6 @@
 window.SITE_PAGES = window.SITE_PAGES || {};
 
 /* ===================== 索引页 ===================== */
-window.SITE_PAGES.api = {
-
-  /* ---------------- 中文 ---------------- */
-  zh: {
-    title: "函数文档",
-    lede: "mlr3HTE 共导出 25 个对象：1 个主拟合函数、5 个便捷封装、1 个置信区间辅助、1 个 R6 " +
-          "Learner 类、1 个 Task 编码函数、6 个演示数据集生成器、1 个 DAG 辅助、1 个 mlr3 再导出、" +
-          "4 个 HTE 评价指标、1 个观察性数据干扰参数估计、1 个曲线绘图函数，以及 2 个 RCT 基准测试函数。点函数名进入各自的详细说明页。",
-    sections: [
-
-      {
-        id: "overview",
-        heading: "函数总览",
-        body:
-          '<div class="table-wrap"><table>' +
-          '<thead><tr><th>函数</th><th>类别</th><th>一句话说明</th></tr></thead>' +
-          '<tbody>' +
-          '<tr><td><a href="#/apimetalearner"><code>metalearner()</code></a></td><td>主拟合</td><td>拟合任意 metalearner，返回可预测对象</td></tr>' +
-          '<tr><td><a href="#/apishortcuts"><code>s_learner()</code> … <code>dr_learner()</code></a></td><td>便捷封装</td><td>直接返回训练集 CATE 向量</td></tr>' +
-          '<tr><td><a href="#/apimltask"><code>ml_task()</code></a></td><td>Task 编码</td><td>把 X/A/Y 编码成 mlr3 Task（三类结局统一）</td></tr>' +
-          '<tr><td><a href="#/apilearner"><code>LearnerRegrMetalearner</code></a></td><td>R6 Learner</td><td><code>lrn("regr.metalearner")</code>，接入 mlr3 工作流</td></tr>' +
-          '<tr><td><a href="#/apidemo"><code>mlr3HTE_demo_*()</code></a></td><td>演示数据</td><td>6 个带真值的模拟数据集</td></tr>' +
-          '<tr><td><a href="#/apimetrics"><code>qini_curve()</code> 等 5 个</a></td><td>HTE 评价</td><td>Qini 曲线 / 系数、c-for-benefit、TOC 曲线</td></tr>' +
-          '<tr><td><a href="#/apibenchmark"><code>hte_benchmark()</code> / <code>plot_hte_benchmark()</code></a></td><td>基准测试</td><td>RCT 数据上用 Qini / TOC / c-for-benefit 比较多个 learner，不依赖真实 tau</td></tr>' +
-          '<tr><td><a href="#/apihelpers"><code>cate_ci()</code> / <code>plot_qini()</code> / <code>mlr3HTE_dag()</code></a></td><td>辅助</td><td>CATE 自助置信区间、Qini 曲线绘图、因果 DAG 绘制</td></tr>' +
-          '<tr><td><code>lrn()</code></td><td>再导出</td><td>从 mlr3 再导出，免额外加载</td></tr>' +
-          '</tbody></table></div>'
-      }
-    ]
-  },
-
-  /* ---------------- English ---------------- */
-  en: {
-    title: "API Reference",
-    lede: "mlr3HTE exports 25 objects: one main fitting function, five shortcuts, one " +
-          "confidence-interval helper, one R6 Learner class, one Task-encoding helper, six " +
-          "demo data generators, one DAG helper, one mlr3 re-export, four HTE evaluation " +
-          "metrics, one nuisance-parameter estimator for observational data, and one " +
-          "curve-plotting function. Click a function name to open its dedicated page.",
-    sections: [
-
-      {
-        id: "overview",
-        heading: "Overview",
-        body:
-          '<div class="table-wrap"><table>' +
-          '<thead><tr><th>Function</th><th>Category</th><th>One-line description</th></tr></thead>' +
-          '<tbody>' +
-          '<tr><td><a href="#/apimetalearner"><code>metalearner()</code></a></td><td>Main entry</td><td>Fit any meta-learner and return a predictive object</td></tr>' +
-          '<tr><td><a href="#/apishortcuts"><code>s_learner()</code> … <code>dr_learner()</code></a></td><td>Shortcuts</td><td>Return the training-set CATE vector directly</td></tr>' +
-          '<tr><td><a href="#/apimltask"><code>ml_task()</code></a></td><td>Task encoding</td><td>Encode X/A/Y into an mlr3 Task (uniform across outcome types)</td></tr>' +
-          '<tr><td><a href="#/apilearner"><code>LearnerRegrMetalearner</code></a></td><td>R6 Learner</td><td><code>lrn("regr.metalearner")</code> for mlr3 workflows</td></tr>' +
-          '<tr><td><a href="#/apidemo"><code>mlr3HTE_demo_*()</code></a></td><td>Demo data</td><td>Six simulated datasets with known ground truth</td></tr>' +
-          '<tr><td><a href="#/apimetrics"><code>qini_curve()</code> &amp; 4 more</a></td><td>HTE evaluation</td><td>Qini curve / coefficient, c-for-benefit, TOC curve</td></tr>' +
-          '<tr><td><a href="#/apihelpers"><code>cate_ci()</code> / <code>plot_qini()</code> / <code>mlr3HTE_dag()</code></a></td><td>Helpers</td><td>Bootstrap CI for CATE, Qini plotting, causal DAG drawing</td></tr>' +
-          '<tr><td><code>lrn()</code></td><td>Re-export</td><td>Re-exported from mlr3 so you need not load it</td></tr>' +
-          '</tbody></table></div>'
-      }
-    ]
-  }
-};
-
 /* ===================== metalearner() ===================== */
 window.SITE_PAGES.apimetalearner = {
   zh: {
@@ -189,46 +127,6 @@ window.SITE_PAGES.apimetalearner = {
 };
 
 /* ===================== 便捷封装 ===================== */
-window.SITE_PAGES.apishortcuts = {
-  zh: {
-    title: "s_learner() / t_learner() / x_learner() / r_learner() / dr_learner()",
-    sections: [
-      {
-        id: "shortcuts",
-        heading: "s_learner() / t_learner() / x_learner() / r_learner() / dr_learner()",
-        body:
-          '<div class="fn">' +
-          '<div class="fn-name">s_learner()<span class="badge grey">以及 t_ / x_ / r_ / dr_</span></div>' +
-          '<div class="fn-sig">s_learner(X, A, Y, learner_base = lrn("regr.ranger"), ...)</div>' +
-          '<p>与课程脚本同款签名，直接返回<strong>训练集上的 CATE 向量</strong>（不是拟合对象）。' +
-          '其余参数通过 <code>...</code> 原样传给 <code>metalearner()</code>。</p>' +
-          '<pre><code class="language-r">tau_S  &lt;- s_learner(X, A, Y, learner_base = lrn("regr.ranger"))\n' +
-          'tau_DR &lt;- dr_learner(X, A, Y, weighting = "iptw")</code></pre>' +
-          '</div>'
-      }
-    ]
-  },
-  en: {
-    title: "s_learner() / t_learner() / x_learner() / r_learner() / dr_learner()",
-    sections: [
-      {
-        id: "shortcuts",
-        heading: "s_learner() / t_learner() / x_learner() / r_learner() / dr_learner()",
-        body:
-          '<div class="fn">' +
-          '<div class="fn-name">s_learner()<span class="badge grey">and t_ / x_ / r_ / dr_</span></div>' +
-          '<div class="fn-sig">s_learner(X, A, Y, learner_base = lrn("regr.ranger"), ...)</div>' +
-          '<p>Same signature as the teaching scripts; returns the <strong>CATE vector on the ' +
-          'training set</strong> (not a fitted object). All other arguments are forwarded to ' +
-          '<code>metalearner()</code> via <code>...</code>.</p>' +
-          '<pre><code class="language-r">tau_S  &lt;- s_learner(X, A, Y, learner_base = lrn("regr.ranger"))\n' +
-          'tau_DR &lt;- dr_learner(X, A, Y, weighting = "iptw")</code></pre>' +
-          '</div>'
-      }
-    ]
-  }
-};
-
 /* ===================== ml_task() ===================== */
 window.SITE_PAGES.apimltask = {
   zh: {
@@ -403,498 +301,8 @@ window.SITE_PAGES.apilearner = {
 };
 
 /* ===================== 演示数据集 ===================== */
-window.SITE_PAGES.apidemo = {
-  zh: {
-    title: "mlr3HTE_demo_*() 演示数据集",
-    sections: [
-      {
-        id: "demo",
-        heading: "mlr3HTE_demo_*() 演示数据集",
-        body:
-          '<div class="table-wrap"><table>' +
-          '<thead><tr><th>函数</th><th>结局</th><th>数据</th><th>随数据返回</th></tr></thead>' +
-          '<tbody>' +
-          '<tr><td><code>mlr3HTE_demo_data(n, treat_frac, seed)</code></td><td>连续</td><td>RCT</td><td><code>tau</code>, <code>ate</code></td></tr>' +
-          '<tr><td><code>mlr3HTE_demo_binary(n, treat_frac, seed)</code></td><td>二分类</td><td>RCT</td><td><code>tau</code>, <code>ate</code></td></tr>' +
-          '<tr><td><code>mlr3HTE_demo_surv(n, treat_frac, t0, seed)</code></td><td>生存</td><td>RCT</td><td><code>tau</code>, <code>ate</code>, <code>t0</code></td></tr>' +
-          '<tr><td><code>mlr3HTE_demo_obs(n, seed)</code></td><td>连续</td><td>观察性</td><td><code>tau</code>, <code>ate</code>, <code>ps_true</code></td></tr>' +
-          '<tr><td><code>mlr3HTE_demo_obs_binary(n, seed)</code></td><td>二分类</td><td>观察性</td><td><code>tau</code>, <code>ate</code>, <code>ps_true</code></td></tr>' +
-          '<tr><td><code>mlr3HTE_demo_obs_surv(n, t0, seed)</code></td><td>生存</td><td>观察性</td><td><code>tau</code>, <code>ate</code>, <code>ps_true</code></td></tr>' +
-          '</tbody></table></div>' +
-          '<p>每个数据集都返回真实的 <code>tau</code>（逐人 CATE 真值）与 <code>ate</code>，' +
-          '观察性版本还返回真实倾向得分 <code>ps_true</code>。这是做对账最方便的地方。</p>' +
-          '<pre><code class="language-r">d &lt;- mlr3HTE_demo_data(n = 4000)\n' +
-          'str(d)          # X, A, Y, tau, ate\n\n' +
-          '# 对账\n' +
-          'fit &lt;- metalearner("X", d$X, d$A, d$Y)\n' +
-          'cor(fit$cate_train, d$tau)</code></pre>' +
-          '<div class="callout"><div class="callout-title">观察性数据的混杂结构</div>' +
-          '<p>三个 <code>*_obs_*</code> 数据集共用同一套混杂：' +
-          '<code>e = plogis(−0.5 + 0.8·z1 + 0.4·z2)</code>，即病情越重越容易接受处理。' +
-          '所以未调整的差分必然有偏，正好用来演示 IPTW 的校正效果。</p></div>'
-      }
-    ]
-  },
-  en: {
-    title: "mlr3HTE_demo_*() datasets",
-    sections: [
-      {
-        id: "demo",
-        heading: "mlr3HTE_demo_*() datasets",
-        body:
-          '<div class="table-wrap"><table>' +
-          '<thead><tr><th>Function</th><th>Outcome</th><th>Setting</th><th>Returns</th></tr></thead>' +
-          '<tbody>' +
-          '<tr><td><code>mlr3HTE_demo_data(n, treat_frac, seed)</code></td><td>Continuous</td><td>RCT</td><td><code>tau</code>, <code>ate</code></td></tr>' +
-          '<tr><td><code>mlr3HTE_demo_binary(n, treat_frac, seed)</code></td><td>Binary</td><td>RCT</td><td><code>tau</code>, <code>ate</code></td></tr>' +
-          '<tr><td><code>mlr3HTE_demo_surv(n, treat_frac, t0, seed)</code></td><td>Survival</td><td>RCT</td><td><code>tau</code>, <code>ate</code>, <code>t0</code></td></tr>' +
-          '<tr><td><code>mlr3HTE_demo_obs(n, seed)</code></td><td>Continuous</td><td>Observational</td><td><code>tau</code>, <code>ate</code>, <code>ps_true</code></td></tr>' +
-          '<tr><td><code>mlr3HTE_demo_obs_binary(n, seed)</code></td><td>Binary</td><td>Observational</td><td><code>tau</code>, <code>ate</code>, <code>ps_true</code></td></tr>' +
-          '<tr><td><code>mlr3HTE_demo_obs_surv(n, t0, seed)</code></td><td>Survival</td><td>Observational</td><td><code>tau</code>, <code>ate</code>, <code>ps_true</code></td></tr>' +
-          '</tbody></table></div>' +
-          '<p>Every dataset returns the true per-unit <code>tau</code> and the true <code>ate</code>; ' +
-          'the observational ones also return the true propensity score <code>ps_true</code>. ' +
-          'That is what makes reconciliation straightforward.</p>' +
-          '<pre><code class="language-r">d &lt;- mlr3HTE_demo_data(n = 4000)\n' +
-          'str(d)          # X, A, Y, tau, ate\n\n' +
-          '# Reconcile\n' +
-          'fit &lt;- metalearner("X", d$X, d$A, d$Y)\n' +
-          'cor(fit$cate_train, d$tau)</code></pre>' +
-          '<div class="callout"><div class="callout-title">Confounding in the observational datasets</div>' +
-          '<p>All three <code>*_obs_*</code> datasets share the same confounding mechanism: ' +
-          '<code>e = plogis(−0.5 + 0.8·z1 + 0.4·z2)</code> — sicker patients are more likely to be ' +
-          'treated. The crude difference is therefore biased by construction, which is exactly what ' +
-          'IPTW is meant to fix.</p></div>'
-      }
-    ]
-  }
-};
-
 /* ===================== HTE 评价指标 ===================== */
-window.SITE_PAGES.apimetrics = {
-  zh: {
-    title: "HTE 评价指标",
-    sections: [
-      {
-        id: "metrics",
-        heading: "HTE 评价指标",
-        body:
-          '<p>给定模型的逐个体 CATE 估计，量化它区分"谁获益更多"的能力。每种方法都有文献依据。</p>' +
-          '<div class="table-wrap"><table>' +
-          '<thead><tr><th>函数</th><th>度量</th><th>文献</th></tr></thead>' +
-          '<tbody>' +
-          '<tr><td><a href="#/apimetrics"><code>qini_curve()</code></a></td><td>Qini 曲线（IPW 累积增益）</td><td>Sverdrup et al., JCGS 2025</td></tr>' +
-          '<tr><td><a href="#/apimetrics"><code>qini_coefficient()</code></a></td><td>曲线与随机线间面积</td><td>Sverdrup et al., JCGS 2025</td></tr>' +
-          '<tr><td><a href="#/apimetrics"><code>c_for_benefit()</code></a></td><td>预测获益的 C 统计量</td><td>van Klaveren et al., J Clin Epidemiol 2018</td></tr>' +
-          '<tr><td><a href="#/apimetrics"><code>toc_curve()</code></a></td><td>靶向操作特征曲线</td><td>Yadlowsky et al., JASA 2025</td></tr>' +
-          '<tr><td><a href="#/apimetrics"><code>dr_pseudo_outcome()</code></a></td><td>双重稳健伪结局（含交叉拟合的 e / mu1 / mu0）</td><td>Yadlowsky et al., JASA 2025</td></tr>' +
-          '</tbody></table></div>' +
-          '<pre><code class="language-r">cate  &lt;- fit$predict(testX)      # 新数据上的逐人 CATE\n' +
-          'crv   &lt;- qini_curve(cate, A_test, Y_test)\n' +
-          'qini_coefficient(cate, A_test, Y_test)$qini_coefficient\n' +
-          'c_for_benefit(cate, A_test, Y_test)$c_for_benefit\n' +
-          'toc_curve(cate, A_test, Y_test)\n' +
-          'plot_qini(crv)                    # 或 ggplot2 自绘</code></pre>' +
-          '<div class="callout"><div class="callout-title">观察性数据怎么喂</div>' +
-          '<p>Qini / TOC 传 <code>propensity</code> 即可；c-for-benefit 必须传 ' +
-          '<code>propensity</code> + <code>mu1</code> + <code>mu0</code> 三件套' +
-          '（只给倾向得分会报错——HT 评分噪声会把 C 统计量压到随机线以下）。' +
-          '三件套用 <code>dr_pseudo_outcome(X, A, Y, seed = 1)</code> 一次拿到，默认 5 折交叉拟合。</p>' +
-          '<pre><code class="language-r">dr &lt;- dr_pseudo_outcome(X, A, Y, seed = 1)   # 返回 pseudo / mu1 / mu0 / propensity / ate\n' +
-          'qini_coefficient(cate, A, Y, propensity = dr$propensity)\n' +
-          'c_for_benefit(cate, A, Y, propensity = dr$propensity, mu1 = dr$mu1, mu0 = dr$mu0)</code></pre></div>' +
-          '<div class="callout warn"><div class="callout-title">生存结局暂不支持</div>' +
-          '<p>指标目前只接受连续 / 0-1 结局；生存需删失 IPCW，留作后续版本，' +
-          '传入 <code>Surv</code> 会明确报错。</p></div>'
-      }
-    ]
-  },
-  en: {
-    title: "HTE evaluation metrics",
-    sections: [
-      {
-        id: "metrics",
-        heading: "HTE evaluation metrics",
-        body:
-          '<p>Given a model\'s per-unit CATE estimates, quantify how well it separates ' +
-          '"who benefits more". Every method carries a literature reference.</p>' +
-          '<div class="table-wrap"><table>' +
-          '<thead><tr><th>Function</th><th>Measure</th><th>Reference</th></tr></thead>' +
-          '<tbody>' +
-          '<tr><td><a href="#/apimetrics"><code>qini_curve()</code></a></td><td>Qini curve (IPW cumulative gain)</td><td>Sverdrup et al., JCGS 2025</td></tr>' +
-          '<tr><td><a href="#/apimetrics"><code>qini_coefficient()</code></a></td><td>Area between curve and random line</td><td>Sverdrup et al., JCGS 2025</td></tr>' +
-          '<tr><td><a href="#/apimetrics"><code>c_for_benefit()</code></a></td><td>C-statistic for predicted benefit</td><td>van Klaveren et al., J Clin Epidemiol 2018</td></tr>' +
-          '<tr><td><a href="#/apimetrics"><code>toc_curve()</code></a></td><td>Targeting Operator Characteristic</td><td>Yadlowsky et al., JASA 2025</td></tr>' +
-          '<tr><td><a href="#/apimetrics"><code>dr_pseudo_outcome()</code></a></td><td>Doubly-robust pseudo-outcome (with cross-fitted e / mu1 / mu0)</td><td>Yadlowsky et al., JASA 2025</td></tr>' +
-          '</tbody></table></div>' +
-          '<pre><code class="language-r">cate  &lt;- fit$predict(testX)      # per-unit CATE on new data\n' +
-          'crv   &lt;- qini_curve(cate, A_test, Y_test)\n' +
-          'qini_coefficient(cate, A_test, Y_test)$qini_coefficient\n' +
-          'c_for_benefit(cate, A_test, Y_test)$c_for_benefit\n' +
-          'toc_curve(cate, A_test, Y_test)\n' +
-          'plot_qini(crv)                    # or draw with ggplot2</code></pre>' +
-          '<div class="callout"><div class="callout-title">Feeding observational data</div>' +
-          '<p>Qini / TOC only need <code>propensity</code>; c-for-benefit requires the full ' +
-          '<code>propensity</code> + <code>mu1</code> + <code>mu0</code> triple (passing a ' +
-          'propensity score alone errors out — Horvitz–Thompson noise drives the C-statistic ' +
-          'below the random line). Get all three in one call with ' +
-          '<code>dr_pseudo_outcome(X, A, Y, seed = 1)</code>, which cross-fits by default.</p>' +
-          '<pre><code class="language-r">dr &lt;- dr_pseudo_outcome(X, A, Y, seed = 1)   # pseudo / mu1 / mu0 / propensity / ate\n' +
-          'qini_coefficient(cate, A, Y, propensity = dr$propensity)\n' +
-          'c_for_benefit(cate, A, Y, propensity = dr$propensity, mu1 = dr$mu1, mu0 = dr$mu0)</code></pre></div>' +
-          '<div class="callout warn"><div class="callout-title">Survival not yet supported</div>' +
-          '<p>The metrics currently accept continuous / 0-1 outcomes only; survival needs ' +
-          'censoring IPCW (planned). Passing a <code>Surv</code> object raises an explicit error.</p></div>'
-      }
-    ]
-  }
-};
-
 /* ===================== 辅助函数 ===================== */
-window.SITE_PAGES.apihelpers = {
-  zh: {
-    title: "辅助函数",
-    sections: [
-      {
-        id: "helpers",
-        heading: "辅助函数",
-        body:
-          '<div class="fn">' +
-          '<div class="fn-name">cate_ci()<span class="badge">不确定度</span></div>' +
-          '<div class="fn-sig">cate_ci(fit, X, level = 0.95, n_boot = 200, seed = 1)</div>' +
-          '<p>对训练好的 fit 做自助重采样，返回 CATE 的百分位自助置信区间。' +
-          '权重抽样带蒙特卡洛噪声，务必固定 <code>seed</code> 才能复现。</p></div>' +
-          '<div class="fn">' +
-          '<div class="fn-name">plot_qini()<span class="badge">绘图</span></div>' +
-          '<div class="fn-sig">plot_qini(curve, main = "Qini curve", ...)</div>' +
-          '<p>base graphics 快速绘制 Qini 曲线与随机参考线；要精细控制可自行用 ggplot2 重绘。</p></div>' +
-          '<div class="fn">' +
-          '<div class="fn-name">mlr3HTE_dag()<span class="badge">DAG</span></div>' +
-          '<div class="fn-sig">mlr3HTE_dag()</div>' +
-          '<p>画出 HTE 场景的因果图：X（协变量）同时影响处理 A 与结局 Y，' +
-          'A 对 Y 的效应随 X 变化即异质性；用于说明为何要调整 X。</p></div>'
-      }
-    ]
-  },
-  en: {
-    title: "Helpers",
-    sections: [
-      {
-        id: "helpers",
-        heading: "Helpers",
-        body:
-          '<div class="fn">' +
-          '<div class="fn-name">cate_ci()<span class="badge">Uncertainty</span></div>' +
-          '<div class="fn-sig">cate_ci(fit, X, level = 0.95, n_boot = 200, seed = 1)</div>' +
-          '<p>Bootstrap the fitted object to return a percentile interval for CATE. ' +
-          'Weighted resampling carries Monte-Carlo noise, so always fix <code>seed</code> ' +
-          'if you need reproducibility.</p></div>' +
-          '<div class="fn">' +
-          '<div class="fn-name">plot_qini()<span class="badge">Plot</span></div>' +
-          '<div class="fn-sig">plot_qini(curve, main = "Qini curve", ...)</div>' +
-          '<p>Quick base-graphics rendering of the Qini curve plus the random reference ' +
-          'line; draw with ggplot2 yourself when you need finer control.</p></div>' +
-          '<div class="fn">' +
-          '<div class="fn-name">mlr3HTE_dag()<span class="badge">DAG</span></div>' +
-          '<div class="fn-sig">mlr3HTE_dag()</div>' +
-          '<p>Draws the causal diagram for an HTE setting: covariates X affect both ' +
-          'treatment A and outcome Y, and the A-to-Y effect varies with X. Useful for ' +
-          'explaining why X must be adjusted for.</p></div>'
-      }
-    ]
-  }
-};
-
-window.SITE_PAGES.apibenchmark = {
-
-  /* ---------------- 中文 ---------------- */
-  zh: {
-    title: "hte_benchmark()",
-    lede: "在随机化试验（RCT）数据上对多个 meta-learner 做基准测试。不依赖真实 CATE，因此现实 RCT 数据上同样可用。",
-    sections: [
-
-      {
-        id: "why",
-        heading: "为什么需要它",
-        body:
-          '<div class="callout ok"><div class="callout-title">真实 tau 只有模拟数据才有</div>' +
-          '<p>教程 01–07 里的对账（CATE 相关 / RMSE）需要知道每个人的真实效应，' +
-          '这只有自带真值的模拟数据才给得出。<strong>现实 RCT 数据永远拿不到 tau。</strong>' +
-          '这个函数改问另一个问题：模型把"谁更获益"排到前面的能力如何。</p></div>' +
-          '<p>三个指标全部建立在<strong>随机化</strong>带来的可交换性上，RCT 下不需要倾向得分：</p>' +
-          '<div class="table-wrap"><table>' +
-          '<thead><tr><th>指标</th><th>随机基线</th><th>负责什么</th></tr></thead><tbody>' +
-          '<tr><td><code>qini_normalized</code></td><td>≈ 0</td>' +
-          '<td>按模型排序靶向，相对随机分配多挥发了多少额外增益</td></tr>' +
-          '<tr><td><code>toc_gain</code></td><td>0</td>' +
-          '<td>TOC 曲线与全样本 ATE 水平线夹的面积，量纲 = 结局单位</td></tr>' +
-          '<tr><td><code>c_for_benefit</code></td><td>0.5</td>' +
-          '<td>增益匹配后的 C 统计量</td></tr>' +
-          '</tbody></table></div>' +
-          '<div class="callout warn"><div class="callout-title">随机基线不是精确的 0</div>' +
-          '<p>归一化的 Qini 除了随机线下面的面积，而那个面积本身就小，' +
-          '所以单次随机排序的归一化 Qini 能在 ±0.25 左右摆。' +
-          '<strong>比较多个模型时要看相对次序，不要拿绝对阈值当基线。</strong>' +
-          '本包演示数据上（n = 1500）实测 10 次随机排序，' +
-          '归一化 Qini 落在 −0.253 到 0.227。</p></div>'
-      },
-
-      {
-        id: "crossfit",
-        heading: "为什么必须交叉拟合",
-        body:
-          '<p>每个 meta-learner 都在 K 折的<strong>训练折</strong>上拟合、' +
-          '在<strong>留出折</strong>上预测，最终用全部留出预测（out-of-fold）' +
-          '拼成一条 CATE。若用全样本拟合后回代自己（in-fold），' +
-          '模型会把训练噪声也排进序里，指标虚高。</p>' +
-          '<div class="table-wrap"><table>' +
-          '<thead><tr><th>X-learner 的做法</th><th>qini_normalized</th>' +
-          '<th>c_for_benefit</th></tr></thead><tbody>' +
-          '<tr><td>in-fold（回代训练数据）</td><td>0.528</td><td><strong>0.663</strong></td></tr>' +
-          '<tr><td>out-of-fold（5 折交叉拟合）</td><td>0.404</td><td>0.617</td></tr>' +
-          '<tr><td>真实 tau（参考上界）</td><td>0.522</td><td>0.624</td></tr>' +
-          '</tbody></table></div>' +
-          '<p>in-fold 的 c-for-benefit <strong>0.663 超过了真实 tau 的 0.624</strong>——' +
-          '那不是模型好，是把噪声也排序了。' +
-          '交叉拟合后回落到 0.617，落在真值下方，才是该有的样子。</p>'
-      },
-
-      {
-        id: "usage",
-        heading: "用法",
-        body:
-          '<div class="fn">' +
-          '<div class="fn-name">hte_benchmark()<span class="badge">benchmark</span></div>' +
-          '<div class="fn-sig">hte_benchmark(X, A, Y, t0 = NULL, learners = c("S","T","X","R","DR"), learner_base = NULL, metrics = c("qini","toc","c_for_benefit"), n_folds = 5L, tau = NULL, propensity = NULL, mu1 = NULL, mu0 = NULL, effect = "survdiff", seed = NULL)</div>' +
-          '<div class="table-wrap"><table>' +
-          '<thead><tr><th>参数</th><th>说明</th></tr></thead><tbody>' +
-          '<tr><td><code>X, A, Y</code></td><td>协变量、处理指示、结局（连续 / 0-1 / <code>Surv</code> 都行）</td></tr>' +
-          '<tr><td><code>learners</code></td><td>要比较的 meta-learner，默认五族全上</td></tr>' +
-          '<tr><td><code>learner_base</code></td><td>基学习器；默认按结局类型自动选（连续 ranger / 二分类 ranger / 生存 coxph）。所有 learner 共用同一个，比出来的差异才归因于 meta-learner 而不是基学习器</td></tr>' +
-          '<tr><td><code>metrics</code></td><td>要算哪些指标</td></tr>' +
-          '<tr><td><code>n_folds</code></td><td>交叉拟合折数，默认 5。折的划分<strong>按处理组分层</strong>，保证每折两个臂都有样本</td></tr>' +
-          '<tr><td><code>tau</code></td><td><strong>可选</strong>真实 CATE，只有模拟数据才有。给了就多输出 <code>tau_cor</code> / <code>tau_rmse</code> 两列</td></tr>' +
-          '<tr><td><code>propensity, mu1, mu0</code></td><td><strong>可选</strong>观察性数据三件套（见 <a href="#/apimetrics">dr_pseudo_outcome()</a>）。RCT 下全部留空</td></tr>' +
-          '<tr><td><code>seed</code></td><td>折划分的随机种子，固定后才能复现</td></tr>' +
-          '</tbody></table></div>' +
-          '<pre><code class="language-r"># 现实 RCT 数据：没有 tau，输出里就不会出现 tau_cor / tau_rmse\n' +
-          'bm &lt;- hte_benchmark(X, A, Y, seed = 1)\n' +
-          'bm$table\n\n' +
-          '# 模拟数据：有真值，可以两套指标照着看\n' +
-          'bm &lt;- hte_benchmark(d$X, d$A, d$Y, tau = d$tau, seed = 1)\n' +
-          'bm$table   # qini_* / toc_gain / c_for_benefit + tau_cor / tau_rmse</code></pre>' +
-          '<p>返回一个 list：<code>table</code>（一行一个 learner 的汇总表）、' +
-          '<code>cate</code>（交叉拟合留出预测的长表）、' +
-          '<code>curves</code>（Qini / TOC 曲线）、<code>truth</code>、<code>setup</code>。</p></div>' +
-          '<div class="fn">' +
-          '<div class="fn-name">plot_hte_benchmark()<span class="badge">plot</span></div>' +
-          '<div class="fn-sig">plot_hte_benchmark(x, metric = c("qini","toc"), title = NULL, min_fraction = 0.05)</div>' +
-          '<p>把 <code>hte_benchmark()</code> 存下来的曲线按 learner 分面画出来，' +
-          '并自动加上参考线（Qini 用随机靶向线，TOC 用全样本 ATE 水平线）。' +
-          '<code>min_fraction</code> 默认 0.05：TOC / Qini 在最左端只对应一两个观测，' +
-          '值是单个个体的效应，能把纵轴拉到几十倍 ATE，剩余曲线全被压扁。</p></div>'
-      },
-
-      {
-        id: "results",
-        heading: "三类结局的实测结果",
-        body:
-          '<p>n = 1500，5 折交叉拟合，seed = 42。' +
-          '<code>tau_cor</code> / <code>tau_rmse</code> 两列只有模拟数据才给得出。</p>' +
-          '<p><strong>连续 × RCT</strong>（真实 ATE 1.049）：</p>' +
-          '<div class="table-wrap"><table>' +
-          '<thead><tr><th>learner</th><th>ate</th><th>qini_normalized</th>' +
-          '<th>toc_gain</th><th>c_for_benefit</th><th>tau_cor</th></tr></thead><tbody>' +
-          '<tr><td>S</td><td>1.040</td><td>0.417</td><td>0.516</td><td>0.613</td><td>0.908</td></tr>' +
-          '<tr><td>T</td><td>1.100</td><td>0.378</td><td>0.492</td><td>0.608</td><td>0.894</td></tr>' +
-          '<tr><td>X</td><td>1.090</td><td>0.404</td><td>0.647</td><td>0.617</td><td>0.946</td></tr>' +
-          '<tr><td>R</td><td>0.498</td><td>0.460</td><td>0.946</td><td>0.599</td><td>0.857</td></tr>' +
-          '<tr><td>DR</td><td>1.090</td><td>0.413</td><td>0.568</td><td>0.617</td><td>0.932</td></tr>' +
-          '</tbody></table></div>' +
-          '<div class="callout warn"><div class="callout-title">别只看一列</div>' +
-          '<p>R 的 ATE 只有 0.498（真值 1.049），但 qini_normalized 和 toc_gain 都是五个里最高的。' +
-          '原因：R-learner 二阶段对伪结果做回归，<strong>没有尺度约束</strong>，' +
-          'CATE 可以整体缩小到一半而排序不变。Qini / TOC 只看排序，' +
-          '所以它们对尺度错误视而不见。<strong>报告时应该把 ATE 和 Qini 放在一起说，' +
-          '分别回答"平均对不对"和"排序好不好"。</strong></p></div>' +
-          '<p><strong>二分类 × RCT</strong>（真实 ATE 0.131）：</p>' +
-          '<div class="table-wrap"><table>' +
-          '<thead><tr><th>learner</th><th>ate</th><th>qini_normalized</th>' +
-          '<th>toc_gain</th><th>c_for_benefit</th><th>tau_cor</th></tr></thead><tbody>' +
-          '<tr><td>S</td><td>0.127</td><td>0.184</td><td>0.062</td><td>0.556</td><td>0.728</td></tr>' +
-          '<tr><td>T</td><td>0.139</td><td>0.193</td><td>0.078</td><td>0.554</td><td>0.643</td></tr>' +
-          '<tr><td>X</td><td>0.142</td><td>0.349</td><td>0.095</td><td>0.594</td><td>0.839</td></tr>' +
-          '<tr><td>R</td><td>0.087</td><td>0.211</td><td>0.041</td><td>0.559</td><td>0.589</td></tr>' +
-          '<tr><td>DR</td><td>0.143</td><td>0.296</td><td>0.086</td><td>0.577</td><td>0.713</td></tr>' +
-          '</tbody></table></div>' +
-          '<p><strong>生存 × RCT</strong>（t0 = 2，真实 ATE 0.152）：</p>' +
-          '<div class="table-wrap"><table>' +
-          '<thead><tr><th>learner</th><th>ate</th><th>qini_normalized</th>' +
-          '<th>toc_gain</th><th>c_for_benefit</th><th>tau_cor</th></tr></thead><tbody>' +
-          '<tr><td>S</td><td>0.159</td><td>−0.095</td><td>0.005</td><td>0.498</td><td>−0.052</td></tr>' +
-          '<tr><td>T</td><td>0.151</td><td>0.707</td><td>0.208</td><td>0.554</td><td>0.950</td></tr>' +
-          '<tr><td>X</td><td>0.142</td><td>0.462</td><td>0.125</td><td>0.544</td><td>0.884</td></tr>' +
-          '<tr><td>R</td><td>0.126</td><td>0.098</td><td>0.038</td><td>0.497</td><td>0.419</td></tr>' +
-          '<tr><td>DR</td><td>0.120</td><td>−0.045</td><td>0.025</td><td>0.496</td><td>0.380</td></tr>' +
-          '</tbody></table></div>' +
-          '<figure class="fig"><img src="assets/img/benchmark/qini_curves.png" ' +
-          'alt="五种 meta-learner 的 Qini 曲线对比，按 learner 分面">' +
-          '<figcaption>Qini 曲线对比（连续 × RCT）。' +
-          '灰色虚线 = 随机靶向基线；前 5% 未画。</figcaption></figure>' +
-          '<figure class="fig"><img src="assets/img/benchmark/toc_curves.png" ' +
-          'alt="五种 meta-learner 的 TOC 曲线对比">' +
-          '<figcaption>TOC 曲线对比。灰色虚线 = 全样本 ATE；' +
-          '曲线始终在上方说明前排人群收益更高。</figcaption></figure>'
-      }
-    ]
-  },
-
-  /* ---------------- English ---------------- */
-  en: {
-    title: "hte_benchmark()",
-    lede: "Benchmark several meta-learners on randomized-trial data. Does not need the true CATE, so it works on real RCT data too.",
-    sections: [
-
-      {
-        id: "why",
-        heading: "Why this exists",
-        body:
-          '<div class="callout ok"><div class="callout-title">True tau only exists in simulated data</div>' +
-          '<p>The reconciliation in tutorials 01-07 (CATE correlation / RMSE) requires knowing every ' +
-          'patient&rsquo;s true effect, which only simulated data can give you. ' +
-          '<strong>Real RCT data never has tau.</strong> This function asks a different question: ' +
-          'how well does the model rank who benefits more?</p></div>' +
-          '<p>All three metrics rest on the exchangeability that <strong>randomization</strong> buys, ' +
-          'so no propensity score is needed:</p>' +
-          '<div class="table-wrap"><table>' +
-          '<thead><tr><th>Metric</th><th>Random baseline</th><th>What it measures</th></tr></thead><tbody>' +
-          '<tr><td><code>qini_normalized</code></td><td>&asymp; 0</td>' +
-          '<td>Extra gain from targeting by model ranking vs random assignment</td></tr>' +
-          '<tr><td><code>toc_gain</code></td><td>0</td>' +
-          '<td>Area between the TOC curve and the overall-ATE line; units = outcome</td></tr>' +
-          '<tr><td><code>c_for_benefit</code></td><td>0.5</td>' +
-          '<td>C statistic after gain matching</td></tr>' +
-          '</tbody></table></div>' +
-          '<div class="callout warn"><div class="callout-title">The random baseline is not exactly 0</div>' +
-          '<p>Normalised Qini divides by the area under the random line, which is itself small, so a ' +
-          'single random ranking can swing &plusmn;0.25. <strong>Compare models by relative order, not ' +
-          'against an absolute threshold.</strong> On this package&rsquo;s demo data (n = 1500), ten random ' +
-          'rankings gave normalised Qini between &minus;0.253 and 0.227.</p></div>'
-      },
-
-      {
-        id: "crossfit",
-        heading: "Why cross-fitting is mandatory",
-        body:
-          '<p>Every meta-learner is fitted on the <strong>training folds</strong> and predicts on the ' +
-          '<strong>held-out folds</strong>; the held-out predictions (out-of-fold) are then pooled into ' +
-          'one CATE vector. Fitting on the full sample and scoring it back (in-fold) lets the model rank ' +
-          'its own training noise, inflating every metric.</p>' +
-          '<div class="table-wrap"><table>' +
-          '<thead><tr><th>X-learner variant</th><th>qini_normalized</th>' +
-          '<th>c_for_benefit</th></tr></thead><tbody>' +
-          '<tr><td>in-fold (scored on training data)</td><td>0.528</td><td><strong>0.663</strong></td></tr>' +
-          '<tr><td>out-of-fold (5-fold cross-fitting)</td><td>0.404</td><td>0.617</td></tr>' +
-          '<tr><td>true tau (reference ceiling)</td><td>0.522</td><td>0.624</td></tr>' +
-          '</tbody></table></div>' +
-          '<p>The in-fold c-for-benefit of <strong>0.663 exceeds the true tau&rsquo;s 0.624</strong> &mdash; ' +
-          'that is not a better model, that is ranking noise. Cross-fitting brings it back to 0.617, ' +
-          'below the truth, which is what it should be.</p>'
-      },
-
-      {
-        id: "usage",
-        heading: "Usage",
-        body:
-          '<div class="fn">' +
-          '<div class="fn-name">hte_benchmark()<span class="badge">benchmark</span></div>' +
-          '<div class="fn-sig">hte_benchmark(X, A, Y, t0 = NULL, learners = c("S","T","X","R","DR"), learner_base = NULL, metrics = c("qini","toc","c_for_benefit"), n_folds = 5L, tau = NULL, propensity = NULL, mu1 = NULL, mu0 = NULL, effect = "survdiff", seed = NULL)</div>' +
-          '<div class="table-wrap"><table>' +
-          '<thead><tr><th>Argument</th><th>Notes</th></tr></thead><tbody>' +
-          '<tr><td><code>X, A, Y</code></td><td>Covariates, treatment indicator, outcome (continuous / 0-1 / <code>Surv</code>)</td></tr>' +
-          '<tr><td><code>learners</code></td><td>Which meta-learners to compare; all five by default</td></tr>' +
-          '<tr><td><code>learner_base</code></td><td>Base learner; auto-chosen by outcome type (ranger / classif.ranger / coxph). All learners share one, so differences are attributable to the meta-learner</td></tr>' +
-          '<tr><td><code>metrics</code></td><td>Which metrics to compute</td></tr>' +
-          '<tr><td><code>n_folds</code></td><td>Cross-fitting folds, default 5. Folds are <strong>stratified by treatment arm</strong> so every fold has both arms</td></tr>' +
-          '<tr><td><code>tau</code></td><td><strong>Optional</strong> true CATE, only available in simulation. Supplying it adds <code>tau_cor</code> / <code>tau_rmse</code> columns</td></tr>' +
-          '<tr><td><code>propensity, mu1, mu0</code></td><td><strong>Optional</strong> observational triple (see <a href="#/apimetrics">dr_pseudo_outcome()</a>). Leave empty for RCT</td></tr>' +
-          '<tr><td><code>seed</code></td><td>Seed for fold assignment; fix it to reproduce</td></tr>' +
-          '</tbody></table></div>' +
-          '<pre><code class="language-r"># Real RCT data: no tau, so tau_cor / tau_rmse never appear\n' +
-          'bm &lt;- hte_benchmark(X, A, Y, seed = 1)\n' +
-          'bm$table\n\n' +
-          '# Simulated data: truth available, report both metric families\n' +
-          'bm &lt;- hte_benchmark(d$X, d$A, d$Y, tau = d$tau, seed = 1)\n' +
-          'bm$table   # qini_* / toc_gain / c_for_benefit + tau_cor / tau_rmse</code></pre>' +
-          '<p>Returns a list: <code>table</code> (one row per learner), <code>cate</code> (long-format ' +
-          'out-of-fold predictions), <code>curves</code> (Qini / TOC curves), <code>truth</code>, ' +
-          '<code>setup</code>.</p></div>' +
-          '<div class="fn">' +
-          '<div class="fn-name">plot_hte_benchmark()<span class="badge">plot</span></div>' +
-          '<div class="fn-sig">plot_hte_benchmark(x, metric = c("qini","toc"), title = NULL, min_fraction = 0.05)</div>' +
-          '<p>Faceted plot of the curves stored by <code>hte_benchmark()</code>, with the reference ' +
-          'line added automatically (random targeting for Qini, overall ATE for TOC). ' +
-          '<code>min_fraction</code> defaults to 0.05: at the far left of a TOC / Qini curve each ' +
-          'point is one or two observations, whose individual effect can stretch the y-axis to tens of ' +
-          'times the ATE and flatten everything else.</p></div>'
-      },
-
-      {
-        id: "results",
-        heading: "Measured results across outcome types",
-        body:
-          '<p>n = 1500, 5-fold cross-fitting, seed = 42. The <code>tau_cor</code> / <code>tau_rmse</code> ' +
-          'columns only exist because this is simulated data.</p>' +
-          '<p><strong>Continuous &times; RCT</strong> (true ATE 1.049):</p>' +
-          '<div class="table-wrap"><table>' +
-          '<thead><tr><th>learner</th><th>ate</th><th>qini_normalized</th>' +
-          '<th>toc_gain</th><th>c_for_benefit</th><th>tau_cor</th></tr></thead><tbody>' +
-          '<tr><td>S</td><td>1.040</td><td>0.417</td><td>0.516</td><td>0.613</td><td>0.908</td></tr>' +
-          '<tr><td>T</td><td>1.100</td><td>0.378</td><td>0.492</td><td>0.608</td><td>0.894</td></tr>' +
-          '<tr><td>X</td><td>1.090</td><td>0.404</td><td>0.647</td><td>0.617</td><td>0.946</td></tr>' +
-          '<tr><td>R</td><td>0.498</td><td>0.460</td><td>0.946</td><td>0.599</td><td>0.857</td></tr>' +
-          '<tr><td>DR</td><td>1.090</td><td>0.413</td><td>0.568</td><td>0.617</td><td>0.932</td></tr>' +
-          '</tbody></table></div>' +
-          '<div class="callout warn"><div class="callout-title">Do not read one column alone</div>' +
-          '<p>R&rsquo;s ATE is 0.498 against a truth of 1.049, yet its qini_normalized and toc_gain are ' +
-          'the highest of the five. Reason: the R-learner&rsquo;s second stage regresses ' +
-          'pseudo-outcomes with <strong>no scale constraint</strong>, so its CATE can shrink by half ' +
-          'while the ranking stays intact. Qini / TOC only look at ranking, so they are blind to scale ' +
-          'errors. <strong>Report ATE and Qini together &mdash; they answer "is the average right" and ' +
-          '"is the ranking good" respectively.</strong></p></div>' +
-          '<p><strong>Binary &times; RCT</strong> (true ATE 0.131):</p>' +
-          '<div class="table-wrap"><table>' +
-          '<thead><tr><th>learner</th><th>ate</th><th>qini_normalized</th>' +
-          '<th>toc_gain</th><th>c_for_benefit</th><th>tau_cor</th></tr></thead><tbody>' +
-          '<tr><td>S</td><td>0.127</td><td>0.184</td><td>0.062</td><td>0.556</td><td>0.728</td></tr>' +
-          '<tr><td>T</td><td>0.139</td><td>0.193</td><td>0.078</td><td>0.554</td><td>0.643</td></tr>' +
-          '<tr><td>X</td><td>0.142</td><td>0.349</td><td>0.095</td><td>0.594</td><td>0.839</td></tr>' +
-          '<tr><td>R</td><td>0.087</td><td>0.211</td><td>0.041</td><td>0.559</td><td>0.589</td></tr>' +
-          '<tr><td>DR</td><td>0.143</td><td>0.296</td><td>0.086</td><td>0.577</td><td>0.713</td></tr>' +
-          '</tbody></table></div>' +
-          '<p><strong>Survival &times; RCT</strong> (t0 = 2, true ATE 0.152):</p>' +
-          '<div class="table-wrap"><table>' +
-          '<thead><tr><th>learner</th><th>ate</th><th>qini_normalized</th>' +
-          '<th>toc_gain</th><th>c_for_benefit</th><th>tau_cor</th></tr></thead><tbody>' +
-          '<tr><td>S</td><td>0.159</td><td>&minus;0.095</td><td>0.005</td><td>0.498</td><td>&minus;0.052</td></tr>' +
-          '<tr><td>T</td><td>0.151</td><td>0.707</td><td>0.208</td><td>0.554</td><td>0.950</td></tr>' +
-          '<tr><td>X</td><td>0.142</td><td>0.462</td><td>0.125</td><td>0.544</td><td>0.884</td></tr>' +
-          '<tr><td>R</td><td>0.126</td><td>0.098</td><td>0.038</td><td>0.497</td><td>0.419</td></tr>' +
-          '<tr><td>DR</td><td>0.120</td><td>&minus;0.045</td><td>0.025</td><td>0.496</td><td>0.380</td></tr>' +
-          '</tbody></table></div>' +
-          '<figure class="fig"><img src="assets/img/benchmark/qini_curves.png" ' +
-          'alt="Qini curves for the five meta-learners, faceted by learner">' +
-          '<figcaption>Qini curves (continuous &times; RCT). Grey dashed = random targeting baseline; ' +
-          'the first 5% is not drawn.</figcaption></figure>' +
-          '<figure class="fig"><img src="assets/img/benchmark/toc_curves.png" ' +
-          'alt="TOC curves for the five meta-learners">' +
-          '<figcaption>TOC curves. Grey dashed = overall ATE; a curve staying above it means the ' +
-          'top-ranked group benefits more.</figcaption></figure>'
-      }
-    ]
-  }
-};
-
 window.SITE_PAGES.apis = {
 
   zh: {
@@ -2011,643 +1419,6 @@ window.SITE_PAGES.apidemosurv = {
   }
 };
 
-window.SITE_PAGES.apiqinicurve = {
-
-  zh: {
-    title: "qini_curve()",
-    lede: "Qini 曲线：按估计 CATE 降序排列后，逐步增大“目标群体”时的累积增益。",
-    sections: [
-      {
-        id: "what",
-        heading: "返回什么",
-        body:
-          '<div class="fn">' +
-          '<div class="fn-name">qini_curve()<span class="badge">metric</span></div>' +
-          '<div class="fn-sig">qini_curve(cate, A, Y, propensity = NULL, n_bins = NULL, t0 = NULL, X = NULL, effect = c("survdiff", "rmst"))</div>' +
-          '<p>把样本按估计 CATE 从高到低排序，对每个前 k 比例的子群，计算其累积增益（用 IPW 评分），再除以全样本量。返回两列的 data.frame：<code>fraction</code> 与 <code>qini</code>，并附属性 <code>qini_at_full</code>（Q(1)）。</p>' +
-          '<p><strong>不需要真实 tau</strong>，只需要 A、Y 和 CATE 排序，因此 RCT 现实数据上可用。</p>'
-      },
-      {
-        id: "example",
-        heading: "实测示例",
-        body:
-          '<p>代码与输出均为<strong>真实跑出</strong>。' +
-          '背景数据：<code>mlr3HTE_demo_data(n = 1500, seed = 1201)</code> 上拟合的 X-learner（ranger 300 树）。</p>' +
-          '<pre><code class="language-r">cv &lt;- qini_curve(fit$cate_train, d$A, d$Y)\nhead(cv, 5)\ntail(cv, 3)\nattr(cv, "qini_at_full")</code></pre>' +
-          '<p>实测输出：</p>' +
-          '<pre><code class="r-out">--- 前 5 行 ---\n      fraction        qini\n1 0.0000000000 0.000000000\n2 0.0006666667 0.014940224\n3 0.0013333333 0.006970732\n4 0.0020000000 0.019672433\n5 0.0026666667 0.033119033\n\n--- 末 3 行 ---\n      fraction     qini\n1499 0.9986667 1.077251\n1500 0.9993333 1.081709\n1501 1.0000000 1.072626\n\n--- 属性 qini_at_full ---\n[1] 1.072626</code></pre>' +
-          '<div class="callout warn"><div class="callout-title">随机基线不是精确的 0</div><p>归一化的 Qini 除以了随机线下的面积，而那个面积本身就f，单次随机排序能在 &plusmn;0.25 摆。比较模型要看相对次序。本包演示数据（n = 1500）上 10 次随机排序落在 &minus;0.253 到 0.227。</p></div>'
-      }
-    ]
-  },
-
-  en: {
-    title: "qini_curve()",
-    lede: "Qini curve: cumulative gain as the targeted population grows, ordered by estimated CATE.",
-    sections: [
-      {
-        id: "what",
-        heading: "What it returns",
-        body:
-          '<div class="fn">' +
-          '<div class="fn-name">qini_curve()<span class="badge">metric</span></div>' +
-          '<div class="fn-sig">qini_curve(cate, A, Y, propensity = NULL, n_bins = NULL, t0 = NULL, X = NULL, effect = c("survdiff", "rmst"))</div>' +
-          '<p>Sorts the sample by estimated CATE descending and, for each top-k fraction, computes the cumulative gain (using an IPW score), divided by the sample size. Returns a two-column data.frame, <code>fraction</code> and <code>qini</code>, plus the attribute <code>qini_at_full</code> (Q(1)).</p>' +
-          '<p><strong>Needs no true tau</strong> — only A, Y and the CATE ranking, so it works on real RCT data.</p>'
-      },
-      {
-        id: "example",
-        heading: "Worked example (real output)",
-        body:
-          '<p>Both code and output are <strong>actually run</strong>. Background data: an X-learner ' +
-          '(ranger, 300 trees) fitted on <code>mlr3HTE_demo_data(n = 1500, seed = 1201)</code>.</p>' +
-          '<pre><code class="language-r">cv &lt;- qini_curve(fit$cate_train, d$A, d$Y)\nhead(cv, 5)\ntail(cv, 3)\nattr(cv, "qini_at_full")</code></pre>' +
-          '<p>Output:</p>' +
-          '<pre><code class="r-out">--- 前 5 行 ---\n      fraction        qini\n1 0.0000000000 0.000000000\n2 0.0006666667 0.014940224\n3 0.0013333333 0.006970732\n4 0.0020000000 0.019672433\n5 0.0026666667 0.033119033\n\n--- 末 3 行 ---\n      fraction     qini\n1499 0.9986667 1.077251\n1500 0.9993333 1.081709\n1501 1.0000000 1.072626\n\n--- 属性 qini_at_full ---\n[1] 1.072626</code></pre>' +
-          '<div class="callout warn"><div class="callout-title">The random baseline is not exactly 0</div><p>Normalised Qini divides by the area under the random line, which is itself small, so a single random ranking can swing &plusmn;0.25. Compare models by relative order. On this package&rsquo;s demo data (n = 1500), ten random rankings gave &minus;0.253 to 0.227.</p></div>'
-      }
-    ]
-  }
-};
-
-window.SITE_PAGES.apiqinicoef = {
-
-  zh: {
-    title: "qini_coefficient()",
-    lede: "Qini 系数：Qini 曲线与“随机目标线”之间夹的面积，把曲线厀成一个数。",
-    sections: [
-      {
-        id: "what",
-        heading: "返回什么",
-        body:
-          '<div class="fn">' +
-          '<div class="fn-name">qini_coefficient()<span class="badge">metric</span></div>' +
-          '<div class="fn-sig">qini_coefficient(cate, A, Y, propensity = NULL, t0 = NULL, X = NULL, effect = c("survdiff", "rmst"))</div>' +
-          '<p>计算曲线下面积（梯形法）与随机目标线下面积 <code>0.5 × Q(1)</code> 之差。返回 list：<code>qini_coefficient</code>（绝对面积）、<code>qini_normalized</code>（归一化）、<code>auc</code>、<code>qini_at_full</code>。随机模型约为 0，完美排序为正。</p>' +
-          '<p>如果你只想报一个数，报 <code>qini_normalized</code> ——它可跨场景比较，而绝对值受结局尺度影响。</p>'
-      },
-      {
-        id: "example",
-        heading: "实测示例",
-        body:
-          '<p>代码与输出均为<strong>真实跑出</strong>。' +
-          '背景数据：<code>mlr3HTE_demo_data(n = 1500, seed = 1201)</code> 上拟合的 X-learner（ranger 300 树）。</p>' +
-          '<pre><code class="language-r">qini_coefficient(fit$cate_train, d$A, d$Y)\n\n# 用随机排序与真实 tau 当标尾\nset.seed(2)\nrnd &lt;- rnorm(nrow(d$X))\ntibble(来源 = c("随机", "模型", "真实 tau"),\n       qini_coefficient = c(qini_coefficient(rnd, d$A, d$Y)$qini_coefficient,\n                            qini_coefficient(fit$cate_train, d$A, d$Y)$qini_coefficient,\n                            qini_coefficient(d$tau, d$A, d$Y)$qini_coefficient))</code></pre>' +
-          '<p>实测输出：</p>' +
-          '<pre><code class="r-out">$qini_coefficient\n[1] 0.2831499\n\n$qini_normalized\n[1] 0.5279564\n\n$auc\n[1] 0.8194629\n\n$qini_at_full\n[1] 1.072626\n\n\n--- 随机 vs 真实 tau 作标尺 ---\n# A tibble: 3 × 2\n  来源     qini_coefficient\n  &lt;chr&gt;               &lt;dbl&gt;\n1 随机               -0.198\n2 模型                0.283\n3 真实 tau            0.280</code></pre>' +
-          '<p>注意实测里<strong>模型的绝对 Qini 系数（0.283）稍高于真实 tau（0.280）</strong>：单次实验里这种差异属于采样噪声，不能由此得出“模型超过真值”的结论。想要稳定结论，应该用 <a href="#/apihtebenchmark">hte_benchmark()</a> 做交叉拟合后的多种子对比。</p>'
-      }
-    ]
-  },
-
-  en: {
-    title: "qini_coefficient()",
-    lede: "Qini coefficient: the area between the Qini curve and the random-targeting line.",
-    sections: [
-      {
-        id: "what",
-        heading: "What it returns",
-        body:
-          '<div class="fn">' +
-          '<div class="fn-name">qini_coefficient()<span class="badge">metric</span></div>' +
-          '<div class="fn-sig">qini_coefficient(cate, A, Y, propensity = NULL, t0 = NULL, X = NULL, effect = c("survdiff", "rmst"))</div>' +
-          '<p>Computes the area under the curve (trapezoid) minus the area under the random-targeting line <code>0.5 × Q(1)</code>. Returns a list with <code>qini_coefficient</code> (absolute area), <code>qini_normalized</code>, <code>auc</code> and <code>qini_at_full</code>. A random model gives about 0; perfect ranking gives a positive value.</p>' +
-          '<p>If you report a single number, report <code>qini_normalized</code> — it is comparable across scenarios, while the absolute value depends on the outcome scale.</p>'
-      },
-      {
-        id: "example",
-        heading: "Worked example (real output)",
-        body:
-          '<p>Both code and output are <strong>actually run</strong>. Background data: an X-learner ' +
-          '(ranger, 300 trees) fitted on <code>mlr3HTE_demo_data(n = 1500, seed = 1201)</code>.</p>' +
-          '<pre><code class="language-r">qini_coefficient(fit$cate_train, d$A, d$Y)\n\n# 用随机排序与真实 tau 当标尾\nset.seed(2)\nrnd &lt;- rnorm(nrow(d$X))\ntibble(来源 = c("随机", "模型", "真实 tau"),\n       qini_coefficient = c(qini_coefficient(rnd, d$A, d$Y)$qini_coefficient,\n                            qini_coefficient(fit$cate_train, d$A, d$Y)$qini_coefficient,\n                            qini_coefficient(d$tau, d$A, d$Y)$qini_coefficient))</code></pre>' +
-          '<p>Output:</p>' +
-          '<pre><code class="r-out">$qini_coefficient\n[1] 0.2831499\n\n$qini_normalized\n[1] 0.5279564\n\n$auc\n[1] 0.8194629\n\n$qini_at_full\n[1] 1.072626\n\n\n--- 随机 vs 真实 tau 作标尺 ---\n# A tibble: 3 × 2\n  来源     qini_coefficient\n  &lt;chr&gt;               &lt;dbl&gt;\n1 随机               -0.198\n2 模型                0.283\n3 真实 tau            0.280</code></pre>' +
-          '<p>Note that in this single run the <strong>model&rsquo;s absolute coefficient (0.283) is slightly above the true tau&rsquo;s (0.280)</strong>: that gap is sampling noise, not evidence the model beats the truth. For stable conclusions use <a href="#/apihtebenchmark">hte_benchmark()</a>, which cross-fits and compares across seeds.</p>'
-      }
-    ]
-  }
-};
-
-window.SITE_PAGES.apicforbenefit = {
-
-  zh: {
-    title: "c_for_benefit()",
-    lede: "c-for-benefit：把处理组按预测收益与对照组做增益匹配，再算 C 统计量。",
-    sections: [
-      {
-        id: "what",
-        heading: "返回什么",
-        body:
-          '<div class="fn">' +
-          '<div class="fn-name">c_for_benefit()<span class="badge">metric</span></div>' +
-          '<div class="fn-sig">c_for_benefit(cate, A, Y, caliper = NULL, propensity = NULL, mu1 = NULL, mu0 = NULL, t0 = NULL, X = NULL, effect = c("survdiff", "rmst"))</div>' +
-          '<p>将处理组按估计 CATE 降序排列，依次与对照组中预测收益最接近者配对，看配对后“预测收益”与“观测收益”是否一致。返回 list，主要看 <code>c_for_benefit</code>：0.5 = 排序等于随机，越大越好。详情可看 <code>n_pairs</code> / <code>n_concordant</code> / <code>n_discordant</code>。</p>' +
-          '<p><strong>观察性数据必须传三件套</strong>（<code>propensity</code> + <code>mu1</code> + <code>mu0</code>），只给 <code>propensity</code> 会直接报错——因为 HT 评分的采样噪声会把 C 统计量压到随机线以下。三件套可用 <a href="#/apidrpseudo">dr_pseudo_outcome()</a> 一次拿到。</p>'
-      },
-      {
-        id: "example",
-        heading: "实测示例",
-        body:
-          '<p>代码与输出均为<strong>真实跑出</strong>。' +
-          '背景数据：<code>mlr3HTE_demo_data(n = 1500, seed = 1201)</code> 上拟合的 X-learner（ranger 300 树）。</p>' +
-          '<pre><code class="language-r">c_for_benefit(fit$cate_train, d$A, d$Y)\n\n# 用随机排序与真实 tau 当标尾\nset.seed(2)\nrnd &lt;- rnorm(nrow(d$X))\ntibble(来源 = c("随机", "模型", "真实 tau"),\n       c_for_benefit = c(c_for_benefit(rnd, d$A, d$Y)$c_for_benefit,\n                           c_for_benefit(fit$cate_train, d$A, d$Y)$c_for_benefit,\n                           c_for_benefit(d$tau, d$A, d$Y)$c_for_benefit))</code></pre>' +
-          '<p>实测输出：</p>' +
-          '<pre><code class="r-out">$c_for_benefit\n[1] 0.6634926\n\n$n_pairs\n[1] 713\n\n$n_concordant\n[1] 168413\n\n$n_discordant\n[1] 85415\n\n$n_tied_pred\n[1] 0\n\n\n--- 随机 vs 真实 tau 作标尺 ---\n# A tibble: 3 × 2\n  来源     c_for_benefit\n  &lt;chr&gt;            &lt;dbl&gt;\n1 随机             0.488\n2 模型             0.663\n3 真实 tau         0.624</code></pre>' +
-          '<p>本演示数据上模型值 0.663 高于真实 tau 的 0.624——这是因为 CATE 是在<strong>自己的训练数据上</strong>计的（in-fold）。做真实评价请用 <a href="#/apihtebenchmark">hte_benchmark()</a>，它强制交叉拟合，同一个 X-learner 会回落到 0.617。</p>'
-      }
-    ]
-  },
-
-  en: {
-    title: "c_for_benefit()",
-    lede: "c-for-benefit: C statistic after gain-matching treated to controls by predicted benefit.",
-    sections: [
-      {
-        id: "what",
-        heading: "What it returns",
-        body:
-          '<div class="fn">' +
-          '<div class="fn-name">c_for_benefit()<span class="badge">metric</span></div>' +
-          '<div class="fn-sig">c_for_benefit(cate, A, Y, caliper = NULL, propensity = NULL, mu1 = NULL, mu0 = NULL, t0 = NULL, X = NULL, effect = c("survdiff", "rmst"))</div>' +
-          '<p>Sorts the treated by estimated CATE descending and matches each to the control with the closest predicted benefit, then checks whether predicted and observed benefit agree. Returns a list; the headline is <code>c_for_benefit</code>: 0.5 means the ranking is as good as random, larger is better. Details in <code>n_pairs</code> / <code>n_concordant</code> / <code>n_discordant</code>.</p>' +
-          '<p><strong>Observational data requires the full doubly-robust triple</strong> (<code>propensity</code> + <code>mu1</code> + <code>mu0</code>); passing only the propensity raises an error, because the Horvitz-Thompson score&rsquo;s sampling noise drives the C statistic below the random line. Get the triple from <a href="#/apidrpseudo">dr_pseudo_outcome()</a>.</p>'
-      },
-      {
-        id: "example",
-        heading: "Worked example (real output)",
-        body:
-          '<p>Both code and output are <strong>actually run</strong>. Background data: an X-learner ' +
-          '(ranger, 300 trees) fitted on <code>mlr3HTE_demo_data(n = 1500, seed = 1201)</code>.</p>' +
-          '<pre><code class="language-r">c_for_benefit(fit$cate_train, d$A, d$Y)\n\n# 用随机排序与真实 tau 当标尾\nset.seed(2)\nrnd &lt;- rnorm(nrow(d$X))\ntibble(来源 = c("随机", "模型", "真实 tau"),\n       c_for_benefit = c(c_for_benefit(rnd, d$A, d$Y)$c_for_benefit,\n                           c_for_benefit(fit$cate_train, d$A, d$Y)$c_for_benefit,\n                           c_for_benefit(d$tau, d$A, d$Y)$c_for_benefit))</code></pre>' +
-          '<p>Output:</p>' +
-          '<pre><code class="r-out">$c_for_benefit\n[1] 0.6634926\n\n$n_pairs\n[1] 713\n\n$n_concordant\n[1] 168413\n\n$n_discordant\n[1] 85415\n\n$n_tied_pred\n[1] 0\n\n\n--- 随机 vs 真实 tau 作标尺 ---\n# A tibble: 3 × 2\n  来源     c_for_benefit\n  &lt;chr&gt;            &lt;dbl&gt;\n1 随机             0.488\n2 模型             0.663\n3 真实 tau         0.624</code></pre>' +
-          '<p>On this demo data the model&rsquo;s 0.663 exceeds the true tau&rsquo;s 0.624 — because the CATE was computed <strong>in-fold</strong>, on its own training data. For an honest evaluation use <a href="#/apihtebenchmark">hte_benchmark()</a>, which enforces cross-fitting; the same X-learner then falls back to 0.617.</p>'
-      }
-    ]
-  }
-};
-
-window.SITE_PAGES.apitoccurve = {
-
-  zh: {
-    title: "toc_curve()",
-    lede: "TOC 曲线：按效应排序后，各分位目标群体的平均处理效应。",
-    sections: [
-      {
-        id: "what",
-        heading: "返回什么",
-        body:
-          '<div class="fn">' +
-          '<div class="fn-name">toc_curve()<span class="badge">metric</span></div>' +
-          '<div class="fn-sig">toc_curve(cate, A, Y, propensity = NULL, n_bins = NULL, t0 = NULL, X = NULL, effect = c("survdiff", "rmst"))</div>' +
-          '<p>与 Qini 类似，但线的纲是<strong>平均效应</strong>而不是累积增益，所以可以直接和全样本 ATE（属性 <code>overall_ate</code>）比。俪用的是有效样本量 &Sigma;w 而不是 k，生存结局下 t0 前删失者权重为 0，用 k 会把平均效应稀释。</p>' +
-          '<p>最左端（k 很小）只对应一两个观测，值是单个个体的效应，能把纵轴拉到几十倍 ATE。画图时建议从前 5% 开始（<a href="#/apiplotbenchmark">plot_hte_benchmark()</a> 默认就这样）。</p>'
-      },
-      {
-        id: "example",
-        heading: "实测示例",
-        body:
-          '<p>代码与输出均为<strong>真实跑出</strong>。' +
-          '背景数据：<code>mlr3HTE_demo_data(n = 1500, seed = 1201)</code> 上拟合的 X-learner（ranger 300 树）。</p>' +
-          '<pre><code class="language-r">cv &lt;- toc_curve(fit$cate_train, d$A, d$Y)\nhead(cv, 5)\nattr(cv, "overall_ate")\n\n# 分位处的 TOC\ntibble(分位 = c("10%", "25%", "50%", "75%"),\n       TOC = sapply(c(.1, .25, .5, .75), function(f)\n         cv$toc[which.min(abs(cv$fraction - f))]))</code></pre>' +
-          '<p>实测输出：</p>' +
-          '<pre><code class="r-out">--- 前 5 行 ---\n      fraction       toc\n1 0.0006666667 22.410337\n2 0.0013333333  5.228049\n3 0.0020000000  9.836217\n4 0.0026666667 12.419637\n5 0.0033333333  7.271920\n\n--- 属性 overall_ate ---\n[1] 1.072626\n\n--- 分位数处的 TOC ---\n# A tibble: 4 × 2\n  分位    TOC\n  &lt;chr&gt; &lt;dbl&gt;\n1 10%    2.44\n2 25%    2.14\n3 50%    1.89\n4 75%    1.51</code></pre>' +
-          '<p>实测里前 10% 目标群体的平均效应是 2.44，而全样本 ATE 是 1.07——前排人群的收益明显更高，说明排序有信息量。若曲线一直贴着水平线，则模型没分辩出可利用的异质性。</p>'
-      }
-    ]
-  },
-
-  en: {
-    title: "toc_curve()",
-    lede: "TOC curve: average treatment effect within each top-k targeted group, ordered by effect.",
-    sections: [
-      {
-        id: "what",
-        heading: "What it returns",
-        body:
-          '<div class="fn">' +
-          '<div class="fn-name">toc_curve()<span class="badge">metric</span></div>' +
-          '<div class="fn-sig">toc_curve(cate, A, Y, propensity = NULL, n_bins = NULL, t0 = NULL, X = NULL, effect = c("survdiff", "rmst"))</div>' +
-          '<p>Similar to the Qini curve, but the y-axis is the <strong>average effect</strong> rather than cumulative gain, so it can be read directly against the overall ATE (attribute <code>overall_ate</code>). The denominator is the effective sample size &Sigma;w rather than k: under survival outcomes, those censored before t0 carry weight 0, and using k would dilute the average effect.</p>' +
-          '<p>At the far left (very small k) each point is one or two observations, whose individual effect can stretch the y-axis to tens of times the ATE. Start plots at the first 5% (<a href="#/apiplotbenchmark">plot_hte_benchmark()</a> does this by default).</p>'
-      },
-      {
-        id: "example",
-        heading: "Worked example (real output)",
-        body:
-          '<p>Both code and output are <strong>actually run</strong>. Background data: an X-learner ' +
-          '(ranger, 300 trees) fitted on <code>mlr3HTE_demo_data(n = 1500, seed = 1201)</code>.</p>' +
-          '<pre><code class="language-r">cv &lt;- toc_curve(fit$cate_train, d$A, d$Y)\nhead(cv, 5)\nattr(cv, "overall_ate")\n\n# 分位处的 TOC\ntibble(分位 = c("10%", "25%", "50%", "75%"),\n       TOC = sapply(c(.1, .25, .5, .75), function(f)\n         cv$toc[which.min(abs(cv$fraction - f))]))</code></pre>' +
-          '<p>Output:</p>' +
-          '<pre><code class="r-out">--- 前 5 行 ---\n      fraction       toc\n1 0.0006666667 22.410337\n2 0.0013333333  5.228049\n3 0.0020000000  9.836217\n4 0.0026666667 12.419637\n5 0.0033333333  7.271920\n\n--- 属性 overall_ate ---\n[1] 1.072626\n\n--- 分位数处的 TOC ---\n# A tibble: 4 × 2\n  分位    TOC\n  &lt;chr&gt; &lt;dbl&gt;\n1 10%    2.44\n2 25%    2.14\n3 50%    1.89\n4 75%    1.51</code></pre>' +
-          '<p>In this run the top 10% group has an average effect of 2.44 against an overall ATE of 1.07 — the top-ranked group clearly benefits more, so the ranking carries information. If the curve hugs the horizontal line, the model found no exploitable heterogeneity.</p>'
-      }
-    ]
-  }
-};
-
-window.SITE_PAGES.apidrpseudo = {
-
-  zh: {
-    title: "dr_pseudo_outcome()",
-    lede: "双重健壮虚拟结局（AIPW）：观察性数据上做 HTE 评价的入口。",
-    sections: [
-      {
-        id: "what",
-        heading: "返回什么",
-        body:
-          '<div class="fn">' +
-          '<div class="fn-name">dr_pseudo_outcome()<span class="badge">observational</span></div>' +
-          '<div class="fn-sig">dr_pseudo_outcome(X, A, Y, cross_fitting = TRUE, n_folds = 5L, learner_ps = classif.log_reg, learner_outcome = regr.ranger, t0 = NULL, effect = c("survdiff", "rmst"))</div>' +
-          '<p>计算 <code>Y*</code>：<code>Y* = (μ̂₁ - μ̂₀) + A(Y - μ̂₁)/e - (1-A)(Y - μ̂₀)/(1-e)</code>，满足 E[Y*|X] = τ(X)，且<strong>结局模型与倾向得分模型只要有一个对就无偏</strong>。返回 <code>pseudo</code>、<code>mu1</code>、<code>mu0</code>、<code>propensity</code>、<code>ate</code> 等。前三项正好是 <a href="#/apicforbenefit">c_for_benefit()</a> 需要的三件套。</p>' +
-          '<div class="callout warn"><div class="callout-title">默认开交叉拟合，别关</div><p>干扰参数都在 K 折的<strong>训练折</strong>上拟合、留出折上预测。若用全样本拟合再回代自己（in-fold），Y* 里的 μ̂₁−μ̂₀ 与被评价的 CATE 出自同一个模型，配对时会把“观测收益”人为对齐到“预测收益”，导致 c-for-benefit 虚高。实测 in-fold 会出现“模型 0.754 &gt; 真 tau 0.717”的倒挂，交叉拟合后恢复为 0.662 ≤ 0.669。</p></div>'
-      },
-      {
-        id: "example",
-        heading: "实测示例",
-        body:
-          '<p>代码与输出均为<strong>真实跑出</strong>。' +
-          '背景数据：<code>mlr3HTE_demo_data(n = 1500, seed = 1201)</code> 上拟合的 X-learner（ranger 300 树）。</p>' +
-          '<pre><code class="language-r">d &lt;- mlr3HTE_demo_obs(n = 1200, seed = 1204)\ndr &lt;- dr_pseudo_outcome(d$X, d$A, d$Y, seed = 1)\nnames(dr)\ntibble(DR_ATE = mean(dr$pseudo), 真实ATE = d$ate)\ntibble(ps_min = min(dr$propensity), ps_max = max(dr$propensity),\n       mu1_mean = mean(dr$mu1), mu0_mean = mean(dr$mu0))</code></pre>' +
-          '<p>实测输出：</p>' +
-          '<pre><code class="r-out">--- 返回的字段 ---\n[1] "pseudo"     "mu1"        "mu0"        "propensity" "ate"       \n[6] "t0"         "effect"    \n\n--- 伪结局的均值 = DR 估计的 ATE ---\n# A tibble: 1 × 2\n  DR_ATE 真实ATE\n   &lt;dbl&gt;   &lt;dbl&gt;\n1  0.979    1.04\n\n--- 三件套的范围 ---\n# A tibble: 1 × 4\n  ps_min ps_max mu1_mean mu0_mean\n   &lt;dbl&gt;  &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;\n1 0.0179  0.939     7.16     6.10</code></pre>' +
-          '<p>实测里 DR 估计的 ATE 为 0.979，真值 1.04；这量级偏差在 n = 1200 上属于正常采样潮用，且它比未校正的算算本身（约 1.74）小一个数量级。</p>'
-      }
-    ]
-  },
-
-  en: {
-    title: "dr_pseudo_outcome()",
-    lede: "Doubly robust pseudo-outcomes (AIPW): the entry point for HTE evaluation on observational data.",
-    sections: [
-      {
-        id: "what",
-        heading: "What it returns",
-        body:
-          '<div class="fn">' +
-          '<div class="fn-name">dr_pseudo_outcome()<span class="badge">observational</span></div>' +
-          '<div class="fn-sig">dr_pseudo_outcome(X, A, Y, cross_fitting = TRUE, n_folds = 5L, learner_ps = classif.log_reg, learner_outcome = regr.ranger, t0 = NULL, effect = c("survdiff", "rmst"))</div>' +
-          '<p>Computes <code>Y*</code>: <code>Y* = (μ̂₁ - μ̂₀) + A(Y - μ̂₁)/e - (1-A)(Y - μ̂₀)/(1-e)</code>, which satisfies E[Y*|X] = τ(X) and is <strong>unbiased as long as either the outcome model or the propensity model is correct</strong>. Returns <code>pseudo</code>, <code>mu1</code>, <code>mu0</code>, <code>propensity</code>, <code>ate</code>, and more. The first three are exactly the triple <a href="#/apicforbenefit">c_for_benefit()</a> needs.</p>' +
-          '<div class="callout warn"><div class="callout-title">Cross-fitting is on by default — leave it</div><p>Nuisance parameters are fitted on the <strong>training folds</strong> and predicted on held-out folds. With full-sample in-fold fitting, the μ̂₁−μ̂₀ inside Y* comes from the same model as the CATE being evaluated, and matching then artificially aligns observed to predicted benefit, inflating c-for-benefit. Measured: in-fold produces the inversion "model 0.754 &gt; true tau 0.717"; cross-fitting restores 0.662 ≤ 0.669.</p></div>'
-      },
-      {
-        id: "example",
-        heading: "Worked example (real output)",
-        body:
-          '<p>Both code and output are <strong>actually run</strong>. Background data: an X-learner ' +
-          '(ranger, 300 trees) fitted on <code>mlr3HTE_demo_data(n = 1500, seed = 1201)</code>.</p>' +
-          '<pre><code class="language-r">d &lt;- mlr3HTE_demo_obs(n = 1200, seed = 1204)\ndr &lt;- dr_pseudo_outcome(d$X, d$A, d$Y, seed = 1)\nnames(dr)\ntibble(DR_ATE = mean(dr$pseudo), 真实ATE = d$ate)\ntibble(ps_min = min(dr$propensity), ps_max = max(dr$propensity),\n       mu1_mean = mean(dr$mu1), mu0_mean = mean(dr$mu0))</code></pre>' +
-          '<p>Output:</p>' +
-          '<pre><code class="r-out">--- 返回的字段 ---\n[1] "pseudo"     "mu1"        "mu0"        "propensity" "ate"       \n[6] "t0"         "effect"    \n\n--- 伪结局的均值 = DR 估计的 ATE ---\n# A tibble: 1 × 2\n  DR_ATE 真实ATE\n   &lt;dbl&gt;   &lt;dbl&gt;\n1  0.979    1.04\n\n--- 三件套的范围 ---\n# A tibble: 1 × 4\n  ps_min ps_max mu1_mean mu0_mean\n   &lt;dbl&gt;  &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;\n1 0.0179  0.939     7.16     6.10</code></pre>' +
-          '<p>The DR-estimated ATE here is 0.979 against a truth of 1.04; a gap of this size at n = 1200 is ordinary sampling noise, and it is an order of magnitude smaller than the unadjusted estimate (about 1.74).</p>'
-      }
-    ]
-  }
-};
-
-window.SITE_PAGES.apihtebenchmark = {
-
-  zh: {
-    title: "hte_benchmark()",
-    lede: "在 RCT 数据上对多个 meta-learner 做基准测试，指标不依赖真实 tau。",
-    sections: [
-      {
-        id: "what",
-        heading: "返回什么",
-        body:
-          '<div class="fn">' +
-          '<div class="fn-name">hte_benchmark()<span class="badge">benchmark</span></div>' +
-          '<div class="fn-sig">hte_benchmark(X, A, Y, t0 = NULL, learners = c("S","T","X","R","DR"), learner_base = NULL, metrics = c("qini","toc","c_for_benefit"), n_folds = 5L, tau = NULL, propensity = NULL, mu1 = NULL, mu0 = NULL, effect = "survdiff", seed = NULL)</div>' +
-          '<p>用归一化 Qini 系数、绝对 Qini 系数、TOC 增益、c-for-benefit 四个指标比较多个 learner。返回 list：<code>table</code>（一行一个 learner）、<code>cate</code>（交叉拟合留出预测的长表）、<code>curves</code>、<code>truth</code>、<code>setup</code>。</p>' +
-          '<div class="callout ok"><div class="callout-title">三件关键设计</div><ul><li><strong>交叉拟合强制</strong>：每个 learner 在 K 折训练折上拟合、留出折上预测，折<strong>按处理组分层</strong>。in-fold 会让 c-for-benefit 虚高到超过真实 tau（实测 0.663 &gt; 0.624）。</li><li><strong>不需要倾向得分</strong>：指标只依赖随机化带来的可交换性，因此现实 RCT 数据可用。</li><li><strong>可选 tau</strong>：模拟数据传了就多输出 <code>tau_cor</code> / <code>tau_rmse</code> 两列，两套指标可照着看。</li></ul></div>'
-      },
-      {
-        id: "example",
-        heading: "实测示例",
-        body:
-          '<p>代码与输出均为<strong>真实跑出</strong>。背景数据：<code>mlr3HTE_demo_data(n = 1500, seed = 1201)</code>。</p>' +
-          '<pre><code class="language-r">bm &lt;- hte_benchmark(d$X, d$A, d$Y, tau = d$tau, seed = 42)\nbm$table\nbm$setup\ndim(bm$cate)</code></pre>' +
-          '<p>实测输出：</p>' +
-          '<pre><code class="r-out">learner    ate qini_coefficient qini_normalized toc_gain c_for_benefit\n1       S 1.0367           0.2235          0.4167   0.5160        0.6126\n2       T 1.0960           0.2025          0.3777   0.4915        0.6081\n3       X 1.0919           0.2167          0.4041   0.6466        0.6170\n4       R 0.4983           0.2469          0.4604   0.9460        0.5989\n5      DR 1.0887           0.2214          0.4129   0.5676        0.6173\n  tau_cor tau_rmse\n1  0.9077   0.4382\n2  0.8937   0.4810\n3  0.9455   0.3584\n4  0.8573   0.8540\n5  0.9319   0.3784\n\n--- setup ---\n$n\n[1] 1500\n\n$n_folds\n[1] 5\n\n$seed\n[1] 42\n\n$effect\n[1] "survdiff"\n\n$t0\nNULL\n\n$learners\n[1] "S"  "T"  "X"  "R"  "DR"\n\n$learner_base\n[1] "LearnerRegrRanger"\n\n$has_truth\n[1] TRUE\n\n\n--- cate 长表规模 ---\n[1] 7500    3</code></pre>' +
-          '<p>实测里 <strong>R-learner 的 ATE 只有 0.498（真值 1.049），但 qini_normalized 和 toc_gain 都是五族里最高的</strong>。原因：R 二阶段对伪结果回归，没有尺度约束，CATE 可以整体缩小一半而排序不变；Qini / TOC 只看排序，对尺度错误视而不见。<strong>所以 ATE 和 Qini 必须一起报。</strong></p><p>观察性数据把 <code>propensity</code> / <code>mu1</code> / <code>mu0</code>（<a href="#/apidrpseudo">dr_pseudo_outcome()</a> 的输出）一起传进来即可，指标算法不变。</p>'
-      }
-    ]
-  },
-
-  en: {
-    title: "hte_benchmark()",
-    lede: "Benchmark several meta-learners on RCT data; the metrics need no true tau.",
-    sections: [
-      {
-        id: "what",
-        heading: "What it returns",
-        body:
-          '<div class="fn">' +
-          '<div class="fn-name">hte_benchmark()<span class="badge">benchmark</span></div>' +
-          '<div class="fn-sig">hte_benchmark(X, A, Y, t0 = NULL, learners = c("S","T","X","R","DR"), learner_base = NULL, metrics = c("qini","toc","c_for_benefit"), n_folds = 5L, tau = NULL, propensity = NULL, mu1 = NULL, mu0 = NULL, effect = "survdiff", seed = NULL)</div>' +
-          '<p>Compares learners on normalised Qini coefficient, absolute Qini coefficient, TOC gain and c-for-benefit. Returns a list: <code>table</code> (one row per learner), <code>cate</code> (long-format out-of-fold predictions), <code>curves</code>, <code>truth</code>, <code>setup</code>.</p>' +
-          '<div class="callout ok"><div class="callout-title">Three key design choices</div><ul><li><strong>Cross-fitting is enforced</strong>: each learner is fitted on K&minus;1 folds and predicts on the held-out fold, with folds <strong>stratified by treatment arm</strong>. In-fold scoring pushes c-for-benefit above the true tau (measured 0.663 &gt; 0.624).</li><li><strong>No propensity score needed</strong>: the metrics rest only on the exchangeability randomization buys, so real RCT data works.</li><li><strong>Optional tau</strong>: supplying it on simulated data adds <code>tau_cor</code> / <code>tau_rmse</code>, so both metric families can be read side by side.</li></ul></div>'
-      },
-      {
-        id: "example",
-        heading: "Worked example (real output)",
-        body:
-          '<p>Both code and output are <strong>actually run</strong>. Background data: <code>mlr3HTE_demo_data(n = 1500, seed = 1201)</code>.</p>' +
-          '<pre><code class="language-r">bm &lt;- hte_benchmark(d$X, d$A, d$Y, tau = d$tau, seed = 42)\nbm$table\nbm$setup\ndim(bm$cate)</code></pre>' +
-          '<p>Output:</p>' +
-          '<pre><code class="r-out">learner    ate qini_coefficient qini_normalized toc_gain c_for_benefit\n1       S 1.0367           0.2235          0.4167   0.5160        0.6126\n2       T 1.0960           0.2025          0.3777   0.4915        0.6081\n3       X 1.0919           0.2167          0.4041   0.6466        0.6170\n4       R 0.4983           0.2469          0.4604   0.9460        0.5989\n5      DR 1.0887           0.2214          0.4129   0.5676        0.6173\n  tau_cor tau_rmse\n1  0.9077   0.4382\n2  0.8937   0.4810\n3  0.9455   0.3584\n4  0.8573   0.8540\n5  0.9319   0.3784\n\n--- setup ---\n$n\n[1] 1500\n\n$n_folds\n[1] 5\n\n$seed\n[1] 42\n\n$effect\n[1] "survdiff"\n\n$t0\nNULL\n\n$learners\n[1] "S"  "T"  "X"  "R"  "DR"\n\n$learner_base\n[1] "LearnerRegrRanger"\n\n$has_truth\n[1] TRUE\n\n\n--- cate 长表规模 ---\n[1] 7500    3</code></pre>' +
-          '<p>In this run <strong>the R-learner&rsquo;s ATE is only 0.498 against a truth of 1.049, yet its qini_normalized and toc_gain are the highest of the five</strong>. Reason: the R-learner&rsquo;s second stage regresses pseudo-outcomes with no scale constraint, so CATE can shrink overall while the ranking survives; Qini / TOC look only at ranking and are blind to scale errors. <strong>So ATE and Qini must be reported together.</strong></p><p>For observational data, pass <code>propensity</code> / <code>mu1</code> / <code>mu0</code> (the output of <a href="#/apidrpseudo">dr_pseudo_outcome()</a>); the metric definitions are unchanged.</p>'
-      }
-    ]
-  }
-};
-
-window.SITE_PAGES.apiplotbenchmark = {
-
-  zh: {
-    title: "plot_hte_benchmark()",
-    lede: "把 hte_benchmark() 存下来的 Qini / TOC 曲线按 learner 分面画出来。",
-    sections: [
-      {
-        id: "what",
-        heading: "返回什么",
-        body:
-          '<div class="fn">' +
-          '<div class="fn-name">plot_hte_benchmark()<span class="badge">plot</span></div>' +
-          '<div class="fn-sig">plot_hte_benchmark(x, metric = c("qini","toc"), title = NULL, min_fraction = 0.05)</div>' +
-          '<p>一工式绘图：自动加参考线（Qini 用随机目标线，TOC 用全样本 ATE 水平线），按 learner 分面，图例隐去。返回一个 ggplot2 对象，可继续 <code>+ labs()</code> 定制。</p>' +
-          '<p><code>min_fraction</code> 默认 0.05：TOC / Qini 在最左端只对应一两个观测，值是单个个体的效应，能把纵轴拉到几十倍 ATE，剩余曲线全被压扁。想看全局就传 <code>min_fraction = 0</code>。</p>'
-      },
-      {
-        id: "example",
-        heading: "实测示例",
-        body:
-          '<p>代码与输出均为<strong>真实跑出</strong>。背景数据：<code>mlr3HTE_demo_data(n = 1500, seed = 1201)</code>。</p>' +
-          '<pre><code class="language-r">bm &lt;- hte_benchmark(d$X, d$A, d$Y, learners = c("S", "X"), seed = 42)\np &lt;- plot_hte_benchmark(bm, "qini")\nclass(p)\nlength(bm$curves$qini)</code></pre>' +
-          '<p>实测输出：</p>' +
-          '<pre><code class="language-r">返回类： ggplot2::ggplot ggplot ggplot2::gg S7_object gg \n曲线数： 2 \n默认 min_fraction = 0.05，即前 5% 不画</code></pre>' +
-          '<p>教程里嵌的两张对比图（<code>docs/assets/img/benchmark/qini_curves.png</code> 与 <code>toc_curves.png</code>）就是这个函数生成的。</p>'
-      }
-    ]
-  },
-
-  en: {
-    title: "plot_hte_benchmark()",
-    lede: "Faceted plot of the Qini / TOC curves stored by hte_benchmark().",
-    sections: [
-      {
-        id: "what",
-        heading: "What it returns",
-        body:
-          '<div class="fn">' +
-          '<div class="fn-name">plot_hte_benchmark()<span class="badge">plot</span></div>' +
-          '<div class="fn-sig">plot_hte_benchmark(x, metric = c("qini","toc"), title = NULL, min_fraction = 0.05)</div>' +
-          '<p>One-call plotting: adds the reference line automatically (random targeting for Qini, overall ATE for TOC), facets by learner, and hides the legend since the facet titles already say it. Returns a ggplot2 object you can keep customising with <code>+ labs()</code>.</p>' +
-          '<p><code>min_fraction</code> defaults to 0.05: at the far left of a TOC / Qini curve each point is one or two observations, whose individual effect can stretch the y-axis to tens of times the ATE and flatten everything else. Pass <code>min_fraction = 0</code> for the full view.</p>'
-      },
-      {
-        id: "example",
-        heading: "Worked example (real output)",
-        body:
-          '<p>Both code and output are <strong>actually run</strong>. Background data: <code>mlr3HTE_demo_data(n = 1500, seed = 1201)</code>.</p>' +
-          '<pre><code class="language-r">bm &lt;- hte_benchmark(d$X, d$A, d$Y, learners = c("S", "X"), seed = 42)\np &lt;- plot_hte_benchmark(bm, "qini")\nclass(p)\nlength(bm$curves$qini)</code></pre>' +
-          '<p>Output:</p>' +
-          '<pre><code class="language-r">返回类： ggplot2::ggplot ggplot ggplot2::gg S7_object gg \n曲线数： 2 \n默认 min_fraction = 0.05，即前 5% 不画</code></pre>' +
-          '<p>The two comparison figures embedded in the tutorial (<code>docs/assets/img/benchmark/qini_curves.png</code> and <code>toc_curves.png</code>) were produced by this function.</p>'
-      }
-    ]
-  }
-};
-
-window.SITE_PAGES.apicateci = {
-
-  zh: {
-    title: "cate_ci()",
-    lede: "CATE / ATE 的自助法置信区间。",
-    sections: [
-      {
-        id: "what",
-        heading: "返回什么",
-        body:
-          '<div class="fn">' +
-          '<div class="fn-name">cate_ci()<span class="badge">helper</span></div>' +
-          '<div class="fn-sig">cate_ci(type, X, A, Y, B = 100, level = 0.95, seed = NULL, newX = NULL, ...)</div>' +
-          '<p>对整条拟合流程做 B 次自助重采样（有放回抽同样本量的行），用百分位数法给出逐点 CATE 区间与 ATE 区间。返回 <code>cate_lo</code> / <code>cate_hi</code> / <code>ate_lo</code> / <code>ate_hi</code> / <code>cate_mean</code> / <code>ate</code> / <code>B</code> / <code>level</code>。</p>' +
-          '<div class="callout warn"><div class="callout-title">区间只反是采样变异</div><p>这是<strong>非参数自助法</strong>，只覆盖采样噪声，不覆盖模型误定。每次要重新拟合，B 大时开销不小。若你关心的是排序能力而不是绝对尺度，请改用 <a href="#/apihtebenchmark">hte_benchmark()</a>。</p></div>'
-      },
-      {
-        id: "example",
-        heading: "实测示例",
-        body:
-          '<p>代码与输出均为<strong>真实跑出</strong>。背景数据：<code>mlr3HTE_demo_data(n = 800, seed = 1201)</code>；为了速度 B 只取 30。</p>' +
-          '<pre><code class="language-r">ci &lt;- cate_ci("T", d$X, d$A, d$Y, B = 30, seed = 1,\n               learner_base = lrn("regr.ranger", num.trees = 150, seed = 1L))\ntibble(ATE = ci$ate, ATE_lo = ci$ate_lo, ATE_hi = ci$ate_hi,\n       B = ci$B, level = ci$level)\ntibble(lo = ci$cate_lo[1:3], hi = ci$cate_hi[1:3])</code></pre>' +
-          '<p>实测输出：</p>' +
-          '<pre><code class="r-out"># A tibble: 1 × 5\n    ATE ATE_lo ATE_hi     B level\n  &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;\n1  1.05  0.923   1.20    30  0.95\n\n--- CATE 区间宽度（前 3 人）---\n# A tibble: 3 × 2\n      lo    hi\n   &lt;dbl&gt; &lt;dbl&gt;\n1 -0.058 2.26 \n2 -0.893 0.874\n3 -0.264 0.599</code></pre>' +
-          '<p>实测里 ATE = 1.05，95% 区间 0.923–1.20（真值 1.049，落在区间内）。注意逐人 CATE 的区间宽得多（前 3 人宽度 0.86–2.35），这很正常——个体效应本来就比平均效应难估。</p>'
-      }
-    ]
-  },
-
-  en: {
-    title: "cate_ci()",
-    lede: "Bootstrap confidence intervals for CATE / ATE.",
-    sections: [
-      {
-        id: "what",
-        heading: "What it returns",
-        body:
-          '<div class="fn">' +
-          '<div class="fn-name">cate_ci()<span class="badge">helper</span></div>' +
-          '<div class="fn-sig">cate_ci(type, X, A, Y, B = 100, level = 0.95, seed = NULL, newX = NULL, ...)</div>' +
-          '<p>Resamples the whole fitting pipeline B times (rows drawn with replacement, same size) and gives percentile intervals for per-point CATE and for the ATE. Returns <code>cate_lo</code> / <code>cate_hi</code> / <code>ate_lo</code> / <code>ate_hi</code> / <code>cate_mean</code> / <code>ate</code> / <code>B</code> / <code>level</code>.</p>' +
-          '<div class="callout warn"><div class="callout-title">Intervals cover sampling variation only</div><p>This is a <strong>non-parametric bootstrap</strong>: it reflects sampling variation, not model misspecification. Each replicate refits from scratch, so large B is expensive. If you care about ranking power rather than absolute scale, use <a href="#/apihtebenchmark">hte_benchmark()</a> instead.</p></div>'
-      },
-      {
-        id: "example",
-        heading: "Worked example (real output)",
-        body:
-          '<p>Both code and output are <strong>actually run</strong>. Background data: <code>mlr3HTE_demo_data(n = 800, seed = 1201)</code>; B is only 30 for speed.</p>' +
-          '<pre><code class="language-r">ci &lt;- cate_ci("T", d$X, d$A, d$Y, B = 30, seed = 1,\n               learner_base = lrn("regr.ranger", num.trees = 150, seed = 1L))\ntibble(ATE = ci$ate, ATE_lo = ci$ate_lo, ATE_hi = ci$ate_hi,\n       B = ci$B, level = ci$level)\ntibble(lo = ci$cate_lo[1:3], hi = ci$cate_hi[1:3])</code></pre>' +
-          '<p>Output:</p>' +
-          '<pre><code class="r-out"># A tibble: 1 × 5\n    ATE ATE_lo ATE_hi     B level\n  &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;\n1  1.05  0.923   1.20    30  0.95\n\n--- CATE 区间宽度（前 3 人）---\n# A tibble: 3 × 2\n      lo    hi\n   &lt;dbl&gt; &lt;dbl&gt;\n1 -0.058 2.26 \n2 -0.893 0.874\n3 -0.264 0.599</code></pre>' +
-          '<p>Here ATE = 1.05 with a 95% interval of 0.923–1.20 (truth 1.049, inside the interval). Note how much wider the per-person CATE intervals are (widths 0.86–2.35 for the first three) — that is normal; individual effects are intrinsically harder to estimate than the average.</p>'
-      }
-    ]
-  }
-};
-
-window.SITE_PAGES.apiplotqini = {
-
-  zh: {
-    title: "plot_qini()",
-    lede: "快速画一条 Qini 曲线（base graphics）。",
-    sections: [
-      {
-        id: "what",
-        heading: "返回什么",
-        body:
-          '<div class="fn">' +
-          '<div class="fn-name">plot_qini()<span class="badge">plot</span></div>' +
-          '<div class="fn-sig">plot_qini(curve, main = "Qini curve", ...)</div>' +
-          '<p>用 base graphics 画 <code>qini_curve()</code> 的返回值，带上随机目标线（灰虚线），不返回可见值。需要分面对比多个 learner 时，用 <a href="#/apiplotbenchmark">plot_hte_benchmark()</a>。</p>' +
-          '<p>实测曲线共 1501 个点（n = 1500 加原点）。</p>'
-      },
-      {
-        id: "example",
-        heading: "实测示例",
-        body:
-          '<p>代码与输出均为<strong>真实跑出</strong>。背景数据同 <a href="#/apiqinicurve">qini_curve()</a> 示例。</p>' +
-          '<pre><code class="language-r">cv &lt;- qini_curve(fit$cate_train, d$A, d$Y)\np &lt;- plot_qini(cv, main = "Qini curve")\nnrow(cv)</code></pre>' +
-          '<p>实测输出：</p>' +
-          '<pre><code class="r-out">plot_qini 返回类： data.frame ；是不可见返回\n曲线点数： 1501</code></pre>' +
-          '<p>如果你已经在用 ggplot2，可以自己画：<code>ggplot(cv, aes(fraction, qini)) + geom_line()</code>。这个函数的定位是快速看一眼。</p>'
-      }
-    ]
-  },
-
-  en: {
-    title: "plot_qini()",
-    lede: "Quick Qini curve plot (base graphics).",
-    sections: [
-      {
-        id: "what",
-        heading: "What it returns",
-        body:
-          '<div class="fn">' +
-          '<div class="fn-name">plot_qini()<span class="badge">plot</span></div>' +
-          '<div class="fn-sig">plot_qini(curve, main = "Qini curve", ...)</div>' +
-          '<p>Plots the return value of <code>qini_curve()</code> with base graphics, including the random targeting line (grey dashed). Returns invisibly. For faceted multi-learner comparison use <a href="#/apiplotbenchmark">plot_hte_benchmark()</a>.</p>' +
-          '<p>The measured curve has 1501 points (n = 1500 plus the origin).</p>'
-      },
-      {
-        id: "example",
-        heading: "Worked example (real output)",
-        body:
-          '<p>Both code and output are <strong>actually run</strong>. Same background data as the <a href="#/apiqinicurve">qini_curve()</a> example.</p>' +
-          '<pre><code class="language-r">cv &lt;- qini_curve(fit$cate_train, d$A, d$Y)\np &lt;- plot_qini(cv, main = "Qini curve")\nnrow(cv)</code></pre>' +
-          '<p>Output:</p>' +
-          '<pre><code class="r-out">plot_qini 返回类： data.frame ；是不可见返回\n曲线点数： 1501</code></pre>' +
-          '<p>If you already work with ggplot2 you can draw it yourself: <code>ggplot(cv, aes(fraction, qini)) + geom_line()</code>. This function is positioned as a quick look.</p>'
-      }
-    ]
-  }
-};
-
-window.SITE_PAGES.apidag = {
-
-  zh: {
-    title: "mlr3HTE_dag()",
-    lede: "画 HTE 场景的因果图（ggplot2 对象）。",
-    sections: [
-      {
-        id: "what",
-        heading: "返回什么",
-        body:
-          '<div class="fn">' +
-          '<div class="fn-name">mlr3HTE_dag()<span class="badge">DAG</span></div>' +
-          '<div class="fn-sig">mlr3HTE_dag(design = c("rct", "obs"), outcome = c("continuous", "binary", "survival"))</div>' +
-          '<p>按设计（<code>rct</code> / <code>obs</code>）和结局类型返回一张 DAG：协变变 X 同时影响处理 A 与结局 Y，A→Y 的效应随 X 变化。用于说明为什么要调整 X。返回值是 ggplot2 对象，可继续 <code>+</code> 定制。</p>' +
-          '<p>图层由 <code>GeomSegment</code>（边）与 <code>GeomLabel</code>（节点）组成，共 2 层。</p>'
-      },
-      {
-        id: "example",
-        heading: "实测示例",
-        body:
-          '<p>代码与输出均为<strong>真实跑出</strong>。无额外输入。</p>' +
-          '<pre><code class="language-r">for (k in c("rct", "obs")) {\n  g &lt;- mlr3HTE_dag(k, "continuous")\n  cat("class:", paste(class(g), collapse = " / "), "\\n")\n  cat("geom layers:", length(g$layers), "\\n")\n  cat("图层类型：", paste(vapply(g$layers, function(l) class(l$geom)[1], ""),\n        collapse = ", "), "\\n")\n}</code></pre>' +
-          '<p>实测输出：</p>' +
-          '<pre><code class="language-r">===== design =  rct  =====\nclass: ggplot2::ggplot / ggplot / ggplot2::gg / S7_object / gg \ngeom layers: 2 \n图层类型： GeomSegment, GeomLabel \n\n===== design =  obs  =====\nclass: ggplot2::ggplot / ggplot / ggplot2::gg / S7_object / gg \ngeom layers: 2 \n图层类型： GeomSegment, GeomLabel \n\n# 直接把它 print 出来就是一张 DAG 图（见 docs/assets/img/dag/）</code></pre>' +
-          '<p>教程与文档站里嵌的 DAG 图（<code>docs/assets/img/dag/</code>）就是这个函数生成后导出的。RCT 版没有 <code>X → A</code> 这条边，观察性版有——这就是两者的核心差异。</p>'
-      }
-    ]
-  },
-
-  en: {
-    title: "mlr3HTE_dag()",
-    lede: "Draws the causal diagram for an HTE setting (a ggplot2 object).",
-    sections: [
-      {
-        id: "what",
-        heading: "What it returns",
-        body:
-          '<div class="fn">' +
-          '<div class="fn-name">mlr3HTE_dag()<span class="badge">DAG</span></div>' +
-          '<div class="fn-sig">mlr3HTE_dag(design = c("rct", "obs"), outcome = c("continuous", "binary", "survival"))</div>' +
-          '<p>Returns a DAG for a given design (<code>rct</code> / <code>obs</code>) and outcome type: covariates X affect both treatment A and outcome Y, and the A→Y effect varies with X. Useful for explaining why X must be adjusted for. The return value is a ggplot2 object.</p>' +
-          '<p>The layers are <code>GeomSegment</code> (edges) plus <code>GeomLabel</code> (nodes), two in total.</p>'
-      },
-      {
-        id: "example",
-        heading: "Worked example (real output)",
-        body:
-          '<p>Both code and output are <strong>actually run</strong>. No extra input.</p>' +
-          '<pre><code class="language-r">for (k in c("rct", "obs")) {\n  g &lt;- mlr3HTE_dag(k, "continuous")\n  cat("class:", paste(class(g), collapse = " / "), "\\n")\n  cat("geom layers:", length(g$layers), "\\n")\n  cat("图层类型：", paste(vapply(g$layers, function(l) class(l$geom)[1], ""),\n        collapse = ", "), "\\n")\n}</code></pre>' +
-          '<p>Output:</p>' +
-          '<pre><code class="language-r">===== design =  rct  =====\nclass: ggplot2::ggplot / ggplot / ggplot2::gg / S7_object / gg \ngeom layers: 2 \n图层类型： GeomSegment, GeomLabel \n\n===== design =  obs  =====\nclass: ggplot2::ggplot / ggplot / ggplot2::gg / S7_object / gg \ngeom layers: 2 \n图层类型： GeomSegment, GeomLabel \n\n# 直接把它 print 出来就是一张 DAG 图（见 docs/assets/img/dag/）</code></pre>' +
-          '<p>The DAG figures embedded in the tutorial and docs site (<code>docs/assets/img/dag/</code>) are exports of this function. The RCT version has no <code>X → A</code> edge while the observational version does — that is the core difference between the two.</p>'
-      }
-    ]
-  }
-};
-
-window.SITE_PAGES.apilrn = {
-
-  zh: {
-    title: "lrn()",
-    lede: "从 mlr3 再导出的 lrn()，省得额外 library(mlr3)。",
-    sections: [
-      {
-        id: "what",
-        heading: "返回什么",
-        body:
-          '<div class="fn">' +
-          '<div class="fn-name">lrn()<span class="badge">re-export</span></div>' +
-          '<div class="fn-sig">lrn(...)  # mlr3::lrn 的再导出</div>' +
-          '<p>就是 <code>mlr3::lrn()</code>。再导出很实用：教程与示例里大量出现 <code>lrn("regr.ranger")</code>，加载了 mlr3HTE 就能用。</p>' +
-          '<p>实测里 <code>identical(l, mlr3::lrn(...))</code> 返回 <code>FALSE</code>——这不是问题：R6 对象每次构造都是新实例，<code>identical()</code> 比较的是对象身份而不是类型与参数。要看类型就 <code>class(l)</code>，要看参数就 <code>l$param_set$values</code>。</p>'
-      },
-      {
-        id: "example",
-        heading: "实测示例",
-        body:
-          '<p>代码与输出均为<strong>真实跑出</strong>。无额外输入。</p>' +
-          '<pre><code class="language-r">l &lt;- lrn("regr.ranger", num.trees = 100)\nclass(l)\nl$id\nidentical(l, mlr3::lrn("regr.ranger", num.trees = 100))</code></pre>' +
-          '<p>实测输出：</p>' +
-          '<pre><code class="language-r">[1] "LearnerRegrRanger" "LearnerRegr"       "Learner"          \n[4] "R6"               \n[1] "regr.ranger"\n\n--- 与 mlr3::lrn 同一个对象 ---\n[1] FALSE</code></pre>' +
-          '<p>所有可用的学习器列表见 mlr3 自己的文档；mlr3HTE 只负责把它们接进 meta-learner 框架。选择时要注意与结局类型匹配：连续用 <code>regr.*</code>，二分类用 <code>classif.*</code>，生存用字符串 <code>"coxph"</code> / <code>"ranger"</code>。</p>'
-      }
-    ]
-  },
-
-  en: {
-    title: "lrn()",
-    lede: "mlr3&rsquo;s lrn() re-exported, so you can skip loading mlr3 separately.",
-    sections: [
-      {
-        id: "what",
-        heading: "What it returns",
-        body:
-          '<div class="fn">' +
-          '<div class="fn-name">lrn()<span class="badge">re-export</span></div>' +
-          '<div class="fn-sig">lrn(...)  # mlr3::lrn 的再导出</div>' +
-          '<p>Simply <code>mlr3::lrn()</code>. The re-export is practical: tutorials and examples are full of <code>lrn("regr.ranger")</code>, and loading mlr3HTE alone is enough.</p>' +
-          '<p>In the run, <code>identical(l, mlr3::lrn(...))</code> returns <code>FALSE</code> — that is not a problem: R6 objects are new instances each time, and <code>identical()</code> compares object identity, not class or parameters. Use <code>class(l)</code> for the type and <code>l$param_set$values</code> for the parameters.</p>'
-      },
-      {
-        id: "example",
-        heading: "Worked example (real output)",
-        body:
-          '<p>Both code and output are <strong>actually run</strong>. No extra input.</p>' +
-          '<pre><code class="language-r">l &lt;- lrn("regr.ranger", num.trees = 100)\nclass(l)\nl$id\nidentical(l, mlr3::lrn("regr.ranger", num.trees = 100))</code></pre>' +
-          '<p>Output:</p>' +
-          '<pre><code class="language-r">[1] "LearnerRegrRanger" "LearnerRegr"       "Learner"          \n[4] "R6"               \n[1] "regr.ranger"\n\n--- 与 mlr3::lrn 同一个对象 ---\n[1] FALSE</code></pre>' +
-          '<p>The full list of learners lives in mlr3&rsquo;s own documentation; mlr3HTE only wires them into the meta-learner framework. Match the learner to the outcome type: <code>regr.*</code> for continuous, <code>classif.*</code> for binary, and the strings <code>"coxph"</code> / <code>"ranger"</code> for survival.</p>'
-      }
-    ]
-  }
-};
-
 window.SITE_PAGES.apishortcuts = {
 
   zh: {
@@ -2856,16 +1627,20 @@ window.SITE_PAGES.apibenchmark = {
 };
 window.SITE_PAGES.api = {
 
+  /* ---------------- 中文 ---------------- */
   zh: {
     title: "函数文档",
-    lede: "mlr3HTE 共导出 25 个对象：1 个主拟合函数、5 个 meta-learner 简写、1 个 Task 编码函数、1 个 R6 Learner 类、6 个演示数据集生成器、5 个 HTE 评价指标与干扰参数估计器、2 个基准测试函数、3 个辅助函数、1 个 mlr3 再导出。每个函数都有自己的页面，全部示例均为实测输出。",
+    lede: "mlr3HTE 共导出 40 个对象：1 个主拟合函数、5 个 meta-learner 便捷封装、1 个 Task 编码函数、1 个 R6 Learner " +
+          "类、1 个 CATE 置信区间辅助、2 个 DAG 函数、6 个演示数据集生成器、4 个 HTE 评价指标、1 个观察性数据干扰参数估计器、3 个 RCT " +
+          "基准测试函数、4 个基准模拟数据函数、6 个 CATE 可解释性函数、6 个绘图函数、1 个 mlr3 再导出。点函数名进入各自的详细说明页。",
     sections: [
+
       {
         id: "overview",
         heading: "函数总览",
         body:
           '<div class="table-wrap"><table>' +
-          '<thead><tr><th>凂数</th><th>类别</th><th>一句话说明</th></tr></thead>' +
+          '<thead><tr><th>函数</th><th>类别</th><th>一句话说明</th></tr></thead>' +
           '<tbody>' +
           '<tr><td><a href="#/apimetalearner"><code>metalearner()</code></a></td><td>主拟合</td><td>拟合任意 metalearner，返回可重复预测的对象</td></tr>' +
           '<tr><td><a href="#/apis"><code>s_learner()</code></a></td><td>便捷封装</td><td>S-learner 简写，直接返回 CATE 向量</td></tr>' +
@@ -2874,69 +1649,110 @@ window.SITE_PAGES.api = {
           '<tr><td><a href="#/apir"><code>r_learner()</code></a></td><td>便捷封装</td><td>R-learner 简写，残差化后回归</td></tr>' +
           '<tr><td><a href="#/apidr"><code>dr_learner()</code></a></td><td>便捷封装</td><td>DR-learner 简写，双重稳健伪结局</td></tr>' +
           '<tr><td><a href="#/apimltask"><code>ml_task()</code></a></td><td>Task 编码</td><td>把 X/A/Y 编码成 mlr3 Task，三类结局统一</td></tr>' +
-          '<tr><td><a href="#/apilearner"><code>LearnerRegrMetalearner</code></a></td><td>R6 Learner</td><td>lrn("regr.metalearner")，接入 mlr3 工作流</td></tr>' +
-          '<tr><td><a href="#/apidemodata"><code>mlr3HTE_demo_data()</code></a></td><td>演示数据</td><td>随机化 + 连续结局</td></tr>' +
+          '<tr><td><a href="#/apilearner"><code>LearnerRegrMetalearner</code></a></td><td>R6 Learner</td><td><code>lrn("regr.metalearner")</code>，接入 mlr3 工作流</td></tr>' +
+          '<tr><td><a href="#/apicateci"><code>cate_ci()</code></a></td><td>辅助</td><td>CATE 的自助法置信区间（仅反映抽样波动）</td></tr>' +
+          '<tr><td><a href="#/apiplotqini"><code>plot_qini()</code></a></td><td>绘图</td><td>Qini 曲线，返回 ggplot 对象</td></tr>' +
+          '<tr><td><a href="#/apidag"><code>mlr3HTE_dag()</code></a></td><td>DAG</td><td>画 RCT / 观察性两种设计的因果结构图</td></tr>' +
+          '<tr><td><a href="#/apidagdata"><code>mlr3HTE_dag_data()</code></a></td><td>DAG</td><td>DAG 的节点表 / 边表 / 曲率路由结果</td></tr>' +
+          '<tr><td><a href="#/apidemodata"><code>mlr3HTE_demo_data()</code></a></td><td>演示数据</td><td>随机化 + 连续结局，带 tau / ate</td></tr>' +
           '<tr><td><a href="#/apidemobinary"><code>mlr3HTE_demo_binary()</code></a></td><td>演示数据</td><td>随机化 + 二分类结局</td></tr>' +
           '<tr><td><a href="#/apidemoobs"><code>mlr3HTE_demo_obs()</code></a></td><td>演示数据</td><td>观察性 + 连续结局，含真实 ps_true</td></tr>' +
           '<tr><td><a href="#/apidemoobsbinary"><code>mlr3HTE_demo_obs_binary()</code></a></td><td>演示数据</td><td>观察性 + 二分类结局</td></tr>' +
           '<tr><td><a href="#/apidemoobssurv"><code>mlr3HTE_demo_obs_surv()</code></a></td><td>演示数据</td><td>观察性 + 生存结局，混杂与删失并存</td></tr>' +
           '<tr><td><a href="#/apidemosurv"><code>mlr3HTE_demo_surv()</code></a></td><td>演示数据</td><td>随机化 + 生存结局，只有删失</td></tr>' +
           '<tr><td><a href="#/apiqinicurve"><code>qini_curve()</code></a></td><td>HTE 评价</td><td>Qini 曲线：累积增益随靶向比例的变化</td></tr>' +
-          '<tr><td><a href="#/apiqinicoef"><code>qini_coefficient()</code></a></td><td>HTE 评价</td><td>Qini 系数：把曲线压成一个数</td></tr>' +
-          '<tr><td><a href="#/apicforbenefit"><code>c_for_benefit()</code></a></td><td>HTE 评价</td><td>增益匹配后的 C 统计量，0.5 = 随机</td></tr>' +
-          '<tr><td><a href="#/apitoccurve"><code>toc_curve()</code></a></td><td>HTE 评价</td><td>TOC 曲线：各分位目标群的平均效应</td></tr>' +
-          '<tr><td><a href="#/apidrpseudo"><code>dr_pseudo_outcome()</code></a></td><td>HTE 评价</td><td>双重稳健虚拟结局，观察性数据入口</td></tr>' +
-          '<tr><td><a href="#/apihtebenchmark"><code>hte_benchmark()</code></a></td><td>基准测试</td><td>RCT 数据上比多个 learner，不依赖真实 tau</td></tr>' +
-          '<tr><td><a href="#/apiplotbenchmark"><code>plot_hte_benchmark()</code></a></td><td>基准测试</td><td>按 learner 分面画 Qini / TOC 对比</td></tr>' +
-          '<tr><td><a href="#/apicateci"><code>cate_ci()</code></a></td><td>辅助</td><td>CATE / ATE 的自助法置信区间</td></tr>' +
-          '<tr><td><a href="#/apiplotqini"><code>plot_qini()</code></a></td><td>辅助</td><td>快速画一条 Qini 曲线</td></tr>' +
-          '<tr><td><a href="#/apidag"><code>mlr3HTE_dag()</code></a></td><td>辅助</td><td>画 HTE 场景的因果图</td></tr>' +
+          '<tr><td><a href="#/apiqinicoef"><code>qini_coefficient()</code></a></td><td>HTE 评价</td><td>把 Qini 曲线压成一个数</td></tr>' +
+          '<tr><td><a href="#/apicforbenefit"><code>c_for_benefit()</code></a></td><td>HTE 评价</td><td>C 统计量：预测获益的配对一致性</td></tr>' +
+          '<tr><td><a href="#/apitoccurve"><code>toc_curve()</code></a></td><td>HTE 评价</td><td>顶部有序曲线，对照总体 ATE</td></tr>' +
+          '<tr><td><a href="#/apidrpseudo"><code>dr_pseudo_outcome()</code></a></td><td>观察性</td><td>一次拿到 propensity / mu1 / mu0 三件套，默认交叉拟合</td></tr>' +
+          '<tr><td><a href="#/apihtebenchmark"><code>hte_benchmark()</code></a></td><td>基准测试</td><td>RCT 上比较多个 learner，不依赖真实 tau</td></tr>' +
+          '<tr><td><a href="#/apibenchdata"><code>hte_benchmark_data()</code></a></td><td>基准测试</td><td>基准测试的曲线数据与参考线</td></tr>' +
+          '<tr><td><a href="#/apiplotbenchmark"><code>plot_hte_benchmark()</code></a></td><td>绘图</td><td>基准测试曲线分面对比，返回 ggplot</td></tr>' +
+          '<tr><td><a href="#/apiscenarios"><code>mlr3HTE_scenarios()</code></a></td><td>模拟数据</td><td>列出 10 个基准设计的结构标签</td></tr>' +
+          '<tr><td><a href="#/apiscenario"><code>mlr3HTE_scenario()</code></a></td><td>模拟数据</td><td>按场景 id 生成一份带真值的模拟数据</td></tr>' +
+          '<tr><td><a href="#/apibench"><code>mlr3HTE_bench()</code></a></td><td>模拟数据</td><td>取出随包发布的 30 份基准数据之一</td></tr>' +
+          '<tr><td><a href="#/apibenchindex"><code>mlr3HTE_bench_index()</code></a></td><td>模拟数据</td><td>打包数据中实际存在的键与真值 ATE</td></tr>' +
+          '<tr><td><a href="#/apiexplainer"><code>hte_explainer()</code></a></td><td>可解释性</td><td>把 CATE 模型包装为 DALEX 解释器（响应变量 = 伪结局）</td></tr>' +
+          '<tr><td><a href="#/apisurrogate"><code>hte_surrogate()</code></a></td><td>可解释性</td><td>用单一 mlr3 学习器重拟合 CATE 曲面得代理模型</td></tr>' +
+          '<tr><td><a href="#/apiimportance"><code>hte_feature_importance()</code></a></td><td>可解释性</td><td>置换法变量重要性（对伪结局的损失上升）</td></tr>' +
+          '<tr><td><a href="#/apipdp"><code>hte_pdp()</code></a></td><td>可解释性</td><td>偏依赖 PDP 与累积局部效应 ALE</td></tr>' +
+          '<tr><td><a href="#/apishap"><code>hte_shap()</code></a></td><td>可解释性</td><td>Kernel SHAP：个体 CATE 的变量分解</td></tr>' +
+          '<tr><td><a href="#/apishapdata"><code>hte_shap_data()</code></a></td><td>可解释性</td><td>把 shapviz 对象摊平为长表，便于导出自绘</td></tr>' +
+          '<tr><td><a href="#/apiplotimportance"><code>plot_hte_importance()</code></a></td><td>绘图</td><td>重要性条形图，返回 ggplot</td></tr>' +
+          '<tr><td><a href="#/apiplotpdp"><code>plot_hte_pdp()</code></a></td><td>绘图</td><td>偏依赖曲线分面图，返回 ggplot</td></tr>' +
+          '<tr><td><a href="#/apiplotshap"><code>plot_hte_shap()</code></a></td><td>绘图</td><td>SHAP 四视图：重要性 / 蜂群 / 依赖 / 瀑布</td></tr>' +
           '<tr><td><a href="#/apilrn"><code>lrn()</code></a></td><td>再导出</td><td>从 mlr3 再导出，免额外加载</td></tr>' +
-          '</tbody></table></div>'
+          '</tbody></table></div>' +
+          '<p class="text-muted">全部 40 个导出对象均另有独立页面，示例代码与输出都是实跑结果。标注「绘图」的六个函数一律返回 ggplot 对象，可用 <code>+</code> 叠加图层、用 <code>ggsave()</code> 导出；其底层数据由对应的数据函数单独取出：<code>hte_feature_importance()</code>、<code>hte_pdp()</code>、<code>hte_shap_data()</code>、<code>hte_benchmark_data()</code>、<code>qini_curve()</code>、<code>mlr3HTE_dag_data()</code>。</p>'
       }
     ]
   },
 
+  /* ---------------- English ---------------- */
   en: {
     title: "API Reference",
-    lede: "mlr3HTE exports 25 objects: one main fitting function, five meta-learner shorthands, one Task encoder, one R6 Learner class, six demo data generators, five HTE evaluation metrics plus a nuisance-parameter estimator, two benchmark functions, three helpers, and one mlr3 re-export. Every function has its own page, and every example is actually run.",
+    lede: "mlr3HTE exports 40 objects: one main fitting function, five meta-learner " +
+          "shortcuts, one Task-encoding helper, one R6 Learner class, one CATE " +
+          "confidence-interval helper, two DAG functions, six demo data generators, four " +
+          "HTE evaluation metrics, one nuisance-parameter estimator for observational " +
+          "data, three RCT benchmark functions, four benchmark simulation functions, six " +
+          "CATE interpretability functions, six plotting functions and one mlr3 " +
+          "re-export. Click a function name to open its dedicated page.",
     sections: [
+
       {
         id: "overview",
-        heading: "Function overview",
+        heading: "Overview",
         body:
           '<div class="table-wrap"><table>' +
-          '<thead><tr><th>Function</th><th>Category</th><th>In one line</th></tr></thead>' +
+          '<thead><tr><th>Function</th><th>Category</th><th>One-line description</th></tr></thead>' +
           '<tbody>' +
-          '<tr><td><a href="#/apimetalearner"><code>metalearner()</code></a></td><td>Main fitting</td><td>Fit any meta-learner; returns a reusable object</td></tr>' +
-          '<tr><td><a href="#/apis"><code>s_learner()</code></a></td><td>Shortcut</td><td>S-learner shorthand, returns the CATE vector</td></tr>' +
-          '<tr><td><a href="#/apit"><code>t_learner()</code></a></td><td>Shortcut</td><td>T-learner shorthand, two models differenced</td></tr>' +
-          '<tr><td><a href="#/apix"><code>x_learner()</code></a></td><td>Shortcut</td><td>X-learner shorthand, two-stage fitting</td></tr>' +
-          '<tr><td><a href="#/apir"><code>r_learner()</code></a></td><td>Shortcut</td><td>R-learner shorthand, residualise then regress</td></tr>' +
-          '<tr><td><a href="#/apidr"><code>dr_learner()</code></a></td><td>Shortcut</td><td>DR-learner shorthand, doubly robust pseudo-outcomes</td></tr>' +
-          '<tr><td><a href="#/apimltask"><code>ml_task()</code></a></td><td>Task encoding</td><td>Encode X/A/Y into an mlr3 Task, all outcome types</td></tr>' +
-          '<tr><td><a href="#/apilearner"><code>LearnerRegrMetalearner</code></a></td><td>R6 Learner</td><td>lrn("regr.metalearner"), plugs into mlr3 workflows</td></tr>' +
-          '<tr><td><a href="#/apidemodata"><code>mlr3HTE_demo_data()</code></a></td><td>Demo data</td><td>Randomized, continuous outcome</td></tr>' +
-          '<tr><td><a href="#/apidemobinary"><code>mlr3HTE_demo_binary()</code></a></td><td>Demo data</td><td>Randomized, binary outcome</td></tr>' +
-          '<tr><td><a href="#/apidemoobs"><code>mlr3HTE_demo_obs()</code></a></td><td>Demo data</td><td>Observational, continuous, with true ps_true</td></tr>' +
-          '<tr><td><a href="#/apidemoobsbinary"><code>mlr3HTE_demo_obs_binary()</code></a></td><td>Demo data</td><td>Observational, binary outcome</td></tr>' +
-          '<tr><td><a href="#/apidemoobssurv"><code>mlr3HTE_demo_obs_surv()</code></a></td><td>Demo data</td><td>Observational, survival; confounding and censoring</td></tr>' +
-          '<tr><td><a href="#/apidemosurv"><code>mlr3HTE_demo_surv()</code></a></td><td>Demo data</td><td>Randomized, survival; censoring only</td></tr>' +
-          '<tr><td><a href="#/apiqinicurve"><code>qini_curve()</code></a></td><td>HTE evaluation</td><td>Qini curve: cumulative gain vs targeted fraction</td></tr>' +
-          '<tr><td><a href="#/apiqinicoef"><code>qini_coefficient()</code></a></td><td>HTE evaluation</td><td>Qini coefficient: collapses the curve to one number</td></tr>' +
-          '<tr><td><a href="#/apicforbenefit"><code>c_for_benefit()</code></a></td><td>HTE evaluation</td><td>C statistic after gain matching; 0.5 = random</td></tr>' +
-          '<tr><td><a href="#/apitoccurve"><code>toc_curve()</code></a></td><td>HTE evaluation</td><td>TOC curve: average effect per targeted fraction</td></tr>' +
-          '<tr><td><a href="#/apidrpseudo"><code>dr_pseudo_outcome()</code></a></td><td>HTE evaluation</td><td>Doubly robust pseudo-outcomes; observational entry</td></tr>' +
-          '<tr><td><a href="#/apihtebenchmark"><code>hte_benchmark()</code></a></td><td>Benchmark</td><td>Compare learners on RCT data, no true tau needed</td></tr>' +
-          '<tr><td><a href="#/apiplotbenchmark"><code>plot_hte_benchmark()</code></a></td><td>Benchmark</td><td>Faceted Qini / TOC comparison by learner</td></tr>' +
-          '<tr><td><a href="#/apicateci"><code>cate_ci()</code></a></td><td>Helper</td><td>Bootstrap confidence intervals for CATE / ATE</td></tr>' +
-          '<tr><td><a href="#/apiplotqini"><code>plot_qini()</code></a></td><td>Helper</td><td>Quick single Qini curve plot</td></tr>' +
-          '<tr><td><a href="#/apidag"><code>mlr3HTE_dag()</code></a></td><td>Helper</td><td>Draws the causal diagram for an HTE setting</td></tr>' +
-          '<tr><td><a href="#/apilrn"><code>lrn()</code></a></td><td>Re-export</td><td>Re-exported from mlr3, no extra library call</td></tr>' +
-          '</tbody></table></div>'
+          '<tr><td><a href="#/apimetalearner"><code>metalearner()</code></a></td><td>Main entry</td><td>Fit any meta-learner and return a predictive object</td></tr>' +
+          '<tr><td><a href="#/apis"><code>s_learner()</code></a></td><td>Shortcut</td><td>S-learner shorthand, returns the CATE vector directly</td></tr>' +
+          '<tr><td><a href="#/apit"><code>t_learner()</code></a></td><td>Shortcut</td><td>T-learner shorthand, difference of two models</td></tr>' +
+          '<tr><td><a href="#/apix"><code>x_learner()</code></a></td><td>Shortcut</td><td>X-learner shorthand, two-stage imputation</td></tr>' +
+          '<tr><td><a href="#/apir"><code>r_learner()</code></a></td><td>Shortcut</td><td>R-learner shorthand, regression on residuals</td></tr>' +
+          '<tr><td><a href="#/apidr"><code>dr_learner()</code></a></td><td>Shortcut</td><td>DR-learner shorthand, doubly robust pseudo-outcome</td></tr>' +
+          '<tr><td><a href="#/apimltask"><code>ml_task()</code></a></td><td>Task encoding</td><td>Encode X/A/Y into an mlr3 Task, uniform across outcomes</td></tr>' +
+          '<tr><td><a href="#/apilearner"><code>LearnerRegrMetalearner</code></a></td><td>R6 Learner</td><td><code>lrn("regr.metalearner")</code> for mlr3 workflows</td></tr>' +
+          '<tr><td><a href="#/apicateci"><code>cate_ci()</code></a></td><td>Helper</td><td>Bootstrap confidence interval for CATE (sampling noise only)</td></tr>' +
+          '<tr><td><a href="#/apiplotqini"><code>plot_qini()</code></a></td><td>Plot</td><td>Qini curve, returns a ggplot object</td></tr>' +
+          '<tr><td><a href="#/apidag"><code>mlr3HTE_dag()</code></a></td><td>DAG</td><td>Causal diagram for the RCT and observational designs</td></tr>' +
+          '<tr><td><a href="#/apidagdata"><code>mlr3HTE_dag_data()</code></a></td><td>DAG</td><td>Node and edge tables plus curvature routing for the DAG</td></tr>' +
+          '<tr><td><a href="#/apidemodata"><code>mlr3HTE_demo_data()</code></a></td><td>Demo data</td><td>Randomised + continuous outcome, with tau / ate</td></tr>' +
+          '<tr><td><a href="#/apidemobinary"><code>mlr3HTE_demo_binary()</code></a></td><td>Demo data</td><td>Randomised + binary outcome</td></tr>' +
+          '<tr><td><a href="#/apidemoobs"><code>mlr3HTE_demo_obs()</code></a></td><td>Demo data</td><td>Observational + continuous outcome, with true ps_true</td></tr>' +
+          '<tr><td><a href="#/apidemoobsbinary"><code>mlr3HTE_demo_obs_binary()</code></a></td><td>Demo data</td><td>Observational + binary outcome</td></tr>' +
+          '<tr><td><a href="#/apidemoobssurv"><code>mlr3HTE_demo_obs_surv()</code></a></td><td>Demo data</td><td>Observational + survival, confounding and censoring</td></tr>' +
+          '<tr><td><a href="#/apidemosurv"><code>mlr3HTE_demo_surv()</code></a></td><td>Demo data</td><td>Randomised + survival outcome, censoring only</td></tr>' +
+          '<tr><td><a href="#/apiqinicurve"><code>qini_curve()</code></a></td><td>HTE metrics</td><td>Qini curve: cumulative gain against the targeted fraction</td></tr>' +
+          '<tr><td><a href="#/apiqinicoef"><code>qini_coefficient()</code></a></td><td>HTE metrics</td><td>Compresses the Qini curve into a single number</td></tr>' +
+          '<tr><td><a href="#/apicforbenefit"><code>c_for_benefit()</code></a></td><td>HTE metrics</td><td>C statistic: pairwise concordance of predicted benefit</td></tr>' +
+          '<tr><td><a href="#/apitoccurve"><code>toc_curve()</code></a></td><td>HTE metrics</td><td>Top-ordered curve against the overall ATE</td></tr>' +
+          '<tr><td><a href="#/apidrpseudo"><code>dr_pseudo_outcome()</code></a></td><td>Observational</td><td>Propensity / mu1 / mu0 in one call, cross-fitted by default</td></tr>' +
+          '<tr><td><a href="#/apihtebenchmark"><code>hte_benchmark()</code></a></td><td>Benchmark</td><td>Compare learners on RCT data without a known tau</td></tr>' +
+          '<tr><td><a href="#/apibenchdata"><code>hte_benchmark_data()</code></a></td><td>Benchmark</td><td>Benchmark curve data together with the reference lines</td></tr>' +
+          '<tr><td><a href="#/apiplotbenchmark"><code>plot_hte_benchmark()</code></a></td><td>Plot</td><td>Faceted benchmark curves, returns a ggplot</td></tr>' +
+          '<tr><td><a href="#/apiscenarios"><code>mlr3HTE_scenarios()</code></a></td><td>Simulation</td><td>Structural labels of the ten benchmark designs</td></tr>' +
+          '<tr><td><a href="#/apiscenario"><code>mlr3HTE_scenario()</code></a></td><td>Simulation</td><td>Generate one simulated dataset with known ground truth</td></tr>' +
+          '<tr><td><a href="#/apibench"><code>mlr3HTE_bench()</code></a></td><td>Simulation</td><td>Fetch one of the thirty bundled benchmark datasets</td></tr>' +
+          '<tr><td><a href="#/apibenchindex"><code>mlr3HTE_bench_index()</code></a></td><td>Simulation</td><td>Keys present in the bundled data and their true ATE</td></tr>' +
+          '<tr><td><a href="#/apiexplainer"><code>hte_explainer()</code></a></td><td>Interpret</td><td>Wrap a CATE model as a DALEX explainer (response = pseudo-outcome)</td></tr>' +
+          '<tr><td><a href="#/apisurrogate"><code>hte_surrogate()</code></a></td><td>Interpret</td><td>Refit the CATE surface with one mlr3 learner as a surrogate</td></tr>' +
+          '<tr><td><a href="#/apiimportance"><code>hte_feature_importance()</code></a></td><td>Interpret</td><td>Permutation importance (loss rise against the pseudo-outcome)</td></tr>' +
+          '<tr><td><a href="#/apipdp"><code>hte_pdp()</code></a></td><td>Interpret</td><td>Partial dependence (PDP) and accumulated local effects (ALE)</td></tr>' +
+          '<tr><td><a href="#/apishap"><code>hte_shap()</code></a></td><td>Interpret</td><td>Kernel SHAP: decomposition of an individual CATE</td></tr>' +
+          '<tr><td><a href="#/apishapdata"><code>hte_shap_data()</code></a></td><td>Interpret</td><td>Flatten a shapviz object into a long table for export</td></tr>' +
+          '<tr><td><a href="#/apiplotimportance"><code>plot_hte_importance()</code></a></td><td>Plot</td><td>Importance bar chart, returns a ggplot</td></tr>' +
+          '<tr><td><a href="#/apiplotpdp"><code>plot_hte_pdp()</code></a></td><td>Plot</td><td>Faceted partial dependence curves, returns a ggplot</td></tr>' +
+          '<tr><td><a href="#/apiplotshap"><code>plot_hte_shap()</code></a></td><td>Plot</td><td>Four SHAP views: importance / beeswarm / dependence / waterfall</td></tr>' +
+          '<tr><td><a href="#/apilrn"><code>lrn()</code></a></td><td>Re-export</td><td>Re-exported from mlr3 so you need not load it</td></tr>' +
+          '</tbody></table></div>' +
+          '<p class="text-muted">All forty exported objects have a dedicated page, and every example is an actual run. The six functions marked Plot return ggplot objects that accept further layers with <code>+</code> and export through <code>ggsave()</code>; their underlying data comes from the matching data function: <code>hte_feature_importance()</code>, <code>hte_pdp()</code>, <code>hte_shap_data()</code>, <code>hte_benchmark_data()</code>, <code>qini_curve()</code> and <code>mlr3HTE_dag_data()</code>.</p>'
       }
     ]
-  }
+  },
+
 };
 
 window.SITE_PAGES.apiqinicurve = {
@@ -3329,6 +2145,15 @@ window.SITE_PAGES.apiplotbenchmark = {
           '<p>实测输出：</p>' +
           '<pre><code class="language-r">返回类： ggplot2::ggplot ggplot ggplot2::gg S7_object gg \n曲线数： 2 \n默认 min_fraction = 0.05，即前 5% 不画</code></pre>' +
           '<p>教程里嵌的两张对比图（<code>docs/assets/img/benchmark/qini_curves.png</code> 与 <code>toc_curves.png</code>）就是这个函数生成的。</p>'
+      },
+      {
+        id: "fig",
+        heading: "实跑图形",
+        body:
+          '<div class="fig-grid">' +
+          '<figure class="fig"><img src="assets/img/benchmark/qini_curves.png" alt="Qini 曲线对比"><figcaption>三种 meta-learner 的 Qini 曲线，虚线为随机靶向参考线。</figcaption></figure>' +
+          '<figure class="fig"><img src="assets/img/benchmark/toc_curves.png" alt="TOC 曲线对比"><figcaption>同一次基准测试的 TOC 曲线，水平线为总体 ATE。</figcaption></figure>' +
+          '</div>'
       }
     ]
   },
@@ -3357,6 +2182,15 @@ window.SITE_PAGES.apiplotbenchmark = {
           '<p>Output:</p>' +
           '<pre><code class="language-r">返回类： ggplot2::ggplot ggplot ggplot2::gg S7_object gg \n曲线数： 2 \n默认 min_fraction = 0.05，即前 5% 不画</code></pre>' +
           '<p>The two comparison figures embedded in the tutorial (<code>docs/assets/img/benchmark/qini_curves.png</code> and <code>toc_curves.png</code>) were produced by this function.</p>'
+      },
+      {
+        id: "fig",
+        heading: "Figures from an actual run",
+        body:
+          '<div class="fig-grid">' +
+          '<figure class="fig"><img src="assets/img/benchmark/qini_curves.png" alt="Qini curve comparison"><figcaption>Qini curves for three meta-learners; the dashed line is random targeting.</figcaption></figure>' +
+          '<figure class="fig"><img src="assets/img/benchmark/toc_curves.png" alt="TOC curve comparison"><figcaption>TOC curves from the same benchmark run; the horizontal line is the overall ATE.</figcaption></figure>' +
+          '</div>'
       }
     ]
   }
@@ -3447,6 +2281,13 @@ window.SITE_PAGES.apiplotqini = {
           '<p>实测输出：</p>' +
           '<pre><code class="r-out">plot_qini 返回类： data.frame ；是不可见返回\n曲线点数： 1501</code></pre>' +
           '<p>如果你已经在用 ggplot2，可以自己画：<code>ggplot(cv, aes(fraction, qini)) + geom_line()</code>。这个函数的定位是快速看一眼。</p>'
+      },
+      {
+        id: "fig",
+        heading: "实跑图形",
+        body:
+          '<figure class="fig"><img src="assets/img/metrics/qini_curve.png" alt="Qini 曲线">' +
+          '<figcaption>连续结局 RCT 基准数据（<code>rct_lin</code>）上 DR-learner 的 Qini 曲线，虚线为随机靶向。曲线全程位于参考线上方，说明预测排序携带信息。</figcaption></figure>'
       }
     ]
   },
@@ -3475,6 +2316,13 @@ window.SITE_PAGES.apiplotqini = {
           '<p>Output:</p>' +
           '<pre><code class="r-out">plot_qini 返回类： data.frame ；是不可见返回\n曲线点数： 1501</code></pre>' +
           '<p>If you already work with ggplot2 you can draw it yourself: <code>ggplot(cv, aes(fraction, qini)) + geom_line()</code>. This function is positioned as a quick look.</p>'
+      },
+      {
+        id: "fig",
+        heading: "Figure from an actual run",
+        body:
+          '<figure class="fig"><img src="assets/img/metrics/qini_curve.png" alt="Qini curve">' +
+          '<figcaption>Qini curve of a DR-learner on the continuous RCT benchmark dataset (<code>rct_lin</code>); the dashed line is random targeting. The curve stays above the reference throughout, so the predicted ordering carries information.</figcaption></figure>'
       }
     ]
   }
@@ -3506,6 +2354,15 @@ window.SITE_PAGES.apidag = {
           '<p>实测输出：</p>' +
           '<pre><code class="language-r">===== design =  rct  =====\nclass: ggplot2::ggplot / ggplot / ggplot2::gg / S7_object / gg \ngeom layers: 2 \n图层类型： GeomSegment, GeomLabel \n\n===== design =  obs  =====\nclass: ggplot2::ggplot / ggplot / ggplot2::gg / S7_object / gg \ngeom layers: 2 \n图层类型： GeomSegment, GeomLabel \n\n# 直接把它 print 出来就是一张 DAG 图（见 docs/assets/img/dag/）</code></pre>' +
           '<p>教程与文档站里嵌的 DAG 图（<code>docs/assets/img/dag/</code>）就是这个函数生成后导出的。RCT 版没有 <code>X → A</code> 这条边，观察性版有——这就是两者的核心差异。</p>'
+      },
+      {
+        id: "fig",
+        heading: "实跑图形",
+        body:
+          '<div class="fig-grid">' +
+          '<figure class="fig"><img src="assets/img/dag/dag_rct_continuous.png" alt="RCT 设计的 DAG"><figcaption>RCT 设计：<code>A</code> 无父节点，不存在 <code>X → A</code> 这条打开后门的路径。</figcaption></figure>' +
+          '<figure class="fig"><img src="assets/img/dag/dag_obs_continuous.png" alt="观察性设计的 DAG"><figcaption>观察性设计：<code>X → e → A</code> 与 <code>X → mu → Y</code> 同时存在，必须校正。</figcaption></figure>' +
+          '</div>'
       }
     ]
   },
@@ -3534,6 +2391,15 @@ window.SITE_PAGES.apidag = {
           '<p>Output:</p>' +
           '<pre><code class="language-r">===== design =  rct  =====\nclass: ggplot2::ggplot / ggplot / ggplot2::gg / S7_object / gg \ngeom layers: 2 \n图层类型： GeomSegment, GeomLabel \n\n===== design =  obs  =====\nclass: ggplot2::ggplot / ggplot / ggplot2::gg / S7_object / gg \ngeom layers: 2 \n图层类型： GeomSegment, GeomLabel \n\n# 直接把它 print 出来就是一张 DAG 图（见 docs/assets/img/dag/）</code></pre>' +
           '<p>The DAG figures embedded in the tutorial and docs site (<code>docs/assets/img/dag/</code>) are exports of this function. The RCT version has no <code>X → A</code> edge while the observational version does — that is the core difference between the two.</p>'
+      },
+      {
+        id: "fig",
+        heading: "Figures from an actual run",
+        body:
+          '<div class="fig-grid">' +
+          '<figure class="fig"><img src="assets/img/dag/dag_rct_continuous.png" alt="DAG of the RCT design"><figcaption>RCT design: <code>A</code> has no parent, so no <code>X → A</code> path opens a back door.</figcaption></figure>' +
+          '<figure class="fig"><img src="assets/img/dag/dag_obs_continuous.png" alt="DAG of the observational design"><figcaption>Observational design: both <code>X → e → A</code> and <code>X → mu → Y</code> are present and must be adjusted for.</figcaption></figure>' +
+          '</div>'
       }
     ]
   }
@@ -4008,6 +2874,13 @@ window.SITE_PAGES.apiplotimportance = {
           '<pre><code class="language-r">imp &lt;- hte_feature_importance(ex, B = 3, N = 300, seed = 1)\np &lt;- plot_hte_importance(imp)\nc(classes = paste(class(p), collapse = "/"), is_ggplot = inherits(p, "ggplot"))</code></pre>' +
           '<pre><code class="r-out">$classes\n[1] "ggplot2::ggplot/ggplot/ggplot2::gg/S7_object/gg"\n\n$is_ggplot\n[1] TRUE</code></pre>' +
           '<div class="callout warn"><div class="callout-title">使用要点</div><p>返回的是 ggplot 对象，可直接用 <code>+</code> 叠加主题与标度，或用 <code>ggsave()</code> 导出；绘图数据就是 <code>hte_feature_importance()</code> 的返回值，可单独落盘。</p></div>'
+      },
+      {
+        id: "fig",
+        heading: "实跑图形",
+        body:
+          '<figure class="fig"><img src="assets/img/explain/importance.png" alt="置换重要性条形图">' +
+          '<figcaption>连续结局 RCT 基准数据（<code>rct_lin</code>，n = 2000）上，T-learner 配 <code>regr.ranger</code> 拟合后，以 <code>B = 5</code>、<code>N = 500</code>、种子 1 计算的置换重要性。<code>lac</code> 居首，与数据生成机制一致——该变量的效应修饰作用最强。</figcaption></figure>'
       }
     ]
   },
@@ -4023,6 +2896,13 @@ window.SITE_PAGES.apiplotimportance = {
           '<pre><code class="language-r">imp &lt;- hte_feature_importance(ex, B = 3, N = 300, seed = 1)\np &lt;- plot_hte_importance(imp)\nc(classes = paste(class(p), collapse = "/"), is_ggplot = inherits(p, "ggplot"))</code></pre>' +
           '<pre><code class="r-out">$classes\n[1] "ggplot2::ggplot/ggplot/ggplot2::gg/S7_object/gg"\n\n$is_ggplot\n[1] TRUE</code></pre>' +
           '<div class="callout warn"><div class="callout-title">Notes</div><p>The returned ggplot object can be extended with <code>+</code> or exported with <code>ggsave()</code>. The underlying data is exactly the value returned by <code>hte_feature_importance()</code> and can be written to disk separately.</p></div>'
+      },
+      {
+        id: "fig",
+        heading: "Figure from an actual run",
+        body:
+          '<figure class="fig"><img src="assets/img/explain/importance.png" alt="Bar chart of permutation importance">' +
+          '<figcaption>Permutation importance on the continuous RCT benchmark dataset (<code>rct_lin</code>, n = 2000): a T-learner with <code>regr.ranger</code>, computed with <code>B = 5</code>, <code>N = 500</code> and seed 1. <code>lac</code> ranks first, matching the data-generating process, where that covariate carries the strongest effect modification.</figcaption></figure>'
       }
     ]
   }
@@ -4041,6 +2921,13 @@ window.SITE_PAGES.apiplotpdp = {
           '<pre><code class="language-r">pd &lt;- hte_pdp(ex, variables = "lac", grid_points = 20)\np &lt;- plot_hte_pdp(pd)\nc(classes = paste(class(p), collapse = "/"), is_ggplot = inherits(p, "ggplot"))</code></pre>' +
           '<pre><code class="r-out">$classes\n[1] "ggplot2::ggplot/ggplot/ggplot2::gg/S7_object/gg"\n\n$is_ggplot\n[1] TRUE</code></pre>' +
           '<div class="callout warn"><div class="callout-title">使用要点</div><p><code>free_y</code> 默认 <code>TRUE</code>：不同变量的 CATE 量级可能相差数倍，共用纵轴会把次要变量压成一条平线。若要跨变量比较绝对幅度，设为 <code>FALSE</code>。</p></div>'
+      },
+      {
+        id: "fig",
+        heading: "实跑图形",
+        body:
+          '<figure class="fig"><img src="assets/img/explain/pdp.png" alt="偏依赖曲线分面图">' +
+          '<figcaption>同上模型，<code>lac</code> 与 <code>age</code> 各取 41 个网格点。纵轴是绝对的平均预测 CATE（未中心化）——<code>age</code> 的曲线在 0.9–1.4 之间起伏，说明年龄改变的是效应大小而非方向。</figcaption></figure>'
       }
     ]
   },
@@ -4056,6 +2943,13 @@ window.SITE_PAGES.apiplotpdp = {
           '<pre><code class="language-r">pd &lt;- hte_pdp(ex, variables = "lac", grid_points = 20)\np &lt;- plot_hte_pdp(pd)\nc(classes = paste(class(p), collapse = "/"), is_ggplot = inherits(p, "ggplot"))</code></pre>' +
           '<pre><code class="r-out">$classes\n[1] "ggplot2::ggplot/ggplot/ggplot2::gg/S7_object/gg"\n\n$is_ggplot\n[1] TRUE</code></pre>' +
           '<div class="callout warn"><div class="callout-title">Notes</div><p><code>free_y</code> defaults to <code>TRUE</code> because the CATE magnitudes of different covariates can differ several-fold and a shared axis would flatten the minor ones. Set it to <code>FALSE</code> to compare absolute magnitudes across variables.</p></div>'
+      },
+      {
+        id: "fig",
+        heading: "Figure from an actual run",
+        body:
+          '<figure class="fig"><img src="assets/img/explain/pdp.png" alt="Faceted partial dependence curves">' +
+          '<figcaption>Same model, 41 grid points each for <code>lac</code> and <code>age</code>. The vertical axis is the absolute mean predicted CATE (not centred): the curve for <code>age</code> ranges over 0.9–1.4, so age changes the size of the effect rather than its direction.</figcaption></figure>'
       }
     ]
   }
@@ -4080,6 +2974,16 @@ window.SITE_PAGES.apiplotshap = {
           '<pre><code class="language-r">c(imp = inherits(plot_hte_shap(sv, "importance"), "ggplot"),\n  dep = inherits(plot_hte_shap(sv, "dependence", variable = "lac"), "ggplot"),\n  wf  = inherits(plot_hte_shap(sv, "waterfall", variable = 1), "ggplot"))</code></pre>' +
           '<pre><code class="r-out"> imp  dep   wf\nTRUE TRUE TRUE</code></pre>' +
           '<div class="callout warn"><div class="callout-title">使用要点</div><p>蜂群图同时给出三件事：变量的重要性（横轴跨度）、效应方向（正负）、以及取值高低与效应方向的关系（颜色梯度）。这是 PDP 无法提供的信息。</p></div>'
+      },
+      {
+        id: "fig",
+        heading: "实跑图形",
+        body:
+          '<div class="fig-grid">' +
+          '<figure class="fig"><img src="assets/img/explain/shap_beeswarm.png" alt="SHAP 蜂群图"><figcaption>蜂群图：每个点是一个个体，横坐标为 SHAP 值，颜色为变量取值。</figcaption></figure>' +
+          '<figure class="fig"><img src="assets/img/explain/shap_dependence.png" alt="SHAP 依赖图"><figcaption>依赖图：<code>lac</code> 的取值与其 SHAP 贡献，斜率即效应修饰的局部强度。</figcaption></figure>' +
+          '<figure class="fig"><img src="assets/img/explain/shap_waterfall.png" alt="SHAP 瀑布图"><figcaption>瀑布图：第 1 号个体的 CATE 如何从基线 E[f(x)] = 1.02 被逐项推到 0.338。</figcaption></figure>' +
+          '</div>'
       }
     ]
   },
@@ -4101,6 +3005,16 @@ window.SITE_PAGES.apiplotshap = {
           '<pre><code class="language-r">c(imp = inherits(plot_hte_shap(sv, "importance"), "ggplot"),\n  dep = inherits(plot_hte_shap(sv, "dependence", variable = "lac"), "ggplot"),\n  wf  = inherits(plot_hte_shap(sv, "waterfall", variable = 1), "ggplot"))</code></pre>' +
           '<pre><code class="r-out"> imp  dep   wf\nTRUE TRUE TRUE</code></pre>' +
           '<div class="callout warn"><div class="callout-title">Notes</div><p>The beeswarm plot conveys three things at once: importance (horizontal spread), direction of effect (sign), and how the covariate value relates to that direction (colour gradient). Partial dependence cannot provide this.</p></div>'
+      },
+      {
+        id: "fig",
+        heading: "Figures from an actual run",
+        body:
+          '<div class="fig-grid">' +
+          '<figure class="fig"><img src="assets/img/explain/shap_beeswarm.png" alt="SHAP beeswarm"><figcaption>Beeswarm: one dot per individual, horizontal position is the SHAP value, colour is the covariate value.</figcaption></figure>' +
+          '<figure class="fig"><img src="assets/img/explain/shap_dependence.png" alt="SHAP dependence"><figcaption>Dependence: the value of <code>lac</code> against its SHAP contribution; the slope is the local strength of effect modification.</figcaption></figure>' +
+          '<figure class="fig"><img src="assets/img/explain/shap_waterfall.png" alt="SHAP waterfall"><figcaption>Waterfall: how the CATE of individual 1 is moved term by term from the baseline E[f(x)] = 1.02 to 0.338.</figcaption></figure>' +
+          '</div>'
       }
     ]
   }

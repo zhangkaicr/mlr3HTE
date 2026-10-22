@@ -8,8 +8,27 @@ const sandbox = { window: {}, var_ : null };
 sandbox.globalThis = sandbox;
 vm.createContext(sandbox);
 
-['content-home.js', 'content-guide.js', 'content-tutorial.js', 'content-api.js',
- 'content-changelog.js', 'content-references.js', 'content-environment.js'].forEach(f => {
+const FILES = ['content-home.js', 'content-guide.js', 'content-tutorial.js', 'content-api.js',
+ 'content-changelog.js', 'content-references.js', 'content-environment.js'];
+
+// 0. 同一页面 id 不得被定义两次：JS 后者静默覆盖前者，
+//    被覆盖的那份永远是死代码，且很可能本身是坏的（缺 lede / 标签未闭合）。
+//    v0.34 就踩过：content-api.js 曾有 17 个页面定义两遍，
+//    一直在用的是后一份，前一份缺 title/lede 却没被发现。
+const dupCount = {};
+FILES.forEach(f => {
+  const p = path.join(dir, f);
+  if (!fs.existsSync(p)) return;
+  const src = fs.readFileSync(p, 'utf8');
+  const re = /^window\.SITE_PAGES\.([A-Za-z0-9_]+) = \{/gm;
+  let m;
+  while ((m = re.exec(src)) !== null) {
+    const k = m[1];
+    dupCount[k] = dupCount[k] || [];
+    dupCount[k].push(f);
+  }
+});
+FILES.forEach(f => {
   const p = path.join(dir, f);
   if (fs.existsSync(p)) vm.runInContext(fs.readFileSync(p, 'utf8'), sandbox, { filename: f });
 });
@@ -17,6 +36,10 @@ vm.createContext(sandbox);
 const pages = sandbox.window.SITE_PAGES || {};
 const ids = Object.keys(pages);
 let problems = [];
+
+for (const [k, v] of Object.entries(dupCount)) {
+  if (v.length > 1) problems.push(`[${k}] 被重复定义 ${v.length} 次（${v.join(', ')}），后者静默覆盖前者`);
+}
 
 // 1. 中英段落 id 必须一一对应
 for (const id of ids) {

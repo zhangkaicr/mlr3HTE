@@ -2414,7 +2414,9 @@ window.SITE_PAGES.tutorialbenchgrid = {
           '<p>判断某个方法是否真的校正了混杂，需要一把标尺。在没有未测混杂的前提下，<strong>未调整差值与真值 ATE 之差</strong>就是该份数据上混杂偏差的规模：方法跑完之后，估计值与真值的距离应当显著小于它。</p>' +
           '<pre><code class="language-r">naive &lt;- function(b) mean(b$Y[b$A == 1]) - mean(b$Y[b$A == 0])\ngrid_ids &lt;- c("rct_lin", "rct_nonlin",\n              "obs_lin_lin_sharedF", "obs_lin_lin_sharedT",\n              "obs_nonlin_lin_sharedF", "obs_nonlin_lin_sharedT")\nbias_tab &lt;- do.call(rbind, lapply(grid_ids, function(id) {\n  bb &lt;- mlr3HTE_bench(id, "continuous")\n  data.frame(id = id, ate_true = bb$ate, naive = naive(bb),\n             bias = naive(bb) - bb$ate)\n}))\nbias_tab</code></pre><pre><code class="r-out">                      id  ate_true     naive        bias\n1                rct_lin 1.0000000 0.9873591 -0.01264090\n2             rct_nonlin 0.9939152 1.0305439  0.03662868\n3    obs_lin_lin_sharedF 1.0000000 1.0925908  0.09259077\n4    obs_lin_lin_sharedT 1.0000000 1.6061261  0.60612614\n5 obs_nonlin_lin_sharedF 1.0000000 1.2359830  0.23598304\n6 obs_nonlin_lin_sharedT 1.0000000 1.4690571  0.46905707</code></pre>' +
           '<p>三个层次很清楚：随机化设计的偏差在 ±0.04 以内（纯抽样波动）；观察性设计在 0.09–0.24 之间；而一旦存在共用变量，偏差放大到 0.47–0.61，是真值的一半以上。后续任何方法学比较都应按这一梯度分层报告，而不是把 30 份数据混成一个平均指标。</p>' +
-          '<div class="callout warn"><div class="callout-title">使用要点</div><p>这里的“未调整差值”只是偏差标尺，不是估计量。真值 ATE 只有模拟数据才有，现实研究里这把尺子不存在——这正是为什么观察性分析必须事先把混杂结构写清楚，而不是指望事后用指标判断。</p></div>'
+          '<div class="callout warn"><div class="callout-title">使用要点</div><p>这里的“未调整差值”只是偏差标尺，不是估计量。真值 ATE 只有模拟数据才有，现实研究里这把尺子不存在——这正是为什么观察性分析必须事先把混杂结构写清楚，而不是指望事后用指标判断。</p></div>' +
+          '<figure class="fig"><img src="assets/img/bench/confounding_bias.png" alt="混杂强度梯度条形图">' +
+          '<figcaption>教程脚本 16 实跑：六个设计的未调整差值减真值 ATE。随机化设计贴近 0；观察性设计随 <code>shared = TRUE</code>（该协变量同时是混杂因子与效应修饰因子）显著放大。</figcaption></figure>'
       },
       {
         id: "hte-form",
@@ -2474,7 +2476,9 @@ window.SITE_PAGES.tutorialbenchgrid = {
           '<p>Assessing whether a method truly removed confounding requires a yardstick. Absent unmeasured confounding, the <strong>difference between the unadjusted contrast and the true ATE</strong> is the size of the confounding bias in that dataset: after adjustment, the distance between the estimate and the truth should be substantially smaller.</p>' +
           '<pre><code class="language-r">naive &lt;- function(b) mean(b$Y[b$A == 1]) - mean(b$Y[b$A == 0])\ngrid_ids &lt;- c("rct_lin", "rct_nonlin",\n              "obs_lin_lin_sharedF", "obs_lin_lin_sharedT",\n              "obs_nonlin_lin_sharedF", "obs_nonlin_lin_sharedT")\nbias_tab &lt;- do.call(rbind, lapply(grid_ids, function(id) {\n  bb &lt;- mlr3HTE_bench(id, "continuous")\n  data.frame(id = id, ate_true = bb$ate, naive = naive(bb),\n             bias = naive(bb) - bb$ate)\n}))\nbias_tab</code></pre><pre><code class="r-out">                      id  ate_true     naive        bias\n1                rct_lin 1.0000000 0.9873591 -0.01264090\n2             rct_nonlin 0.9939152 1.0305439  0.03662868\n3    obs_lin_lin_sharedF 1.0000000 1.0925908  0.09259077\n4    obs_lin_lin_sharedT 1.0000000 1.6061261  0.60612614\n5 obs_nonlin_lin_sharedF 1.0000000 1.2359830  0.23598304\n6 obs_nonlin_lin_sharedT 1.0000000 1.4690571  0.46905707</code></pre>' +
           '<p>Three tiers are evident: randomised designs stay within ±0.04 (pure sampling variation); observational designs fall between 0.09 and 0.24; and once a shared variable is present the bias rises to 0.47–0.61, more than half the true effect. Subsequent comparisons should report results stratified along this gradient rather than averaging all thirty datasets into a single number.</p>' +
-          '<div class="callout warn"><div class="callout-title">Notes</div><p>The unadjusted contrast here is a bias yardstick, not an estimator. The true ATE exists only in simulation, so this yardstick has no counterpart in real studies — which is precisely why observational analyses must specify the confounding structure in advance instead of hoping a metric will reveal it afterwards.</p></div>'
+          '<div class="callout warn"><div class="callout-title">Notes</div><p>The unadjusted contrast here is a bias yardstick, not an estimator. The true ATE exists only in simulation, so this yardstick has no counterpart in real studies — which is precisely why observational analyses must specify the confounding structure in advance instead of hoping a metric will reveal it afterwards.</p></div>' +
+          '<figure class="fig"><img src="assets/img/bench/confounding_bias.png" alt="Bar chart of the confounding gradient">' +
+          '<figcaption>Actual run of tutorial script 16: unadjusted difference minus the true ATE for six designs. Randomised designs sit near zero; observational designs inflate markedly with <code>shared = TRUE</code>, where one covariate is both a confounder and an effect modifier.</figcaption></figure>'
       },
       {
         id: "hte-form",
@@ -2543,7 +2547,9 @@ window.SITE_PAGES.tutorialexplain = {
           '<p>把某个协变量随机打乱后，模型相对伪结局的损失上升多少。上升越多，说明模型越依赖该变量来区分个体效应。</p>' +
           '<pre><code class="language-r">imp &lt;- hte_feature_importance(ex, B = 10, N = 600, seed = 1)\nimp</code></pre><pre><code class="r-out">  variable dropout_loss baseline    dropout dropout_pct\n2      lac     2.232817 1.657445 0.57537262   34.714435\n4    tumor     2.158512 1.657445 0.50106702   30.231294\n1      age     1.974394 1.657445 0.31694939   19.122771\n3      sex     1.746382 1.657445 0.08893715    5.365919</code></pre>' +
           '<pre><code class="language-r">p_imp &lt;- plot_hte_importance(imp)\nggplot2::ggsave("15_importance.png", p_imp, width = 7, height = 4, dpi = 150)</code></pre>' +
-          '<div class="callout warn"><div class="callout-title">使用要点</div><p>这是对<strong>模型</strong>的解释，不是因果效应分解。重要性高只说明模型用到了该变量，不说明该变量真的修饰了治疗效果；判断后者需要设计层面的证据，例如随机化下的分层分析或预先设定的交互项检验。</p></div>'
+          '<div class="callout warn"><div class="callout-title">使用要点</div><p>这是对<strong>模型</strong>的解释，不是因果效应分解。重要性高只说明模型用到了该变量，不说明该变量真的修饰了治疗效果；判断后者需要设计层面的证据，例如随机化下的分层分析或预先设定的交互项检验。</p></div>' +
+          '<figure class="fig"><img src="assets/img/explain/tut_importance.png" alt="置换重要性条形图">' +
+          '<figcaption>教程脚本 15 实跑：连续结局、n = 600、T-learner 配 <code>regr.ranger</code>，<code>B = 10</code>、<code>N = 600</code>、种子 1。</figcaption></figure>'
       },
       {
         id: "pdp",
@@ -2552,7 +2558,9 @@ window.SITE_PAGES.tutorialexplain = {
           '<p>把某个协变量固定在网格上逐点变动、其余变量保持观测分布，看平均预测 CATE 如何变化。这是回答“效应随这个变量怎么变”的直接手段。</p>' +
           '<pre><code class="language-r">pd &lt;- hte_pdp(ex, variables = "lac", grid_points = 40)\nutils::head(pd, 6)</code></pre><pre><code class="r-out">  variable           x      yhat    type\n1      lac -1.35582624 0.7757646 partial\n2      lac -0.08519213 0.3333775 partial\n3      lac  0.35384536 0.3611582 partial\n4      lac  0.67263365 0.2769214 partial\n5      lac  0.84518778 0.3285855 partial\n6      lac  0.99896256 0.1739816 partial</code></pre>' +
           '<pre><code class="language-r"># 协变量相关时 PDP 会在观测支撑集之外外推，ALE 更稳健\npd_ale &lt;- hte_pdp(ex, variables = "lac", grid_points = 40,\n                  type = "accumulated")\nutils::head(pd_ale, 3)</code></pre><pre><code class="r-out">  variable           x      yhat        type\n1      lac -1.35582624 0.9545599 accumulated\n2      lac -0.08519213 0.4735859 accumulated\n3      lac  0.35384536 0.4951885 accumulated</code></pre>' +
-          '<div class="callout warn"><div class="callout-title">使用要点</div><p><code>hte_pdp()</code> 默认 <code>center = FALSE</code>，纵轴保留<strong>绝对的平均预测 CATE</strong>。CATE 语境下这一点很重要：曲线围绕 0 波动会掩盖效应水平本身，而“平均获益 1.2”与“平均获益 0.2”是两个完全不同的临床结论。DALEX 的 <code>model_profile()</code> 默认 <code>center = TRUE</code>，本包显式覆盖。</p></div>'
+          '<div class="callout warn"><div class="callout-title">使用要点</div><p><code>hte_pdp()</code> 默认 <code>center = FALSE</code>，纵轴保留<strong>绝对的平均预测 CATE</strong>。CATE 语境下这一点很重要：曲线围绕 0 波动会掩盖效应水平本身，而“平均获益 1.2”与“平均获益 0.2”是两个完全不同的临床结论。DALEX 的 <code>model_profile()</code> 默认 <code>center = TRUE</code>，本包显式覆盖。</p></div>' +
+          '<figure class="fig"><img src="assets/img/explain/tut_pdp.png" alt="lac 的偏依赖曲线">' +
+          '<figcaption>同上设置的 <code>lac</code> 偏依赖曲线（40 个网格点）。纵轴未中心化，读的是绝对的平均预测 CATE。</figcaption></figure>'
       },
       {
         id: "shap",
@@ -2563,7 +2571,12 @@ window.SITE_PAGES.tutorialexplain = {
           '<p>可加性是检验实现是否正确的直接手段：<code>phi_0 + sum(phi_j)</code> 必须等于模型对该个体的预测值，残差应在机器精度量级。</p>' +
           '<pre><code class="language-r">S &lt;- as.matrix(sv$S)\nmax(abs(as.numeric(sv$baseline) + rowSums(S) - tau_hat))</code></pre><pre><code class="r-out">[1] 4.440892e-16</code></pre>' +
           '<pre><code class="language-r">plot_hte_shap(sv, "beeswarm")\nplot_hte_shap(sv, "dependence", variable = "lac")\nplot_hte_shap(sv, "waterfall", variable = 1)</code></pre>' +
-          '<div class="callout warn"><div class="callout-title">使用要点</div><p>协变量数 <em>p</em> 不大时 Kernel SHAP 走精确枚举（<code>2^p</code> 个联盟）；<em>p</em> 较大时 kernelshap 自动切换为采样近似，结果随 <code>seed</code> 有轻微波动。报告时请固定 <code>seed</code>。</p></div>'
+          '<div class="callout warn"><div class="callout-title">使用要点</div><p>协变量数 <em>p</em> 不大时 Kernel SHAP 走精确枚举（<code>2^p</code> 个联盟）；<em>p</em> 较大时 kernelshap 自动切换为采样近似，结果随 <code>seed</code> 有轻微波动。报告时请固定 <code>seed</code>。</p></div>' +
+          '<div class="fig-grid">' +
+          '<figure class="fig"><img src="assets/img/explain/tut_shap_beeswarm.png" alt="SHAP 蜂群图"><figcaption>蜂群图：全局重要性与变量取值的联合分布。</figcaption></figure>' +
+          '<figure class="fig"><img src="assets/img/explain/tut_shap_dependence.png" alt="SHAP 依赖图"><figcaption>依赖图：<code>lac</code> 取值与 SHAP 贡献的关系，单调段对应效应修饰的线性区间。</figcaption></figure>' +
+          '<figure class="fig"><img src="assets/img/explain/tut_shap_waterfall.png" alt="SHAP 瀑布图"><figcaption>瀑布图：第 1 号个体的逐项归因。</figcaption></figure>' +
+          '</div>'
       },
       {
         id: "export",
@@ -2629,7 +2642,9 @@ window.SITE_PAGES.tutorialexplain = {
           '<p>How much the loss against the pseudo-outcome rises after a covariate is randomly permuted. A larger rise means the model relies more on that variable to discriminate individual effects.</p>' +
           '<pre><code class="language-r">imp &lt;- hte_feature_importance(ex, B = 10, N = 600, seed = 1)\nimp</code></pre><pre><code class="r-out">  variable dropout_loss baseline    dropout dropout_pct\n2      lac     2.232817 1.657445 0.57537262   34.714435\n4    tumor     2.158512 1.657445 0.50106702   30.231294\n1      age     1.974394 1.657445 0.31694939   19.122771\n3      sex     1.746382 1.657445 0.08893715    5.365919</code></pre>' +
           '<pre><code class="language-r">p_imp &lt;- plot_hte_importance(imp)\nggplot2::ggsave("15_importance.png", p_imp, width = 7, height = 4, dpi = 150)</code></pre>' +
-          '<div class="callout warn"><div class="callout-title">Notes</div><p>This explains the <strong>model</strong>, not a causal decomposition. High importance means only that the model relied on the variable; it does not establish that the variable truly modifies the treatment effect, which requires design-level evidence such as a stratified analysis under randomisation or a pre-specified interaction test.</p></div>'
+          '<div class="callout warn"><div class="callout-title">Notes</div><p>This explains the <strong>model</strong>, not a causal decomposition. High importance means only that the model relied on the variable; it does not establish that the variable truly modifies the treatment effect, which requires design-level evidence such as a stratified analysis under randomisation or a pre-specified interaction test.</p></div>' +
+          '<figure class="fig"><img src="assets/img/explain/tut_importance.png" alt="Bar chart of permutation importance">' +
+          '<figcaption>Actual run of tutorial script 15: continuous outcome, n = 600, T-learner with <code>regr.ranger</code>, <code>B = 10</code>, <code>N = 600</code>, seed 1.</figcaption></figure>'
       },
       {
         id: "pdp",
@@ -2638,7 +2653,9 @@ window.SITE_PAGES.tutorialexplain = {
           '<p>Fix a covariate at successive grid points while holding the others at their observed distribution, and record how the average predicted CATE changes. This answers directly how the effect varies with that variable.</p>' +
           '<pre><code class="language-r">pd &lt;- hte_pdp(ex, variables = "lac", grid_points = 40)\nutils::head(pd, 6)</code></pre><pre><code class="r-out">  variable           x      yhat    type\n1      lac -1.35582624 0.7757646 partial\n2      lac -0.08519213 0.3333775 partial\n3      lac  0.35384536 0.3611582 partial\n4      lac  0.67263365 0.2769214 partial\n5      lac  0.84518778 0.3285855 partial\n6      lac  0.99896256 0.1739816 partial</code></pre>' +
           '<pre><code class="language-r"># 协变量相关时 PDP 会在观测支撑集之外外推，ALE 更稳健\npd_ale &lt;- hte_pdp(ex, variables = "lac", grid_points = 40,\n                  type = "accumulated")\nutils::head(pd_ale, 3)</code></pre><pre><code class="r-out">  variable           x      yhat        type\n1      lac -1.35582624 0.9545599 accumulated\n2      lac -0.08519213 0.4735859 accumulated\n3      lac  0.35384536 0.4951885 accumulated</code></pre>' +
-          '<div class="callout warn"><div class="callout-title">Notes</div><p><code>hte_pdp()</code> defaults to <code>center = FALSE</code>, keeping the <strong>absolute</strong> average predicted CATE on the vertical axis. That matters here: a curve oscillating about zero conceals the effect level itself, and an average benefit of 1.2 is a very different clinical statement from one of 0.2. DALEX\'s <code>model_profile()</code> defaults to <code>center = TRUE</code>; this package overrides it explicitly.</p></div>'
+          '<div class="callout warn"><div class="callout-title">Notes</div><p><code>hte_pdp()</code> defaults to <code>center = FALSE</code>, keeping the <strong>absolute</strong> average predicted CATE on the vertical axis. That matters here: a curve oscillating about zero conceals the effect level itself, and an average benefit of 1.2 is a very different clinical statement from one of 0.2. DALEX\'s <code>model_profile()</code> defaults to <code>center = TRUE</code>; this package overrides it explicitly.</p></div>' +
+          '<figure class="fig"><img src="assets/img/explain/tut_pdp.png" alt="Partial dependence curve for lac">' +
+          '<figcaption>Partial dependence of <code>lac</code> (40 grid points) under the same setup. The vertical axis is not centred, so it reads as the absolute mean predicted CATE.</figcaption></figure>'
       },
       {
         id: "shap",
@@ -2649,7 +2666,12 @@ window.SITE_PAGES.tutorialexplain = {
           '<p>Additivity is a direct check on the implementation: <code>phi_0 + sum(phi_j)</code> must equal the model\'s prediction for that individual, with a residual at machine precision.</p>' +
           '<pre><code class="language-r">S &lt;- as.matrix(sv$S)\nmax(abs(as.numeric(sv$baseline) + rowSums(S) - tau_hat))</code></pre><pre><code class="r-out">[1] 4.440892e-16</code></pre>' +
           '<pre><code class="language-r">plot_hte_shap(sv, "beeswarm")\nplot_hte_shap(sv, "dependence", variable = "lac")\nplot_hte_shap(sv, "waterfall", variable = 1)</code></pre>' +
-          '<div class="callout warn"><div class="callout-title">Notes</div><p>With a small number of covariates <em>p</em>, Kernel SHAP enumerates all <code>2^p</code> coalitions exactly; for larger <em>p</em>, kernelshap switches to a sampling approximation and results fluctuate slightly with <code>seed</code>. Fix the seed when reporting.</p></div>'
+          '<div class="callout warn"><div class="callout-title">Notes</div><p>With a small number of covariates <em>p</em>, Kernel SHAP enumerates all <code>2^p</code> coalitions exactly; for larger <em>p</em>, kernelshap switches to a sampling approximation and results fluctuate slightly with <code>seed</code>. Fix the seed when reporting.</p></div>' +
+          '<div class="fig-grid">' +
+          '<figure class="fig"><img src="assets/img/explain/tut_shap_beeswarm.png" alt="SHAP beeswarm"><figcaption>Beeswarm: global importance against the joint distribution of covariate values.</figcaption></figure>' +
+          '<figure class="fig"><img src="assets/img/explain/tut_shap_dependence.png" alt="SHAP dependence"><figcaption>Dependence: value of <code>lac</code> against its SHAP contribution; monotone stretches mark the linear region of the effect modification.</figcaption></figure>' +
+          '<figure class="fig"><img src="assets/img/explain/tut_shap_waterfall.png" alt="SHAP waterfall"><figcaption>Waterfall: term-by-term attribution for individual 1.</figcaption></figure>' +
+          '</div>'
       },
       {
         id: "export",
