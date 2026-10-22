@@ -291,6 +291,11 @@
 
     el.content.innerHTML = html;
 
+    // 代码块增强：R 语法高亮 + 复制按钮（highlight-r.js 提供）
+    if (typeof window.enhanceCodeBlocks === "function") {
+      window.enhanceCodeBlocks(el.content);
+    }
+
     // 有指定小节就滚过去
     if (sectionId) {
       var target = document.getElementById(sectionId);

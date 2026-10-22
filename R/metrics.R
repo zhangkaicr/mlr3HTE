@@ -565,26 +565,45 @@ c_for_benefit <- function(cate, A, Y, caliper = NULL,
 
 #' 绘制 Qini 曲线
 #'
-#' 用 base graphics 画 \code{\link{qini_curve}} 的返回对象，并叠加
-#' 随机靶向参考线（虚线）。
+#' 画 \code{\link{qini_curve}} 的返回对象，并叠加随机靶向参考线（虚线）。
+#'
+#' 返回 \code{ggplot} 对象，可继续用 \code{+} 叠加图层或主题；
+#' 绘图所用的数据就是 \code{\link{qini_curve}} 的返回值本身。
 #'
 #' @param curve \code{\link{qini_curve}} 返回的 data.frame。
 #' @param main 图标题。
-#' @param ... 传给 \code{plot()} 的其他参数。
-#' @return 不可见地返回 \code{curve}。
+#' @param color 曲线颜色。
+#' @param ... 不再使用，保留以兼容旧调用。
+#' @return \code{ggplot} 对象。
 #' @references
 #' Sverdrup E, Wu H, Athey S, Wager S. Qini Curves for Multi-Armed Treatment
 #' Rules. \emph{Journal of Computational and Graphical Statistics}, 2025.
 #' @seealso \code{\link{qini_curve}}
 #' @export
-plot_qini <- function(curve, main = "Qini curve", ...) {
-  f <- curve$fraction
-  q <- curve$qini
-  plot(f, q, type = "l", lwd = 2, col = "#1B6CA8",
-       xlab = "Fraction targeted", ylab = "Cumulative gain (Qini)",
-       main = main, ...)
-  abline(0, q[length(q)], lty = 2, col = "grey50")
-  invisible(curve)
+#' @examples
+#' set.seed(1)
+#' n <- 400
+#' A <- rbinom(n, 1, 0.5)
+#' tau <- rnorm(n)
+#' Y <- 1 + A * tau + rnorm(n)
+#' p <- plot_qini(qini_curve(tau, A, Y))
+#' class(p)
+plot_qini <- function(curve, main = "Qini curve", color = "#1B6CA8", ...) {
+  if (!all(c("fraction", "qini") %in% names(curve))) {
+    stop("curve 必须是 qini_curve() 的返回 data.frame。", call. = FALSE)
+  }
+  d <- as.data.frame(curve)
+  q_full <- d$qini[nrow(d)]
+  ggplot2::ggplot(d, ggplot2::aes(x = .data$fraction, y = .data$qini)) +
+    ggplot2::geom_line(linewidth = 1.05, color = color) +
+    ggplot2::geom_abline(intercept = 0, slope = q_full,
+                         linetype = 2, colour = "grey50") +
+    ggplot2::labs(x = "Fraction targeted", y = "Cumulative gain (Qini)",
+                  title = main,
+                  subtitle = "Dashed line: random targeting") +
+    ggplot2::theme_minimal(base_size = 12) +
+    ggplot2::theme(panel.grid.minor = ggplot2::element_blank(),
+                   plot.title = ggplot2::element_text(face = "bold"))
 }
 
 #' TOC 曲线：按效应排序后各分位的平均治疗效应

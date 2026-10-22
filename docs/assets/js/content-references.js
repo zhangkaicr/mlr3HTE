@@ -198,15 +198,40 @@ window.SITE_PAGES.references = {
       },
 
       {
+        id: "interpretability",
+        heading: "F. 模型可解释性",
+        body:
+          '<p>可解释性模块（<code>hte_explainer()</code> 及其配套函数）的方法学出处，编号 [19]–[24]。</p>' +
+          '<ol class="ref-list" start="19">' +
+          '<li id="ref-biecek2021"><div class="ref-cite">Biecek P, Burzykowski T. <em>Explanatory Model Analysis: Explore, Explain, and Examine Predictive Models</em>. Chapman and Hall/CRC, 2021.</div><div class="ref-links"><a href="https://ema.drwhy.ai/" target="_blank" rel="noopener">https://ema.drwhy.ai/</a></div><div class="ref-use"><strong>用途：</strong>本包可解释性模块的整体框架（解释器、变量重要性、偏依赖、SHAP 的层次划分）均按此书的术语与顺序组织。引用位置：<a href="#/apiexplain">可解释性模块</a>、<a href="#/tutorialexplain">教程 · CATE 可解释性</a>。</div></li>' +
+          '<li id="ref-biecek2018"><div class="ref-cite">Biecek P. DALEX: Explainers for Complex Predictive Models in R. <em>Journal of Machine Learning Research</em> 2018;19(84):1–5.</div><div class="ref-links"><a href="https://jmlr.org/papers/v19/18-416.html" target="_blank" rel="noopener">https://jmlr.org/papers/v19/18-416.html</a></div><div class="ref-use"><strong>用途：</strong><code>hte_explainer()</code> 底层调用 <code>DALEX::explain()</code>，<code>hte_feature_importance()</code> 用 <code>model_parts()</code>、<code>hte_pdp()</code> 用 <code>model_profile()</code>。引用位置：<a href="#/apiexplainer">hte_explainer()</a>。</div></li>' +
+          '<li id="ref-molnar2022"><div class="ref-cite">Molnar C. <em>Interpretable Machine Learning: A Guide for Making Black Box Models Explainable</em>. 2nd ed., 2022.</div><div class="ref-links"><a href="https://christophm.github.io/interpretable-ml-book/" target="_blank" rel="noopener">https://christophm.github.io/interpretable-ml-book/</a></div><div class="ref-use"><strong>用途：</strong>偏依赖图与累积局部效应的原理、以及二者在变量相关时的优劣对比，按此书第 8 章的表述。引用位置：<a href="#/apipdp">hte_pdp()</a>。</div></li>' +
+          '<li id="ref-lundberg2017"><div class="ref-cite">Lundberg SM, Lee SI. A Unified Approach to Interpreting Model Predictions. <em>Advances in Neural Information Processing Systems</em> 2017;30:4765–4774.</div><div class="ref-links"><a href="https://arxiv.org/abs/1705.07874" target="_blank" rel="noopener">https://arxiv.org/abs/1705.07874</a></div><div class="ref-use"><strong>用途：</strong>SHAP 值的可加性分解 <code>phi_0 + sum(phi_j) = f(x)</code> 出自此文；本包用它作为 <code>hte_shap()</code> 实现正确性的校验式。引用位置：<a href="#/apishap">hte_shap()</a>。</div></li>' +
+          '<li id="ref-covert2021"><div class="ref-cite">Covert I, Lee SI. Improving KernelSHAP: Practical Shapley Value Estimation Using Linear Regression. <em>AISTATS</em> 2021;130:3457–3465.</div><div class="ref-links"><a href="https://arxiv.org/abs/2012.01536" target="_blank" rel="noopener">https://arxiv.org/abs/2012.01536</a></div><div class="ref-use"><strong>用途：</strong><code>hte_shap()</code> 调用的 kernelshap 采用此文的线性回归近似，在协变量较多时由精确枚举切换为采样近似。引用位置：<a href="#/apishap">hte_shap()</a>。</div></li>' +
+          '<li id="ref-apley2020"><div class="ref-cite">Apley DW, Zhu J. Visualizing the Effects of Predictor Variables in Black Box Supervised Learning Models. <em>Journal of the Royal Statistical Society: Series B</em> 2020;82(4):1059–1086.</div><div class="ref-links"><a href="https://doi.org/10.1111/rssb.12377" target="_blank" rel="noopener">https://doi.org/10.1111/rssb.12377</a></div><div class="ref-use"><strong>用途：</strong>累积局部效应（ALE）的出处。<code>hte_pdp(type = "accumulated")</code> 在协变量相关时按此方法替代 PDP。引用位置：<a href="#/apipdp">hte_pdp()</a>。</div></li>' +
+          '</ol>'
+      },
+      {
+        id: "simulation",
+        heading: "G. 模拟设计与估计方法学",
+        body:
+          '<p>基准模拟数据网格的四维设计原则、交叉拟合与 RMST 效应标尺的出处，编号 [25]–[27]。</p>' +
+          '<ol class="ref-list" start="25">' +
+          '<li id="ref-kennedy2020"><div class="ref-cite">Kennedy EH. Towards Optimal Doubly Robust Estimation of Heterogeneous Causal Effects. <em>arXiv</em> 2020:2004.14497.</div><div class="ref-links"><a href="https://arxiv.org/abs/2004.14497" target="_blank" rel="noopener">https://arxiv.org/abs/2004.14497</a></div><div class="ref-use"><strong>用途：</strong>R-learner 与伪结局回归的最优性、以及<strong>交叉拟合</strong>为何必要（干扰参数须在训练折上拟合、在留出折上评估）均出自此文。本包 R/DR 的 <code>cross_fitting = TRUE</code> 与 <code>dr_pseudo_outcome()</code> 的默认交叉拟合均据此实现。引用位置：<a href="#/apimetalearner">metalearner()</a>。</div></li>' +
+          '<li id="ref-uno2014"><div class="ref-cite">Uno H, Claggett B, Tian L, et al. Moving Beyond the Hazard Ratio in Quantifying the Between-Group Difference in Survival Analysis. <em>Journal of Clinical Oncology</em> 2014;32(22):2380–2385.</div><div class="ref-links"><a href="https://doi.org/10.1200/JCO.2013.52.5720" target="_blank" rel="noopener">https://doi.org/10.1200/JCO.2013.52.5720</a></div><div class="ref-use"><strong>用途：</strong>RMST（限制平均生存时间）组间差的提出与临床解释。生存分支 <code>effect = "rmst"</code> 的效应标尺即按此定义，基准数据中的 <code>tau_rmst</code> / <code>ate_rmst</code> 为其真值。引用位置：<a href="#/tutorialbenchgrid">教程 · 基准模拟数据网格</a>。</div></li>' +
+          '<li id="ref-morris2019"><div class="ref-cite">Morris TP, White IR, Crowther MJ. Using Simulation Studies to Evaluate Statistical Methods. <em>Statistics in Medicine</em> 2019;38(11):2074–2102.</div><div class="ref-links"><a href="https://doi.org/10.1002/sim.8086" target="_blank" rel="noopener">https://doi.org/10.1002/sim.8086</a></div><div class="ref-use"><strong>用途：</strong>模拟研究的 ADEMP 框架（Aims, Data-generating mechanisms, Estimands, Methods, Performance measures）。本包基准数据网格的四个维度与“按结构分层报告、不做跨维度平均”的约定即按此框架设计。引用位置：<a href="#/tutorialbenchgrid">教程 · 基准模拟数据网格</a>。</div></li>' +
+          '</ol>'
+      },
+      {
         id: "cite-this",
         heading: "如何引用本包",
         body:
           '<p>版本 v0.2.0（2026-10-21）。若 mlr3HTE 用于你的研究，请按下面格式引用：</p>' +
-          '<pre><code>Zhang K. mlr3HTE: Meta-Learners for Heterogeneous Treatment Effects in mlr3.\n' +
+          '<pre><code class="r-out">Zhang K. mlr3HTE: Meta-Learners for Heterogeneous Treatment Effects in mlr3.\n' +
           'R package version 0.2.0, 2026.\n' +
           'URL: https://github.com/zhangkaicr/mlr3HTE</code></pre>' +
           '<p>BibTeX：</p>' +
-          '<pre><code>@Manual{mlr3HTE,\n' +
+          '<pre><code class="r-out">@Manual{mlr3HTE,\n' +
           '  title  = {mlr3HTE: Meta-Learners for Heterogeneous Treatment\n' +
           '            Effects in mlr3},\n' +
           '  author = {Zhang, Kai},\n' +
@@ -434,16 +459,41 @@ window.SITE_PAGES.references = {
       },
 
       {
+        id: "interpretability",
+        heading: "F. Model interpretability",
+        body:
+          '<p>Methodological sources for the interpretability module (<code>hte_explainer()</code> and companions), items [19]–[24].</p>' +
+          '<ol class="ref-list" start="19">' +
+          '<li id="ref-biecek2021"><div class="ref-cite">Biecek P, Burzykowski T. <em>Explanatory Model Analysis: Explore, Explain, and Examine Predictive Models</em>. Chapman and Hall/CRC, 2021.</div><div class="ref-links"><a href="https://ema.drwhy.ai/" target="_blank" rel="noopener">https://ema.drwhy.ai/</a></div><div class="ref-use"><strong>用途：</strong>The overall structure of the interpretability module (explainer, variable importance, partial dependence, SHAP) follows the terminology and order of this book. Cited in the <a href="#/apiexplain">interpretability module</a> and <a href="#/tutorialexplain">Tutorial · CATE interpretability</a>.</div></li>' +
+          '<li id="ref-biecek2018"><div class="ref-cite">Biecek P. DALEX: Explainers for Complex Predictive Models in R. <em>Journal of Machine Learning Research</em> 2018;19(84):1–5.</div><div class="ref-links"><a href="https://jmlr.org/papers/v19/18-416.html" target="_blank" rel="noopener">https://jmlr.org/papers/v19/18-416.html</a></div><div class="ref-use"><strong>用途：</strong><code>hte_explainer()</code> calls <code>DALEX::explain()</code>; <code>hte_feature_importance()</code> wraps <code>model_parts()</code> and <code>hte_pdp()</code> wraps <code>model_profile()</code>. Cited in <a href="#/apiexplainer">hte_explainer()</a>.</div></li>' +
+          '<li id="ref-molnar2022"><div class="ref-cite">Molnar C. <em>Interpretable Machine Learning: A Guide for Making Black Box Models Explainable</em>. 2nd ed., 2022.</div><div class="ref-links"><a href="https://christophm.github.io/interpretable-ml-book/" target="_blank" rel="noopener">https://christophm.github.io/interpretable-ml-book/</a></div><div class="ref-use"><strong>用途：</strong>The rationale for partial dependence and accumulated local effects, and the comparison between them under correlated covariates, follows Chapter 8 of this book. Cited in <a href="#/apipdp">hte_pdp()</a>.</div></li>' +
+          '<li id="ref-lundberg2017"><div class="ref-cite">Lundberg SM, Lee SI. A Unified Approach to Interpreting Model Predictions. <em>Advances in Neural Information Processing Systems</em> 2017;30:4765–4774.</div><div class="ref-links"><a href="https://arxiv.org/abs/1705.07874" target="_blank" rel="noopener">https://arxiv.org/abs/1705.07874</a></div><div class="ref-use"><strong>用途：</strong>Source of the additive SHAP decomposition <code>phi_0 + sum(phi_j) = f(x)</code>, used here as the correctness check for <code>hte_shap()</code>. Cited in <a href="#/apishap">hte_shap()</a>.</div></li>' +
+          '<li id="ref-covert2021"><div class="ref-cite">Covert I, Lee SI. Improving KernelSHAP: Practical Shapley Value Estimation Using Linear Regression. <em>AISTATS</em> 2021;130:3457–3465.</div><div class="ref-links"><a href="https://arxiv.org/abs/2012.01536" target="_blank" rel="noopener">https://arxiv.org/abs/2012.01536</a></div><div class="ref-use"><strong>用途：</strong>kernelshap, called by <code>hte_shap()</code>, uses the linear-regression approximation of this paper and switches from exact enumeration to sampling when covariates are numerous. Cited in <a href="#/apishap">hte_shap()</a>.</div></li>' +
+          '<li id="ref-apley2020"><div class="ref-cite">Apley DW, Zhu J. Visualizing the Effects of Predictor Variables in Black Box Supervised Learning Models. <em>Journal of the Royal Statistical Society: Series B</em> 2020;82(4):1059–1086.</div><div class="ref-links"><a href="https://doi.org/10.1111/rssb.12377" target="_blank" rel="noopener">https://doi.org/10.1111/rssb.12377</a></div><div class="ref-use"><strong>用途：</strong>Source of accumulated local effects (ALE), which <code>hte_pdp(type = "accumulated")</code> substitutes for PDP when covariates are correlated. Cited in <a href="#/apipdp">hte_pdp()</a>.</div></li>' +
+          '</ol>'
+      },
+      {
+        id: "simulation",
+        heading: "G. Simulation design and estimation methodology",
+        body:
+          '<p>Sources for the four-dimensional benchmark grid, cross-fitting and the RMST effect scale, items [25]–[27].</p>' +
+          '<ol class="ref-list" start="25">' +
+          '<li id="ref-kennedy2020"><div class="ref-cite">Kennedy EH. Towards Optimal Doubly Robust Estimation of Heterogeneous Causal Effects. <em>arXiv</em> 2020:2004.14497.</div><div class="ref-links"><a href="https://arxiv.org/abs/2004.14497" target="_blank" rel="noopener">https://arxiv.org/abs/2004.14497</a></div><div class="ref-use"><strong>用途：</strong>Source of the optimality results for the R-learner and pseudo-outcome regression, and of the argument for <strong>cross-fitting</strong> (nuisance parameters fitted on training folds, evaluated on held-out folds). The <code>cross_fitting = TRUE</code> option for R/DR and the default cross-fitting in <code>dr_pseudo_outcome()</code> follow from it. Cited in <a href="#/apimetalearner">metalearner()</a>.</div></li>' +
+          '<li id="ref-uno2014"><div class="ref-cite">Uno H, Claggett B, Tian L, et al. Moving Beyond the Hazard Ratio in Quantifying the Between-Group Difference in Survival Analysis. <em>Journal of Clinical Oncology</em> 2014;32(22):2380–2385.</div><div class="ref-links"><a href="https://doi.org/10.1200/JCO.2013.52.5720" target="_blank" rel="noopener">https://doi.org/10.1200/JCO.2013.52.5720</a></div><div class="ref-use"><strong>用途：</strong>Introduces the RMST between-group difference and its clinical reading. The <code>effect = "rmst"</code> scale in the survival branch follows this definition, and <code>tau_rmst</code> / <code>ate_rmst</code> in the benchmark data are its ground truth. Cited in <a href="#/tutorialbenchgrid">Tutorial · benchmark grid</a>.</div></li>' +
+          '<li id="ref-morris2019"><div class="ref-cite">Morris TP, White IR, Crowther MJ. Using Simulation Studies to Evaluate Statistical Methods. <em>Statistics in Medicine</em> 2019;38(11):2074–2102.</div><div class="ref-links"><a href="https://doi.org/10.1002/sim.8086" target="_blank" rel="noopener">https://doi.org/10.1002/sim.8086</a></div><div class="ref-use"><strong>用途：</strong>The ADEMP framework for simulation studies (Aims, Data-generating mechanisms, Estimands, Methods, Performance measures). The four dimensions of the benchmark grid and the convention of stratified rather than averaged reporting follow this framework. Cited in <a href="#/tutorialbenchgrid">Tutorial · benchmark grid</a>.</div></li>' +
+          '</ol>'
+      },
+      {
         id: "cite-this",
         heading: "Citing this package",
         body:
           '<p>Version v0.2.0 (2026-10-21). If mlr3HTE contributes to your research, please cite it ' +
           'as follows:</p>' +
-          '<pre><code>Zhang K. mlr3HTE: Meta-Learners for Heterogeneous Treatment Effects in mlr3.\n' +
+          '<pre><code class="r-out">Zhang K. mlr3HTE: Meta-Learners for Heterogeneous Treatment Effects in mlr3.\n' +
           'R package version 0.2.0, 2026.\n' +
           'URL: https://github.com/zhangkaicr/mlr3HTE</code></pre>' +
           '<p>BibTeX:</p>' +
-          '<pre><code>@Manual{mlr3HTE,\n' +
+          '<pre><code class="r-out">@Manual{mlr3HTE,\n' +
           '  title  = {mlr3HTE: Meta-Learners for Heterogeneous Treatment\n' +
           '            Effects in mlr3},\n' +
           '  author = {Zhang, Kai},\n' +

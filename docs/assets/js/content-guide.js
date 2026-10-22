@@ -26,7 +26,7 @@ window.SITE_PAGES.guide = {
           '<tr><td>生存</td><td><code>S(t0 | X)</code></td><td><code>survival::coxph</code> 或 <code>ranger</code> 生存森林</td></tr>' +
           '</tbody></table></div>' +
           '<p>五种 learner 于是写成一次、通吃三类结局：</p>' +
-          '<pre><code>S-Learner  = 把 A 当普通特征塞进结局模型，两个反事实预测相减\n' +
+          '<pre><code class="r-out">S-Learner  = 把 A 当普通特征塞进结局模型，两个反事实预测相减\n' +
           'T-Learner  = 两组各拟合一个结局模型，预测相减\n' +
           'X-Learner  = 插补个体治疗效应，再按倾向得分 g(X) 加权融合\n' +
           'R-Learner  = Robinson 残差化 (Y - m(X)) / (A - e(X))，以 (A-e)² 加权回归\n' +
@@ -65,7 +65,7 @@ window.SITE_PAGES.guide = {
           '</tbody></table></div>' +
           '<div class="callout ok">' +
           '<div class="callout-title">默认选用建议</div>' +
-          '<p>想省事、两组都大 → <strong>T</strong>；两组不均衡（观察性常见）→ <strong>X</strong>；' +
+          '<p>两组样本量均充足、优先实现简洁 → <strong>T</strong>；两组样本量不均衡（观察性研究常见）→ <strong>X</strong>；' +
           '想要双重稳健保障 → <strong>DR</strong>；<strong>R</strong> 需要仔细调二阶段学习器。</p>' +
           '</div>'
       },
@@ -83,12 +83,12 @@ window.SITE_PAGES.guide = {
           '<td>要进 <code>resample</code> / <code>benchmark</code> / <code>tune</code></td></tr>' +
           '</tbody></table></div>' +
           '<h3>函数式</h3>' +
-          '<pre><code>fit &lt;- metalearner("T", X, A, Y, learner_base = lrn("regr.ranger"))\n' +
+          '<pre><code class="language-r">fit &lt;- metalearner("T", X, A, Y, learner_base = lrn("regr.ranger"))\n' +
           'fit$ate          # 平均治疗效应\n' +
           'fit$cate_train   # 逐人 CATE\n' +
           'fit$predict(newX)</code></pre>' +
           '<h3>R6 Learner（进 mlr3 工作流）</h3>' +
-          '<pre><code>library(mlr3)                     # resample()/benchmark()/rsmp() 来自 mlr3\n' +
+          '<pre><code class="language-r">library(mlr3)                     # resample()/benchmark()/rsmp() 来自 mlr3\n' +
           'task &lt;- ml_task(X, A, Y)          # 三类结局统一编码\n' +
           'l    &lt;- lrn("regr.metalearner", metalearner = "T")\n' +
           'l$learner_base &lt;- lrn("regr.ranger")\n\n' +
@@ -113,7 +113,7 @@ window.SITE_PAGES.guide = {
         id: "weighting",
         heading: "4. 权重的三种模式",
         body:
-          '<pre><code># RCT：不加权\n' +
+          '<pre><code class="language-r"># RCT：不加权\n' +
           'metalearner("T", X, A, Y, weighting = "none")\n\n' +
           '# 观察性：内部训 PS 模型做 IPTW\n' +
           'metalearner("X", X, A, Y, weighting = "iptw", stabilize = TRUE)\n\n' +
@@ -140,7 +140,7 @@ window.SITE_PAGES.guide = {
           '<p><code>G</code> 由对删失指示 <code>(1 - status)</code> 拟合的 Cox 模型得到，' +
           '权重截断在 <code>[0.01, 1]</code> 防止极端值搅坏估计。观察性数据时，' +
           '<strong>混杂 IPTW 与删失 IPCW 是相乘的</strong>。</p>' +
-          '<pre><code>d &lt;- mlr3HTE_demo_surv(n = 4000, t0 = 2)\n' +
+          '<pre><code class="language-r">d &lt;- mlr3HTE_demo_surv(n = 4000, t0 = 2)\n' +
           'fit &lt;- metalearner("T", d$X, d$A, d$Y, learner_base = "coxph", t0 = 2)\n' +
           'fit$ate   # 平均 S₁(2) - S₀(2)\n\n' +
           '# t0 缺省时取事件时间中位数\n' +
@@ -152,7 +152,7 @@ window.SITE_PAGES.guide = {
         heading: "6. 调参要点",
         body:
           '<div class="callout danger">' +
-          '<div class="callout-title">二阶段学习器要正则化（最容易踩的坑）</div>' +
+          '<div class="callout-title">二阶段学习器需要正则化</div>' +
           '<p>X / R / DR 的第二阶段是对<strong>伪结果</strong>做回归，噪声结构与结局模型完全不同。' +
           'ranger 回归默认 <code>min.node.size = 5</code>，树太深会把噪声也拟合进去：</p>' +
           '<div class="table-wrap"><table>' +
@@ -163,7 +163,7 @@ window.SITE_PAGES.guide = {
           '</tbody></table></div>' +
           '<p>引擎在 <code>learner_tau = NULL</code> 时<strong>不沿用</strong> <code>learner_base</code>，' +
           '而是单独建 <code>regr.ranger(num.trees = 500, min.node.size = 50)</code>。要覆盖：</p>' +
-          '<pre><code>metalearner("R", X, A, Y, learner_tau = lrn("regr.ranger", min.node.size = 20))\n' +
+          '<pre><code class="language-r">metalearner("R", X, A, Y, learner_tau = lrn("regr.ranger", min.node.size = 20))\n' +
           'metalearner("R", X, A, Y, learner_tau = lrn("regr.lm"))   # 生存 R/DR 常常更好</code></pre>' +
           '</div>' +
           '<div class="callout warn">' +
@@ -201,7 +201,7 @@ window.SITE_PAGES.guide = {
           '<tr><td>Survival</td><td><code>S(t0 | X)</code></td><td><code>survival::coxph</code> or a <code>ranger</code> survival forest</td></tr>' +
           '</tbody></table></div>' +
           '<p>The five learners are therefore written once and work for all three outcome types:</p>' +
-          '<pre><code>S-Learner  = one outcome model with A as a feature; difference of two counterfactual predictions\n' +
+          '<pre><code class="r-out">S-Learner  = one outcome model with A as a feature; difference of two counterfactual predictions\n' +
           'T-Learner  = one outcome model per arm; difference of predictions\n' +
           'X-Learner  = impute individual effects, then blend by the propensity score g(X)\n' +
           'R-Learner  = Robinson residualisation (Y - m(X)) / (A - e(X)), regressed with weights (A-e)²\n' +
@@ -260,12 +260,12 @@ window.SITE_PAGES.guide = {
           '<td>You need <code>resample</code> / <code>benchmark</code> / <code>tune</code></td></tr>' +
           '</tbody></table></div>' +
           '<h3>Functional</h3>' +
-          '<pre><code>fit &lt;- metalearner("T", X, A, Y, learner_base = lrn("regr.ranger"))\n' +
+          '<pre><code class="language-r">fit &lt;- metalearner("T", X, A, Y, learner_base = lrn("regr.ranger"))\n' +
           'fit$ate          # average treatment effect\n' +
           'fit$cate_train   # CATE per unit\n' +
           'fit$predict(newX)</code></pre>' +
           '<h3>R6 Learner (mlr3 workflows)</h3>' +
-          '<pre><code>library(mlr3)                     # resample() / benchmark() / rsmp() live in mlr3\n' +
+          '<pre><code class="language-r">library(mlr3)                     # resample() / benchmark() / rsmp() live in mlr3\n' +
           'task &lt;- ml_task(X, A, Y)          # uniform encoding for all outcome types\n' +
           'l    &lt;- lrn("regr.metalearner", metalearner = "T")\n' +
           'l$learner_base &lt;- lrn("regr.ranger")\n\n' +
@@ -292,7 +292,7 @@ window.SITE_PAGES.guide = {
         id: "weighting",
         heading: "4. Three weighting modes",
         body:
-          '<pre><code># RCT: no weighting\n' +
+          '<pre><code class="language-r"># RCT: no weighting\n' +
           'metalearner("T", X, A, Y, weighting = "none")\n\n' +
           '# Observational: fit a PS model internally and use IPTW\n' +
           'metalearner("X", X, A, Y, weighting = "iptw", stabilize = TRUE)\n\n' +
@@ -321,7 +321,7 @@ window.SITE_PAGES.guide = {
           '<code>(1 - status)</code>; weights are clipped to <code>[0.01, 1]</code> to keep extreme ' +
           'values from wrecking the estimate. With observational data, <strong>confounding IPTW and ' +
           'censoring IPCW are multiplied</strong>.</p>' +
-          '<pre><code>d &lt;- mlr3HTE_demo_surv(n = 4000, t0 = 2)\n' +
+          '<pre><code class="language-r">d &lt;- mlr3HTE_demo_surv(n = 4000, t0 = 2)\n' +
           'fit &lt;- metalearner("T", d$X, d$A, d$Y, learner_base = "coxph", t0 = 2)\n' +
           'fit$ate   # mean S₁(2) - S₀(2)\n\n' +
           '# If t0 is omitted, the median event time is used\n' +
@@ -346,7 +346,7 @@ window.SITE_PAGES.guide = {
           '<p>When <code>learner_tau = NULL</code> the engine <strong>does not reuse</strong> ' +
           '<code>learner_base</code>; it builds a separate ' +
           '<code>regr.ranger(num.trees = 500, min.node.size = 50)</code>. To override:</p>' +
-          '<pre><code>metalearner("R", X, A, Y, learner_tau = lrn("regr.ranger", min.node.size = 20))\n' +
+          '<pre><code class="language-r">metalearner("R", X, A, Y, learner_tau = lrn("regr.ranger", min.node.size = 20))\n' +
           'metalearner("R", X, A, Y, learner_tau = lrn("regr.lm"))   # often better for survival R/DR</code></pre>' +
           '</div>' +
           '<div class="callout warn">' +

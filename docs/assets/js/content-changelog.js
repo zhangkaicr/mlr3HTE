@@ -9,10 +9,86 @@ window.SITE_PAGES.changelog = {
   /* ---------------- 中文 ---------------- */
   zh: {
     title: "更新日志",
-    lede: "mlr3HTE 的版本历史与重要变更。当前版本 v0.33。",
+    lede: "mlr3HTE 的版本历史与重要变更。当前版本 v0.34。",
     sections: [
 
 
+      {
+        id: "v034",
+        heading: "v0.34 · 2026-10-22",
+        body:
+          '<div class="callout ok"><div class="callout-title">CATE 模型可解释性模块（R/explain.R，9 个导出函数）</div>' +
+          '<p>以 <strong>DALEX</strong> 为骨架、<strong>kernelshap + shapviz</strong> 计算 SHAP 值。' +
+          '<code>hte_explainer()</code> 把 CATE 模型包装为 DALEX 解释器，' +
+          '<strong>响应变量取双重稳健伪结局 Y*，而非原始 Y</strong>——后者衡量的是基线预后 ' +
+          'mu(X)，与效应异质性无关。<code>hte_surrogate()</code> 用单一 mlr3 学习器重拟合 ' +
+          'CATE 曲面（实测相关 0.913–0.937），仅供解释与可视化。' +
+          '<code>hte_feature_importance()</code>（置换重要性）、<code>hte_pdp()</code>' +
+          '（PDP 与 ALE）、<code>hte_shap()</code> / <code>hte_shap_data()</code>（Kernel SHAP）' +
+          '与三个绘图函数构成完整链路。SHAP 可加性残差实测 4.44e-16（机器精度）。</p></div>' +
+          '<div class="callout warn"><div class="callout-title">两处刻意偏离上游默认行为</div>' +
+          '<ul>' +
+          '<li><strong><code>hte_pdp()</code> 默认 <code>center = FALSE</code>。</strong>' +
+          'DALEX 的 <code>model_profile()</code> 默认把曲线减去平均预测值；CATE 语境下纵轴' +
+          '必须是绝对的平均预测 CATE，围绕 0 波动会掩盖效应水平本身。</li>' +
+          '<li><strong><code>loss</code> 只接受函数对象或 <code>"rmse"</code> / ' +
+          '<code>"mse"</code>。</strong>DALEX 2.5 未导出 MAE；传字符串时 DALEX 会在自身' +
+          '框架内按名查找 <code>loss_*</code>，跨包调用必然失败。</li>' +
+          '</ul></div>' +
+          '<p><strong>所有绘图返回 ggplot 对象</strong>：<code>plot_hte_importance()</code>、' +
+          '<code>plot_hte_pdp()</code>、<code>plot_hte_shap()</code>、' +
+          '<code>plot_hte_benchmark()</code>、<code>plot_qini()</code>、' +
+          '<code>mlr3HTE_dag()</code> 均可用 <code>+</code> 叠加图层、用 ' +
+          '<code>ggsave()</code> 导出；绘图数据由 <code>hte_feature_importance()</code>、' +
+          '<code>hte_pdp()</code>、<code>hte_shap_data()</code>、' +
+          '<code>hte_benchmark_data()</code>（新）、<code>qini_curve()</code>、' +
+          '<code>mlr3HTE_dag_data()</code>（新）单独取出。<code>plot_qini()</code> ' +
+          '由 base graphics 改写为 ggplot2。</p>' +
+          '<p><strong>教程代码支持 R 语法高亮与复制按钮</strong>：新增自写分词器 ' +
+          '<code>docs/assets/js/highlight-r.js</code>（约 230 行，不引入 CDN 或构建步骤）。' +
+          '220 个代码块区分为 <code>language-r</code>（138 个，带复制按钮）与 ' +
+          '<code>r-out</code>（82 个输出块）。顺带修掉控制台原文里 ' +
+          '<code>&lt;dbl&gt;</code> 被浏览器当标签吞掉的旧 bug（149 个块已转义）。</p>' +
+          '<p><strong>DAG 每两个节点之间只保留一条箭头</strong>：<code>R/dag.R</code> 重写，' +
+          '边去重后以二次 Bézier 曲线对矩形标签盒做碰撞检测，需绕行的边自动搜索曲率；' +
+          '绘图时按曲率分组、一层一个 <code>geom_curve</code>——<code>curvature</code> ' +
+          '是参数而非美学映射，写进 <code>aes()</code> 会被忽略。</p>' +
+          '<p><strong>教程语气改为学术规范</strong>：24 处中文与 4 处英文表述由口语改为' +
+          '客观陈述，替换以精确匹配脚本执行、可复核。</p>' +
+          '<div class="callout ok"><div class="callout-title">基准模拟数据网格（data/mlr3hte_bench_data.rda）</div>' +
+          '<p>10 个设计 × 3 类结局 = 30 份数据，n = 2000，种子固定，随包发布。四个结构维度' +
+          '相互独立：研究设计（rct / obs）、混杂形式（none / linear / nonlinear）、' +
+          '效应异质性形式（linear / nonlinear）、以及<strong>是否存在既是混杂因子又是' +
+          '效应修饰因子的共用变量</strong>。每份数据带真值 tau / ate / ps_true，生存结局' +
+          '额外提供 RMST 尺度的 tau_rmst / ate_rmst。</p>' +
+          '<p>实测混杂强度梯度（未调整差值 − 真值 ATE）：随机化设计 ±0.04 以内；' +
+          '观察性且 shared = FALSE 为 0.09–0.24；观察性且 shared = TRUE 为 0.47–0.61。</p>' +
+          '<p>线性 / 非线性 HTE 的可估性对照（留出集 CATE 相关）：真实 CATE 线性时 ' +
+          'regr.lm 0.994 &gt; regr.ranger 0.894；真实 CATE 非线性时 regr.lm 0.564 &lt; ' +
+          'regr.ranger 0.819。基学习器的函数形式必须覆盖真实 CATE 的形式，否则是偏差' +
+          '而非方差。</p>' +
+          '<p><strong>破坏性变更</strong>：数据对象由 <code>mlr3hte_bench</code> 改名为 ' +
+          '<code>mlr3hte_bench_data</code>——Windows 文件系统不区分大小写，数据 Rd 会被' +
+          '同名函数的 Rd 覆盖。取用请一律走 <code>mlr3HTE_bench()</code>，不受影响。</p></div>' +
+          '<p><strong>三个长期待办结清</strong>：</p>' +
+          '<ul>' +
+          '<li><strong>R CMD check / roxygen2</strong>：<code>man/</code> 重新生成（40 个 Rd），' +
+          '补齐依赖声明与全局变量声明。结果 0 error / 0 note。</li>' +
+          '<li><strong>R / DR 交叉拟合</strong>：<code>cross_fitting = TRUE</code> 启用，' +
+          '干扰参数在 K 折训练折上拟合、在留出折上评估。R-Learner 偏差由 in-fold 的 ' +
+          '−0.456 改善到 out-of-fold 的 +0.143。</li>' +
+          '<li><strong>生存分支 RMST 效应</strong>：<code>effect = "rmst"</code> 可用，' +
+          '逐人效应取 IPCW 校正的 RMST 差，实测偏差 −0.0144（对照 survdiff 的 −0.0214）。' +
+          '以上两项均已加回归测试锁定。</li>' +
+          '</ul>' +
+          '<p><strong>文档站</strong>：教程新增第 7 篇（基准模拟数据网格）与第 8 篇' +
+          '（CATE 模型可解释性），各配可独立执行的脚本；函数文档新增 15 个独立页面与 ' +
+          '<code>apisim</code> / <code>apiexplain</code> 两个模块索引页；参考文献新增 ' +
+          'F（模型可解释性，6 条）与 G（模拟设计与估计方法学，3 条）两节。全站 63 页通过校验。</p>' +
+          '<p class="text-muted">已知限制：R CMD check 仍报 1 条 WARNING（R 代码含非 ASCII ' +
+          '字符，即中文 roxygen 注释）。该检查不看 DESCRIPTION 的 Encoding 字段，彻底消除' +
+          '需把中文注释改写为 \\uxxxx 转义，代价是源码不可读，此处选择保留可读性。</p>'
+      },
       {
         id: "v033",
         heading: "v0.33 · 2026-10-22",
@@ -382,10 +458,102 @@ window.SITE_PAGES.changelog = {
   /* ---------------- English ---------------- */
   en: {
     title: "Changelog",
-    lede: "Version history and notable changes for mlr3HTE. Current version: v0.33.",
+    lede: "Version history and notable changes for mlr3HTE. Current version: v0.34.",
     sections: [
 
 
+      {
+        id: "v034",
+        heading: "v0.34 · 2026-10-22",
+        body:
+          '<div class="callout ok"><div class="callout-title">CATE interpretability module (R/explain.R, 9 exported functions)</div>' +
+          '<p>Built on <strong>DALEX</strong>, with SHAP values from <strong>kernelshap + ' +
+          'shapviz</strong>. <code>hte_explainer()</code> wraps a CATE model as a DALEX ' +
+          'explainer whose <strong>response is the doubly robust pseudo-outcome Y*, not the ' +
+          'raw outcome</strong>—the latter measures baseline prognosis mu(X) and is unrelated ' +
+          'to effect heterogeneity. <code>hte_surrogate()</code> refits the CATE surface with ' +
+          'one mlr3 learner (measured correlation 0.913–0.937) for explanation only. ' +
+          '<code>hte_feature_importance()</code> (permutation importance), ' +
+          '<code>hte_pdp()</code> (PDP and ALE), <code>hte_shap()</code> / ' +
+          '<code>hte_shap_data()</code> (Kernel SHAP) and three plotting functions complete ' +
+          'the chain. The SHAP additivity residual measures 4.44e-16 (machine precision).</p></div>' +
+          '<div class="callout warn"><div class="callout-title">Two deliberate departures from upstream defaults</div>' +
+          '<ul>' +
+          '<li><strong><code>hte_pdp()</code> defaults to <code>center = FALSE</code>.</strong> ' +
+          'DALEX\'s <code>model_profile()</code> centres curves on the mean prediction by ' +
+          'default; in a CATE context the vertical axis must be the <em>absolute</em> mean ' +
+          'predicted CATE, since oscillating around zero hides the effect level itself.</li>' +
+          '<li><strong><code>loss</code> accepts a function or <code>"rmse"</code> / ' +
+          '<code>"mse"</code> only.</strong> DALEX 2.5 does not export MAE, and a character ' +
+          'value is resolved by name inside the DALEX framework, which fails across packages.</li>' +
+          '</ul></div>' +
+          '<p><strong>Every plot returns a ggplot object</strong>: <code>plot_hte_importance()</code>, ' +
+          '<code>plot_hte_pdp()</code>, <code>plot_hte_shap()</code>, ' +
+          '<code>plot_hte_benchmark()</code>, <code>plot_qini()</code> and ' +
+          '<code>mlr3HTE_dag()</code> all accept further layers with <code>+</code> and export ' +
+          'through <code>ggsave()</code>. The underlying data is available separately from ' +
+          '<code>hte_feature_importance()</code>, <code>hte_pdp()</code>, ' +
+          '<code>hte_shap_data()</code>, <code>hte_benchmark_data()</code> (new), ' +
+          '<code>qini_curve()</code> and <code>mlr3HTE_dag_data()</code> (new). ' +
+          '<code>plot_qini()</code> was rewritten from base graphics to ggplot2.</p>' +
+          '<p><strong>Tutorial code now has R syntax highlighting and a copy button</strong>, via ' +
+          'a self-written tokenizer at <code>docs/assets/js/highlight-r.js</code> (about 230 ' +
+          'lines, no CDN or build step). Of 220 code blocks, 138 are marked ' +
+          '<code>language-r</code> with a copy button and 82 are <code>r-out</code> output ' +
+          'blocks. This also fixes a long-standing bug in which <code>&lt;dbl&gt;</code> in ' +
+          'console output was swallowed as an unknown tag (149 blocks escaped).</p>' +
+          '<p><strong>Exactly one arrow between each pair of DAG nodes</strong>: ' +
+          '<code>R/dag.R</code> was rewritten. Edges are deduplicated, then each edge is checked ' +
+          'against rectangular label boxes using a quadratic Bézier curve and given a routing ' +
+          'curvature when it would cross a third node. Curvature is a parameter rather than an ' +
+          'aesthetic mapping, so plotting builds one <code>geom_curve</code> layer per ' +
+          'curvature group.</p>' +
+          '<p><strong>Tutorial register made formal</strong>: 24 Chinese and 4 English ' +
+          'phrasings were rewritten from colloquial to objective prose by an auditable ' +
+          'exact-match script.</p>' +
+          '<div class="callout ok"><div class="callout-title">Benchmark simulation grid (data/mlr3hte_bench_data.rda)</div>' +
+          '<p>Ten designs by three outcomes give 30 datasets with n = 2000, fixed seeds, shipped ' +
+          'with the package. Four structural dimensions vary independently: study design ' +
+          '(rct / obs), confounding form (none / linear / nonlinear), effect-heterogeneity ' +
+          'form (linear / nonlinear), and <strong>whether a covariate is both a confounder and ' +
+          'an effect modifier</strong>. Each dataset carries the true tau / ate / ps_true; ' +
+          'survival outcomes additionally provide tau_rmst / ate_rmst on the RMST scale.</p>' +
+          '<p>Measured confounding gradient (unadjusted difference minus the true ATE): ' +
+          'within ±0.04 for randomised designs, 0.09–0.24 for observational designs with ' +
+          'shared = FALSE, and 0.47–0.61 for observational designs with shared = TRUE.</p>' +
+          '<p>Estimability of linear versus nonlinear HTE (out-of-fold CATE correlation): with ' +
+          'truly linear CATE, regr.lm 0.994 &gt; regr.ranger 0.894; with truly nonlinear CATE, ' +
+          'regr.lm 0.564 &lt; regr.ranger 0.819. A base learner whose functional form does not ' +
+          'cover the true CATE introduces bias rather than variance.</p>' +
+          '<p><strong>Breaking change</strong>: the data object was renamed from ' +
+          '<code>mlr3hte_bench</code> to <code>mlr3hte_bench_data</code>, because Windows file ' +
+          'systems are case-insensitive and the data Rd file was overwritten by the Rd file of ' +
+          'the same-named function. Access via <code>mlr3HTE_bench()</code> is unaffected.</p></div>' +
+          '<p><strong>Three long-standing items closed</strong>:</p>' +
+          '<ul>' +
+          '<li><strong>R CMD check / roxygen2</strong>: <code>man/</code> regenerated (40 Rd ' +
+          'files) with complete dependency and global-variable declarations. Result: 0 error / ' +
+          '0 note.</li>' +
+          '<li><strong>Cross-fitting for R / DR</strong>: enabled with ' +
+          '<code>cross_fitting = TRUE</code>; nuisance parameters are fitted on training folds ' +
+          'and evaluated on held-out folds. R-Learner bias improves from −0.456 in-fold to ' +
+          '+0.143 out-of-fold.</li>' +
+          '<li><strong>RMST effect for the survival branch</strong>: ' +
+          '<code>effect = "rmst"</code> is available, with individual effects given by the ' +
+          'IPCW-corrected RMST difference; measured bias −0.0144 (against −0.0214 for ' +
+          'survdiff). Both items are locked by regression tests.</li>' +
+          '</ul>' +
+          '<p><strong>Documentation site</strong>: tutorial articles 7 (benchmark simulation ' +
+          'grid) and 8 (interpreting the CATE model) were added, each with an independently ' +
+          'executable script; 15 per-function pages plus the <code>apisim</code> and ' +
+          '<code>apiexplain</code> module indexes were added; the references gained section F ' +
+          '(interpretability, 6 entries) and section G (simulation design and estimation ' +
+          'methodology, 3 entries). All 63 pages pass validation.</p>' +
+          '<p class="text-muted">Known limitation: R CMD check still reports one WARNING ' +
+          '(non-ASCII characters in R code, i.e. Chinese roxygen comments). This check ignores ' +
+          'the DESCRIPTION Encoding field; eliminating it would require escaping every Chinese ' +
+          'comment as \\uxxxx at the cost of source readability, which was not accepted here.</p>'
+      },
       {
         id: "v033",
         heading: "v0.33 · 2026-10-22",

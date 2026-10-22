@@ -6,17 +6,32 @@ export(cate_ci)
 export(dr_learner)
 export(dr_pseudo_outcome)
 export(hte_benchmark)
+export(hte_benchmark_data)
+export(hte_explainer)
+export(hte_feature_importance)
+export(hte_pdp)
+export(hte_shap)
+export(hte_shap_data)
+export(hte_surrogate)
 export(lrn)
 export(metalearner)
 export(ml_task)
+export(mlr3HTE_bench)
+export(mlr3HTE_bench_index)
 export(mlr3HTE_dag)
+export(mlr3HTE_dag_data)
 export(mlr3HTE_demo_binary)
 export(mlr3HTE_demo_data)
 export(mlr3HTE_demo_obs)
 export(mlr3HTE_demo_obs_binary)
 export(mlr3HTE_demo_obs_surv)
 export(mlr3HTE_demo_surv)
+export(mlr3HTE_scenario)
+export(mlr3HTE_scenarios)
 export(plot_hte_benchmark)
+export(plot_hte_importance)
+export(plot_hte_pdp)
+export(plot_hte_shap)
 export(plot_qini)
 export(qini_coefficient)
 export(qini_curve)
@@ -25,16 +40,26 @@ export(s_learner)
 export(t_learner)
 export(toc_curve)
 export(x_learner)
+import(mlr3learners)
+importFrom(R6,R6Class)
 importFrom(graphics,
   abline,
   plot
 )
 importFrom(mlr3,lrn)
+importFrom(paradox,
+  ParamSet,
+  p_fct
+)
 importFrom(stats,
   plogis,
   predict,
   qlogis,
   quantile,
   rbinom,
-  rnorm
+  rexp,
+  rnorm,
+  setNames
 )
+importFrom(tibble,tibble)
+importFrom(tidyr,pivot_longer)

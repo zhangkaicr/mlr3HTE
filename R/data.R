@@ -1,0 +1,49 @@
+# 目的：随包发布的基准模拟数据的帮助文档（R CMD check 要求数据集必须文档化）
+
+#' 随包发布的基准模拟数据集合
+#'
+#' @description
+#' \code{mlr3HTE_scenario()} 按 \strong{10 个设计 × 3 类结局}预生成的 30 份数据，
+#' 每份 \code{n = 2000}，种子固定，打包在 \code{data/mlr3hte_bench_data.rda} 中随包发布。
+#'
+#' 之所以要固定成一份数据：方法学比较只有在同一份数据上才可比。若每次分析各自
+#' 重新模拟，两个 learner 的差异里就混进了随机抽样噪声，结论无法复核。
+#'
+#' 四个结构维度相互独立，可以固定其余、只改一个来做对照：
+#' \describe{
+#'   \item{研究设计}{\code{rct}（随机化，无混杂）与 \code{obs}（观察性，有混杂）}
+#'   \item{混杂形式}{\code{none} / \code{linear} / \code{nonlinear}}
+#'   \item{效应异质性形式}{\code{linear}（CATE 是协变量的线性函数）与
+#'     \code{nonlinear}（含 \code{sin} 与二次项）}
+#'   \item{是否共用变量}{\code{shared = TRUE} 表示存在既进入处理分配模型、
+#'     又进入真实 CATE 的协变量，即混杂因子兼效应修饰因子}
+#' }
+#'
+#' @docType data
+#' @name mlr3hte_bench_data
+#' @format 一个长度为 30 的命名 list。名称为 \code{<场景 id>.<结局>}，例如
+#'   \code{"obs_nonlin_nonlin_sharedT.survival"}；每个元素与
+#'   \code{\link{mlr3HTE_scenario}} 的返回值结构相同：
+#'   \describe{
+#'     \item{\code{X}}{协变量 data.frame（\code{age} / \code{lac} / \code{tumor} / \code{sex}）}
+#'     \item{\code{A}}{处理指示（0/1）}
+#'     \item{\code{Y}}{结局；生存结局为 \code{survival::Surv} 对象}
+#'     \item{\code{tau}}{逐人真实 CATE}
+#'     \item{\code{ate}}{真实 ATE，等于 \code{mean(tau)}}
+#'     \item{\code{ps_true}}{真实倾向得分；RCT 场景恒为 0.5}
+#'     \item{\code{tau_rmst} / \code{ate_rmst}}{生存结局的 RMST 尺度真值；
+#'       其余结局为 \code{NULL}}
+#'     \item{\code{meta}}{结构标签与生成参数}
+#'   }
+#' @usage data(mlr3hte_bench_data)
+#' @source 由 \code{\link{mlr3HTE_scenario}} 生成；生成脚本为仓库中的
+#'   \code{data-raw/bench.R}（该目录已列入 \code{.Rbuildignore}，不随包安装）。
+#' @seealso \code{\link{mlr3HTE_bench}} \code{\link{mlr3HTE_bench_index}}
+#'   \code{\link{mlr3HTE_scenarios}}
+#' @keywords datasets
+#' @examples
+#' \donttest{
+#' names(mlr3hte_bench_data)[1:3]
+#' mlr3HTE_bench_index()[1:3, ]
+#' }
+NULL

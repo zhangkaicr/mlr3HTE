@@ -217,20 +217,21 @@ hte_benchmark <- function(X, A, Y, t0 = NULL,
   )
 }
 
-#' 画 hte_benchmark() 的曲线对比
+#' 取出 hte_benchmark() 的曲线绘图数据
 #'
-#' 把 \code{\link{hte_benchmark}} 存下来的 Qini / TOC 曲线按 learner 分面画出来。
-#' Qini 面板里的灰色虚线是"随机靶向"基线；TOC 面板里的灰色虚线是全样本 ATE。
+#' @description
+#' \code{\link{plot_hte_benchmark}} 画图所用的长表数据，单独提供出来便于
+#' 导出 CSV 或自行用 ggplot2 重画。
 #'
 #' @param x \code{\link{hte_benchmark}} 的返回对象。
 #' @param metric \code{"qini"} 或 \code{"toc"}。
-#' @param title 主标题，默认按指标自动生成。
-#' @param min_fraction 从哪个靶向比例开始画。TOC / Qini 在最左端只对应一两个
-#'   观测，值是单个个体的效应，能把纵轴拉到几十倍 ATE，剩下的曲线全被压扁。
-#'   默认 \code{0.05}（前 5% 不画）；设 \code{0} 看全貌。
+#' @param min_fraction 从哪个靶向比例开始保留，含义同 \code{\link{plot_hte_benchmark}}。
+#' @return data.frame：\code{learner} / \code{fraction} / 指标列
+#'   （\code{qini} 或 \code{toc}），另附属性 \code{reference}（各 learner 的参考线
+#'   截距与斜率）。
+#' @seealso \code{\link{plot_hte_benchmark}}
 #' @export
-plot_hte_benchmark <- function(x, metric = c("qini", "toc"), title = NULL,
-                               min_fraction = 0.05) {
+hte_benchmark_data <- function(x, metric = c("qini", "toc"), min_fraction = 0.05) {
   metric <- match.arg(metric)
   curves <- x$curves[[metric]]
   if (is.null(curves)) {
@@ -246,22 +247,46 @@ plot_hte_benchmark <- function(x, metric = c("qini", "toc"), title = NULL,
   }))
   df$learner <- factor(df$learner, levels = nms)
 
-  if (metric == "qini") {
-    ylab <- "Cumulative gain (Qini)"
-    # 每幅面板各自的随机靶向线：从 (0,0) 连到该 learner 的 Q(1)
-    ref <- data.frame(
-      learner = nms,
-      intercept = 0,
-      slope = vapply(curves, function(d) d$qini[nrow(d)], numeric(1))
-    )
+  # 参考线：Qini 用「从原点到该 learner Q(1)」的随机靶向线；
+  # TOC 用全样本 ATE 的水平线。
+  ref <- if (metric == "qini") {
+    data.frame(learner = nms, intercept = 0,
+               slope = vapply(curves, function(d) d$qini[nrow(d)], numeric(1)))
   } else {
-    ylab <- "Average effect in top-k"
-    ref <- data.frame(
-      learner = nms,
-      intercept = vapply(curves, function(d) attr(d, "overall_ate"), numeric(1)),
-      slope = 0
-    )
+    data.frame(learner = nms,
+               intercept = vapply(curves, function(d) attr(d, "overall_ate"), numeric(1)),
+               slope = 0)
   }
+  ref$learner <- factor(ref$learner, levels = nms)
+  attr(df, "reference") <- ref
+  attr(df, "metric") <- metric
+  df
+}
+
+#' 画 hte_benchmark() 的曲线对比
+#'
+#' 把 \code{\link{hte_benchmark}} 存下来的 Qini / TOC 曲线按 learner 分面画出来。
+#' Qini 面板里的灰色虚线是"随机靶向"基线；TOC 面板里的灰色虚线是全样本 ATE。
+#'
+#' 返回的是 \code{ggplot} 对象，可继续用 \code{+} 叠加图层或主题；
+#' 绘图所用的数据由 \code{\link{hte_benchmark_data}} 单独提供。
+#'
+#' @param x \code{\link{hte_benchmark}} 的返回对象。
+#' @param metric \code{"qini"} 或 \code{"toc"}。
+#' @param title 主标题，默认按指标自动生成。
+#' @param min_fraction 从哪个靶向比例开始画。TOC / Qini 在最左端只对应一两个
+#'   观测，值是单个个体的效应，能把纵轴拉到几十倍 ATE，剩下的曲线全被压扁。
+#'   默认 \code{0.05}（前 5% 不画）；设 \code{0} 看全貌。
+#' @return \code{ggplot} 对象。
+#' @seealso \code{\link{hte_benchmark_data}}
+#' @export
+plot_hte_benchmark <- function(x, metric = c("qini", "toc"), title = NULL,
+                               min_fraction = 0.05) {
+  metric <- match.arg(metric)
+  df  <- hte_benchmark_data(x, metric = metric, min_fraction = min_fraction)
+  ref <- attr(df, "reference")
+
+  ylab <- if (metric == "qini") "Cumulative gain (Qini)" else "Average effect in top-k"
   if (is.null(title)) {
     title <- if (metric == "qini") "Qini 曲线对比 / Qini curves" else
              "TOC 曲线对比 / TOC curves"

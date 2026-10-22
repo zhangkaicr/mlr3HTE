@@ -120,7 +120,7 @@ window.SITE_PAGES.apimetalearner = {
           '<p>S / R / DR 与 <code>engine = "survlearners"</code> 只接受单个 learner，传命名 list 会明确报错。</p></div>' +
           '<p><strong>返回</strong>：list，含 <code>$predict(newX)</code>、<code>$ate</code>、' +
           '<code>$cate_train</code>、<code>$type</code>、<code>$outcome</code>、<code>$weighting</code>、<code>$t0</code>。</p>' +
-          '<pre><code>fit &lt;- metalearner("T", X, A, Y,\n' +
+          '<pre><code class="language-r">fit &lt;- metalearner("T", X, A, Y,\n' +
           '                   learner_base = lrn("regr.ranger", num.trees = 300, seed = 1))\n' +
           'fit$ate\n' +
           'fit$predict(newX)</code></pre>' +
@@ -178,7 +178,7 @@ window.SITE_PAGES.apimetalearner = {
           '<p><strong>Returns</strong> a list with <code>$predict(newX)</code>, <code>$ate</code>, ' +
           '<code>$cate_train</code>, <code>$type</code>, <code>$outcome</code>, ' +
           '<code>$weighting</code> and <code>$t0</code>.</p>' +
-          '<pre><code>fit &lt;- metalearner("T", X, A, Y,\n' +
+          '<pre><code class="language-r">fit &lt;- metalearner("T", X, A, Y,\n' +
           '                   learner_base = lrn("regr.ranger", num.trees = 300, seed = 1))\n' +
           'fit$ate\n' +
           'fit$predict(newX)</code></pre>' +
@@ -202,7 +202,7 @@ window.SITE_PAGES.apishortcuts = {
           '<div class="fn-sig">s_learner(X, A, Y, learner_base = lrn("regr.ranger"), ...)</div>' +
           '<p>与课程脚本同款签名，直接返回<strong>训练集上的 CATE 向量</strong>（不是拟合对象）。' +
           '其余参数通过 <code>...</code> 原样传给 <code>metalearner()</code>。</p>' +
-          '<pre><code>tau_S  &lt;- s_learner(X, A, Y, learner_base = lrn("regr.ranger"))\n' +
+          '<pre><code class="language-r">tau_S  &lt;- s_learner(X, A, Y, learner_base = lrn("regr.ranger"))\n' +
           'tau_DR &lt;- dr_learner(X, A, Y, weighting = "iptw")</code></pre>' +
           '</div>'
       }
@@ -221,7 +221,7 @@ window.SITE_PAGES.apishortcuts = {
           '<p>Same signature as the teaching scripts; returns the <strong>CATE vector on the ' +
           'training set</strong> (not a fitted object). All other arguments are forwarded to ' +
           '<code>metalearner()</code> via <code>...</code>.</p>' +
-          '<pre><code>tau_S  &lt;- s_learner(X, A, Y, learner_base = lrn("regr.ranger"))\n' +
+          '<pre><code class="language-r">tau_S  &lt;- s_learner(X, A, Y, learner_base = lrn("regr.ranger"))\n' +
           'tau_DR &lt;- dr_learner(X, A, Y, weighting = "iptw")</code></pre>' +
           '</div>'
       }
@@ -253,7 +253,7 @@ window.SITE_PAGES.apimltask = {
           '<p>结局类型、状态列名、<code>t0</code>、处理列名都记在 <code>task$extra_args</code>——' +
           '该字段在 <code>clone(deep=TRUE)$filter()</code> 与序列化后都保留，' +
           '所以重抽样分折时元数据不丢。</p>' +
-          '<pre><code>task &lt;- ml_task(X, A, Y)                    # 连续 / 二分类\n' +
+          '<pre><code class="language-r">task &lt;- ml_task(X, A, Y)                    # 连续 / 二分类\n' +
           'task &lt;- ml_task(X, A, Surv(time, status), t0 = 2)   # 生存\n' +
           'task &lt;- ml_task(X, A, Y, treatment_col = "trt")     # 自定义处理列名\n\n' +
           'task$extra_args</code></pre>' +
@@ -284,7 +284,7 @@ window.SITE_PAGES.apimltask = {
           'in <code>task$extra_args</code>, which survives ' +
           '<code>clone(deep=TRUE)$filter()</code> and serialisation — so metadata is never lost ' +
           'when resampling splits folds.</p>' +
-          '<pre><code>task &lt;- ml_task(X, A, Y)                              # continuous / binary\n' +
+          '<pre><code class="language-r">task &lt;- ml_task(X, A, Y)                              # continuous / binary\n' +
           'task &lt;- ml_task(X, A, Surv(time, status), t0 = 2)     # survival\n' +
           'task &lt;- ml_task(X, A, Y, treatment_col = "trt")       # custom treatment column\n\n' +
           'task$extra_args</code></pre>' +
@@ -333,7 +333,7 @@ window.SITE_PAGES.apilearner = {
           '<div class="callout warn"><div class="callout-title">为什么用字段而不是参数</div>' +
           '<p>paradox 1.0 的 <code>p_uty()</code> 只能存函数或 NULL，<strong>存不下 Learner 对象</strong>，' +
           '所以基学习器只能作为 R6 字段暴露。</p></div>' +
-          '<pre><code>library(mlr3)   # resample() / benchmark() / rsmp() 来自 mlr3\n' +
+          '<pre><code class="language-r">library(mlr3)   # resample() / benchmark() / rsmp() 来自 mlr3\n' +
           'task &lt;- ml_task(X, A, Y)\n' +
           'l    &lt;- lrn("regr.metalearner", metalearner = "T")\n' +
           'l$learner_base &lt;- lrn("regr.ranger", num.trees = 300, seed = 1)\n\n' +
@@ -386,7 +386,7 @@ window.SITE_PAGES.apilearner = {
           '<p>paradox 1.0\'s <code>p_uty()</code> only accepts functions or NULL — it ' +
           '<strong>cannot hold a Learner object</strong>, so base learners must be exposed as R6 ' +
           'fields.</p></div>' +
-          '<pre><code>library(mlr3)   # resample() / benchmark() / rsmp() 来自 mlr3\n' +
+          '<pre><code class="language-r">library(mlr3)   # resample() / benchmark() / rsmp() 来自 mlr3\n' +
           'task &lt;- ml_task(X, A, Y)\n' +
           'l    &lt;- lrn("regr.metalearner", metalearner = "T")\n' +
           'l$learner_base &lt;- lrn("regr.ranger", num.trees = 300, seed = 1)\n\n' +
@@ -423,7 +423,7 @@ window.SITE_PAGES.apidemo = {
           '</tbody></table></div>' +
           '<p>每个数据集都返回真实的 <code>tau</code>（逐人 CATE 真值）与 <code>ate</code>，' +
           '观察性版本还返回真实倾向得分 <code>ps_true</code>。这是做对账最方便的地方。</p>' +
-          '<pre><code>d &lt;- mlr3HTE_demo_data(n = 4000)\n' +
+          '<pre><code class="language-r">d &lt;- mlr3HTE_demo_data(n = 4000)\n' +
           'str(d)          # X, A, Y, tau, ate\n\n' +
           '# 对账\n' +
           'fit &lt;- metalearner("X", d$X, d$A, d$Y)\n' +
@@ -455,7 +455,7 @@ window.SITE_PAGES.apidemo = {
           '<p>Every dataset returns the true per-unit <code>tau</code> and the true <code>ate</code>; ' +
           'the observational ones also return the true propensity score <code>ps_true</code>. ' +
           'That is what makes reconciliation straightforward.</p>' +
-          '<pre><code>d &lt;- mlr3HTE_demo_data(n = 4000)\n' +
+          '<pre><code class="language-r">d &lt;- mlr3HTE_demo_data(n = 4000)\n' +
           'str(d)          # X, A, Y, tau, ate\n\n' +
           '# Reconcile\n' +
           'fit &lt;- metalearner("X", d$X, d$A, d$Y)\n' +
@@ -489,7 +489,7 @@ window.SITE_PAGES.apimetrics = {
           '<tr><td><a href="#/apimetrics"><code>toc_curve()</code></a></td><td>靶向操作特征曲线</td><td>Yadlowsky et al., JASA 2025</td></tr>' +
           '<tr><td><a href="#/apimetrics"><code>dr_pseudo_outcome()</code></a></td><td>双重稳健伪结局（含交叉拟合的 e / mu1 / mu0）</td><td>Yadlowsky et al., JASA 2025</td></tr>' +
           '</tbody></table></div>' +
-          '<pre><code>cate  &lt;- fit$predict(testX)      # 新数据上的逐人 CATE\n' +
+          '<pre><code class="language-r">cate  &lt;- fit$predict(testX)      # 新数据上的逐人 CATE\n' +
           'crv   &lt;- qini_curve(cate, A_test, Y_test)\n' +
           'qini_coefficient(cate, A_test, Y_test)$qini_coefficient\n' +
           'c_for_benefit(cate, A_test, Y_test)$c_for_benefit\n' +
@@ -500,7 +500,7 @@ window.SITE_PAGES.apimetrics = {
           '<code>propensity</code> + <code>mu1</code> + <code>mu0</code> 三件套' +
           '（只给倾向得分会报错——HT 评分噪声会把 C 统计量压到随机线以下）。' +
           '三件套用 <code>dr_pseudo_outcome(X, A, Y, seed = 1)</code> 一次拿到，默认 5 折交叉拟合。</p>' +
-          '<pre><code>dr &lt;- dr_pseudo_outcome(X, A, Y, seed = 1)   # 返回 pseudo / mu1 / mu0 / propensity / ate\n' +
+          '<pre><code class="language-r">dr &lt;- dr_pseudo_outcome(X, A, Y, seed = 1)   # 返回 pseudo / mu1 / mu0 / propensity / ate\n' +
           'qini_coefficient(cate, A, Y, propensity = dr$propensity)\n' +
           'c_for_benefit(cate, A, Y, propensity = dr$propensity, mu1 = dr$mu1, mu0 = dr$mu0)</code></pre></div>' +
           '<div class="callout warn"><div class="callout-title">生存结局暂不支持</div>' +
@@ -527,7 +527,7 @@ window.SITE_PAGES.apimetrics = {
           '<tr><td><a href="#/apimetrics"><code>toc_curve()</code></a></td><td>Targeting Operator Characteristic</td><td>Yadlowsky et al., JASA 2025</td></tr>' +
           '<tr><td><a href="#/apimetrics"><code>dr_pseudo_outcome()</code></a></td><td>Doubly-robust pseudo-outcome (with cross-fitted e / mu1 / mu0)</td><td>Yadlowsky et al., JASA 2025</td></tr>' +
           '</tbody></table></div>' +
-          '<pre><code>cate  &lt;- fit$predict(testX)      # per-unit CATE on new data\n' +
+          '<pre><code class="language-r">cate  &lt;- fit$predict(testX)      # per-unit CATE on new data\n' +
           'crv   &lt;- qini_curve(cate, A_test, Y_test)\n' +
           'qini_coefficient(cate, A_test, Y_test)$qini_coefficient\n' +
           'c_for_benefit(cate, A_test, Y_test)$c_for_benefit\n' +
@@ -539,7 +539,7 @@ window.SITE_PAGES.apimetrics = {
           'propensity score alone errors out — Horvitz–Thompson noise drives the C-statistic ' +
           'below the random line). Get all three in one call with ' +
           '<code>dr_pseudo_outcome(X, A, Y, seed = 1)</code>, which cross-fits by default.</p>' +
-          '<pre><code>dr &lt;- dr_pseudo_outcome(X, A, Y, seed = 1)   # pseudo / mu1 / mu0 / propensity / ate\n' +
+          '<pre><code class="language-r">dr &lt;- dr_pseudo_outcome(X, A, Y, seed = 1)   # pseudo / mu1 / mu0 / propensity / ate\n' +
           'qini_coefficient(cate, A, Y, propensity = dr$propensity)\n' +
           'c_for_benefit(cate, A, Y, propensity = dr$propensity, mu1 = dr$mu1, mu0 = dr$mu0)</code></pre></div>' +
           '<div class="callout warn"><div class="callout-title">Survival not yet supported</div>' +
@@ -677,7 +677,7 @@ window.SITE_PAGES.apibenchmark = {
           '<tr><td><code>propensity, mu1, mu0</code></td><td><strong>可选</strong>观察性数据三件套（见 <a href="#/apimetrics">dr_pseudo_outcome()</a>）。RCT 下全部留空</td></tr>' +
           '<tr><td><code>seed</code></td><td>折划分的随机种子，固定后才能复现</td></tr>' +
           '</tbody></table></div>' +
-          '<pre><code># 现实 RCT 数据：没有 tau，输出里就不会出现 tau_cor / tau_rmse\n' +
+          '<pre><code class="language-r"># 现实 RCT 数据：没有 tau，输出里就不会出现 tau_cor / tau_rmse\n' +
           'bm &lt;- hte_benchmark(X, A, Y, seed = 1)\n' +
           'bm$table\n\n' +
           '# 模拟数据：有真值，可以两套指标照着看\n' +
@@ -820,7 +820,7 @@ window.SITE_PAGES.apibenchmark = {
           '<tr><td><code>propensity, mu1, mu0</code></td><td><strong>Optional</strong> observational triple (see <a href="#/apimetrics">dr_pseudo_outcome()</a>). Leave empty for RCT</td></tr>' +
           '<tr><td><code>seed</code></td><td>Seed for fold assignment; fix it to reproduce</td></tr>' +
           '</tbody></table></div>' +
-          '<pre><code># Real RCT data: no tau, so tau_cor / tau_rmse never appear\n' +
+          '<pre><code class="language-r"># Real RCT data: no tau, so tau_cor / tau_rmse never appear\n' +
           'bm &lt;- hte_benchmark(X, A, Y, seed = 1)\n' +
           'bm$table\n\n' +
           '# Simulated data: truth available, report both metric families\n' +
@@ -928,9 +928,9 @@ window.SITE_PAGES.apis = {
           '<p>下面的代码与输出都是<strong>真实跑出来的</strong>（n = 1500，seed = 1201，' +
           'ranger 300 树）。因为演示数据自带真值 <code>tau</code>，' +
           '所以可以把 ATE、CATE 相关、RMSE 三者一起报。</p>' +
-          '<pre><code>d &lt;- mlr3HTE_demo_data(n = 1500, seed = 1201)\ncate &lt;- s_learner()(d$X, d$A, d$Y,\n             learner_base = lrn("regr.ranger", num.trees = 300, seed = 1L))\ntibble(ATE = mean(cate), 与真相关 = cor(cate, d$tau),\n       RMSE = sqrt(mean((cate - d$tau)^2)))</code></pre>' +
+          '<pre><code class="language-r">d &lt;- mlr3HTE_demo_data(n = 1500, seed = 1201)\ncate &lt;- s_learner()(d$X, d$A, d$Y,\n             learner_base = lrn("regr.ranger", num.trees = 300, seed = 1L))\ntibble(ATE = mean(cate), 与真相关 = cor(cate, d$tau),\n       RMSE = sqrt(mean((cate - d$tau)^2)))</code></pre>' +
           '<p>实测输出：</p>' +
-          '<pre><code># A tibble: 1 × 3\n    ATE 与真相关  RMSE\n  &lt;dbl&gt;    &lt;dbl&gt; &lt;dbl&gt;\n1  1.05    0.862 0.527</code></pre>' +
+          '<pre><code class="r-out"># A tibble: 1 × 3\n    ATE 与真相关  RMSE\n  &lt;dbl&gt;    &lt;dbl&gt; &lt;dbl&gt;\n1  1.05    0.862 0.527</code></pre>' +
           '<div class="callout"><div class="callout-title">怎么读这三个数</div>' +
           '<ul>' +
           '<li><code>ATE</code> = CATE 的均值，看人群平均对不对；此处真值为 1.049。</li>' +
@@ -983,9 +983,9 @@ window.SITE_PAGES.apis = {
           '<p>Both the code and the output below are <strong>actually run</strong> ' +
           '(n = 1500, seed = 1201, ranger with 300 trees). Because the demo data carries the ' +
           'true <code>tau</code>, ATE, CATE correlation and RMSE can all be reported together.</p>' +
-          '<pre><code>d &lt;- mlr3HTE_demo_data(n = 1500, seed = 1201)\ncate &lt;- s_learner()(d$X, d$A, d$Y,\n             learner_base = lrn("regr.ranger", num.trees = 300, seed = 1L))\ntibble(ATE = mean(cate), 与真相关 = cor(cate, d$tau),\n       RMSE = sqrt(mean((cate - d$tau)^2)))</code></pre>' +
+          '<pre><code class="language-r">d &lt;- mlr3HTE_demo_data(n = 1500, seed = 1201)\ncate &lt;- s_learner()(d$X, d$A, d$Y,\n             learner_base = lrn("regr.ranger", num.trees = 300, seed = 1L))\ntibble(ATE = mean(cate), 与真相关 = cor(cate, d$tau),\n       RMSE = sqrt(mean((cate - d$tau)^2)))</code></pre>' +
           '<p>Output:</p>' +
-          '<pre><code># A tibble: 1 × 3\n    ATE 与真相关  RMSE\n  &lt;dbl&gt;    &lt;dbl&gt; &lt;dbl&gt;\n1  1.05    0.862 0.527</code></pre>' +
+          '<pre><code class="r-out"># A tibble: 1 × 3\n    ATE 与真相关  RMSE\n  &lt;dbl&gt;    &lt;dbl&gt; &lt;dbl&gt;\n1  1.05    0.862 0.527</code></pre>' +
           '<div class="callout"><div class="callout-title">How to read the three numbers</div>' +
           '<ul>' +
           '<li><code>ATE</code> is the mean of CATE — whether the population average is right; truth here is 1.049.</li>' +
@@ -1042,9 +1042,9 @@ window.SITE_PAGES.apit = {
           '<p>下面的代码与输出都是<strong>真实跑出来的</strong>（n = 1500，seed = 1201，' +
           'ranger 300 树）。因为演示数据自带真值 <code>tau</code>，' +
           '所以可以把 ATE、CATE 相关、RMSE 三者一起报。</p>' +
-          '<pre><code>d &lt;- mlr3HTE_demo_data(n = 1500, seed = 1201)\ncate &lt;- t_learner()(d$X, d$A, d$Y,\n             learner_base = lrn("regr.ranger", num.trees = 300, seed = 1L))\ntibble(ATE = mean(cate), 与真相关 = cor(cate, d$tau),\n       RMSE = sqrt(mean((cate - d$tau)^2)))</code></pre>' +
+          '<pre><code class="language-r">d &lt;- mlr3HTE_demo_data(n = 1500, seed = 1201)\ncate &lt;- t_learner()(d$X, d$A, d$Y,\n             learner_base = lrn("regr.ranger", num.trees = 300, seed = 1L))\ntibble(ATE = mean(cate), 与真相关 = cor(cate, d$tau),\n       RMSE = sqrt(mean((cate - d$tau)^2)))</code></pre>' +
           '<p>实测输出：</p>' +
-          '<pre><code># A tibble: 1 × 3\n    ATE 与真相关  RMSE\n  &lt;dbl&gt;    &lt;dbl&gt; &lt;dbl&gt;\n1  1.09    0.828 0.645</code></pre>' +
+          '<pre><code class="r-out"># A tibble: 1 × 3\n    ATE 与真相关  RMSE\n  &lt;dbl&gt;    &lt;dbl&gt; &lt;dbl&gt;\n1  1.09    0.828 0.645</code></pre>' +
           '<div class="callout"><div class="callout-title">怎么读这三个数</div>' +
           '<ul>' +
           '<li><code>ATE</code> = CATE 的均值，看人群平均对不对；此处真值为 1.049。</li>' +
@@ -1097,9 +1097,9 @@ window.SITE_PAGES.apit = {
           '<p>Both the code and the output below are <strong>actually run</strong> ' +
           '(n = 1500, seed = 1201, ranger with 300 trees). Because the demo data carries the ' +
           'true <code>tau</code>, ATE, CATE correlation and RMSE can all be reported together.</p>' +
-          '<pre><code>d &lt;- mlr3HTE_demo_data(n = 1500, seed = 1201)\ncate &lt;- t_learner()(d$X, d$A, d$Y,\n             learner_base = lrn("regr.ranger", num.trees = 300, seed = 1L))\ntibble(ATE = mean(cate), 与真相关 = cor(cate, d$tau),\n       RMSE = sqrt(mean((cate - d$tau)^2)))</code></pre>' +
+          '<pre><code class="language-r">d &lt;- mlr3HTE_demo_data(n = 1500, seed = 1201)\ncate &lt;- t_learner()(d$X, d$A, d$Y,\n             learner_base = lrn("regr.ranger", num.trees = 300, seed = 1L))\ntibble(ATE = mean(cate), 与真相关 = cor(cate, d$tau),\n       RMSE = sqrt(mean((cate - d$tau)^2)))</code></pre>' +
           '<p>Output:</p>' +
-          '<pre><code># A tibble: 1 × 3\n    ATE 与真相关  RMSE\n  &lt;dbl&gt;    &lt;dbl&gt; &lt;dbl&gt;\n1  1.09    0.828 0.645</code></pre>' +
+          '<pre><code class="r-out"># A tibble: 1 × 3\n    ATE 与真相关  RMSE\n  &lt;dbl&gt;    &lt;dbl&gt; &lt;dbl&gt;\n1  1.09    0.828 0.645</code></pre>' +
           '<div class="callout"><div class="callout-title">How to read the three numbers</div>' +
           '<ul>' +
           '<li><code>ATE</code> is the mean of CATE — whether the population average is right; truth here is 1.049.</li>' +
@@ -1156,9 +1156,9 @@ window.SITE_PAGES.apix = {
           '<p>下面的代码与输出都是<strong>真实跑出来的</strong>（n = 1500，seed = 1201，' +
           'ranger 300 树）。因为演示数据自带真值 <code>tau</code>，' +
           '所以可以把 ATE、CATE 相关、RMSE 三者一起报。</p>' +
-          '<pre><code>d &lt;- mlr3HTE_demo_data(n = 1500, seed = 1201)\ncate &lt;- x_learner()(d$X, d$A, d$Y,\n             learner_base = lrn("regr.ranger", num.trees = 300, seed = 1L))\ntibble(ATE = mean(cate), 与真相关 = cor(cate, d$tau),\n       RMSE = sqrt(mean((cate - d$tau)^2)))</code></pre>' +
+          '<pre><code class="language-r">d &lt;- mlr3HTE_demo_data(n = 1500, seed = 1201)\ncate &lt;- x_learner()(d$X, d$A, d$Y,\n             learner_base = lrn("regr.ranger", num.trees = 300, seed = 1L))\ntibble(ATE = mean(cate), 与真相关 = cor(cate, d$tau),\n       RMSE = sqrt(mean((cate - d$tau)^2)))</code></pre>' +
           '<p>实测输出：</p>' +
-          '<pre><code># A tibble: 1 × 3\n    ATE 与真相关  RMSE\n  &lt;dbl&gt;    &lt;dbl&gt; &lt;dbl&gt;\n1  1.09    0.950 0.340</code></pre>' +
+          '<pre><code class="r-out"># A tibble: 1 × 3\n    ATE 与真相关  RMSE\n  &lt;dbl&gt;    &lt;dbl&gt; &lt;dbl&gt;\n1  1.09    0.950 0.340</code></pre>' +
           '<div class="callout"><div class="callout-title">怎么读这三个数</div>' +
           '<ul>' +
           '<li><code>ATE</code> = CATE 的均值，看人群平均对不对；此处真值为 1.049。</li>' +
@@ -1211,9 +1211,9 @@ window.SITE_PAGES.apix = {
           '<p>Both the code and the output below are <strong>actually run</strong> ' +
           '(n = 1500, seed = 1201, ranger with 300 trees). Because the demo data carries the ' +
           'true <code>tau</code>, ATE, CATE correlation and RMSE can all be reported together.</p>' +
-          '<pre><code>d &lt;- mlr3HTE_demo_data(n = 1500, seed = 1201)\ncate &lt;- x_learner()(d$X, d$A, d$Y,\n             learner_base = lrn("regr.ranger", num.trees = 300, seed = 1L))\ntibble(ATE = mean(cate), 与真相关 = cor(cate, d$tau),\n       RMSE = sqrt(mean((cate - d$tau)^2)))</code></pre>' +
+          '<pre><code class="language-r">d &lt;- mlr3HTE_demo_data(n = 1500, seed = 1201)\ncate &lt;- x_learner()(d$X, d$A, d$Y,\n             learner_base = lrn("regr.ranger", num.trees = 300, seed = 1L))\ntibble(ATE = mean(cate), 与真相关 = cor(cate, d$tau),\n       RMSE = sqrt(mean((cate - d$tau)^2)))</code></pre>' +
           '<p>Output:</p>' +
-          '<pre><code># A tibble: 1 × 3\n    ATE 与真相关  RMSE\n  &lt;dbl&gt;    &lt;dbl&gt; &lt;dbl&gt;\n1  1.09    0.950 0.340</code></pre>' +
+          '<pre><code class="r-out"># A tibble: 1 × 3\n    ATE 与真相关  RMSE\n  &lt;dbl&gt;    &lt;dbl&gt; &lt;dbl&gt;\n1  1.09    0.950 0.340</code></pre>' +
           '<div class="callout"><div class="callout-title">How to read the three numbers</div>' +
           '<ul>' +
           '<li><code>ATE</code> is the mean of CATE — whether the population average is right; truth here is 1.049.</li>' +
@@ -1270,9 +1270,9 @@ window.SITE_PAGES.apir = {
           '<p>下面的代码与输出都是<strong>真实跑出来的</strong>（n = 1500，seed = 1201，' +
           'ranger 300 树）。因为演示数据自带真值 <code>tau</code>，' +
           '所以可以把 ATE、CATE 相关、RMSE 三者一起报。</p>' +
-          '<pre><code>d &lt;- mlr3HTE_demo_data(n = 1500, seed = 1201)\ncate &lt;- r_learner()(d$X, d$A, d$Y,\n             learner_base = lrn("regr.ranger", num.trees = 300, seed = 1L))\ntibble(ATE = mean(cate), 与真相关 = cor(cate, d$tau),\n       RMSE = sqrt(mean((cate - d$tau)^2)))</code></pre>' +
+          '<pre><code class="language-r">d &lt;- mlr3HTE_demo_data(n = 1500, seed = 1201)\ncate &lt;- r_learner()(d$X, d$A, d$Y,\n             learner_base = lrn("regr.ranger", num.trees = 300, seed = 1L))\ntibble(ATE = mean(cate), 与真相关 = cor(cate, d$tau),\n       RMSE = sqrt(mean((cate - d$tau)^2)))</code></pre>' +
           '<p>实测输出：</p>' +
-          '<pre><code># A tibble: 1 × 3\n    ATE 与真相关  RMSE\n  &lt;dbl&gt;    &lt;dbl&gt; &lt;dbl&gt;\n1 0.541    0.811 0.856</code></pre>' +
+          '<pre><code class="r-out"># A tibble: 1 × 3\n    ATE 与真相关  RMSE\n  &lt;dbl&gt;    &lt;dbl&gt; &lt;dbl&gt;\n1 0.541    0.811 0.856</code></pre>' +
           '<div class="callout"><div class="callout-title">怎么读这三个数</div>' +
           '<ul>' +
           '<li><code>ATE</code> = CATE 的均值，看人群平均对不对；此处真值为 1.049。</li>' +
@@ -1325,9 +1325,9 @@ window.SITE_PAGES.apir = {
           '<p>Both the code and the output below are <strong>actually run</strong> ' +
           '(n = 1500, seed = 1201, ranger with 300 trees). Because the demo data carries the ' +
           'true <code>tau</code>, ATE, CATE correlation and RMSE can all be reported together.</p>' +
-          '<pre><code>d &lt;- mlr3HTE_demo_data(n = 1500, seed = 1201)\ncate &lt;- r_learner()(d$X, d$A, d$Y,\n             learner_base = lrn("regr.ranger", num.trees = 300, seed = 1L))\ntibble(ATE = mean(cate), 与真相关 = cor(cate, d$tau),\n       RMSE = sqrt(mean((cate - d$tau)^2)))</code></pre>' +
+          '<pre><code class="language-r">d &lt;- mlr3HTE_demo_data(n = 1500, seed = 1201)\ncate &lt;- r_learner()(d$X, d$A, d$Y,\n             learner_base = lrn("regr.ranger", num.trees = 300, seed = 1L))\ntibble(ATE = mean(cate), 与真相关 = cor(cate, d$tau),\n       RMSE = sqrt(mean((cate - d$tau)^2)))</code></pre>' +
           '<p>Output:</p>' +
-          '<pre><code># A tibble: 1 × 3\n    ATE 与真相关  RMSE\n  &lt;dbl&gt;    &lt;dbl&gt; &lt;dbl&gt;\n1 0.541    0.811 0.856</code></pre>' +
+          '<pre><code class="r-out"># A tibble: 1 × 3\n    ATE 与真相关  RMSE\n  &lt;dbl&gt;    &lt;dbl&gt; &lt;dbl&gt;\n1 0.541    0.811 0.856</code></pre>' +
           '<div class="callout"><div class="callout-title">How to read the three numbers</div>' +
           '<ul>' +
           '<li><code>ATE</code> is the mean of CATE — whether the population average is right; truth here is 1.049.</li>' +
@@ -1384,9 +1384,9 @@ window.SITE_PAGES.apidr = {
           '<p>下面的代码与输出都是<strong>真实跑出来的</strong>（n = 1500，seed = 1201，' +
           'ranger 300 树）。因为演示数据自带真值 <code>tau</code>，' +
           '所以可以把 ATE、CATE 相关、RMSE 三者一起报。</p>' +
-          '<pre><code>d &lt;- mlr3HTE_demo_data(n = 1500, seed = 1201)\ncate &lt;- dr_learner()(d$X, d$A, d$Y,\n             learner_base = lrn("regr.ranger", num.trees = 300, seed = 1L))\ntibble(ATE = mean(cate), 与真相关 = cor(cate, d$tau),\n       RMSE = sqrt(mean((cate - d$tau)^2)))</code></pre>' +
+          '<pre><code class="language-r">d &lt;- mlr3HTE_demo_data(n = 1500, seed = 1201)\ncate &lt;- dr_learner()(d$X, d$A, d$Y,\n             learner_base = lrn("regr.ranger", num.trees = 300, seed = 1L))\ntibble(ATE = mean(cate), 与真相关 = cor(cate, d$tau),\n       RMSE = sqrt(mean((cate - d$tau)^2)))</code></pre>' +
           '<p>实测输出：</p>' +
-          '<pre><code># A tibble: 1 × 3\n    ATE 与真相关  RMSE\n  &lt;dbl&gt;    &lt;dbl&gt; &lt;dbl&gt;\n1  1.08    0.916 0.419</code></pre>' +
+          '<pre><code class="r-out"># A tibble: 1 × 3\n    ATE 与真相关  RMSE\n  &lt;dbl&gt;    &lt;dbl&gt; &lt;dbl&gt;\n1  1.08    0.916 0.419</code></pre>' +
           '<div class="callout"><div class="callout-title">怎么读这三个数</div>' +
           '<ul>' +
           '<li><code>ATE</code> = CATE 的均值，看人群平均对不对；此处真值为 1.049。</li>' +
@@ -1439,9 +1439,9 @@ window.SITE_PAGES.apidr = {
           '<p>Both the code and the output below are <strong>actually run</strong> ' +
           '(n = 1500, seed = 1201, ranger with 300 trees). Because the demo data carries the ' +
           'true <code>tau</code>, ATE, CATE correlation and RMSE can all be reported together.</p>' +
-          '<pre><code>d &lt;- mlr3HTE_demo_data(n = 1500, seed = 1201)\ncate &lt;- dr_learner()(d$X, d$A, d$Y,\n             learner_base = lrn("regr.ranger", num.trees = 300, seed = 1L))\ntibble(ATE = mean(cate), 与真相关 = cor(cate, d$tau),\n       RMSE = sqrt(mean((cate - d$tau)^2)))</code></pre>' +
+          '<pre><code class="language-r">d &lt;- mlr3HTE_demo_data(n = 1500, seed = 1201)\ncate &lt;- dr_learner()(d$X, d$A, d$Y,\n             learner_base = lrn("regr.ranger", num.trees = 300, seed = 1L))\ntibble(ATE = mean(cate), 与真相关 = cor(cate, d$tau),\n       RMSE = sqrt(mean((cate - d$tau)^2)))</code></pre>' +
           '<p>Output:</p>' +
-          '<pre><code># A tibble: 1 × 3\n    ATE 与真相关  RMSE\n  &lt;dbl&gt;    &lt;dbl&gt; &lt;dbl&gt;\n1  1.08    0.916 0.419</code></pre>' +
+          '<pre><code class="r-out"># A tibble: 1 × 3\n    ATE 与真相关  RMSE\n  &lt;dbl&gt;    &lt;dbl&gt; &lt;dbl&gt;\n1  1.08    0.916 0.419</code></pre>' +
           '<div class="callout"><div class="callout-title">How to read the three numbers</div>' +
           '<ul>' +
           '<li><code>ATE</code> is the mean of CATE — whether the population average is right; truth here is 1.049.</li>' +
@@ -1496,9 +1496,9 @@ window.SITE_PAGES.apidemodata = {
         heading: "实测示例",
         body:
           '<p>代码与输出均为<strong>真实跑出</strong>（n = 1200，seed 如代码所示）。</p>' +
-          '<pre><code>d &lt;- mlr3HTE_demo_data(n = 1200, seed = 1201)\ntibble(真实ATE = d$ate, CATE_SD = sd(d$tau), CATE_min = min(d$tau),\n       CATE_max = max(d$tau), 处理率 = mean(d$A))\nnames(d$X)\nhead(d$X, 3)\nclass(d$Y)\nhead(d$Y, 3)</code></pre>' +
+          '<pre><code class="language-r">d &lt;- mlr3HTE_demo_data(n = 1200, seed = 1201)\ntibble(真实ATE = d$ate, CATE_SD = sd(d$tau), CATE_min = min(d$tau),\n       CATE_max = max(d$tau), 处理率 = mean(d$A))\nnames(d$X)\nhead(d$X, 3)\nclass(d$Y)\nhead(d$Y, 3)</code></pre>' +
           '<p>实测输出：</p>' +
-          '<pre><code>--- 数据卡 ---\n# A tibble: 1 × 5\n  真实ATE CATE_SD CATE_min CATE_max 处理率\n    &lt;dbl&gt;   &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;  &lt;dbl&gt;\n1    1.05    1.06    -2.73     4.64    0.5\n\n--- X 的列与前 3 行 ---\n[1] "age"   "lac"   "tumor" "sex"  \n       age      lac    tumor sex\n1 38.60905 3.353193 3.876882   1\n2 55.35569 1.468101 5.906637   1\n3 50.67085 3.763216 3.162722   1\n\n--- 结局类型 ---\n[1] "numeric"\n[1] 8.416564 5.474692 9.719083</code></pre>' +
+          '<pre><code class="r-out">--- 数据卡 ---\n# A tibble: 1 × 5\n  真实ATE CATE_SD CATE_min CATE_max 处理率\n    &lt;dbl&gt;   &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;  &lt;dbl&gt;\n1    1.05    1.06    -2.73     4.64    0.5\n\n--- X 的列与前 3 行 ---\n[1] "age"   "lac"   "tumor" "sex"  \n       age      lac    tumor sex\n1 38.60905 3.353193 3.876882   1\n2 55.35569 1.468101 5.906637   1\n3 50.67085 3.763216 3.162722   1\n\n--- 结局类型 ---\n[1] "numeric"\n[1] 8.416564 5.474692 9.719083</code></pre>' +
           '<div class="callout"><div class="callout-title">这份数据用来干什么</div>' +
           '<p>教程 01（连续 × RCT）的数据源；也是 <a href="#/apimetalearner">metalearner()</a> 文档里所有示例的默认数据。</p></div>'
       },
@@ -1540,9 +1540,9 @@ window.SITE_PAGES.apidemodata = {
         heading: "Worked example (real output)",
         body:
           '<p>Both code and output are <strong>actually run</strong> (n = 1200, seed as shown).</p>' +
-          '<pre><code>d &lt;- mlr3HTE_demo_data(n = 1200, seed = 1201)\ntibble(真实ATE = d$ate, CATE_SD = sd(d$tau), CATE_min = min(d$tau),\n       CATE_max = max(d$tau), 处理率 = mean(d$A))\nnames(d$X)\nhead(d$X, 3)\nclass(d$Y)\nhead(d$Y, 3)</code></pre>' +
+          '<pre><code class="language-r">d &lt;- mlr3HTE_demo_data(n = 1200, seed = 1201)\ntibble(真实ATE = d$ate, CATE_SD = sd(d$tau), CATE_min = min(d$tau),\n       CATE_max = max(d$tau), 处理率 = mean(d$A))\nnames(d$X)\nhead(d$X, 3)\nclass(d$Y)\nhead(d$Y, 3)</code></pre>' +
           '<p>Output:</p>' +
-          '<pre><code>--- 数据卡 ---\n# A tibble: 1 × 5\n  真实ATE CATE_SD CATE_min CATE_max 处理率\n    &lt;dbl&gt;   &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;  &lt;dbl&gt;\n1    1.05    1.06    -2.73     4.64    0.5\n\n--- X 的列与前 3 行 ---\n[1] "age"   "lac"   "tumor" "sex"  \n       age      lac    tumor sex\n1 38.60905 3.353193 3.876882   1\n2 55.35569 1.468101 5.906637   1\n3 50.67085 3.763216 3.162722   1\n\n--- 结局类型 ---\n[1] "numeric"\n[1] 8.416564 5.474692 9.719083</code></pre>' +
+          '<pre><code class="r-out">--- 数据卡 ---\n# A tibble: 1 × 5\n  真实ATE CATE_SD CATE_min CATE_max 处理率\n    &lt;dbl&gt;   &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;  &lt;dbl&gt;\n1    1.05    1.06    -2.73     4.64    0.5\n\n--- X 的列与前 3 行 ---\n[1] "age"   "lac"   "tumor" "sex"  \n       age      lac    tumor sex\n1 38.60905 3.353193 3.876882   1\n2 55.35569 1.468101 5.906637   1\n3 50.67085 3.763216 3.162722   1\n\n--- 结局类型 ---\n[1] "numeric"\n[1] 8.416564 5.474692 9.719083</code></pre>' +
           '<div class="callout"><div class="callout-title">What this dataset is for</div>' +
           '<p>Data source for tutorial 01 (continuous × RCT) and the default dataset in every <a href="#/apimetalearner">metalearner()</a> example.</p></div>'
       },
@@ -1587,9 +1587,9 @@ window.SITE_PAGES.apidemobinary = {
         heading: "实测示例",
         body:
           '<p>代码与输出均为<strong>真实跑出</strong>（n = 1200，seed 如代码所示）。</p>' +
-          '<pre><code>d &lt;- mlr3HTE_demo_binary(n = 1200, seed = 1203)\ntibble(真实ATE = d$ate, CATE_SD = sd(d$tau), 处理率 = mean(d$A),\n       结局率 = mean(d$Y))\ntable(d$Y)</code></pre>' +
+          '<pre><code class="language-r">d &lt;- mlr3HTE_demo_binary(n = 1200, seed = 1203)\ntibble(真实ATE = d$ate, CATE_SD = sd(d$tau), 处理率 = mean(d$A),\n       结局率 = mean(d$Y))\ntable(d$Y)</code></pre>' +
           '<p>实测输出：</p>' +
-          '<pre><code>--- 数据卡 ---\n# A tibble: 1 × 4\n  真实ATE CATE_SD 处理率 结局率\n    &lt;dbl&gt;   &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt;\n1   0.131   0.131    0.5  0.344\n\n--- Y 是 0/1 ---\n\n  0   1 \n787 413</code></pre>' +
+          '<pre><code class="r-out">--- 数据卡 ---\n# A tibble: 1 × 4\n  真实ATE CATE_SD 处理率 结局率\n    &lt;dbl&gt;   &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt;\n1   0.131   0.131    0.5  0.344\n\n--- Y 是 0/1 ---\n\n  0   1 \n787 413</code></pre>' +
           '<div class="callout"><div class="callout-title">这份数据用来干什么</div>' +
           '<p>教程 03（二分类 × RCT）的数据源。</p></div>'
       },
@@ -1631,9 +1631,9 @@ window.SITE_PAGES.apidemobinary = {
         heading: "Worked example (real output)",
         body:
           '<p>Both code and output are <strong>actually run</strong> (n = 1200, seed as shown).</p>' +
-          '<pre><code>d &lt;- mlr3HTE_demo_binary(n = 1200, seed = 1203)\ntibble(真实ATE = d$ate, CATE_SD = sd(d$tau), 处理率 = mean(d$A),\n       结局率 = mean(d$Y))\ntable(d$Y)</code></pre>' +
+          '<pre><code class="language-r">d &lt;- mlr3HTE_demo_binary(n = 1200, seed = 1203)\ntibble(真实ATE = d$ate, CATE_SD = sd(d$tau), 处理率 = mean(d$A),\n       结局率 = mean(d$Y))\ntable(d$Y)</code></pre>' +
           '<p>Output:</p>' +
-          '<pre><code>--- 数据卡 ---\n# A tibble: 1 × 4\n  真实ATE CATE_SD 处理率 结局率\n    &lt;dbl&gt;   &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt;\n1   0.131   0.131    0.5  0.344\n\n--- Y 是 0/1 ---\n\n  0   1 \n787 413</code></pre>' +
+          '<pre><code class="r-out">--- 数据卡 ---\n# A tibble: 1 × 4\n  真实ATE CATE_SD 处理率 结局率\n    &lt;dbl&gt;   &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt;\n1   0.131   0.131    0.5  0.344\n\n--- Y 是 0/1 ---\n\n  0   1 \n787 413</code></pre>' +
           '<div class="callout"><div class="callout-title">What this dataset is for</div>' +
           '<p>Data source for tutorial 03 (binary × RCT).</p></div>'
       },
@@ -1678,9 +1678,9 @@ window.SITE_PAGES.apidemoobs = {
         heading: "实测示例",
         body:
           '<p>代码与输出均为<strong>真实跑出</strong>（n = 1200，seed 如代码所示）。</p>' +
-          '<pre><code>d &lt;- mlr3HTE_demo_obs(n = 1200, seed = 1204)\ntibble(真实ATE = d$ate, CATE_SD = sd(d$tau), 处理率 = mean(d$A))\nd$X |&gt; mutate(A = d$A) |&gt; group_by(A) |&gt;\n  summarise(across(where(is.numeric), mean), .groups = "drop")\nrange(d$ps_true)</code></pre>' +
+          '<pre><code class="language-r">d &lt;- mlr3HTE_demo_obs(n = 1200, seed = 1204)\ntibble(真实ATE = d$ate, CATE_SD = sd(d$tau), 处理率 = mean(d$A))\nd$X |&gt; mutate(A = d$A) |&gt; group_by(A) |&gt;\n  summarise(across(where(is.numeric), mean), .groups = "drop")\nrange(d$ps_true)</code></pre>' +
           '<p>实测输出：</p>' +
-          '<pre><code>--- 数据卡 ---\n# A tibble: 1 × 3\n  真实ATE CATE_SD 处理率\n    &lt;dbl&gt;   &lt;dbl&gt;  &lt;dbl&gt;\n1    1.04    1.03    0.4\n\n--- 两组基线差异（混杂的来源）---\n# A tibble: 2 × 5\n      A   age   lac tumor   sex\n  &lt;int&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;\n1     0  59.7  2.17  4.77 0.431\n2     1  60.3  3.00  5.48 0.438\n\n--- ps_true 范围 ---\n[1] 0.01941862 0.94016139</code></pre>' +
+          '<pre><code class="r-out">--- 数据卡 ---\n# A tibble: 1 × 3\n  真实ATE CATE_SD 处理率\n    &lt;dbl&gt;   &lt;dbl&gt;  &lt;dbl&gt;\n1    1.04    1.03    0.4\n\n--- 两组基线差异（混杂的来源）---\n# A tibble: 2 × 5\n      A   age   lac tumor   sex\n  &lt;int&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;\n1     0  59.7  2.17  4.77 0.431\n2     1  60.3  3.00  5.48 0.438\n\n--- ps_true 范围 ---\n[1] 0.01941862 0.94016139</code></pre>' +
           '<div class="callout"><div class="callout-title">这份数据用来干什么</div>' +
           '<p>教程 02（连续 × 观察性）的数据源；<a href="#/apidrpseudo">dr_pseudo_outcome()</a> 示例也用它。</p></div>'
       },
@@ -1722,9 +1722,9 @@ window.SITE_PAGES.apidemoobs = {
         heading: "Worked example (real output)",
         body:
           '<p>Both code and output are <strong>actually run</strong> (n = 1200, seed as shown).</p>' +
-          '<pre><code>d &lt;- mlr3HTE_demo_obs(n = 1200, seed = 1204)\ntibble(真实ATE = d$ate, CATE_SD = sd(d$tau), 处理率 = mean(d$A))\nd$X |&gt; mutate(A = d$A) |&gt; group_by(A) |&gt;\n  summarise(across(where(is.numeric), mean), .groups = "drop")\nrange(d$ps_true)</code></pre>' +
+          '<pre><code class="language-r">d &lt;- mlr3HTE_demo_obs(n = 1200, seed = 1204)\ntibble(真实ATE = d$ate, CATE_SD = sd(d$tau), 处理率 = mean(d$A))\nd$X |&gt; mutate(A = d$A) |&gt; group_by(A) |&gt;\n  summarise(across(where(is.numeric), mean), .groups = "drop")\nrange(d$ps_true)</code></pre>' +
           '<p>Output:</p>' +
-          '<pre><code>--- 数据卡 ---\n# A tibble: 1 × 3\n  真实ATE CATE_SD 处理率\n    &lt;dbl&gt;   &lt;dbl&gt;  &lt;dbl&gt;\n1    1.04    1.03    0.4\n\n--- 两组基线差异（混杂的来源）---\n# A tibble: 2 × 5\n      A   age   lac tumor   sex\n  &lt;int&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;\n1     0  59.7  2.17  4.77 0.431\n2     1  60.3  3.00  5.48 0.438\n\n--- ps_true 范围 ---\n[1] 0.01941862 0.94016139</code></pre>' +
+          '<pre><code class="r-out">--- 数据卡 ---\n# A tibble: 1 × 3\n  真实ATE CATE_SD 处理率\n    &lt;dbl&gt;   &lt;dbl&gt;  &lt;dbl&gt;\n1    1.04    1.03    0.4\n\n--- 两组基线差异（混杂的来源）---\n# A tibble: 2 × 5\n      A   age   lac tumor   sex\n  &lt;int&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;\n1     0  59.7  2.17  4.77 0.431\n2     1  60.3  3.00  5.48 0.438\n\n--- ps_true 范围 ---\n[1] 0.01941862 0.94016139</code></pre>' +
           '<div class="callout"><div class="callout-title">What this dataset is for</div>' +
           '<p>Data source for tutorial 02 (continuous × observational); also used by the <a href="#/apidrpseudo">dr_pseudo_outcome()</a> example.</p></div>'
       },
@@ -1769,9 +1769,9 @@ window.SITE_PAGES.apidemoobsbinary = {
         heading: "实测示例",
         body:
           '<p>代码与输出均为<strong>真实跑出</strong>（n = 1200，seed 如代码所示）。</p>' +
-          '<pre><code>d &lt;- mlr3HTE_demo_obs_binary(n = 1200, seed = 1204)\ntibble(真实ATE = d$ate, 处理率 = mean(d$A), 结局率 = mean(d$Y),\n       ps_true_min = min(d$ps_true), ps_true_max = max(d$ps_true))</code></pre>' +
+          '<pre><code class="language-r">d &lt;- mlr3HTE_demo_obs_binary(n = 1200, seed = 1204)\ntibble(真实ATE = d$ate, 处理率 = mean(d$A), 结局率 = mean(d$Y),\n       ps_true_min = min(d$ps_true), ps_true_max = max(d$ps_true))</code></pre>' +
           '<p>实测输出：</p>' +
-          '<pre><code># A tibble: 1 × 5\n  真实ATE 处理率 结局率 ps_true_min ps_true_max\n    &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt;       &lt;dbl&gt;       &lt;dbl&gt;\n1   0.130    0.4  0.337      0.0194       0.940</code></pre>' +
+          '<pre><code class="r-out"># A tibble: 1 × 5\n  真实ATE 处理率 结局率 ps_true_min ps_true_max\n    &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt;       &lt;dbl&gt;       &lt;dbl&gt;\n1   0.130    0.4  0.337      0.0194       0.940</code></pre>' +
           '<div class="callout"><div class="callout-title">这份数据用来干什么</div>' +
           '<p>教程 04（二分类 × 观察性）的数据源。</p></div>'
       },
@@ -1813,9 +1813,9 @@ window.SITE_PAGES.apidemoobsbinary = {
         heading: "Worked example (real output)",
         body:
           '<p>Both code and output are <strong>actually run</strong> (n = 1200, seed as shown).</p>' +
-          '<pre><code>d &lt;- mlr3HTE_demo_obs_binary(n = 1200, seed = 1204)\ntibble(真实ATE = d$ate, 处理率 = mean(d$A), 结局率 = mean(d$Y),\n       ps_true_min = min(d$ps_true), ps_true_max = max(d$ps_true))</code></pre>' +
+          '<pre><code class="language-r">d &lt;- mlr3HTE_demo_obs_binary(n = 1200, seed = 1204)\ntibble(真实ATE = d$ate, 处理率 = mean(d$A), 结局率 = mean(d$Y),\n       ps_true_min = min(d$ps_true), ps_true_max = max(d$ps_true))</code></pre>' +
           '<p>Output:</p>' +
-          '<pre><code># A tibble: 1 × 5\n  真实ATE 处理率 结局率 ps_true_min ps_true_max\n    &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt;       &lt;dbl&gt;       &lt;dbl&gt;\n1   0.130    0.4  0.337      0.0194       0.940</code></pre>' +
+          '<pre><code class="r-out"># A tibble: 1 × 5\n  真实ATE 处理率 结局率 ps_true_min ps_true_max\n    &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt;       &lt;dbl&gt;       &lt;dbl&gt;\n1   0.130    0.4  0.337      0.0194       0.940</code></pre>' +
           '<div class="callout"><div class="callout-title">What this dataset is for</div>' +
           '<p>Data source for tutorial 04 (binary × observational).</p></div>'
       },
@@ -1860,9 +1860,9 @@ window.SITE_PAGES.apidemoobssurv = {
         heading: "实测示例",
         body:
           '<p>代码与输出均为<strong>真实跑出</strong>（n = 1200，seed 如代码所示）。</p>' +
-          '<pre><code>d &lt;- mlr3HTE_demo_obs_surv(n = 1200, seed = 1205)\ntibble(真实ATE = d$ate, t0 = d$t0, 处理率 = mean(d$A),\n       删失比例 = 1 - mean(d$Y[, 2L]))\nclass(d$Y)\nhead(d$Y, 3)</code></pre>' +
+          '<pre><code class="language-r">d &lt;- mlr3HTE_demo_obs_surv(n = 1200, seed = 1205)\ntibble(真实ATE = d$ate, t0 = d$t0, 处理率 = mean(d$A),\n       删失比例 = 1 - mean(d$Y[, 2L]))\nclass(d$Y)\nhead(d$Y, 3)</code></pre>' +
           '<p>实测输出：</p>' +
-          '<pre><code># A tibble: 1 × 4\n  真实ATE    t0 处理率 删失比例\n    &lt;dbl&gt; &lt;dbl&gt;  &lt;dbl&gt;    &lt;dbl&gt;\n1   0.151     2  0.387    0.292\n\n--- Y 是 Surv 矩阵 ---\n[1] "Surv"\n[1] 8.7075197+ 0.7079554  0.1362236</code></pre>' +
+          '<pre><code class="r-out"># A tibble: 1 × 4\n  真实ATE    t0 处理率 删失比例\n    &lt;dbl&gt; &lt;dbl&gt;  &lt;dbl&gt;    &lt;dbl&gt;\n1   0.151     2  0.387    0.292\n\n--- Y 是 Surv 矩阵 ---\n[1] "Surv"\n[1] 8.7075197+ 0.7079554  0.1362236</code></pre>' +
           '<div class="callout"><div class="callout-title">这份数据用来干什么</div>' +
           '<p>教程 06（生存 × 观察性）的数据源。</p></div>'
       },
@@ -1904,9 +1904,9 @@ window.SITE_PAGES.apidemoobssurv = {
         heading: "Worked example (real output)",
         body:
           '<p>Both code and output are <strong>actually run</strong> (n = 1200, seed as shown).</p>' +
-          '<pre><code>d &lt;- mlr3HTE_demo_obs_surv(n = 1200, seed = 1205)\ntibble(真实ATE = d$ate, t0 = d$t0, 处理率 = mean(d$A),\n       删失比例 = 1 - mean(d$Y[, 2L]))\nclass(d$Y)\nhead(d$Y, 3)</code></pre>' +
+          '<pre><code class="language-r">d &lt;- mlr3HTE_demo_obs_surv(n = 1200, seed = 1205)\ntibble(真实ATE = d$ate, t0 = d$t0, 处理率 = mean(d$A),\n       删失比例 = 1 - mean(d$Y[, 2L]))\nclass(d$Y)\nhead(d$Y, 3)</code></pre>' +
           '<p>Output:</p>' +
-          '<pre><code># A tibble: 1 × 4\n  真实ATE    t0 处理率 删失比例\n    &lt;dbl&gt; &lt;dbl&gt;  &lt;dbl&gt;    &lt;dbl&gt;\n1   0.151     2  0.387    0.292\n\n--- Y 是 Surv 矩阵 ---\n[1] "Surv"\n[1] 8.7075197+ 0.7079554  0.1362236</code></pre>' +
+          '<pre><code class="r-out"># A tibble: 1 × 4\n  真实ATE    t0 处理率 删失比例\n    &lt;dbl&gt; &lt;dbl&gt;  &lt;dbl&gt;    &lt;dbl&gt;\n1   0.151     2  0.387    0.292\n\n--- Y 是 Surv 矩阵 ---\n[1] "Surv"\n[1] 8.7075197+ 0.7079554  0.1362236</code></pre>' +
           '<div class="callout"><div class="callout-title">What this dataset is for</div>' +
           '<p>Data source for tutorial 06 (survival × observational).</p></div>'
       },
@@ -1951,9 +1951,9 @@ window.SITE_PAGES.apidemosurv = {
         heading: "实测示例",
         body:
           '<p>代码与输出均为<strong>真实跑出</strong>（n = 1200，seed 如代码所示）。</p>' +
-          '<pre><code>d &lt;- mlr3HTE_demo_surv(n = 1200, seed = 1205)\ntibble(真实ATE = d$ate, t0 = d$t0, 处理率 = mean(d$A),\n       删失比例 = 1 - mean(d$Y[, 2L]))\nclass(d$Y)\nhead(d$Y, 3)</code></pre>' +
+          '<pre><code class="language-r">d &lt;- mlr3HTE_demo_surv(n = 1200, seed = 1205)\ntibble(真实ATE = d$ate, t0 = d$t0, 处理率 = mean(d$A),\n       删失比例 = 1 - mean(d$Y[, 2L]))\nclass(d$Y)\nhead(d$Y, 3)</code></pre>' +
           '<p>实测输出：</p>' +
-          '<pre><code># A tibble: 1 × 4\n  真实ATE    t0 处理率 删失比例\n    &lt;dbl&gt; &lt;dbl&gt;  &lt;dbl&gt;    &lt;dbl&gt;\n1   0.151     2  0.531    0.302\n\n--- Y 是 Surv 矩阵 ---\n[1] "Surv"\n[1] 8.7075197+ 0.7079554  0.5624068</code></pre>' +
+          '<pre><code class="r-out"># A tibble: 1 × 4\n  真实ATE    t0 处理率 删失比例\n    &lt;dbl&gt; &lt;dbl&gt;  &lt;dbl&gt;    &lt;dbl&gt;\n1   0.151     2  0.531    0.302\n\n--- Y 是 Surv 矩阵 ---\n[1] "Surv"\n[1] 8.7075197+ 0.7079554  0.5624068</code></pre>' +
           '<div class="callout"><div class="callout-title">这份数据用来干什么</div>' +
           '<p>教程 05（生存 × RCT）的数据源。</p></div>'
       },
@@ -1995,9 +1995,9 @@ window.SITE_PAGES.apidemosurv = {
         heading: "Worked example (real output)",
         body:
           '<p>Both code and output are <strong>actually run</strong> (n = 1200, seed as shown).</p>' +
-          '<pre><code>d &lt;- mlr3HTE_demo_surv(n = 1200, seed = 1205)\ntibble(真实ATE = d$ate, t0 = d$t0, 处理率 = mean(d$A),\n       删失比例 = 1 - mean(d$Y[, 2L]))\nclass(d$Y)\nhead(d$Y, 3)</code></pre>' +
+          '<pre><code class="language-r">d &lt;- mlr3HTE_demo_surv(n = 1200, seed = 1205)\ntibble(真实ATE = d$ate, t0 = d$t0, 处理率 = mean(d$A),\n       删失比例 = 1 - mean(d$Y[, 2L]))\nclass(d$Y)\nhead(d$Y, 3)</code></pre>' +
           '<p>Output:</p>' +
-          '<pre><code># A tibble: 1 × 4\n  真实ATE    t0 处理率 删失比例\n    &lt;dbl&gt; &lt;dbl&gt;  &lt;dbl&gt;    &lt;dbl&gt;\n1   0.151     2  0.531    0.302\n\n--- Y 是 Surv 矩阵 ---\n[1] "Surv"\n[1] 8.7075197+ 0.7079554  0.5624068</code></pre>' +
+          '<pre><code class="r-out"># A tibble: 1 × 4\n  真实ATE    t0 处理率 删失比例\n    &lt;dbl&gt; &lt;dbl&gt;  &lt;dbl&gt;    &lt;dbl&gt;\n1   0.151     2  0.531    0.302\n\n--- Y 是 Surv 矩阵 ---\n[1] "Surv"\n[1] 8.7075197+ 0.7079554  0.5624068</code></pre>' +
           '<div class="callout"><div class="callout-title">What this dataset is for</div>' +
           '<p>Data source for tutorial 05 (survival × RCT).</p></div>'
       },
@@ -2033,9 +2033,9 @@ window.SITE_PAGES.apiqinicurve = {
         body:
           '<p>代码与输出均为<strong>真实跑出</strong>。' +
           '背景数据：<code>mlr3HTE_demo_data(n = 1500, seed = 1201)</code> 上拟合的 X-learner（ranger 300 树）。</p>' +
-          '<pre><code>cv &lt;- qini_curve(fit$cate_train, d$A, d$Y)\nhead(cv, 5)\ntail(cv, 3)\nattr(cv, "qini_at_full")</code></pre>' +
+          '<pre><code class="language-r">cv &lt;- qini_curve(fit$cate_train, d$A, d$Y)\nhead(cv, 5)\ntail(cv, 3)\nattr(cv, "qini_at_full")</code></pre>' +
           '<p>实测输出：</p>' +
-          '<pre><code>--- 前 5 行 ---\n      fraction        qini\n1 0.0000000000 0.000000000\n2 0.0006666667 0.014940224\n3 0.0013333333 0.006970732\n4 0.0020000000 0.019672433\n5 0.0026666667 0.033119033\n\n--- 末 3 行 ---\n      fraction     qini\n1499 0.9986667 1.077251\n1500 0.9993333 1.081709\n1501 1.0000000 1.072626\n\n--- 属性 qini_at_full ---\n[1] 1.072626</code></pre>' +
+          '<pre><code class="r-out">--- 前 5 行 ---\n      fraction        qini\n1 0.0000000000 0.000000000\n2 0.0006666667 0.014940224\n3 0.0013333333 0.006970732\n4 0.0020000000 0.019672433\n5 0.0026666667 0.033119033\n\n--- 末 3 行 ---\n      fraction     qini\n1499 0.9986667 1.077251\n1500 0.9993333 1.081709\n1501 1.0000000 1.072626\n\n--- 属性 qini_at_full ---\n[1] 1.072626</code></pre>' +
           '<div class="callout warn"><div class="callout-title">随机基线不是精确的 0</div><p>归一化的 Qini 除以了随机线下的面积，而那个面积本身就f，单次随机排序能在 &plusmn;0.25 摆。比较模型要看相对次序。本包演示数据（n = 1500）上 10 次随机排序落在 &minus;0.253 到 0.227。</p></div>'
       }
     ]
@@ -2061,9 +2061,9 @@ window.SITE_PAGES.apiqinicurve = {
         body:
           '<p>Both code and output are <strong>actually run</strong>. Background data: an X-learner ' +
           '(ranger, 300 trees) fitted on <code>mlr3HTE_demo_data(n = 1500, seed = 1201)</code>.</p>' +
-          '<pre><code>cv &lt;- qini_curve(fit$cate_train, d$A, d$Y)\nhead(cv, 5)\ntail(cv, 3)\nattr(cv, "qini_at_full")</code></pre>' +
+          '<pre><code class="language-r">cv &lt;- qini_curve(fit$cate_train, d$A, d$Y)\nhead(cv, 5)\ntail(cv, 3)\nattr(cv, "qini_at_full")</code></pre>' +
           '<p>Output:</p>' +
-          '<pre><code>--- 前 5 行 ---\n      fraction        qini\n1 0.0000000000 0.000000000\n2 0.0006666667 0.014940224\n3 0.0013333333 0.006970732\n4 0.0020000000 0.019672433\n5 0.0026666667 0.033119033\n\n--- 末 3 行 ---\n      fraction     qini\n1499 0.9986667 1.077251\n1500 0.9993333 1.081709\n1501 1.0000000 1.072626\n\n--- 属性 qini_at_full ---\n[1] 1.072626</code></pre>' +
+          '<pre><code class="r-out">--- 前 5 行 ---\n      fraction        qini\n1 0.0000000000 0.000000000\n2 0.0006666667 0.014940224\n3 0.0013333333 0.006970732\n4 0.0020000000 0.019672433\n5 0.0026666667 0.033119033\n\n--- 末 3 行 ---\n      fraction     qini\n1499 0.9986667 1.077251\n1500 0.9993333 1.081709\n1501 1.0000000 1.072626\n\n--- 属性 qini_at_full ---\n[1] 1.072626</code></pre>' +
           '<div class="callout warn"><div class="callout-title">The random baseline is not exactly 0</div><p>Normalised Qini divides by the area under the random line, which is itself small, so a single random ranking can swing &plusmn;0.25. Compare models by relative order. On this package&rsquo;s demo data (n = 1500), ten random rankings gave &minus;0.253 to 0.227.</p></div>'
       }
     ]
@@ -2092,9 +2092,9 @@ window.SITE_PAGES.apiqinicoef = {
         body:
           '<p>代码与输出均为<strong>真实跑出</strong>。' +
           '背景数据：<code>mlr3HTE_demo_data(n = 1500, seed = 1201)</code> 上拟合的 X-learner（ranger 300 树）。</p>' +
-          '<pre><code>qini_coefficient(fit$cate_train, d$A, d$Y)\n\n# 用随机排序与真实 tau 当标尾\nset.seed(2)\nrnd &lt;- rnorm(nrow(d$X))\ntibble(来源 = c("随机", "模型", "真实 tau"),\n       qini_coefficient = c(qini_coefficient(rnd, d$A, d$Y)$qini_coefficient,\n                            qini_coefficient(fit$cate_train, d$A, d$Y)$qini_coefficient,\n                            qini_coefficient(d$tau, d$A, d$Y)$qini_coefficient))</code></pre>' +
+          '<pre><code class="language-r">qini_coefficient(fit$cate_train, d$A, d$Y)\n\n# 用随机排序与真实 tau 当标尾\nset.seed(2)\nrnd &lt;- rnorm(nrow(d$X))\ntibble(来源 = c("随机", "模型", "真实 tau"),\n       qini_coefficient = c(qini_coefficient(rnd, d$A, d$Y)$qini_coefficient,\n                            qini_coefficient(fit$cate_train, d$A, d$Y)$qini_coefficient,\n                            qini_coefficient(d$tau, d$A, d$Y)$qini_coefficient))</code></pre>' +
           '<p>实测输出：</p>' +
-          '<pre><code>$qini_coefficient\n[1] 0.2831499\n\n$qini_normalized\n[1] 0.5279564\n\n$auc\n[1] 0.8194629\n\n$qini_at_full\n[1] 1.072626\n\n\n--- 随机 vs 真实 tau 作标尺 ---\n# A tibble: 3 × 2\n  来源     qini_coefficient\n  &lt;chr&gt;               &lt;dbl&gt;\n1 随机               -0.198\n2 模型                0.283\n3 真实 tau            0.280</code></pre>' +
+          '<pre><code class="r-out">$qini_coefficient\n[1] 0.2831499\n\n$qini_normalized\n[1] 0.5279564\n\n$auc\n[1] 0.8194629\n\n$qini_at_full\n[1] 1.072626\n\n\n--- 随机 vs 真实 tau 作标尺 ---\n# A tibble: 3 × 2\n  来源     qini_coefficient\n  &lt;chr&gt;               &lt;dbl&gt;\n1 随机               -0.198\n2 模型                0.283\n3 真实 tau            0.280</code></pre>' +
           '<p>注意实测里<strong>模型的绝对 Qini 系数（0.283）稍高于真实 tau（0.280）</strong>：单次实验里这种差异属于采样噪声，不能由此得出“模型超过真值”的结论。想要稳定结论，应该用 <a href="#/apihtebenchmark">hte_benchmark()</a> 做交叉拟合后的多种子对比。</p>'
       }
     ]
@@ -2120,9 +2120,9 @@ window.SITE_PAGES.apiqinicoef = {
         body:
           '<p>Both code and output are <strong>actually run</strong>. Background data: an X-learner ' +
           '(ranger, 300 trees) fitted on <code>mlr3HTE_demo_data(n = 1500, seed = 1201)</code>.</p>' +
-          '<pre><code>qini_coefficient(fit$cate_train, d$A, d$Y)\n\n# 用随机排序与真实 tau 当标尾\nset.seed(2)\nrnd &lt;- rnorm(nrow(d$X))\ntibble(来源 = c("随机", "模型", "真实 tau"),\n       qini_coefficient = c(qini_coefficient(rnd, d$A, d$Y)$qini_coefficient,\n                            qini_coefficient(fit$cate_train, d$A, d$Y)$qini_coefficient,\n                            qini_coefficient(d$tau, d$A, d$Y)$qini_coefficient))</code></pre>' +
+          '<pre><code class="language-r">qini_coefficient(fit$cate_train, d$A, d$Y)\n\n# 用随机排序与真实 tau 当标尾\nset.seed(2)\nrnd &lt;- rnorm(nrow(d$X))\ntibble(来源 = c("随机", "模型", "真实 tau"),\n       qini_coefficient = c(qini_coefficient(rnd, d$A, d$Y)$qini_coefficient,\n                            qini_coefficient(fit$cate_train, d$A, d$Y)$qini_coefficient,\n                            qini_coefficient(d$tau, d$A, d$Y)$qini_coefficient))</code></pre>' +
           '<p>Output:</p>' +
-          '<pre><code>$qini_coefficient\n[1] 0.2831499\n\n$qini_normalized\n[1] 0.5279564\n\n$auc\n[1] 0.8194629\n\n$qini_at_full\n[1] 1.072626\n\n\n--- 随机 vs 真实 tau 作标尺 ---\n# A tibble: 3 × 2\n  来源     qini_coefficient\n  &lt;chr&gt;               &lt;dbl&gt;\n1 随机               -0.198\n2 模型                0.283\n3 真实 tau            0.280</code></pre>' +
+          '<pre><code class="r-out">$qini_coefficient\n[1] 0.2831499\n\n$qini_normalized\n[1] 0.5279564\n\n$auc\n[1] 0.8194629\n\n$qini_at_full\n[1] 1.072626\n\n\n--- 随机 vs 真实 tau 作标尺 ---\n# A tibble: 3 × 2\n  来源     qini_coefficient\n  &lt;chr&gt;               &lt;dbl&gt;\n1 随机               -0.198\n2 模型                0.283\n3 真实 tau            0.280</code></pre>' +
           '<p>Note that in this single run the <strong>model&rsquo;s absolute coefficient (0.283) is slightly above the true tau&rsquo;s (0.280)</strong>: that gap is sampling noise, not evidence the model beats the truth. For stable conclusions use <a href="#/apihtebenchmark">hte_benchmark()</a>, which cross-fits and compares across seeds.</p>'
       }
     ]
@@ -2151,9 +2151,9 @@ window.SITE_PAGES.apicforbenefit = {
         body:
           '<p>代码与输出均为<strong>真实跑出</strong>。' +
           '背景数据：<code>mlr3HTE_demo_data(n = 1500, seed = 1201)</code> 上拟合的 X-learner（ranger 300 树）。</p>' +
-          '<pre><code>c_for_benefit(fit$cate_train, d$A, d$Y)\n\n# 用随机排序与真实 tau 当标尾\nset.seed(2)\nrnd &lt;- rnorm(nrow(d$X))\ntibble(来源 = c("随机", "模型", "真实 tau"),\n       c_for_benefit = c(c_for_benefit(rnd, d$A, d$Y)$c_for_benefit,\n                           c_for_benefit(fit$cate_train, d$A, d$Y)$c_for_benefit,\n                           c_for_benefit(d$tau, d$A, d$Y)$c_for_benefit))</code></pre>' +
+          '<pre><code class="language-r">c_for_benefit(fit$cate_train, d$A, d$Y)\n\n# 用随机排序与真实 tau 当标尾\nset.seed(2)\nrnd &lt;- rnorm(nrow(d$X))\ntibble(来源 = c("随机", "模型", "真实 tau"),\n       c_for_benefit = c(c_for_benefit(rnd, d$A, d$Y)$c_for_benefit,\n                           c_for_benefit(fit$cate_train, d$A, d$Y)$c_for_benefit,\n                           c_for_benefit(d$tau, d$A, d$Y)$c_for_benefit))</code></pre>' +
           '<p>实测输出：</p>' +
-          '<pre><code>$c_for_benefit\n[1] 0.6634926\n\n$n_pairs\n[1] 713\n\n$n_concordant\n[1] 168413\n\n$n_discordant\n[1] 85415\n\n$n_tied_pred\n[1] 0\n\n\n--- 随机 vs 真实 tau 作标尺 ---\n# A tibble: 3 × 2\n  来源     c_for_benefit\n  &lt;chr&gt;            &lt;dbl&gt;\n1 随机             0.488\n2 模型             0.663\n3 真实 tau         0.624</code></pre>' +
+          '<pre><code class="r-out">$c_for_benefit\n[1] 0.6634926\n\n$n_pairs\n[1] 713\n\n$n_concordant\n[1] 168413\n\n$n_discordant\n[1] 85415\n\n$n_tied_pred\n[1] 0\n\n\n--- 随机 vs 真实 tau 作标尺 ---\n# A tibble: 3 × 2\n  来源     c_for_benefit\n  &lt;chr&gt;            &lt;dbl&gt;\n1 随机             0.488\n2 模型             0.663\n3 真实 tau         0.624</code></pre>' +
           '<p>本演示数据上模型值 0.663 高于真实 tau 的 0.624——这是因为 CATE 是在<strong>自己的训练数据上</strong>计的（in-fold）。做真实评价请用 <a href="#/apihtebenchmark">hte_benchmark()</a>，它强制交叉拟合，同一个 X-learner 会回落到 0.617。</p>'
       }
     ]
@@ -2179,9 +2179,9 @@ window.SITE_PAGES.apicforbenefit = {
         body:
           '<p>Both code and output are <strong>actually run</strong>. Background data: an X-learner ' +
           '(ranger, 300 trees) fitted on <code>mlr3HTE_demo_data(n = 1500, seed = 1201)</code>.</p>' +
-          '<pre><code>c_for_benefit(fit$cate_train, d$A, d$Y)\n\n# 用随机排序与真实 tau 当标尾\nset.seed(2)\nrnd &lt;- rnorm(nrow(d$X))\ntibble(来源 = c("随机", "模型", "真实 tau"),\n       c_for_benefit = c(c_for_benefit(rnd, d$A, d$Y)$c_for_benefit,\n                           c_for_benefit(fit$cate_train, d$A, d$Y)$c_for_benefit,\n                           c_for_benefit(d$tau, d$A, d$Y)$c_for_benefit))</code></pre>' +
+          '<pre><code class="language-r">c_for_benefit(fit$cate_train, d$A, d$Y)\n\n# 用随机排序与真实 tau 当标尾\nset.seed(2)\nrnd &lt;- rnorm(nrow(d$X))\ntibble(来源 = c("随机", "模型", "真实 tau"),\n       c_for_benefit = c(c_for_benefit(rnd, d$A, d$Y)$c_for_benefit,\n                           c_for_benefit(fit$cate_train, d$A, d$Y)$c_for_benefit,\n                           c_for_benefit(d$tau, d$A, d$Y)$c_for_benefit))</code></pre>' +
           '<p>Output:</p>' +
-          '<pre><code>$c_for_benefit\n[1] 0.6634926\n\n$n_pairs\n[1] 713\n\n$n_concordant\n[1] 168413\n\n$n_discordant\n[1] 85415\n\n$n_tied_pred\n[1] 0\n\n\n--- 随机 vs 真实 tau 作标尺 ---\n# A tibble: 3 × 2\n  来源     c_for_benefit\n  &lt;chr&gt;            &lt;dbl&gt;\n1 随机             0.488\n2 模型             0.663\n3 真实 tau         0.624</code></pre>' +
+          '<pre><code class="r-out">$c_for_benefit\n[1] 0.6634926\n\n$n_pairs\n[1] 713\n\n$n_concordant\n[1] 168413\n\n$n_discordant\n[1] 85415\n\n$n_tied_pred\n[1] 0\n\n\n--- 随机 vs 真实 tau 作标尺 ---\n# A tibble: 3 × 2\n  来源     c_for_benefit\n  &lt;chr&gt;            &lt;dbl&gt;\n1 随机             0.488\n2 模型             0.663\n3 真实 tau         0.624</code></pre>' +
           '<p>On this demo data the model&rsquo;s 0.663 exceeds the true tau&rsquo;s 0.624 — because the CATE was computed <strong>in-fold</strong>, on its own training data. For an honest evaluation use <a href="#/apihtebenchmark">hte_benchmark()</a>, which enforces cross-fitting; the same X-learner then falls back to 0.617.</p>'
       }
     ]
@@ -2210,9 +2210,9 @@ window.SITE_PAGES.apitoccurve = {
         body:
           '<p>代码与输出均为<strong>真实跑出</strong>。' +
           '背景数据：<code>mlr3HTE_demo_data(n = 1500, seed = 1201)</code> 上拟合的 X-learner（ranger 300 树）。</p>' +
-          '<pre><code>cv &lt;- toc_curve(fit$cate_train, d$A, d$Y)\nhead(cv, 5)\nattr(cv, "overall_ate")\n\n# 分位处的 TOC\ntibble(分位 = c("10%", "25%", "50%", "75%"),\n       TOC = sapply(c(.1, .25, .5, .75), function(f)\n         cv$toc[which.min(abs(cv$fraction - f))]))</code></pre>' +
+          '<pre><code class="language-r">cv &lt;- toc_curve(fit$cate_train, d$A, d$Y)\nhead(cv, 5)\nattr(cv, "overall_ate")\n\n# 分位处的 TOC\ntibble(分位 = c("10%", "25%", "50%", "75%"),\n       TOC = sapply(c(.1, .25, .5, .75), function(f)\n         cv$toc[which.min(abs(cv$fraction - f))]))</code></pre>' +
           '<p>实测输出：</p>' +
-          '<pre><code>--- 前 5 行 ---\n      fraction       toc\n1 0.0006666667 22.410337\n2 0.0013333333  5.228049\n3 0.0020000000  9.836217\n4 0.0026666667 12.419637\n5 0.0033333333  7.271920\n\n--- 属性 overall_ate ---\n[1] 1.072626\n\n--- 分位数处的 TOC ---\n# A tibble: 4 × 2\n  分位    TOC\n  &lt;chr&gt; &lt;dbl&gt;\n1 10%    2.44\n2 25%    2.14\n3 50%    1.89\n4 75%    1.51</code></pre>' +
+          '<pre><code class="r-out">--- 前 5 行 ---\n      fraction       toc\n1 0.0006666667 22.410337\n2 0.0013333333  5.228049\n3 0.0020000000  9.836217\n4 0.0026666667 12.419637\n5 0.0033333333  7.271920\n\n--- 属性 overall_ate ---\n[1] 1.072626\n\n--- 分位数处的 TOC ---\n# A tibble: 4 × 2\n  分位    TOC\n  &lt;chr&gt; &lt;dbl&gt;\n1 10%    2.44\n2 25%    2.14\n3 50%    1.89\n4 75%    1.51</code></pre>' +
           '<p>实测里前 10% 目标群体的平均效应是 2.44，而全样本 ATE 是 1.07——前排人群的收益明显更高，说明排序有信息量。若曲线一直贴着水平线，则模型没分辩出可利用的异质性。</p>'
       }
     ]
@@ -2238,9 +2238,9 @@ window.SITE_PAGES.apitoccurve = {
         body:
           '<p>Both code and output are <strong>actually run</strong>. Background data: an X-learner ' +
           '(ranger, 300 trees) fitted on <code>mlr3HTE_demo_data(n = 1500, seed = 1201)</code>.</p>' +
-          '<pre><code>cv &lt;- toc_curve(fit$cate_train, d$A, d$Y)\nhead(cv, 5)\nattr(cv, "overall_ate")\n\n# 分位处的 TOC\ntibble(分位 = c("10%", "25%", "50%", "75%"),\n       TOC = sapply(c(.1, .25, .5, .75), function(f)\n         cv$toc[which.min(abs(cv$fraction - f))]))</code></pre>' +
+          '<pre><code class="language-r">cv &lt;- toc_curve(fit$cate_train, d$A, d$Y)\nhead(cv, 5)\nattr(cv, "overall_ate")\n\n# 分位处的 TOC\ntibble(分位 = c("10%", "25%", "50%", "75%"),\n       TOC = sapply(c(.1, .25, .5, .75), function(f)\n         cv$toc[which.min(abs(cv$fraction - f))]))</code></pre>' +
           '<p>Output:</p>' +
-          '<pre><code>--- 前 5 行 ---\n      fraction       toc\n1 0.0006666667 22.410337\n2 0.0013333333  5.228049\n3 0.0020000000  9.836217\n4 0.0026666667 12.419637\n5 0.0033333333  7.271920\n\n--- 属性 overall_ate ---\n[1] 1.072626\n\n--- 分位数处的 TOC ---\n# A tibble: 4 × 2\n  分位    TOC\n  &lt;chr&gt; &lt;dbl&gt;\n1 10%    2.44\n2 25%    2.14\n3 50%    1.89\n4 75%    1.51</code></pre>' +
+          '<pre><code class="r-out">--- 前 5 行 ---\n      fraction       toc\n1 0.0006666667 22.410337\n2 0.0013333333  5.228049\n3 0.0020000000  9.836217\n4 0.0026666667 12.419637\n5 0.0033333333  7.271920\n\n--- 属性 overall_ate ---\n[1] 1.072626\n\n--- 分位数处的 TOC ---\n# A tibble: 4 × 2\n  分位    TOC\n  &lt;chr&gt; &lt;dbl&gt;\n1 10%    2.44\n2 25%    2.14\n3 50%    1.89\n4 75%    1.51</code></pre>' +
           '<p>In this run the top 10% group has an average effect of 2.44 against an overall ATE of 1.07 — the top-ranked group clearly benefits more, so the ranking carries information. If the curve hugs the horizontal line, the model found no exploitable heterogeneity.</p>'
       }
     ]
@@ -2269,9 +2269,9 @@ window.SITE_PAGES.apidrpseudo = {
         body:
           '<p>代码与输出均为<strong>真实跑出</strong>。' +
           '背景数据：<code>mlr3HTE_demo_data(n = 1500, seed = 1201)</code> 上拟合的 X-learner（ranger 300 树）。</p>' +
-          '<pre><code>d &lt;- mlr3HTE_demo_obs(n = 1200, seed = 1204)\ndr &lt;- dr_pseudo_outcome(d$X, d$A, d$Y, seed = 1)\nnames(dr)\ntibble(DR_ATE = mean(dr$pseudo), 真实ATE = d$ate)\ntibble(ps_min = min(dr$propensity), ps_max = max(dr$propensity),\n       mu1_mean = mean(dr$mu1), mu0_mean = mean(dr$mu0))</code></pre>' +
+          '<pre><code class="language-r">d &lt;- mlr3HTE_demo_obs(n = 1200, seed = 1204)\ndr &lt;- dr_pseudo_outcome(d$X, d$A, d$Y, seed = 1)\nnames(dr)\ntibble(DR_ATE = mean(dr$pseudo), 真实ATE = d$ate)\ntibble(ps_min = min(dr$propensity), ps_max = max(dr$propensity),\n       mu1_mean = mean(dr$mu1), mu0_mean = mean(dr$mu0))</code></pre>' +
           '<p>实测输出：</p>' +
-          '<pre><code>--- 返回的字段 ---\n[1] "pseudo"     "mu1"        "mu0"        "propensity" "ate"       \n[6] "t0"         "effect"    \n\n--- 伪结局的均值 = DR 估计的 ATE ---\n# A tibble: 1 × 2\n  DR_ATE 真实ATE\n   &lt;dbl&gt;   &lt;dbl&gt;\n1  0.979    1.04\n\n--- 三件套的范围 ---\n# A tibble: 1 × 4\n  ps_min ps_max mu1_mean mu0_mean\n   &lt;dbl&gt;  &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;\n1 0.0179  0.939     7.16     6.10</code></pre>' +
+          '<pre><code class="r-out">--- 返回的字段 ---\n[1] "pseudo"     "mu1"        "mu0"        "propensity" "ate"       \n[6] "t0"         "effect"    \n\n--- 伪结局的均值 = DR 估计的 ATE ---\n# A tibble: 1 × 2\n  DR_ATE 真实ATE\n   &lt;dbl&gt;   &lt;dbl&gt;\n1  0.979    1.04\n\n--- 三件套的范围 ---\n# A tibble: 1 × 4\n  ps_min ps_max mu1_mean mu0_mean\n   &lt;dbl&gt;  &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;\n1 0.0179  0.939     7.16     6.10</code></pre>' +
           '<p>实测里 DR 估计的 ATE 为 0.979，真值 1.04；这量级偏差在 n = 1200 上属于正常采样潮用，且它比未校正的算算本身（约 1.74）小一个数量级。</p>'
       }
     ]
@@ -2297,9 +2297,9 @@ window.SITE_PAGES.apidrpseudo = {
         body:
           '<p>Both code and output are <strong>actually run</strong>. Background data: an X-learner ' +
           '(ranger, 300 trees) fitted on <code>mlr3HTE_demo_data(n = 1500, seed = 1201)</code>.</p>' +
-          '<pre><code>d &lt;- mlr3HTE_demo_obs(n = 1200, seed = 1204)\ndr &lt;- dr_pseudo_outcome(d$X, d$A, d$Y, seed = 1)\nnames(dr)\ntibble(DR_ATE = mean(dr$pseudo), 真实ATE = d$ate)\ntibble(ps_min = min(dr$propensity), ps_max = max(dr$propensity),\n       mu1_mean = mean(dr$mu1), mu0_mean = mean(dr$mu0))</code></pre>' +
+          '<pre><code class="language-r">d &lt;- mlr3HTE_demo_obs(n = 1200, seed = 1204)\ndr &lt;- dr_pseudo_outcome(d$X, d$A, d$Y, seed = 1)\nnames(dr)\ntibble(DR_ATE = mean(dr$pseudo), 真实ATE = d$ate)\ntibble(ps_min = min(dr$propensity), ps_max = max(dr$propensity),\n       mu1_mean = mean(dr$mu1), mu0_mean = mean(dr$mu0))</code></pre>' +
           '<p>Output:</p>' +
-          '<pre><code>--- 返回的字段 ---\n[1] "pseudo"     "mu1"        "mu0"        "propensity" "ate"       \n[6] "t0"         "effect"    \n\n--- 伪结局的均值 = DR 估计的 ATE ---\n# A tibble: 1 × 2\n  DR_ATE 真实ATE\n   &lt;dbl&gt;   &lt;dbl&gt;\n1  0.979    1.04\n\n--- 三件套的范围 ---\n# A tibble: 1 × 4\n  ps_min ps_max mu1_mean mu0_mean\n   &lt;dbl&gt;  &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;\n1 0.0179  0.939     7.16     6.10</code></pre>' +
+          '<pre><code class="r-out">--- 返回的字段 ---\n[1] "pseudo"     "mu1"        "mu0"        "propensity" "ate"       \n[6] "t0"         "effect"    \n\n--- 伪结局的均值 = DR 估计的 ATE ---\n# A tibble: 1 × 2\n  DR_ATE 真实ATE\n   &lt;dbl&gt;   &lt;dbl&gt;\n1  0.979    1.04\n\n--- 三件套的范围 ---\n# A tibble: 1 × 4\n  ps_min ps_max mu1_mean mu0_mean\n   &lt;dbl&gt;  &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;\n1 0.0179  0.939     7.16     6.10</code></pre>' +
           '<p>The DR-estimated ATE here is 0.979 against a truth of 1.04; a gap of this size at n = 1200 is ordinary sampling noise, and it is an order of magnitude smaller than the unadjusted estimate (about 1.74).</p>'
       }
     ]
@@ -2327,9 +2327,9 @@ window.SITE_PAGES.apihtebenchmark = {
         heading: "实测示例",
         body:
           '<p>代码与输出均为<strong>真实跑出</strong>。背景数据：<code>mlr3HTE_demo_data(n = 1500, seed = 1201)</code>。</p>' +
-          '<pre><code>bm &lt;- hte_benchmark(d$X, d$A, d$Y, tau = d$tau, seed = 42)\nbm$table\nbm$setup\ndim(bm$cate)</code></pre>' +
+          '<pre><code class="language-r">bm &lt;- hte_benchmark(d$X, d$A, d$Y, tau = d$tau, seed = 42)\nbm$table\nbm$setup\ndim(bm$cate)</code></pre>' +
           '<p>实测输出：</p>' +
-          '<pre><code>learner    ate qini_coefficient qini_normalized toc_gain c_for_benefit\n1       S 1.0367           0.2235          0.4167   0.5160        0.6126\n2       T 1.0960           0.2025          0.3777   0.4915        0.6081\n3       X 1.0919           0.2167          0.4041   0.6466        0.6170\n4       R 0.4983           0.2469          0.4604   0.9460        0.5989\n5      DR 1.0887           0.2214          0.4129   0.5676        0.6173\n  tau_cor tau_rmse\n1  0.9077   0.4382\n2  0.8937   0.4810\n3  0.9455   0.3584\n4  0.8573   0.8540\n5  0.9319   0.3784\n\n--- setup ---\n$n\n[1] 1500\n\n$n_folds\n[1] 5\n\n$seed\n[1] 42\n\n$effect\n[1] "survdiff"\n\n$t0\nNULL\n\n$learners\n[1] "S"  "T"  "X"  "R"  "DR"\n\n$learner_base\n[1] "LearnerRegrRanger"\n\n$has_truth\n[1] TRUE\n\n\n--- cate 长表规模 ---\n[1] 7500    3</code></pre>' +
+          '<pre><code class="r-out">learner    ate qini_coefficient qini_normalized toc_gain c_for_benefit\n1       S 1.0367           0.2235          0.4167   0.5160        0.6126\n2       T 1.0960           0.2025          0.3777   0.4915        0.6081\n3       X 1.0919           0.2167          0.4041   0.6466        0.6170\n4       R 0.4983           0.2469          0.4604   0.9460        0.5989\n5      DR 1.0887           0.2214          0.4129   0.5676        0.6173\n  tau_cor tau_rmse\n1  0.9077   0.4382\n2  0.8937   0.4810\n3  0.9455   0.3584\n4  0.8573   0.8540\n5  0.9319   0.3784\n\n--- setup ---\n$n\n[1] 1500\n\n$n_folds\n[1] 5\n\n$seed\n[1] 42\n\n$effect\n[1] "survdiff"\n\n$t0\nNULL\n\n$learners\n[1] "S"  "T"  "X"  "R"  "DR"\n\n$learner_base\n[1] "LearnerRegrRanger"\n\n$has_truth\n[1] TRUE\n\n\n--- cate 长表规模 ---\n[1] 7500    3</code></pre>' +
           '<p>实测里 <strong>R-learner 的 ATE 只有 0.498（真值 1.049），但 qini_normalized 和 toc_gain 都是五族里最高的</strong>。原因：R 二阶段对伪结果回归，没有尺度约束，CATE 可以整体缩小一半而排序不变；Qini / TOC 只看排序，对尺度错误视而不见。<strong>所以 ATE 和 Qini 必须一起报。</strong></p><p>观察性数据把 <code>propensity</code> / <code>mu1</code> / <code>mu0</code>（<a href="#/apidrpseudo">dr_pseudo_outcome()</a> 的输出）一起传进来即可，指标算法不变。</p>'
       }
     ]
@@ -2354,9 +2354,9 @@ window.SITE_PAGES.apihtebenchmark = {
         heading: "Worked example (real output)",
         body:
           '<p>Both code and output are <strong>actually run</strong>. Background data: <code>mlr3HTE_demo_data(n = 1500, seed = 1201)</code>.</p>' +
-          '<pre><code>bm &lt;- hte_benchmark(d$X, d$A, d$Y, tau = d$tau, seed = 42)\nbm$table\nbm$setup\ndim(bm$cate)</code></pre>' +
+          '<pre><code class="language-r">bm &lt;- hte_benchmark(d$X, d$A, d$Y, tau = d$tau, seed = 42)\nbm$table\nbm$setup\ndim(bm$cate)</code></pre>' +
           '<p>Output:</p>' +
-          '<pre><code>learner    ate qini_coefficient qini_normalized toc_gain c_for_benefit\n1       S 1.0367           0.2235          0.4167   0.5160        0.6126\n2       T 1.0960           0.2025          0.3777   0.4915        0.6081\n3       X 1.0919           0.2167          0.4041   0.6466        0.6170\n4       R 0.4983           0.2469          0.4604   0.9460        0.5989\n5      DR 1.0887           0.2214          0.4129   0.5676        0.6173\n  tau_cor tau_rmse\n1  0.9077   0.4382\n2  0.8937   0.4810\n3  0.9455   0.3584\n4  0.8573   0.8540\n5  0.9319   0.3784\n\n--- setup ---\n$n\n[1] 1500\n\n$n_folds\n[1] 5\n\n$seed\n[1] 42\n\n$effect\n[1] "survdiff"\n\n$t0\nNULL\n\n$learners\n[1] "S"  "T"  "X"  "R"  "DR"\n\n$learner_base\n[1] "LearnerRegrRanger"\n\n$has_truth\n[1] TRUE\n\n\n--- cate 长表规模 ---\n[1] 7500    3</code></pre>' +
+          '<pre><code class="r-out">learner    ate qini_coefficient qini_normalized toc_gain c_for_benefit\n1       S 1.0367           0.2235          0.4167   0.5160        0.6126\n2       T 1.0960           0.2025          0.3777   0.4915        0.6081\n3       X 1.0919           0.2167          0.4041   0.6466        0.6170\n4       R 0.4983           0.2469          0.4604   0.9460        0.5989\n5      DR 1.0887           0.2214          0.4129   0.5676        0.6173\n  tau_cor tau_rmse\n1  0.9077   0.4382\n2  0.8937   0.4810\n3  0.9455   0.3584\n4  0.8573   0.8540\n5  0.9319   0.3784\n\n--- setup ---\n$n\n[1] 1500\n\n$n_folds\n[1] 5\n\n$seed\n[1] 42\n\n$effect\n[1] "survdiff"\n\n$t0\nNULL\n\n$learners\n[1] "S"  "T"  "X"  "R"  "DR"\n\n$learner_base\n[1] "LearnerRegrRanger"\n\n$has_truth\n[1] TRUE\n\n\n--- cate 长表规模 ---\n[1] 7500    3</code></pre>' +
           '<p>In this run <strong>the R-learner&rsquo;s ATE is only 0.498 against a truth of 1.049, yet its qini_normalized and toc_gain are the highest of the five</strong>. Reason: the R-learner&rsquo;s second stage regresses pseudo-outcomes with no scale constraint, so CATE can shrink overall while the ranking survives; Qini / TOC look only at ranking and are blind to scale errors. <strong>So ATE and Qini must be reported together.</strong></p><p>For observational data, pass <code>propensity</code> / <code>mu1</code> / <code>mu0</code> (the output of <a href="#/apidrpseudo">dr_pseudo_outcome()</a>); the metric definitions are unchanged.</p>'
       }
     ]
@@ -2384,9 +2384,9 @@ window.SITE_PAGES.apiplotbenchmark = {
         heading: "实测示例",
         body:
           '<p>代码与输出均为<strong>真实跑出</strong>。背景数据：<code>mlr3HTE_demo_data(n = 1500, seed = 1201)</code>。</p>' +
-          '<pre><code>bm &lt;- hte_benchmark(d$X, d$A, d$Y, learners = c("S", "X"), seed = 42)\np &lt;- plot_hte_benchmark(bm, "qini")\nclass(p)\nlength(bm$curves$qini)</code></pre>' +
+          '<pre><code class="language-r">bm &lt;- hte_benchmark(d$X, d$A, d$Y, learners = c("S", "X"), seed = 42)\np &lt;- plot_hte_benchmark(bm, "qini")\nclass(p)\nlength(bm$curves$qini)</code></pre>' +
           '<p>实测输出：</p>' +
-          '<pre><code>返回类： ggplot2::ggplot ggplot ggplot2::gg S7_object gg \n曲线数： 2 \n默认 min_fraction = 0.05，即前 5% 不画</code></pre>' +
+          '<pre><code class="language-r">返回类： ggplot2::ggplot ggplot ggplot2::gg S7_object gg \n曲线数： 2 \n默认 min_fraction = 0.05，即前 5% 不画</code></pre>' +
           '<p>教程里嵌的两张对比图（<code>docs/assets/img/benchmark/qini_curves.png</code> 与 <code>toc_curves.png</code>）就是这个函数生成的。</p>'
       }
     ]
@@ -2411,9 +2411,9 @@ window.SITE_PAGES.apiplotbenchmark = {
         heading: "Worked example (real output)",
         body:
           '<p>Both code and output are <strong>actually run</strong>. Background data: <code>mlr3HTE_demo_data(n = 1500, seed = 1201)</code>.</p>' +
-          '<pre><code>bm &lt;- hte_benchmark(d$X, d$A, d$Y, learners = c("S", "X"), seed = 42)\np &lt;- plot_hte_benchmark(bm, "qini")\nclass(p)\nlength(bm$curves$qini)</code></pre>' +
+          '<pre><code class="language-r">bm &lt;- hte_benchmark(d$X, d$A, d$Y, learners = c("S", "X"), seed = 42)\np &lt;- plot_hte_benchmark(bm, "qini")\nclass(p)\nlength(bm$curves$qini)</code></pre>' +
           '<p>Output:</p>' +
-          '<pre><code>返回类： ggplot2::ggplot ggplot ggplot2::gg S7_object gg \n曲线数： 2 \n默认 min_fraction = 0.05，即前 5% 不画</code></pre>' +
+          '<pre><code class="language-r">返回类： ggplot2::ggplot ggplot ggplot2::gg S7_object gg \n曲线数： 2 \n默认 min_fraction = 0.05，即前 5% 不画</code></pre>' +
           '<p>The two comparison figures embedded in the tutorial (<code>docs/assets/img/benchmark/qini_curves.png</code> and <code>toc_curves.png</code>) were produced by this function.</p>'
       }
     ]
@@ -2441,9 +2441,9 @@ window.SITE_PAGES.apicateci = {
         heading: "实测示例",
         body:
           '<p>代码与输出均为<strong>真实跑出</strong>。背景数据：<code>mlr3HTE_demo_data(n = 800, seed = 1201)</code>；为了速度 B 只取 30。</p>' +
-          '<pre><code>ci &lt;- cate_ci("T", d$X, d$A, d$Y, B = 30, seed = 1,\n               learner_base = lrn("regr.ranger", num.trees = 150, seed = 1L))\ntibble(ATE = ci$ate, ATE_lo = ci$ate_lo, ATE_hi = ci$ate_hi,\n       B = ci$B, level = ci$level)\ntibble(lo = ci$cate_lo[1:3], hi = ci$cate_hi[1:3])</code></pre>' +
+          '<pre><code class="language-r">ci &lt;- cate_ci("T", d$X, d$A, d$Y, B = 30, seed = 1,\n               learner_base = lrn("regr.ranger", num.trees = 150, seed = 1L))\ntibble(ATE = ci$ate, ATE_lo = ci$ate_lo, ATE_hi = ci$ate_hi,\n       B = ci$B, level = ci$level)\ntibble(lo = ci$cate_lo[1:3], hi = ci$cate_hi[1:3])</code></pre>' +
           '<p>实测输出：</p>' +
-          '<pre><code># A tibble: 1 × 5\n    ATE ATE_lo ATE_hi     B level\n  &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;\n1  1.05  0.923   1.20    30  0.95\n\n--- CATE 区间宽度（前 3 人）---\n# A tibble: 3 × 2\n      lo    hi\n   &lt;dbl&gt; &lt;dbl&gt;\n1 -0.058 2.26 \n2 -0.893 0.874\n3 -0.264 0.599</code></pre>' +
+          '<pre><code class="r-out"># A tibble: 1 × 5\n    ATE ATE_lo ATE_hi     B level\n  &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;\n1  1.05  0.923   1.20    30  0.95\n\n--- CATE 区间宽度（前 3 人）---\n# A tibble: 3 × 2\n      lo    hi\n   &lt;dbl&gt; &lt;dbl&gt;\n1 -0.058 2.26 \n2 -0.893 0.874\n3 -0.264 0.599</code></pre>' +
           '<p>实测里 ATE = 1.05，95% 区间 0.923–1.20（真值 1.049，落在区间内）。注意逐人 CATE 的区间宽得多（前 3 人宽度 0.86–2.35），这很正常——个体效应本来就比平均效应难估。</p>'
       }
     ]
@@ -2468,9 +2468,9 @@ window.SITE_PAGES.apicateci = {
         heading: "Worked example (real output)",
         body:
           '<p>Both code and output are <strong>actually run</strong>. Background data: <code>mlr3HTE_demo_data(n = 800, seed = 1201)</code>; B is only 30 for speed.</p>' +
-          '<pre><code>ci &lt;- cate_ci("T", d$X, d$A, d$Y, B = 30, seed = 1,\n               learner_base = lrn("regr.ranger", num.trees = 150, seed = 1L))\ntibble(ATE = ci$ate, ATE_lo = ci$ate_lo, ATE_hi = ci$ate_hi,\n       B = ci$B, level = ci$level)\ntibble(lo = ci$cate_lo[1:3], hi = ci$cate_hi[1:3])</code></pre>' +
+          '<pre><code class="language-r">ci &lt;- cate_ci("T", d$X, d$A, d$Y, B = 30, seed = 1,\n               learner_base = lrn("regr.ranger", num.trees = 150, seed = 1L))\ntibble(ATE = ci$ate, ATE_lo = ci$ate_lo, ATE_hi = ci$ate_hi,\n       B = ci$B, level = ci$level)\ntibble(lo = ci$cate_lo[1:3], hi = ci$cate_hi[1:3])</code></pre>' +
           '<p>Output:</p>' +
-          '<pre><code># A tibble: 1 × 5\n    ATE ATE_lo ATE_hi     B level\n  &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;\n1  1.05  0.923   1.20    30  0.95\n\n--- CATE 区间宽度（前 3 人）---\n# A tibble: 3 × 2\n      lo    hi\n   &lt;dbl&gt; &lt;dbl&gt;\n1 -0.058 2.26 \n2 -0.893 0.874\n3 -0.264 0.599</code></pre>' +
+          '<pre><code class="r-out"># A tibble: 1 × 5\n    ATE ATE_lo ATE_hi     B level\n  &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;\n1  1.05  0.923   1.20    30  0.95\n\n--- CATE 区间宽度（前 3 人）---\n# A tibble: 3 × 2\n      lo    hi\n   &lt;dbl&gt; &lt;dbl&gt;\n1 -0.058 2.26 \n2 -0.893 0.874\n3 -0.264 0.599</code></pre>' +
           '<p>Here ATE = 1.05 with a 95% interval of 0.923–1.20 (truth 1.049, inside the interval). Note how much wider the per-person CATE intervals are (widths 0.86–2.35 for the first three) — that is normal; individual effects are intrinsically harder to estimate than the average.</p>'
       }
     ]
@@ -2498,9 +2498,9 @@ window.SITE_PAGES.apiplotqini = {
         heading: "实测示例",
         body:
           '<p>代码与输出均为<strong>真实跑出</strong>。背景数据同 <a href="#/apiqinicurve">qini_curve()</a> 示例。</p>' +
-          '<pre><code>cv &lt;- qini_curve(fit$cate_train, d$A, d$Y)\np &lt;- plot_qini(cv, main = "Qini curve")\nnrow(cv)</code></pre>' +
+          '<pre><code class="language-r">cv &lt;- qini_curve(fit$cate_train, d$A, d$Y)\np &lt;- plot_qini(cv, main = "Qini curve")\nnrow(cv)</code></pre>' +
           '<p>实测输出：</p>' +
-          '<pre><code>plot_qini 返回类： data.frame ；是不可见返回\n曲线点数： 1501</code></pre>' +
+          '<pre><code class="r-out">plot_qini 返回类： data.frame ；是不可见返回\n曲线点数： 1501</code></pre>' +
           '<p>如果你已经在用 ggplot2，可以自己画：<code>ggplot(cv, aes(fraction, qini)) + geom_line()</code>。这个函数的定位是快速看一眼。</p>'
       }
     ]
@@ -2525,9 +2525,9 @@ window.SITE_PAGES.apiplotqini = {
         heading: "Worked example (real output)",
         body:
           '<p>Both code and output are <strong>actually run</strong>. Same background data as the <a href="#/apiqinicurve">qini_curve()</a> example.</p>' +
-          '<pre><code>cv &lt;- qini_curve(fit$cate_train, d$A, d$Y)\np &lt;- plot_qini(cv, main = "Qini curve")\nnrow(cv)</code></pre>' +
+          '<pre><code class="language-r">cv &lt;- qini_curve(fit$cate_train, d$A, d$Y)\np &lt;- plot_qini(cv, main = "Qini curve")\nnrow(cv)</code></pre>' +
           '<p>Output:</p>' +
-          '<pre><code>plot_qini 返回类： data.frame ；是不可见返回\n曲线点数： 1501</code></pre>' +
+          '<pre><code class="r-out">plot_qini 返回类： data.frame ；是不可见返回\n曲线点数： 1501</code></pre>' +
           '<p>If you already work with ggplot2 you can draw it yourself: <code>ggplot(cv, aes(fraction, qini)) + geom_line()</code>. This function is positioned as a quick look.</p>'
       }
     ]
@@ -2555,9 +2555,9 @@ window.SITE_PAGES.apidag = {
         heading: "实测示例",
         body:
           '<p>代码与输出均为<strong>真实跑出</strong>。无额外输入。</p>' +
-          '<pre><code>for (k in c("rct", "obs")) {\n  g &lt;- mlr3HTE_dag(k, "continuous")\n  cat("class:", paste(class(g), collapse = " / "), "\\n")\n  cat("geom layers:", length(g$layers), "\\n")\n  cat("图层类型：", paste(vapply(g$layers, function(l) class(l$geom)[1], ""),\n        collapse = ", "), "\\n")\n}</code></pre>' +
+          '<pre><code class="language-r">for (k in c("rct", "obs")) {\n  g &lt;- mlr3HTE_dag(k, "continuous")\n  cat("class:", paste(class(g), collapse = " / "), "\\n")\n  cat("geom layers:", length(g$layers), "\\n")\n  cat("图层类型：", paste(vapply(g$layers, function(l) class(l$geom)[1], ""),\n        collapse = ", "), "\\n")\n}</code></pre>' +
           '<p>实测输出：</p>' +
-          '<pre><code>===== design =  rct  =====\nclass: ggplot2::ggplot / ggplot / ggplot2::gg / S7_object / gg \ngeom layers: 2 \n图层类型： GeomSegment, GeomLabel \n\n===== design =  obs  =====\nclass: ggplot2::ggplot / ggplot / ggplot2::gg / S7_object / gg \ngeom layers: 2 \n图层类型： GeomSegment, GeomLabel \n\n# 直接把它 print 出来就是一张 DAG 图（见 docs/assets/img/dag/）</code></pre>' +
+          '<pre><code class="language-r">===== design =  rct  =====\nclass: ggplot2::ggplot / ggplot / ggplot2::gg / S7_object / gg \ngeom layers: 2 \n图层类型： GeomSegment, GeomLabel \n\n===== design =  obs  =====\nclass: ggplot2::ggplot / ggplot / ggplot2::gg / S7_object / gg \ngeom layers: 2 \n图层类型： GeomSegment, GeomLabel \n\n# 直接把它 print 出来就是一张 DAG 图（见 docs/assets/img/dag/）</code></pre>' +
           '<p>教程与文档站里嵌的 DAG 图（<code>docs/assets/img/dag/</code>）就是这个函数生成后导出的。RCT 版没有 <code>X → A</code> 这条边，观察性版有——这就是两者的核心差异。</p>'
       }
     ]
@@ -2582,9 +2582,9 @@ window.SITE_PAGES.apidag = {
         heading: "Worked example (real output)",
         body:
           '<p>Both code and output are <strong>actually run</strong>. No extra input.</p>' +
-          '<pre><code>for (k in c("rct", "obs")) {\n  g &lt;- mlr3HTE_dag(k, "continuous")\n  cat("class:", paste(class(g), collapse = " / "), "\\n")\n  cat("geom layers:", length(g$layers), "\\n")\n  cat("图层类型：", paste(vapply(g$layers, function(l) class(l$geom)[1], ""),\n        collapse = ", "), "\\n")\n}</code></pre>' +
+          '<pre><code class="language-r">for (k in c("rct", "obs")) {\n  g &lt;- mlr3HTE_dag(k, "continuous")\n  cat("class:", paste(class(g), collapse = " / "), "\\n")\n  cat("geom layers:", length(g$layers), "\\n")\n  cat("图层类型：", paste(vapply(g$layers, function(l) class(l$geom)[1], ""),\n        collapse = ", "), "\\n")\n}</code></pre>' +
           '<p>Output:</p>' +
-          '<pre><code>===== design =  rct  =====\nclass: ggplot2::ggplot / ggplot / ggplot2::gg / S7_object / gg \ngeom layers: 2 \n图层类型： GeomSegment, GeomLabel \n\n===== design =  obs  =====\nclass: ggplot2::ggplot / ggplot / ggplot2::gg / S7_object / gg \ngeom layers: 2 \n图层类型： GeomSegment, GeomLabel \n\n# 直接把它 print 出来就是一张 DAG 图（见 docs/assets/img/dag/）</code></pre>' +
+          '<pre><code class="language-r">===== design =  rct  =====\nclass: ggplot2::ggplot / ggplot / ggplot2::gg / S7_object / gg \ngeom layers: 2 \n图层类型： GeomSegment, GeomLabel \n\n===== design =  obs  =====\nclass: ggplot2::ggplot / ggplot / ggplot2::gg / S7_object / gg \ngeom layers: 2 \n图层类型： GeomSegment, GeomLabel \n\n# 直接把它 print 出来就是一张 DAG 图（见 docs/assets/img/dag/）</code></pre>' +
           '<p>The DAG figures embedded in the tutorial and docs site (<code>docs/assets/img/dag/</code>) are exports of this function. The RCT version has no <code>X → A</code> edge while the observational version does — that is the core difference between the two.</p>'
       }
     ]
@@ -2612,9 +2612,9 @@ window.SITE_PAGES.apilrn = {
         heading: "实测示例",
         body:
           '<p>代码与输出均为<strong>真实跑出</strong>。无额外输入。</p>' +
-          '<pre><code>l &lt;- lrn("regr.ranger", num.trees = 100)\nclass(l)\nl$id\nidentical(l, mlr3::lrn("regr.ranger", num.trees = 100))</code></pre>' +
+          '<pre><code class="language-r">l &lt;- lrn("regr.ranger", num.trees = 100)\nclass(l)\nl$id\nidentical(l, mlr3::lrn("regr.ranger", num.trees = 100))</code></pre>' +
           '<p>实测输出：</p>' +
-          '<pre><code>[1] "LearnerRegrRanger" "LearnerRegr"       "Learner"          \n[4] "R6"               \n[1] "regr.ranger"\n\n--- 与 mlr3::lrn 同一个对象 ---\n[1] FALSE</code></pre>' +
+          '<pre><code class="language-r">[1] "LearnerRegrRanger" "LearnerRegr"       "Learner"          \n[4] "R6"               \n[1] "regr.ranger"\n\n--- 与 mlr3::lrn 同一个对象 ---\n[1] FALSE</code></pre>' +
           '<p>所有可用的学习器列表见 mlr3 自己的文档；mlr3HTE 只负责把它们接进 meta-learner 框架。选择时要注意与结局类型匹配：连续用 <code>regr.*</code>，二分类用 <code>classif.*</code>，生存用字符串 <code>"coxph"</code> / <code>"ranger"</code>。</p>'
       }
     ]
@@ -2639,9 +2639,9 @@ window.SITE_PAGES.apilrn = {
         heading: "Worked example (real output)",
         body:
           '<p>Both code and output are <strong>actually run</strong>. No extra input.</p>' +
-          '<pre><code>l &lt;- lrn("regr.ranger", num.trees = 100)\nclass(l)\nl$id\nidentical(l, mlr3::lrn("regr.ranger", num.trees = 100))</code></pre>' +
+          '<pre><code class="language-r">l &lt;- lrn("regr.ranger", num.trees = 100)\nclass(l)\nl$id\nidentical(l, mlr3::lrn("regr.ranger", num.trees = 100))</code></pre>' +
           '<p>Output:</p>' +
-          '<pre><code>[1] "LearnerRegrRanger" "LearnerRegr"       "Learner"          \n[4] "R6"               \n[1] "regr.ranger"\n\n--- 与 mlr3::lrn 同一个对象 ---\n[1] FALSE</code></pre>' +
+          '<pre><code class="language-r">[1] "LearnerRegrRanger" "LearnerRegr"       "Learner"          \n[4] "R6"               \n[1] "regr.ranger"\n\n--- 与 mlr3::lrn 同一个对象 ---\n[1] FALSE</code></pre>' +
           '<p>The full list of learners lives in mlr3&rsquo;s own documentation; mlr3HTE only wires them into the meta-learner framework. Match the learner to the outcome type: <code>regr.*</code> for continuous, <code>classif.*</code> for binary, and the strings <code>"coxph"</code> / <code>"ranger"</code> for survival.</p>'
       }
     ]
@@ -2962,9 +2962,9 @@ window.SITE_PAGES.apiqinicurve = {
         body:
           '<p>代码与输出均为<strong>真实跑出</strong>。' +
           '背景数据：<code>mlr3HTE_demo_data(n = 1500, seed = 1201)</code> 上拟合的 X-learner（ranger 300 树）。</p>' +
-          '<pre><code>cv &lt;- qini_curve(fit$cate_train, d$A, d$Y)\nhead(cv, 5)\ntail(cv, 3)\nattr(cv, "qini_at_full")</code></pre>' +
+          '<pre><code class="language-r">cv &lt;- qini_curve(fit$cate_train, d$A, d$Y)\nhead(cv, 5)\ntail(cv, 3)\nattr(cv, "qini_at_full")</code></pre>' +
           '<p>实测输出：</p>' +
-          '<pre><code>--- 前 5 行 ---\n      fraction        qini\n1 0.0000000000 0.000000000\n2 0.0006666667 0.014940224\n3 0.0013333333 0.006970732\n4 0.0020000000 0.019672433\n5 0.0026666667 0.033119033\n\n--- 末 3 行 ---\n      fraction     qini\n1499 0.9986667 1.077251\n1500 0.9993333 1.081709\n1501 1.0000000 1.072626\n\n--- 属性 qini_at_full ---\n[1] 1.072626</code></pre>' +
+          '<pre><code class="r-out">--- 前 5 行 ---\n      fraction        qini\n1 0.0000000000 0.000000000\n2 0.0006666667 0.014940224\n3 0.0013333333 0.006970732\n4 0.0020000000 0.019672433\n5 0.0026666667 0.033119033\n\n--- 末 3 行 ---\n      fraction     qini\n1499 0.9986667 1.077251\n1500 0.9993333 1.081709\n1501 1.0000000 1.072626\n\n--- 属性 qini_at_full ---\n[1] 1.072626</code></pre>' +
           '<div class="callout warn"><div class="callout-title">随机基线不是精确的 0</div><p>归一化的 Qini 除以了随机线下的面积，而那个面积本身就f，单次随机排序能在 &plusmn;0.25 摆。比较模型要看相对次序。本包演示数据（n = 1500）上 10 次随机排序落在 &minus;0.253 到 0.227。</p></div>'
       }
     ]
@@ -2991,9 +2991,9 @@ window.SITE_PAGES.apiqinicurve = {
         body:
           '<p>Both code and output are <strong>actually run</strong>. Background data: an X-learner ' +
           '(ranger, 300 trees) fitted on <code>mlr3HTE_demo_data(n = 1500, seed = 1201)</code>.</p>' +
-          '<pre><code>cv &lt;- qini_curve(fit$cate_train, d$A, d$Y)\nhead(cv, 5)\ntail(cv, 3)\nattr(cv, "qini_at_full")</code></pre>' +
+          '<pre><code class="language-r">cv &lt;- qini_curve(fit$cate_train, d$A, d$Y)\nhead(cv, 5)\ntail(cv, 3)\nattr(cv, "qini_at_full")</code></pre>' +
           '<p>Output:</p>' +
-          '<pre><code>--- 前 5 行 ---\n      fraction        qini\n1 0.0000000000 0.000000000\n2 0.0006666667 0.014940224\n3 0.0013333333 0.006970732\n4 0.0020000000 0.019672433\n5 0.0026666667 0.033119033\n\n--- 末 3 行 ---\n      fraction     qini\n1499 0.9986667 1.077251\n1500 0.9993333 1.081709\n1501 1.0000000 1.072626\n\n--- 属性 qini_at_full ---\n[1] 1.072626</code></pre>' +
+          '<pre><code class="r-out">--- 前 5 行 ---\n      fraction        qini\n1 0.0000000000 0.000000000\n2 0.0006666667 0.014940224\n3 0.0013333333 0.006970732\n4 0.0020000000 0.019672433\n5 0.0026666667 0.033119033\n\n--- 末 3 行 ---\n      fraction     qini\n1499 0.9986667 1.077251\n1500 0.9993333 1.081709\n1501 1.0000000 1.072626\n\n--- 属性 qini_at_full ---\n[1] 1.072626</code></pre>' +
           '<div class="callout warn"><div class="callout-title">The random baseline is not exactly 0</div><p>Normalised Qini divides by the area under the random line, which is itself small, so a single random ranking can swing &plusmn;0.25. Compare models by relative order. On this package&rsquo;s demo data (n = 1500), ten random rankings gave &minus;0.253 to 0.227.</p></div>'
       }
     ]
@@ -3023,9 +3023,9 @@ window.SITE_PAGES.apiqinicoef = {
         body:
           '<p>代码与输出均为<strong>真实跑出</strong>。' +
           '背景数据：<code>mlr3HTE_demo_data(n = 1500, seed = 1201)</code> 上拟合的 X-learner（ranger 300 树）。</p>' +
-          '<pre><code>qini_coefficient(fit$cate_train, d$A, d$Y)\n\n# 用随机排序与真实 tau 当标尾\nset.seed(2)\nrnd &lt;- rnorm(nrow(d$X))\ntibble(来源 = c("随机", "模型", "真实 tau"),\n       qini_coefficient = c(qini_coefficient(rnd, d$A, d$Y)$qini_coefficient,\n                            qini_coefficient(fit$cate_train, d$A, d$Y)$qini_coefficient,\n                            qini_coefficient(d$tau, d$A, d$Y)$qini_coefficient))</code></pre>' +
+          '<pre><code class="language-r">qini_coefficient(fit$cate_train, d$A, d$Y)\n\n# 用随机排序与真实 tau 当标尾\nset.seed(2)\nrnd &lt;- rnorm(nrow(d$X))\ntibble(来源 = c("随机", "模型", "真实 tau"),\n       qini_coefficient = c(qini_coefficient(rnd, d$A, d$Y)$qini_coefficient,\n                            qini_coefficient(fit$cate_train, d$A, d$Y)$qini_coefficient,\n                            qini_coefficient(d$tau, d$A, d$Y)$qini_coefficient))</code></pre>' +
           '<p>实测输出：</p>' +
-          '<pre><code>$qini_coefficient\n[1] 0.2831499\n\n$qini_normalized\n[1] 0.5279564\n\n$auc\n[1] 0.8194629\n\n$qini_at_full\n[1] 1.072626\n\n\n--- 随机 vs 真实 tau 作标尺 ---\n# A tibble: 3 × 2\n  来源     qini_coefficient\n  &lt;chr&gt;               &lt;dbl&gt;\n1 随机               -0.198\n2 模型                0.283\n3 真实 tau            0.280</code></pre>' +
+          '<pre><code class="r-out">$qini_coefficient\n[1] 0.2831499\n\n$qini_normalized\n[1] 0.5279564\n\n$auc\n[1] 0.8194629\n\n$qini_at_full\n[1] 1.072626\n\n\n--- 随机 vs 真实 tau 作标尺 ---\n# A tibble: 3 × 2\n  来源     qini_coefficient\n  &lt;chr&gt;               &lt;dbl&gt;\n1 随机               -0.198\n2 模型                0.283\n3 真实 tau            0.280</code></pre>' +
           '<p>注意实测里<strong>模型的绝对 Qini 系数（0.283）稍高于真实 tau（0.280）</strong>：单次实验里这种差异属于采样噪声，不能由此得出“模型超过真值”的结论。想要稳定结论，应该用 <a href="#/apihtebenchmark">hte_benchmark()</a> 做交叉拟合后的多种子对比。</p>'
       }
     ]
@@ -3052,9 +3052,9 @@ window.SITE_PAGES.apiqinicoef = {
         body:
           '<p>Both code and output are <strong>actually run</strong>. Background data: an X-learner ' +
           '(ranger, 300 trees) fitted on <code>mlr3HTE_demo_data(n = 1500, seed = 1201)</code>.</p>' +
-          '<pre><code>qini_coefficient(fit$cate_train, d$A, d$Y)\n\n# 用随机排序与真实 tau 当标尾\nset.seed(2)\nrnd &lt;- rnorm(nrow(d$X))\ntibble(来源 = c("随机", "模型", "真实 tau"),\n       qini_coefficient = c(qini_coefficient(rnd, d$A, d$Y)$qini_coefficient,\n                            qini_coefficient(fit$cate_train, d$A, d$Y)$qini_coefficient,\n                            qini_coefficient(d$tau, d$A, d$Y)$qini_coefficient))</code></pre>' +
+          '<pre><code class="language-r">qini_coefficient(fit$cate_train, d$A, d$Y)\n\n# 用随机排序与真实 tau 当标尾\nset.seed(2)\nrnd &lt;- rnorm(nrow(d$X))\ntibble(来源 = c("随机", "模型", "真实 tau"),\n       qini_coefficient = c(qini_coefficient(rnd, d$A, d$Y)$qini_coefficient,\n                            qini_coefficient(fit$cate_train, d$A, d$Y)$qini_coefficient,\n                            qini_coefficient(d$tau, d$A, d$Y)$qini_coefficient))</code></pre>' +
           '<p>Output:</p>' +
-          '<pre><code>$qini_coefficient\n[1] 0.2831499\n\n$qini_normalized\n[1] 0.5279564\n\n$auc\n[1] 0.8194629\n\n$qini_at_full\n[1] 1.072626\n\n\n--- 随机 vs 真实 tau 作标尺 ---\n# A tibble: 3 × 2\n  来源     qini_coefficient\n  &lt;chr&gt;               &lt;dbl&gt;\n1 随机               -0.198\n2 模型                0.283\n3 真实 tau            0.280</code></pre>' +
+          '<pre><code class="r-out">$qini_coefficient\n[1] 0.2831499\n\n$qini_normalized\n[1] 0.5279564\n\n$auc\n[1] 0.8194629\n\n$qini_at_full\n[1] 1.072626\n\n\n--- 随机 vs 真实 tau 作标尺 ---\n# A tibble: 3 × 2\n  来源     qini_coefficient\n  &lt;chr&gt;               &lt;dbl&gt;\n1 随机               -0.198\n2 模型                0.283\n3 真实 tau            0.280</code></pre>' +
           '<p>Note that in this single run the <strong>model&rsquo;s absolute coefficient (0.283) is slightly above the true tau&rsquo;s (0.280)</strong>: that gap is sampling noise, not evidence the model beats the truth. For stable conclusions use <a href="#/apihtebenchmark">hte_benchmark()</a>, which cross-fits and compares across seeds.</p>'
       }
     ]
@@ -3084,9 +3084,9 @@ window.SITE_PAGES.apicforbenefit = {
         body:
           '<p>代码与输出均为<strong>真实跑出</strong>。' +
           '背景数据：<code>mlr3HTE_demo_data(n = 1500, seed = 1201)</code> 上拟合的 X-learner（ranger 300 树）。</p>' +
-          '<pre><code>c_for_benefit(fit$cate_train, d$A, d$Y)\n\n# 用随机排序与真实 tau 当标尾\nset.seed(2)\nrnd &lt;- rnorm(nrow(d$X))\ntibble(来源 = c("随机", "模型", "真实 tau"),\n       c_for_benefit = c(c_for_benefit(rnd, d$A, d$Y)$c_for_benefit,\n                           c_for_benefit(fit$cate_train, d$A, d$Y)$c_for_benefit,\n                           c_for_benefit(d$tau, d$A, d$Y)$c_for_benefit))</code></pre>' +
+          '<pre><code class="language-r">c_for_benefit(fit$cate_train, d$A, d$Y)\n\n# 用随机排序与真实 tau 当标尾\nset.seed(2)\nrnd &lt;- rnorm(nrow(d$X))\ntibble(来源 = c("随机", "模型", "真实 tau"),\n       c_for_benefit = c(c_for_benefit(rnd, d$A, d$Y)$c_for_benefit,\n                           c_for_benefit(fit$cate_train, d$A, d$Y)$c_for_benefit,\n                           c_for_benefit(d$tau, d$A, d$Y)$c_for_benefit))</code></pre>' +
           '<p>实测输出：</p>' +
-          '<pre><code>$c_for_benefit\n[1] 0.6634926\n\n$n_pairs\n[1] 713\n\n$n_concordant\n[1] 168413\n\n$n_discordant\n[1] 85415\n\n$n_tied_pred\n[1] 0\n\n\n--- 随机 vs 真实 tau 作标尺 ---\n# A tibble: 3 × 2\n  来源     c_for_benefit\n  &lt;chr&gt;            &lt;dbl&gt;\n1 随机             0.488\n2 模型             0.663\n3 真实 tau         0.624</code></pre>' +
+          '<pre><code class="r-out">$c_for_benefit\n[1] 0.6634926\n\n$n_pairs\n[1] 713\n\n$n_concordant\n[1] 168413\n\n$n_discordant\n[1] 85415\n\n$n_tied_pred\n[1] 0\n\n\n--- 随机 vs 真实 tau 作标尺 ---\n# A tibble: 3 × 2\n  来源     c_for_benefit\n  &lt;chr&gt;            &lt;dbl&gt;\n1 随机             0.488\n2 模型             0.663\n3 真实 tau         0.624</code></pre>' +
           '<p>本演示数据上模型值 0.663 高于真实 tau 的 0.624——这是因为 CATE 是在<strong>自己的训练数据上</strong>计的（in-fold）。做真实评价请用 <a href="#/apihtebenchmark">hte_benchmark()</a>，它强制交叉拟合，同一个 X-learner 会回落到 0.617。</p>'
       }
     ]
@@ -3113,9 +3113,9 @@ window.SITE_PAGES.apicforbenefit = {
         body:
           '<p>Both code and output are <strong>actually run</strong>. Background data: an X-learner ' +
           '(ranger, 300 trees) fitted on <code>mlr3HTE_demo_data(n = 1500, seed = 1201)</code>.</p>' +
-          '<pre><code>c_for_benefit(fit$cate_train, d$A, d$Y)\n\n# 用随机排序与真实 tau 当标尾\nset.seed(2)\nrnd &lt;- rnorm(nrow(d$X))\ntibble(来源 = c("随机", "模型", "真实 tau"),\n       c_for_benefit = c(c_for_benefit(rnd, d$A, d$Y)$c_for_benefit,\n                           c_for_benefit(fit$cate_train, d$A, d$Y)$c_for_benefit,\n                           c_for_benefit(d$tau, d$A, d$Y)$c_for_benefit))</code></pre>' +
+          '<pre><code class="language-r">c_for_benefit(fit$cate_train, d$A, d$Y)\n\n# 用随机排序与真实 tau 当标尾\nset.seed(2)\nrnd &lt;- rnorm(nrow(d$X))\ntibble(来源 = c("随机", "模型", "真实 tau"),\n       c_for_benefit = c(c_for_benefit(rnd, d$A, d$Y)$c_for_benefit,\n                           c_for_benefit(fit$cate_train, d$A, d$Y)$c_for_benefit,\n                           c_for_benefit(d$tau, d$A, d$Y)$c_for_benefit))</code></pre>' +
           '<p>Output:</p>' +
-          '<pre><code>$c_for_benefit\n[1] 0.6634926\n\n$n_pairs\n[1] 713\n\n$n_concordant\n[1] 168413\n\n$n_discordant\n[1] 85415\n\n$n_tied_pred\n[1] 0\n\n\n--- 随机 vs 真实 tau 作标尺 ---\n# A tibble: 3 × 2\n  来源     c_for_benefit\n  &lt;chr&gt;            &lt;dbl&gt;\n1 随机             0.488\n2 模型             0.663\n3 真实 tau         0.624</code></pre>' +
+          '<pre><code class="r-out">$c_for_benefit\n[1] 0.6634926\n\n$n_pairs\n[1] 713\n\n$n_concordant\n[1] 168413\n\n$n_discordant\n[1] 85415\n\n$n_tied_pred\n[1] 0\n\n\n--- 随机 vs 真实 tau 作标尺 ---\n# A tibble: 3 × 2\n  来源     c_for_benefit\n  &lt;chr&gt;            &lt;dbl&gt;\n1 随机             0.488\n2 模型             0.663\n3 真实 tau         0.624</code></pre>' +
           '<p>On this demo data the model&rsquo;s 0.663 exceeds the true tau&rsquo;s 0.624 — because the CATE was computed <strong>in-fold</strong>, on its own training data. For an honest evaluation use <a href="#/apihtebenchmark">hte_benchmark()</a>, which enforces cross-fitting; the same X-learner then falls back to 0.617.</p>'
       }
     ]
@@ -3145,9 +3145,9 @@ window.SITE_PAGES.apitoccurve = {
         body:
           '<p>代码与输出均为<strong>真实跑出</strong>。' +
           '背景数据：<code>mlr3HTE_demo_data(n = 1500, seed = 1201)</code> 上拟合的 X-learner（ranger 300 树）。</p>' +
-          '<pre><code>cv &lt;- toc_curve(fit$cate_train, d$A, d$Y)\nhead(cv, 5)\nattr(cv, "overall_ate")\n\n# 分位处的 TOC\ntibble(分位 = c("10%", "25%", "50%", "75%"),\n       TOC = sapply(c(.1, .25, .5, .75), function(f)\n         cv$toc[which.min(abs(cv$fraction - f))]))</code></pre>' +
+          '<pre><code class="language-r">cv &lt;- toc_curve(fit$cate_train, d$A, d$Y)\nhead(cv, 5)\nattr(cv, "overall_ate")\n\n# 分位处的 TOC\ntibble(分位 = c("10%", "25%", "50%", "75%"),\n       TOC = sapply(c(.1, .25, .5, .75), function(f)\n         cv$toc[which.min(abs(cv$fraction - f))]))</code></pre>' +
           '<p>实测输出：</p>' +
-          '<pre><code>--- 前 5 行 ---\n      fraction       toc\n1 0.0006666667 22.410337\n2 0.0013333333  5.228049\n3 0.0020000000  9.836217\n4 0.0026666667 12.419637\n5 0.0033333333  7.271920\n\n--- 属性 overall_ate ---\n[1] 1.072626\n\n--- 分位数处的 TOC ---\n# A tibble: 4 × 2\n  分位    TOC\n  &lt;chr&gt; &lt;dbl&gt;\n1 10%    2.44\n2 25%    2.14\n3 50%    1.89\n4 75%    1.51</code></pre>' +
+          '<pre><code class="r-out">--- 前 5 行 ---\n      fraction       toc\n1 0.0006666667 22.410337\n2 0.0013333333  5.228049\n3 0.0020000000  9.836217\n4 0.0026666667 12.419637\n5 0.0033333333  7.271920\n\n--- 属性 overall_ate ---\n[1] 1.072626\n\n--- 分位数处的 TOC ---\n# A tibble: 4 × 2\n  分位    TOC\n  &lt;chr&gt; &lt;dbl&gt;\n1 10%    2.44\n2 25%    2.14\n3 50%    1.89\n4 75%    1.51</code></pre>' +
           '<p>实测里前 10% 目标群体的平均效应是 2.44，而全样本 ATE 是 1.07——前排人群的收益明显更高，说明排序有信息量。若曲线一直贴着水平线，则模型没分辩出可利用的异质性。</p>'
       }
     ]
@@ -3174,9 +3174,9 @@ window.SITE_PAGES.apitoccurve = {
         body:
           '<p>Both code and output are <strong>actually run</strong>. Background data: an X-learner ' +
           '(ranger, 300 trees) fitted on <code>mlr3HTE_demo_data(n = 1500, seed = 1201)</code>.</p>' +
-          '<pre><code>cv &lt;- toc_curve(fit$cate_train, d$A, d$Y)\nhead(cv, 5)\nattr(cv, "overall_ate")\n\n# 分位处的 TOC\ntibble(分位 = c("10%", "25%", "50%", "75%"),\n       TOC = sapply(c(.1, .25, .5, .75), function(f)\n         cv$toc[which.min(abs(cv$fraction - f))]))</code></pre>' +
+          '<pre><code class="language-r">cv &lt;- toc_curve(fit$cate_train, d$A, d$Y)\nhead(cv, 5)\nattr(cv, "overall_ate")\n\n# 分位处的 TOC\ntibble(分位 = c("10%", "25%", "50%", "75%"),\n       TOC = sapply(c(.1, .25, .5, .75), function(f)\n         cv$toc[which.min(abs(cv$fraction - f))]))</code></pre>' +
           '<p>Output:</p>' +
-          '<pre><code>--- 前 5 行 ---\n      fraction       toc\n1 0.0006666667 22.410337\n2 0.0013333333  5.228049\n3 0.0020000000  9.836217\n4 0.0026666667 12.419637\n5 0.0033333333  7.271920\n\n--- 属性 overall_ate ---\n[1] 1.072626\n\n--- 分位数处的 TOC ---\n# A tibble: 4 × 2\n  分位    TOC\n  &lt;chr&gt; &lt;dbl&gt;\n1 10%    2.44\n2 25%    2.14\n3 50%    1.89\n4 75%    1.51</code></pre>' +
+          '<pre><code class="r-out">--- 前 5 行 ---\n      fraction       toc\n1 0.0006666667 22.410337\n2 0.0013333333  5.228049\n3 0.0020000000  9.836217\n4 0.0026666667 12.419637\n5 0.0033333333  7.271920\n\n--- 属性 overall_ate ---\n[1] 1.072626\n\n--- 分位数处的 TOC ---\n# A tibble: 4 × 2\n  分位    TOC\n  &lt;chr&gt; &lt;dbl&gt;\n1 10%    2.44\n2 25%    2.14\n3 50%    1.89\n4 75%    1.51</code></pre>' +
           '<p>In this run the top 10% group has an average effect of 2.44 against an overall ATE of 1.07 — the top-ranked group clearly benefits more, so the ranking carries information. If the curve hugs the horizontal line, the model found no exploitable heterogeneity.</p>'
       }
     ]
@@ -3206,9 +3206,9 @@ window.SITE_PAGES.apidrpseudo = {
         body:
           '<p>代码与输出均为<strong>真实跑出</strong>。' +
           '背景数据：<code>mlr3HTE_demo_data(n = 1500, seed = 1201)</code> 上拟合的 X-learner（ranger 300 树）。</p>' +
-          '<pre><code>d &lt;- mlr3HTE_demo_obs(n = 1200, seed = 1204)\ndr &lt;- dr_pseudo_outcome(d$X, d$A, d$Y, seed = 1)\nnames(dr)\ntibble(DR_ATE = mean(dr$pseudo), 真实ATE = d$ate)\ntibble(ps_min = min(dr$propensity), ps_max = max(dr$propensity),\n       mu1_mean = mean(dr$mu1), mu0_mean = mean(dr$mu0))</code></pre>' +
+          '<pre><code class="language-r">d &lt;- mlr3HTE_demo_obs(n = 1200, seed = 1204)\ndr &lt;- dr_pseudo_outcome(d$X, d$A, d$Y, seed = 1)\nnames(dr)\ntibble(DR_ATE = mean(dr$pseudo), 真实ATE = d$ate)\ntibble(ps_min = min(dr$propensity), ps_max = max(dr$propensity),\n       mu1_mean = mean(dr$mu1), mu0_mean = mean(dr$mu0))</code></pre>' +
           '<p>实测输出：</p>' +
-          '<pre><code>--- 返回的字段 ---\n[1] "pseudo"     "mu1"        "mu0"        "propensity" "ate"       \n[6] "t0"         "effect"    \n\n--- 伪结局的均值 = DR 估计的 ATE ---\n# A tibble: 1 × 2\n  DR_ATE 真实ATE\n   &lt;dbl&gt;   &lt;dbl&gt;\n1  0.979    1.04\n\n--- 三件套的范围 ---\n# A tibble: 1 × 4\n  ps_min ps_max mu1_mean mu0_mean\n   &lt;dbl&gt;  &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;\n1 0.0179  0.939     7.16     6.10</code></pre>' +
+          '<pre><code class="r-out">--- 返回的字段 ---\n[1] "pseudo"     "mu1"        "mu0"        "propensity" "ate"       \n[6] "t0"         "effect"    \n\n--- 伪结局的均值 = DR 估计的 ATE ---\n# A tibble: 1 × 2\n  DR_ATE 真实ATE\n   &lt;dbl&gt;   &lt;dbl&gt;\n1  0.979    1.04\n\n--- 三件套的范围 ---\n# A tibble: 1 × 4\n  ps_min ps_max mu1_mean mu0_mean\n   &lt;dbl&gt;  &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;\n1 0.0179  0.939     7.16     6.10</code></pre>' +
           '<p>实测里 DR 估计的 ATE 为 0.979，真值 1.04；这量级偏差在 n = 1200 上属于正常采样潮用，且它比未校正的算算本身（约 1.74）小一个数量级。</p>'
       }
     ]
@@ -3235,9 +3235,9 @@ window.SITE_PAGES.apidrpseudo = {
         body:
           '<p>Both code and output are <strong>actually run</strong>. Background data: an X-learner ' +
           '(ranger, 300 trees) fitted on <code>mlr3HTE_demo_data(n = 1500, seed = 1201)</code>.</p>' +
-          '<pre><code>d &lt;- mlr3HTE_demo_obs(n = 1200, seed = 1204)\ndr &lt;- dr_pseudo_outcome(d$X, d$A, d$Y, seed = 1)\nnames(dr)\ntibble(DR_ATE = mean(dr$pseudo), 真实ATE = d$ate)\ntibble(ps_min = min(dr$propensity), ps_max = max(dr$propensity),\n       mu1_mean = mean(dr$mu1), mu0_mean = mean(dr$mu0))</code></pre>' +
+          '<pre><code class="language-r">d &lt;- mlr3HTE_demo_obs(n = 1200, seed = 1204)\ndr &lt;- dr_pseudo_outcome(d$X, d$A, d$Y, seed = 1)\nnames(dr)\ntibble(DR_ATE = mean(dr$pseudo), 真实ATE = d$ate)\ntibble(ps_min = min(dr$propensity), ps_max = max(dr$propensity),\n       mu1_mean = mean(dr$mu1), mu0_mean = mean(dr$mu0))</code></pre>' +
           '<p>Output:</p>' +
-          '<pre><code>--- 返回的字段 ---\n[1] "pseudo"     "mu1"        "mu0"        "propensity" "ate"       \n[6] "t0"         "effect"    \n\n--- 伪结局的均值 = DR 估计的 ATE ---\n# A tibble: 1 × 2\n  DR_ATE 真实ATE\n   &lt;dbl&gt;   &lt;dbl&gt;\n1  0.979    1.04\n\n--- 三件套的范围 ---\n# A tibble: 1 × 4\n  ps_min ps_max mu1_mean mu0_mean\n   &lt;dbl&gt;  &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;\n1 0.0179  0.939     7.16     6.10</code></pre>' +
+          '<pre><code class="r-out">--- 返回的字段 ---\n[1] "pseudo"     "mu1"        "mu0"        "propensity" "ate"       \n[6] "t0"         "effect"    \n\n--- 伪结局的均值 = DR 估计的 ATE ---\n# A tibble: 1 × 2\n  DR_ATE 真实ATE\n   &lt;dbl&gt;   &lt;dbl&gt;\n1  0.979    1.04\n\n--- 三件套的范围 ---\n# A tibble: 1 × 4\n  ps_min ps_max mu1_mean mu0_mean\n   &lt;dbl&gt;  &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;\n1 0.0179  0.939     7.16     6.10</code></pre>' +
           '<p>The DR-estimated ATE here is 0.979 against a truth of 1.04; a gap of this size at n = 1200 is ordinary sampling noise, and it is an order of magnitude smaller than the unadjusted estimate (about 1.74).</p>'
       }
     ]
@@ -3266,9 +3266,9 @@ window.SITE_PAGES.apihtebenchmark = {
         heading: "实测示例",
         body:
           '<p>代码与输出均为<strong>真实跑出</strong>。背景数据：<code>mlr3HTE_demo_data(n = 1500, seed = 1201)</code>。</p>' +
-          '<pre><code>bm &lt;- hte_benchmark(d$X, d$A, d$Y, tau = d$tau, seed = 42)\nbm$table\nbm$setup\ndim(bm$cate)</code></pre>' +
+          '<pre><code class="language-r">bm &lt;- hte_benchmark(d$X, d$A, d$Y, tau = d$tau, seed = 42)\nbm$table\nbm$setup\ndim(bm$cate)</code></pre>' +
           '<p>实测输出：</p>' +
-          '<pre><code>learner    ate qini_coefficient qini_normalized toc_gain c_for_benefit\n1       S 1.0367           0.2235          0.4167   0.5160        0.6126\n2       T 1.0960           0.2025          0.3777   0.4915        0.6081\n3       X 1.0919           0.2167          0.4041   0.6466        0.6170\n4       R 0.4983           0.2469          0.4604   0.9460        0.5989\n5      DR 1.0887           0.2214          0.4129   0.5676        0.6173\n  tau_cor tau_rmse\n1  0.9077   0.4382\n2  0.8937   0.4810\n3  0.9455   0.3584\n4  0.8573   0.8540\n5  0.9319   0.3784\n\n--- setup ---\n$n\n[1] 1500\n\n$n_folds\n[1] 5\n\n$seed\n[1] 42\n\n$effect\n[1] "survdiff"\n\n$t0\nNULL\n\n$learners\n[1] "S"  "T"  "X"  "R"  "DR"\n\n$learner_base\n[1] "LearnerRegrRanger"\n\n$has_truth\n[1] TRUE\n\n\n--- cate 长表规模 ---\n[1] 7500    3</code></pre>' +
+          '<pre><code class="r-out">learner    ate qini_coefficient qini_normalized toc_gain c_for_benefit\n1       S 1.0367           0.2235          0.4167   0.5160        0.6126\n2       T 1.0960           0.2025          0.3777   0.4915        0.6081\n3       X 1.0919           0.2167          0.4041   0.6466        0.6170\n4       R 0.4983           0.2469          0.4604   0.9460        0.5989\n5      DR 1.0887           0.2214          0.4129   0.5676        0.6173\n  tau_cor tau_rmse\n1  0.9077   0.4382\n2  0.8937   0.4810\n3  0.9455   0.3584\n4  0.8573   0.8540\n5  0.9319   0.3784\n\n--- setup ---\n$n\n[1] 1500\n\n$n_folds\n[1] 5\n\n$seed\n[1] 42\n\n$effect\n[1] "survdiff"\n\n$t0\nNULL\n\n$learners\n[1] "S"  "T"  "X"  "R"  "DR"\n\n$learner_base\n[1] "LearnerRegrRanger"\n\n$has_truth\n[1] TRUE\n\n\n--- cate 长表规模 ---\n[1] 7500    3</code></pre>' +
           '<p>实测里 <strong>R-learner 的 ATE 只有 0.498（真值 1.049），但 qini_normalized 和 toc_gain 都是五族里最高的</strong>。原因：R 二阶段对伪结果回归，没有尺度约束，CATE 可以整体缩小一半而排序不变；Qini / TOC 只看排序，对尺度错误视而不见。<strong>所以 ATE 和 Qini 必须一起报。</strong></p><p>观察性数据把 <code>propensity</code> / <code>mu1</code> / <code>mu0</code>（<a href="#/apidrpseudo">dr_pseudo_outcome()</a> 的输出）一起传进来即可，指标算法不变。</p>'
       }
     ]
@@ -3294,9 +3294,9 @@ window.SITE_PAGES.apihtebenchmark = {
         heading: "Worked example (real output)",
         body:
           '<p>Both code and output are <strong>actually run</strong>. Background data: <code>mlr3HTE_demo_data(n = 1500, seed = 1201)</code>.</p>' +
-          '<pre><code>bm &lt;- hte_benchmark(d$X, d$A, d$Y, tau = d$tau, seed = 42)\nbm$table\nbm$setup\ndim(bm$cate)</code></pre>' +
+          '<pre><code class="language-r">bm &lt;- hte_benchmark(d$X, d$A, d$Y, tau = d$tau, seed = 42)\nbm$table\nbm$setup\ndim(bm$cate)</code></pre>' +
           '<p>Output:</p>' +
-          '<pre><code>learner    ate qini_coefficient qini_normalized toc_gain c_for_benefit\n1       S 1.0367           0.2235          0.4167   0.5160        0.6126\n2       T 1.0960           0.2025          0.3777   0.4915        0.6081\n3       X 1.0919           0.2167          0.4041   0.6466        0.6170\n4       R 0.4983           0.2469          0.4604   0.9460        0.5989\n5      DR 1.0887           0.2214          0.4129   0.5676        0.6173\n  tau_cor tau_rmse\n1  0.9077   0.4382\n2  0.8937   0.4810\n3  0.9455   0.3584\n4  0.8573   0.8540\n5  0.9319   0.3784\n\n--- setup ---\n$n\n[1] 1500\n\n$n_folds\n[1] 5\n\n$seed\n[1] 42\n\n$effect\n[1] "survdiff"\n\n$t0\nNULL\n\n$learners\n[1] "S"  "T"  "X"  "R"  "DR"\n\n$learner_base\n[1] "LearnerRegrRanger"\n\n$has_truth\n[1] TRUE\n\n\n--- cate 长表规模 ---\n[1] 7500    3</code></pre>' +
+          '<pre><code class="r-out">learner    ate qini_coefficient qini_normalized toc_gain c_for_benefit\n1       S 1.0367           0.2235          0.4167   0.5160        0.6126\n2       T 1.0960           0.2025          0.3777   0.4915        0.6081\n3       X 1.0919           0.2167          0.4041   0.6466        0.6170\n4       R 0.4983           0.2469          0.4604   0.9460        0.5989\n5      DR 1.0887           0.2214          0.4129   0.5676        0.6173\n  tau_cor tau_rmse\n1  0.9077   0.4382\n2  0.8937   0.4810\n3  0.9455   0.3584\n4  0.8573   0.8540\n5  0.9319   0.3784\n\n--- setup ---\n$n\n[1] 1500\n\n$n_folds\n[1] 5\n\n$seed\n[1] 42\n\n$effect\n[1] "survdiff"\n\n$t0\nNULL\n\n$learners\n[1] "S"  "T"  "X"  "R"  "DR"\n\n$learner_base\n[1] "LearnerRegrRanger"\n\n$has_truth\n[1] TRUE\n\n\n--- cate 长表规模 ---\n[1] 7500    3</code></pre>' +
           '<p>In this run <strong>the R-learner&rsquo;s ATE is only 0.498 against a truth of 1.049, yet its qini_normalized and toc_gain are the highest of the five</strong>. Reason: the R-learner&rsquo;s second stage regresses pseudo-outcomes with no scale constraint, so CATE can shrink overall while the ranking survives; Qini / TOC look only at ranking and are blind to scale errors. <strong>So ATE and Qini must be reported together.</strong></p><p>For observational data, pass <code>propensity</code> / <code>mu1</code> / <code>mu0</code> (the output of <a href="#/apidrpseudo">dr_pseudo_outcome()</a>); the metric definitions are unchanged.</p>'
       }
     ]
@@ -3325,9 +3325,9 @@ window.SITE_PAGES.apiplotbenchmark = {
         heading: "实测示例",
         body:
           '<p>代码与输出均为<strong>真实跑出</strong>。背景数据：<code>mlr3HTE_demo_data(n = 1500, seed = 1201)</code>。</p>' +
-          '<pre><code>bm &lt;- hte_benchmark(d$X, d$A, d$Y, learners = c("S", "X"), seed = 42)\np &lt;- plot_hte_benchmark(bm, "qini")\nclass(p)\nlength(bm$curves$qini)</code></pre>' +
+          '<pre><code class="language-r">bm &lt;- hte_benchmark(d$X, d$A, d$Y, learners = c("S", "X"), seed = 42)\np &lt;- plot_hte_benchmark(bm, "qini")\nclass(p)\nlength(bm$curves$qini)</code></pre>' +
           '<p>实测输出：</p>' +
-          '<pre><code>返回类： ggplot2::ggplot ggplot ggplot2::gg S7_object gg \n曲线数： 2 \n默认 min_fraction = 0.05，即前 5% 不画</code></pre>' +
+          '<pre><code class="language-r">返回类： ggplot2::ggplot ggplot ggplot2::gg S7_object gg \n曲线数： 2 \n默认 min_fraction = 0.05，即前 5% 不画</code></pre>' +
           '<p>教程里嵌的两张对比图（<code>docs/assets/img/benchmark/qini_curves.png</code> 与 <code>toc_curves.png</code>）就是这个函数生成的。</p>'
       }
     ]
@@ -3353,9 +3353,9 @@ window.SITE_PAGES.apiplotbenchmark = {
         heading: "Worked example (real output)",
         body:
           '<p>Both code and output are <strong>actually run</strong>. Background data: <code>mlr3HTE_demo_data(n = 1500, seed = 1201)</code>.</p>' +
-          '<pre><code>bm &lt;- hte_benchmark(d$X, d$A, d$Y, learners = c("S", "X"), seed = 42)\np &lt;- plot_hte_benchmark(bm, "qini")\nclass(p)\nlength(bm$curves$qini)</code></pre>' +
+          '<pre><code class="language-r">bm &lt;- hte_benchmark(d$X, d$A, d$Y, learners = c("S", "X"), seed = 42)\np &lt;- plot_hte_benchmark(bm, "qini")\nclass(p)\nlength(bm$curves$qini)</code></pre>' +
           '<p>Output:</p>' +
-          '<pre><code>返回类： ggplot2::ggplot ggplot ggplot2::gg S7_object gg \n曲线数： 2 \n默认 min_fraction = 0.05，即前 5% 不画</code></pre>' +
+          '<pre><code class="language-r">返回类： ggplot2::ggplot ggplot ggplot2::gg S7_object gg \n曲线数： 2 \n默认 min_fraction = 0.05，即前 5% 不画</code></pre>' +
           '<p>The two comparison figures embedded in the tutorial (<code>docs/assets/img/benchmark/qini_curves.png</code> and <code>toc_curves.png</code>) were produced by this function.</p>'
       }
     ]
@@ -3384,9 +3384,9 @@ window.SITE_PAGES.apicateci = {
         heading: "实测示例",
         body:
           '<p>代码与输出均为<strong>真实跑出</strong>。背景数据：<code>mlr3HTE_demo_data(n = 800, seed = 1201)</code>；为了速度 B 只取 30。</p>' +
-          '<pre><code>ci &lt;- cate_ci("T", d$X, d$A, d$Y, B = 30, seed = 1,\n               learner_base = lrn("regr.ranger", num.trees = 150, seed = 1L))\ntibble(ATE = ci$ate, ATE_lo = ci$ate_lo, ATE_hi = ci$ate_hi,\n       B = ci$B, level = ci$level)\ntibble(lo = ci$cate_lo[1:3], hi = ci$cate_hi[1:3])</code></pre>' +
+          '<pre><code class="language-r">ci &lt;- cate_ci("T", d$X, d$A, d$Y, B = 30, seed = 1,\n               learner_base = lrn("regr.ranger", num.trees = 150, seed = 1L))\ntibble(ATE = ci$ate, ATE_lo = ci$ate_lo, ATE_hi = ci$ate_hi,\n       B = ci$B, level = ci$level)\ntibble(lo = ci$cate_lo[1:3], hi = ci$cate_hi[1:3])</code></pre>' +
           '<p>实测输出：</p>' +
-          '<pre><code># A tibble: 1 × 5\n    ATE ATE_lo ATE_hi     B level\n  &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;\n1  1.05  0.923   1.20    30  0.95\n\n--- CATE 区间宽度（前 3 人）---\n# A tibble: 3 × 2\n      lo    hi\n   &lt;dbl&gt; &lt;dbl&gt;\n1 -0.058 2.26 \n2 -0.893 0.874\n3 -0.264 0.599</code></pre>' +
+          '<pre><code class="r-out"># A tibble: 1 × 5\n    ATE ATE_lo ATE_hi     B level\n  &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;\n1  1.05  0.923   1.20    30  0.95\n\n--- CATE 区间宽度（前 3 人）---\n# A tibble: 3 × 2\n      lo    hi\n   &lt;dbl&gt; &lt;dbl&gt;\n1 -0.058 2.26 \n2 -0.893 0.874\n3 -0.264 0.599</code></pre>' +
           '<p>实测里 ATE = 1.05，95% 区间 0.923–1.20（真值 1.049，落在区间内）。注意逐人 CATE 的区间宽得多（前 3 人宽度 0.86–2.35），这很正常——个体效应本来就比平均效应难估。</p>'
       }
     ]
@@ -3412,9 +3412,9 @@ window.SITE_PAGES.apicateci = {
         heading: "Worked example (real output)",
         body:
           '<p>Both code and output are <strong>actually run</strong>. Background data: <code>mlr3HTE_demo_data(n = 800, seed = 1201)</code>; B is only 30 for speed.</p>' +
-          '<pre><code>ci &lt;- cate_ci("T", d$X, d$A, d$Y, B = 30, seed = 1,\n               learner_base = lrn("regr.ranger", num.trees = 150, seed = 1L))\ntibble(ATE = ci$ate, ATE_lo = ci$ate_lo, ATE_hi = ci$ate_hi,\n       B = ci$B, level = ci$level)\ntibble(lo = ci$cate_lo[1:3], hi = ci$cate_hi[1:3])</code></pre>' +
+          '<pre><code class="language-r">ci &lt;- cate_ci("T", d$X, d$A, d$Y, B = 30, seed = 1,\n               learner_base = lrn("regr.ranger", num.trees = 150, seed = 1L))\ntibble(ATE = ci$ate, ATE_lo = ci$ate_lo, ATE_hi = ci$ate_hi,\n       B = ci$B, level = ci$level)\ntibble(lo = ci$cate_lo[1:3], hi = ci$cate_hi[1:3])</code></pre>' +
           '<p>Output:</p>' +
-          '<pre><code># A tibble: 1 × 5\n    ATE ATE_lo ATE_hi     B level\n  &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;\n1  1.05  0.923   1.20    30  0.95\n\n--- CATE 区间宽度（前 3 人）---\n# A tibble: 3 × 2\n      lo    hi\n   &lt;dbl&gt; &lt;dbl&gt;\n1 -0.058 2.26 \n2 -0.893 0.874\n3 -0.264 0.599</code></pre>' +
+          '<pre><code class="r-out"># A tibble: 1 × 5\n    ATE ATE_lo ATE_hi     B level\n  &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;\n1  1.05  0.923   1.20    30  0.95\n\n--- CATE 区间宽度（前 3 人）---\n# A tibble: 3 × 2\n      lo    hi\n   &lt;dbl&gt; &lt;dbl&gt;\n1 -0.058 2.26 \n2 -0.893 0.874\n3 -0.264 0.599</code></pre>' +
           '<p>Here ATE = 1.05 with a 95% interval of 0.923–1.20 (truth 1.049, inside the interval). Note how much wider the per-person CATE intervals are (widths 0.86–2.35 for the first three) — that is normal; individual effects are intrinsically harder to estimate than the average.</p>'
       }
     ]
@@ -3443,9 +3443,9 @@ window.SITE_PAGES.apiplotqini = {
         heading: "实测示例",
         body:
           '<p>代码与输出均为<strong>真实跑出</strong>。背景数据同 <a href="#/apiqinicurve">qini_curve()</a> 示例。</p>' +
-          '<pre><code>cv &lt;- qini_curve(fit$cate_train, d$A, d$Y)\np &lt;- plot_qini(cv, main = "Qini curve")\nnrow(cv)</code></pre>' +
+          '<pre><code class="language-r">cv &lt;- qini_curve(fit$cate_train, d$A, d$Y)\np &lt;- plot_qini(cv, main = "Qini curve")\nnrow(cv)</code></pre>' +
           '<p>实测输出：</p>' +
-          '<pre><code>plot_qini 返回类： data.frame ；是不可见返回\n曲线点数： 1501</code></pre>' +
+          '<pre><code class="r-out">plot_qini 返回类： data.frame ；是不可见返回\n曲线点数： 1501</code></pre>' +
           '<p>如果你已经在用 ggplot2，可以自己画：<code>ggplot(cv, aes(fraction, qini)) + geom_line()</code>。这个函数的定位是快速看一眼。</p>'
       }
     ]
@@ -3471,9 +3471,9 @@ window.SITE_PAGES.apiplotqini = {
         heading: "Worked example (real output)",
         body:
           '<p>Both code and output are <strong>actually run</strong>. Same background data as the <a href="#/apiqinicurve">qini_curve()</a> example.</p>' +
-          '<pre><code>cv &lt;- qini_curve(fit$cate_train, d$A, d$Y)\np &lt;- plot_qini(cv, main = "Qini curve")\nnrow(cv)</code></pre>' +
+          '<pre><code class="language-r">cv &lt;- qini_curve(fit$cate_train, d$A, d$Y)\np &lt;- plot_qini(cv, main = "Qini curve")\nnrow(cv)</code></pre>' +
           '<p>Output:</p>' +
-          '<pre><code>plot_qini 返回类： data.frame ；是不可见返回\n曲线点数： 1501</code></pre>' +
+          '<pre><code class="r-out">plot_qini 返回类： data.frame ；是不可见返回\n曲线点数： 1501</code></pre>' +
           '<p>If you already work with ggplot2 you can draw it yourself: <code>ggplot(cv, aes(fraction, qini)) + geom_line()</code>. This function is positioned as a quick look.</p>'
       }
     ]
@@ -3502,9 +3502,9 @@ window.SITE_PAGES.apidag = {
         heading: "实测示例",
         body:
           '<p>代码与输出均为<strong>真实跑出</strong>。无额外输入。</p>' +
-          '<pre><code>for (k in c("rct", "obs")) {\n  g &lt;- mlr3HTE_dag(k, "continuous")\n  cat("class:", paste(class(g), collapse = " / "), "\\n")\n  cat("geom layers:", length(g$layers), "\\n")\n  cat("图层类型：", paste(vapply(g$layers, function(l) class(l$geom)[1], ""),\n        collapse = ", "), "\\n")\n}</code></pre>' +
+          '<pre><code class="language-r">for (k in c("rct", "obs")) {\n  g &lt;- mlr3HTE_dag(k, "continuous")\n  cat("class:", paste(class(g), collapse = " / "), "\\n")\n  cat("geom layers:", length(g$layers), "\\n")\n  cat("图层类型：", paste(vapply(g$layers, function(l) class(l$geom)[1], ""),\n        collapse = ", "), "\\n")\n}</code></pre>' +
           '<p>实测输出：</p>' +
-          '<pre><code>===== design =  rct  =====\nclass: ggplot2::ggplot / ggplot / ggplot2::gg / S7_object / gg \ngeom layers: 2 \n图层类型： GeomSegment, GeomLabel \n\n===== design =  obs  =====\nclass: ggplot2::ggplot / ggplot / ggplot2::gg / S7_object / gg \ngeom layers: 2 \n图层类型： GeomSegment, GeomLabel \n\n# 直接把它 print 出来就是一张 DAG 图（见 docs/assets/img/dag/）</code></pre>' +
+          '<pre><code class="language-r">===== design =  rct  =====\nclass: ggplot2::ggplot / ggplot / ggplot2::gg / S7_object / gg \ngeom layers: 2 \n图层类型： GeomSegment, GeomLabel \n\n===== design =  obs  =====\nclass: ggplot2::ggplot / ggplot / ggplot2::gg / S7_object / gg \ngeom layers: 2 \n图层类型： GeomSegment, GeomLabel \n\n# 直接把它 print 出来就是一张 DAG 图（见 docs/assets/img/dag/）</code></pre>' +
           '<p>教程与文档站里嵌的 DAG 图（<code>docs/assets/img/dag/</code>）就是这个函数生成后导出的。RCT 版没有 <code>X → A</code> 这条边，观察性版有——这就是两者的核心差异。</p>'
       }
     ]
@@ -3530,9 +3530,9 @@ window.SITE_PAGES.apidag = {
         heading: "Worked example (real output)",
         body:
           '<p>Both code and output are <strong>actually run</strong>. No extra input.</p>' +
-          '<pre><code>for (k in c("rct", "obs")) {\n  g &lt;- mlr3HTE_dag(k, "continuous")\n  cat("class:", paste(class(g), collapse = " / "), "\\n")\n  cat("geom layers:", length(g$layers), "\\n")\n  cat("图层类型：", paste(vapply(g$layers, function(l) class(l$geom)[1], ""),\n        collapse = ", "), "\\n")\n}</code></pre>' +
+          '<pre><code class="language-r">for (k in c("rct", "obs")) {\n  g &lt;- mlr3HTE_dag(k, "continuous")\n  cat("class:", paste(class(g), collapse = " / "), "\\n")\n  cat("geom layers:", length(g$layers), "\\n")\n  cat("图层类型：", paste(vapply(g$layers, function(l) class(l$geom)[1], ""),\n        collapse = ", "), "\\n")\n}</code></pre>' +
           '<p>Output:</p>' +
-          '<pre><code>===== design =  rct  =====\nclass: ggplot2::ggplot / ggplot / ggplot2::gg / S7_object / gg \ngeom layers: 2 \n图层类型： GeomSegment, GeomLabel \n\n===== design =  obs  =====\nclass: ggplot2::ggplot / ggplot / ggplot2::gg / S7_object / gg \ngeom layers: 2 \n图层类型： GeomSegment, GeomLabel \n\n# 直接把它 print 出来就是一张 DAG 图（见 docs/assets/img/dag/）</code></pre>' +
+          '<pre><code class="language-r">===== design =  rct  =====\nclass: ggplot2::ggplot / ggplot / ggplot2::gg / S7_object / gg \ngeom layers: 2 \n图层类型： GeomSegment, GeomLabel \n\n===== design =  obs  =====\nclass: ggplot2::ggplot / ggplot / ggplot2::gg / S7_object / gg \ngeom layers: 2 \n图层类型： GeomSegment, GeomLabel \n\n# 直接把它 print 出来就是一张 DAG 图（见 docs/assets/img/dag/）</code></pre>' +
           '<p>The DAG figures embedded in the tutorial and docs site (<code>docs/assets/img/dag/</code>) are exports of this function. The RCT version has no <code>X → A</code> edge while the observational version does — that is the core difference between the two.</p>'
       }
     ]
@@ -3561,9 +3561,9 @@ window.SITE_PAGES.apilrn = {
         heading: "实测示例",
         body:
           '<p>代码与输出均为<strong>真实跑出</strong>。无额外输入。</p>' +
-          '<pre><code>l &lt;- lrn("regr.ranger", num.trees = 100)\nclass(l)\nl$id\nidentical(l, mlr3::lrn("regr.ranger", num.trees = 100))</code></pre>' +
+          '<pre><code class="language-r">l &lt;- lrn("regr.ranger", num.trees = 100)\nclass(l)\nl$id\nidentical(l, mlr3::lrn("regr.ranger", num.trees = 100))</code></pre>' +
           '<p>实测输出：</p>' +
-          '<pre><code>[1] "LearnerRegrRanger" "LearnerRegr"       "Learner"          \n[4] "R6"               \n[1] "regr.ranger"\n\n--- 与 mlr3::lrn 同一个对象 ---\n[1] FALSE</code></pre>' +
+          '<pre><code class="language-r">[1] "LearnerRegrRanger" "LearnerRegr"       "Learner"          \n[4] "R6"               \n[1] "regr.ranger"\n\n--- 与 mlr3::lrn 同一个对象 ---\n[1] FALSE</code></pre>' +
           '<p>所有可用的学习器列表见 mlr3 自己的文档；mlr3HTE 只负责把它们接进 meta-learner 框架。选择时要注意与结局类型匹配：连续用 <code>regr.*</code>，二分类用 <code>classif.*</code>，生存用字符串 <code>"coxph"</code> / <code>"ranger"</code>。</p>'
       }
     ]
@@ -3589,10 +3589,666 @@ window.SITE_PAGES.apilrn = {
         heading: "Worked example (real output)",
         body:
           '<p>Both code and output are <strong>actually run</strong>. No extra input.</p>' +
-          '<pre><code>l &lt;- lrn("regr.ranger", num.trees = 100)\nclass(l)\nl$id\nidentical(l, mlr3::lrn("regr.ranger", num.trees = 100))</code></pre>' +
+          '<pre><code class="language-r">l &lt;- lrn("regr.ranger", num.trees = 100)\nclass(l)\nl$id\nidentical(l, mlr3::lrn("regr.ranger", num.trees = 100))</code></pre>' +
           '<p>Output:</p>' +
-          '<pre><code>[1] "LearnerRegrRanger" "LearnerRegr"       "Learner"          \n[4] "R6"               \n[1] "regr.ranger"\n\n--- 与 mlr3::lrn 同一个对象 ---\n[1] FALSE</code></pre>' +
+          '<pre><code class="language-r">[1] "LearnerRegrRanger" "LearnerRegr"       "Learner"          \n[4] "R6"               \n[1] "regr.ranger"\n\n--- 与 mlr3::lrn 同一个对象 ---\n[1] FALSE</code></pre>' +
           '<p>The full list of learners lives in mlr3&rsquo;s own documentation; mlr3HTE only wires them into the meta-learner framework. Match the learner to the outcome type: <code>regr.*</code> for continuous, <code>classif.*</code> for binary, and the strings <code>"coxph"</code> / <code>"ranger"</code> for survival.</p>'
+      }
+    ]
+  }
+};
+
+
+/* ================= v0.34 新增函数文档（每函数一页） ================= */
+
+window.SITE_PAGES.apiscenarios = {
+  zh: {
+    title: "mlr3HTE_scenarios()",
+    lede: '列出 10 个基准模拟设计的结构标签（研究设计 / 混杂形式 / HTE 形式 / 是否共用变量）。',
+    sections: [
+      {
+        id: "fn",
+        heading: "mlr3HTE_scenarios()",
+        body:
+          '<p>返回 data.frame，每行一个设计。四个维度相互独立，便于固定其余结构、只改变一个维度做对照。</p>' +
+          '<pre><code class="language-r">mlr3HTE_scenarios()</code></pre>' +
+          '<pre><code class="r-out">                          id design confounding       hte shared\n1                    rct_lin    rct        none    linear  FALSE\n2                 rct_nonlin    rct        none nonlinear  FALSE\n3        obs_lin_lin_sharedF    obs      linear    linear  FALSE\n4        obs_lin_lin_sharedT    obs      linear    linear   TRUE\n5     obs_lin_nonlin_sharedF    obs      linear nonlinear  FALSE\n6     obs_lin_nonlin_sharedT    obs      linear nonlinear   TRUE\n7     obs_nonlin_lin_sharedF    obs   nonlinear    linear  FALSE\n8     obs_nonlin_lin_sharedT    obs   nonlinear    linear   TRUE\n9  obs_nonlin_nonlin_sharedF    obs   nonlinear nonlinear  FALSE\n10 obs_nonlin_nonlin_sharedT    obs   nonlinear nonlinear   TRUE</code></pre>' +
+          '<div class="callout warn"><div class="callout-title">使用要点</div><p><code>shared = TRUE</code> 表示存在既进入处理分配模型、又进入真实 CATE 的协变量，即混杂因子兼效应修饰因子。这类变量在观察性研究中是偏差的主要来源。</p></div>'
+      }
+    ]
+  },
+  en: {
+    title: "mlr3HTE_scenarios()",
+    lede: 'Lists the structural labels of the ten benchmark simulation designs (design, confounding form, HTE form, shared variable).',
+    sections: [
+      {
+        id: "fn",
+        heading: "mlr3HTE_scenarios()",
+        body:
+          '<p>Returns a data.frame with one row per design. The four dimensions are independent, so one can be varied while the rest are held fixed.</p>' +
+          '<pre><code class="language-r">mlr3HTE_scenarios()</code></pre>' +
+          '<pre><code class="r-out">                          id design confounding       hte shared\n1                    rct_lin    rct        none    linear  FALSE\n2                 rct_nonlin    rct        none nonlinear  FALSE\n3        obs_lin_lin_sharedF    obs      linear    linear  FALSE\n4        obs_lin_lin_sharedT    obs      linear    linear   TRUE\n5     obs_lin_nonlin_sharedF    obs      linear nonlinear  FALSE\n6     obs_lin_nonlin_sharedT    obs      linear nonlinear   TRUE\n7     obs_nonlin_lin_sharedF    obs   nonlinear    linear  FALSE\n8     obs_nonlin_lin_sharedT    obs   nonlinear    linear   TRUE\n9  obs_nonlin_nonlin_sharedF    obs   nonlinear nonlinear  FALSE\n10 obs_nonlin_nonlin_sharedT    obs   nonlinear nonlinear   TRUE</code></pre>' +
+          '<div class="callout warn"><div class="callout-title">Notes</div><p><code>shared = TRUE</code> indicates a covariate that enters both the treatment assignment model and the true CATE, i.e. a confounder that is also an effect modifier. Such variables dominate the bias in observational studies.</p></div>'
+      }
+    ]
+  }
+};
+
+window.SITE_PAGES.apiscenario = {
+  zh: {
+    title: "mlr3HTE_scenario()",
+    lede: '按场景 id 生成一份带真值的模拟数据，同一参数组合完全可复现。',
+    sections: [
+      {
+        id: "fn",
+        heading: "mlr3HTE_scenario()",
+        body:
+          '<div class="table-wrap"><table><thead><tr><th>参数</th><th>说明</th></tr></thead><tbody>' +
+          '<tr><td><code>id</code></td><td>场景 id，取值见 <code>mlr3HTE_scenarios()</code></td></tr>' +
+          '<tr><td><code>outcome</code></td><td><code>"continuous"</code> / <code>"binary"</code> / <code>"survival"</code></td></tr>' +
+          '<tr><td><code>n</code></td><td>样本量，默认 2000</td></tr>' +
+          '<tr><td><code>seed</code></td><td>随机种子；缺省时按 id 与结局派生，保证可复现</td></tr>' +
+          '<tr><td><code>t0</code></td><td>生存结局的效应评估时点，默认 2</td></tr>' +
+          '</tbody></table></div>' +
+          '<pre><code class="language-r">s &lt;- mlr3HTE_scenario("obs_nonlin_nonlin_sharedT", "survival", n = 300, seed = 2)\nc(ate = s$ate, ate_rmst = s$ate_rmst)</code></pre>' +
+          '<pre><code class="r-out">      ate  ate_rmst\n0.1623314 0.2063841</code></pre>' +
+          '<div class="callout warn"><div class="callout-title">使用要点</div><p>真值 <code>tau</code> 的尺度随结局变化：连续结局为均值差，二分类为风险差，生存为 t0 时点生存概率差；生存结局另给 RMST 尺度的 <code>tau_rmst</code>。ATE 一律等于 <code>mean(tau)</code>。</p></div>'
+      }
+    ]
+  },
+  en: {
+    title: "mlr3HTE_scenario()",
+    lede: 'Generates one simulated dataset with known ground truth for a given scenario id; identical arguments reproduce identical data.',
+    sections: [
+      {
+        id: "fn",
+        heading: "mlr3HTE_scenario()",
+        body:
+          '<div class="table-wrap"><table><thead><tr><th>参数</th><th>说明</th></tr></thead><tbody>' +
+          '<tr><td><code>id</code></td><td>Scenario id, see <code>mlr3HTE_scenarios()</code></td></tr>' +
+          '<tr><td><code>outcome</code></td><td><code>"continuous"</code> / <code>"binary"</code> / <code>"survival"</code></td></tr>' +
+          '<tr><td><code>n</code></td><td>Sample size, default 2000</td></tr>' +
+          '<tr><td><code>seed</code></td><td>Seed; derived from id and outcome when omitted</td></tr>' +
+          '<tr><td><code>t0</code></td><td>Evaluation time for survival outcomes, default 2</td></tr>' +
+          '</tbody></table></div>' +
+          '<pre><code class="language-r">s &lt;- mlr3HTE_scenario("obs_nonlin_nonlin_sharedT", "survival", n = 300, seed = 2)\nc(ate = s$ate, ate_rmst = s$ate_rmst)</code></pre>' +
+          '<pre><code class="r-out">      ate  ate_rmst\n0.1623314 0.2063841</code></pre>' +
+          '<div class="callout warn"><div class="callout-title">Notes</div><p>The scale of <code>tau</code> depends on the outcome: a mean difference for continuous outcomes, a risk difference for binary outcomes, and a difference in survival probability at t0 for survival outcomes, which additionally return <code>tau_rmst</code>. The ATE always equals <code>mean(tau)</code>.</p></div>'
+      }
+    ]
+  }
+};
+
+window.SITE_PAGES.apibench = {
+  zh: {
+    title: "mlr3HTE_bench()",
+    lede: '取出随包发布的基准数据（10 个设计 × 3 类结局，n = 2000，固定种子）。',
+    sections: [
+      {
+        id: "fn",
+        heading: "mlr3HTE_bench()",
+        body:
+          '<pre><code class="language-r">b &lt;- mlr3HTE_bench("rct_lin", "continuous")\nlist(n = nrow(b$X), ate = b$ate, all_ps_half = all(b$ps_true == 0.5))</code></pre>' +
+          '<pre><code class="r-out">$n\n[1] 2000\n\n$ate\n[1] 1\n\n$all_ps_half\n[1] TRUE</code></pre>' +
+          '<div class="callout warn"><div class="callout-title">使用要点</div><p>方法学比较应统一使用这一份数据，避免各自重新模拟导致结论不可比。若请求的组合不存在，会即时按同一生成器重算，结果一致但更慢。</p></div>'
+      }
+    ]
+  },
+  en: {
+    title: "mlr3HTE_bench()",
+    lede: 'Returns the benchmark data shipped with the package (10 designs x 3 outcomes, n = 2000, fixed seeds).',
+    sections: [
+      {
+        id: "fn",
+        heading: "mlr3HTE_bench()",
+        body:
+          '<pre><code class="language-r">b &lt;- mlr3HTE_bench("rct_lin", "continuous")\nlist(n = nrow(b$X), ate = b$ate, all_ps_half = all(b$ps_true == 0.5))</code></pre>' +
+          '<pre><code class="r-out">$n\n[1] 2000\n\n$ate\n[1] 1\n\n$all_ps_half\n[1] TRUE</code></pre>' +
+          '<div class="callout warn"><div class="callout-title">Notes</div><p>Method comparisons should use this single dataset so that conclusions remain comparable. If a requested combination is absent, it is recomputed from the same generator: identical results, but slower.</p></div>'
+      }
+    ]
+  }
+};
+
+window.SITE_PAGES.apibenchindex = {
+  zh: {
+    title: "mlr3HTE_bench_index()",
+    lede: '列出打包数据中实际存在的键、真值 ATE 与样本量，便于批量循环。',
+    sections: [
+      {
+        id: "fn",
+        heading: "mlr3HTE_bench_index()",
+        body:
+          '<pre><code class="language-r">idx &lt;- mlr3HTE_bench_index()\ndim(idx)\nutils::head(idx, 4)</code></pre>' +
+          '<pre><code class="r-out">dim: 30 5\n                    key         id    outcome       ate    n\n1    rct_lin.continuous    rct_lin continuous 1.0000000 2000\n2        rct_lin.binary    rct_lin     binary 0.1288110 2000\n3      rct_lin.survival    rct_lin   survival 0.1542625 2000\n4 rct_nonlin.continuous rct_nonlin continuous 0.9939152 2000</code></pre>' +
+          '<div class="callout warn"><div class="callout-title">使用要点</div><p>共 30 行（10 设计 × 3 结局）。键的格式为 <code>&lt;场景 id&gt;.&lt;结局&gt;</code>。</p></div>'
+      }
+    ]
+  },
+  en: {
+    title: "mlr3HTE_bench_index()",
+    lede: 'Lists the keys present in the bundled data together with the true ATE and sample size, for batch iteration.',
+    sections: [
+      {
+        id: "fn",
+        heading: "mlr3HTE_bench_index()",
+        body:
+          '<pre><code class="language-r">idx &lt;- mlr3HTE_bench_index()\ndim(idx)\nutils::head(idx, 4)</code></pre>' +
+          '<pre><code class="r-out">dim: 30 5\n                    key         id    outcome       ate    n\n1    rct_lin.continuous    rct_lin continuous 1.0000000 2000\n2        rct_lin.binary    rct_lin     binary 0.1288110 2000\n3      rct_lin.survival    rct_lin   survival 0.1542625 2000\n4 rct_nonlin.continuous rct_nonlin continuous 0.9939152 2000</code></pre>' +
+          '<div class="callout warn"><div class="callout-title">Notes</div><p>Thirty rows in total (10 designs x 3 outcomes). Keys follow the pattern <code>&lt;scenario id&gt;.&lt;outcome&gt;</code>.</p></div>'
+      }
+    ]
+  }
+};
+
+window.SITE_PAGES.apiexplainer = {
+  zh: {
+    title: "hte_explainer()",
+    lede: '把 CATE 模型包装为 DALEX 解释器；响应变量取双重稳健伪结局，而非原始 Y。',
+    sections: [
+      {
+        id: "fn",
+        heading: "hte_explainer()",
+        body:
+          '<div class="table-wrap"><table><thead><tr><th>参数</th><th>说明</th></tr></thead><tbody>' +
+          '<tr><td><code>fit</code></td><td><code>metalearner()</code> 的返回对象，或任何带 <code>$predict(newX)</code> 的对象</td></tr>' +
+          '<tr><td><code>X</code></td><td>协变量 data.frame，解释所依据的样本</td></tr>' +
+          '<tr><td><code>A / Y</code></td><td>处理与结局；未提供 <code>pseudo</code> 时用于计算伪结局</td></tr>' +
+          '<tr><td><code>pseudo</code></td><td>已算好的逐人伪结局，可复用 <code>dr_pseudo_outcome()</code> 的结果</td></tr>' +
+          '<tr><td><code>t0 / effect</code></td><td>生存结局的评估时点与效应尺度</td></tr>' +
+          '<tr><td><code>label / verbose</code></td><td>解释器显示名 / 是否打印 DALEX 进度</td></tr>' +
+          '</tbody></table></div>' +
+          '<pre><code class="language-r">d &lt;- mlr3HTE_scenario("rct_nonlin", "continuous", n = 400, seed = 1)\nfit &lt;- metalearner("T", d$X, d$A, d$Y,\n                   learner_base = lrn("regr.ranger", num.trees = 200))\nex &lt;- hte_explainer(fit, d$X, d$A, d$Y, seed = 1)\nc(n = length(ex$pseudo), cor_pseudo_tau = round(cor(ex$pseudo, d$tau), 3))</code></pre>' +
+          '<pre><code class="r-out">             n cor_pseudo_tau\n       400.000          0.326</code></pre>' +
+          '<div class="callout warn"><div class="callout-title">使用要点</div><p>伪结局与真值 <code>tau</code> 的相关通常不高（上例 0.326）：它是逐人的无偏估计，方差很大，个别取值可能远离真值。这不影响它作为解释目标的资格——<code>E[Y*|X] = tau(X)</code> 是<strong>条件期望</strong>层面的性质，与单点噪声无关。若要逐点精度，应看 metalearner 的 CATE 估计，而非伪结局。</p></div>' +
+          '<div class="callout warn"><div class="callout-title">使用要点</div><p>响应变量必须是伪结局。若直接用 <code>Y</code>，置换重要性与 PDP 衡量的将是「该变量对基线预后 <code>mu(X)</code> 的重要性」，与效应异质性无关。伪结局满足 <code>E[Y*|X] = tau(X)</code>，因此解释目标才是 CATE。</p></div>'
+      }
+    ]
+  },
+  en: {
+    title: "hte_explainer()",
+    lede: 'Wraps a CATE model as a DALEX explainer whose response is the doubly robust pseudo-outcome rather than the raw outcome.',
+    sections: [
+      {
+        id: "fn",
+        heading: "hte_explainer()",
+        body:
+          '<div class="table-wrap"><table><thead><tr><th>参数</th><th>说明</th></tr></thead><tbody>' +
+          '<tr><td><code>fit</code></td><td>A <code>metalearner()</code> fit, or any object with <code>$predict(newX)</code></td></tr>' +
+          '<tr><td><code>X</code></td><td>Covariate data.frame used for explanation</td></tr>' +
+          '<tr><td><code>A / Y</code></td><td>Treatment and outcome; used to compute the pseudo-outcome when <code>pseudo</code> is omitted</td></tr>' +
+          '<tr><td><code>pseudo</code></td><td>Precomputed pseudo-outcome, e.g. from <code>dr_pseudo_outcome()</code></td></tr>' +
+          '<tr><td><code>t0 / effect</code></td><td>Evaluation time and effect scale for survival outcomes</td></tr>' +
+          '<tr><td><code>label / verbose</code></td><td>Explainer label / whether to print DALEX progress</td></tr>' +
+          '</tbody></table></div>' +
+          '<pre><code class="language-r">d &lt;- mlr3HTE_scenario("rct_nonlin", "continuous", n = 400, seed = 1)\nfit &lt;- metalearner("T", d$X, d$A, d$Y,\n                   learner_base = lrn("regr.ranger", num.trees = 200))\nex &lt;- hte_explainer(fit, d$X, d$A, d$Y, seed = 1)\nc(n = length(ex$pseudo), cor_pseudo_tau = round(cor(ex$pseudo, d$tau), 3))</code></pre>' +
+          '<pre><code class="r-out">             n cor_pseudo_tau\n       400.000          0.326</code></pre>' +
+          '<div class="callout warn"><div class="callout-title">Notes</div><p>The correlation between the pseudo-outcome and the true <code>tau</code> is usually modest (0.326 above): it is an unbiased but high-variance individual-level estimate. That does not disqualify it as an explanation target — <code>E[Y*|X] = tau(X)</code> is a property of the <strong>conditional expectation</strong>, not of individual noise. For point-wise accuracy, use the metalearner\'s CATE estimate instead.</p></div>' +
+          '<div class="callout warn"><div class="callout-title">Notes</div><p>The response must be the pseudo-outcome. With the raw <code>Y</code>, permutation importance and partial dependence measure how strongly a variable drives the baseline prognosis <code>mu(X)</code>, which is unrelated to effect heterogeneity. The pseudo-outcome satisfies <code>E[Y*|X] = tau(X)</code>, so the explanation target is the CATE itself.</p></div>'
+      }
+    ]
+  }
+};
+
+window.SITE_PAGES.apisurrogate = {
+  zh: {
+    title: "hte_surrogate()",
+    lede: '用单一 mlr3 学习器重拟合 CATE 曲面，得到一个结构简单、可解释的代理模型。',
+    sections: [
+      {
+        id: "fn",
+        heading: "hte_surrogate()",
+        body:
+          '<pre><code class="language-r">d &lt;- mlr3HTE_scenario("rct_nonlin", "continuous", n = 400, seed = 1)\nfit &lt;- metalearner("T", d$X, d$A, d$Y, learner_base = lrn("regr.ranger", num.trees = 200))\nsur &lt;- hte_surrogate(d$X, fit$predict(d$X))\nlist(learner = sur$learner_id,\n     cor = round(cor(sur$predict(d$X), fit$predict(d$X)), 3))</code></pre>' +
+          '<pre><code class="r-out">$learner\n[1] "regr.ranger"\n\n$cor\n[1] 0.913</code></pre>' +
+          '<div class="callout warn"><div class="callout-title">使用要点</div><p>代理模型只用于解释与可视化，不应替代原 metalearner 做效应估计：它把多阶段、带权重、带交叉拟合的过程压缩成单一回归，精度必然下降。</p></div>'
+      }
+    ]
+  },
+  en: {
+    title: "hte_surrogate()",
+    lede: 'Refits the CATE surface with a single mlr3 learner to obtain a compact, interpretable surrogate model.',
+    sections: [
+      {
+        id: "fn",
+        heading: "hte_surrogate()",
+        body:
+          '<pre><code class="language-r">d &lt;- mlr3HTE_scenario("rct_nonlin", "continuous", n = 400, seed = 1)\nfit &lt;- metalearner("T", d$X, d$A, d$Y, learner_base = lrn("regr.ranger", num.trees = 200))\nsur &lt;- hte_surrogate(d$X, fit$predict(d$X))\nlist(learner = sur$learner_id,\n     cor = round(cor(sur$predict(d$X), fit$predict(d$X)), 3))</code></pre>' +
+          '<pre><code class="r-out">$learner\n[1] "regr.ranger"\n\n$cor\n[1] 0.913</code></pre>' +
+          '<div class="callout warn"><div class="callout-title">Notes</div><p>The surrogate is intended for explanation and visualisation only and should not replace the original metalearner for effect estimation: it compresses a multi-stage, weighted, cross-fitted procedure into a single regression and necessarily loses precision.</p></div>'
+      }
+    ]
+  }
+};
+
+window.SITE_PAGES.apiimportance = {
+  zh: {
+    title: "hte_feature_importance()",
+    lede: '置换法变量重要性：打乱某个协变量后，模型相对伪结局的损失上升多少。',
+    sections: [
+      {
+        id: "fn",
+        heading: "hte_feature_importance()",
+        body:
+          '<p>下例沿用 <code>hte_explainer()</code> 页面建立的 <code>d</code> / <code>fit</code> / <code>ex</code> 三个对象。</p>' +
+          '<div class="table-wrap"><table><thead><tr><th>参数</th><th>说明</th></tr></thead><tbody>' +
+          '<tr><td><code>explainer</code></td><td><code>hte_explainer()</code> 的结果</td></tr>' +
+          '<tr><td><code>loss</code></td><td><code>"rmse"</code>（默认）/ <code>"mse"</code>，也可传函数</td></tr>' +
+          '<tr><td><code>B</code></td><td>置换次数，默认 10</td></tr>' +
+          '<tr><td><code>variables</code></td><td>只评估部分变量</td></tr>' +
+          '<tr><td><code>N</code></td><td>用于计算损失的抽样行数</td></tr>' +
+          '</tbody></table></div>' +
+          '<pre><code class="language-r">hte_feature_importance(ex, B = 5, N = 400, seed = 1)</code></pre>' +
+          '<pre><code class="r-out">  variable dropout_loss baseline    dropout dropout_pct\n2      lac     2.412783 1.876112 0.53667133   28.605513\n4    tumor     2.272273 1.876112 0.39616112   21.116075\n1      age     2.185380 1.876112 0.30926804   16.484523\n3      sex     1.940157 1.876112 0.06404511    3.413716</code></pre>' +
+          '<div class="callout warn"><div class="callout-title">使用要点</div><p>这是对<strong>模型</strong>的解释，不是因果效应分解。重要性高只说明模型用到了该变量，不说明它真的修饰了治疗效果；判断后者需要设计层面的证据，例如随机化下的分层分析或预先设定的交互项检验。</p></div>'
+      }
+    ]
+  },
+  en: {
+    title: "hte_feature_importance()",
+    lede: 'Permutation importance: how much the loss against the pseudo-outcome increases when a covariate is permuted.',
+    sections: [
+      {
+        id: "fn",
+        heading: "hte_feature_importance()",
+        body:
+          '<p>The example below reuses the <code>d</code> / <code>fit</code> / <code>ex</code> objects built on the <code>hte_explainer()</code> page.</p>' +
+          '<div class="table-wrap"><table><thead><tr><th>参数</th><th>说明</th></tr></thead><tbody>' +
+          '<tr><td><code>explainer</code></td><td>An <code>hte_explainer()</code> result</td></tr>' +
+          '<tr><td><code>loss</code></td><td><code>"rmse"</code> (default) / <code>"mse"</code>, or a function</td></tr>' +
+          '<tr><td><code>B</code></td><td>Number of permutations, default 10</td></tr>' +
+          '<tr><td><code>variables</code></td><td>Restrict to a subset of variables</td></tr>' +
+          '<tr><td><code>N</code></td><td>Number of rows sampled for the loss</td></tr>' +
+          '</tbody></table></div>' +
+          '<pre><code class="language-r">hte_feature_importance(ex, B = 5, N = 400, seed = 1)</code></pre>' +
+          '<pre><code class="r-out">  variable dropout_loss baseline    dropout dropout_pct\n2      lac     2.412783 1.876112 0.53667133   28.605513\n4    tumor     2.272273 1.876112 0.39616112   21.116075\n1      age     2.185380 1.876112 0.30926804   16.484523\n3      sex     1.940157 1.876112 0.06404511    3.413716</code></pre>' +
+          '<div class="callout warn"><div class="callout-title">Notes</div><p>This explains the <strong>model</strong>, not a causal decomposition. High importance only means the model relied on the variable; it does not establish that the variable truly modifies the treatment effect. The latter requires design-level evidence, such as stratified analysis under randomisation or a pre-specified interaction test.</p></div>'
+      }
+    ]
+  }
+};
+
+window.SITE_PAGES.apipdp = {
+  zh: {
+    title: "hte_pdp()",
+    lede: '偏依赖（PDP）与累积局部效应（ALE）：固定某个协变量，看平均预测 CATE 如何变化。',
+    sections: [
+      {
+        id: "fn",
+        heading: "hte_pdp()",
+        body:
+          '<p>下例沿用 <code>hte_explainer()</code> 页面建立的 <code>ex</code> 对象。</p>' +
+          '<div class="table-wrap"><table><thead><tr><th>参数</th><th>说明</th></tr></thead><tbody>' +
+          '<tr><td><code>explainer</code></td><td><code>hte_explainer()</code> 的结果</td></tr>' +
+          '<tr><td><code>variables</code></td><td>要计算的变量名；缺省为全部协变量</td></tr>' +
+          '<tr><td><code>grid_points</code></td><td>网格点数，默认 101</td></tr>' +
+          '<tr><td><code>type</code></td><td><code>"partial"</code>（PDP）或 <code>"accumulated"</code>（ALE）</td></tr>' +
+          '<tr><td><code>center</code></td><td>是否减去平均预测值，默认 <code>FALSE</code>（保留绝对水平）</td></tr>' +
+          '</tbody></table></div>' +
+          '<pre><code class="language-r">utils::head(hte_pdp(ex, variables = "lac", grid_points = 20), 6)</code></pre>' +
+          '<pre><code class="r-out">   variable          x        yhat    type\n1       lac -1.1096583  0.25542452 partial\n2       lac  0.3741624  0.17344583 partial\n3       lac  0.8527465  0.15291082 partial\n4       lac  1.1359194  0.12182969 partial\n5       lac  1.3229172  0.03643026 partial\n6       lac  1.5764892 -0.06165269 partial</code></pre>' +
+          '<div class="callout warn"><div class="callout-title">使用要点</div><p>变量间存在相关时，PDP 在观测支撑集之外做外推，可能给出不存在的组合；此时改用 <code>type = "accumulated"</code>（ALE）更稳健。</p></div>'
+      }
+    ]
+  },
+  en: {
+    title: "hte_pdp()",
+    lede: 'Partial dependence (PDP) and accumulated local effects (ALE): how the average predicted CATE changes as one covariate is varied.',
+    sections: [
+      {
+        id: "fn",
+        heading: "hte_pdp()",
+        body:
+          '<p>The example below reuses the <code>ex</code> object built on the <code>hte_explainer()</code> page.</p>' +
+          '<div class="table-wrap"><table><thead><tr><th>参数</th><th>说明</th></tr></thead><tbody>' +
+          '<tr><td><code>explainer</code></td><td>An <code>hte_explainer()</code> result</td></tr>' +
+          '<tr><td><code>variables</code></td><td>Variables to compute; all covariates by default</td></tr>' +
+          '<tr><td><code>grid_points</code></td><td>Number of grid points, default 101</td></tr>' +
+          '<tr><td><code>type</code></td><td><code>"partial"</code> (PDP) or <code>"accumulated"</code> (ALE)</td></tr>' +
+          '<tr><td><code>center</code></td><td>Whether to subtract the mean prediction; <code>FALSE</code> by default, preserving the absolute level</td></tr>' +
+          '</tbody></table></div>' +
+          '<pre><code class="language-r">utils::head(hte_pdp(ex, variables = "lac", grid_points = 20), 6)</code></pre>' +
+          '<pre><code class="r-out">   variable          x        yhat    type\n1       lac -1.1096583  0.25542452 partial\n2       lac  0.3741624  0.17344583 partial\n3       lac  0.8527465  0.15291082 partial\n4       lac  1.1359194  0.12182969 partial\n5       lac  1.3229172  0.03643026 partial\n6       lac  1.5764892 -0.06165269 partial</code></pre>' +
+          '<div class="callout warn"><div class="callout-title">Notes</div><p>When covariates are correlated, PDP extrapolates outside the observed support and may evaluate combinations that never occur. In that situation <code>type = "accumulated"</code> (ALE) is more robust.</p></div>'
+      }
+    ]
+  }
+};
+
+window.SITE_PAGES.apishap = {
+  zh: {
+    title: "hte_shap()",
+    lede: 'Kernel SHAP：把每个个体的 CATE 分解为基线值加各协变量的贡献，满足可加性。',
+    sections: [
+      {
+        id: "fn",
+        heading: "hte_shap()",
+        body:
+          '<p>下例沿用 <code>hte_explainer()</code> 页面建立的 <code>d</code> / <code>fit</code> / <code>ex</code> 三个对象。</p>' +
+          '<div class="table-wrap"><table><thead><tr><th>参数</th><th>说明</th></tr></thead><tbody>' +
+          '<tr><td><code>object</code></td><td><code>hte_explainer()</code> 的结果，或带 <code>$predict</code> 的对象</td></tr>' +
+          '<tr><td><code>X</code></td><td>计算 SHAP 的样本；缺省用解释器里的 <code>X</code></td></tr>' +
+          '<tr><td><code>bg_X</code></td><td>背景数据，用于估计联盟的边际期望</td></tr>' +
+          '<tr><td><code>n_background</code></td><td>背景样本量，默认 100</td></tr>' +
+          '<tr><td><code>seed / verbose</code></td><td>抽背景集的种子 / 是否显示进度条</td></tr>' +
+          '</tbody></table></div>' +
+          '<pre><code class="language-r">sv &lt;- hte_shap(ex, n_background = 50, seed = 1)\nS &lt;- as.matrix(sv$S)\nmax(abs(as.numeric(sv$baseline) + rowSums(S) - fit$predict(d$X)))</code></pre>' +
+          '<pre><code class="r-out">baseline = 0.912867\nmax |baseline + rowSums(S) - predict| = 4.44e-16</code></pre>' +
+          '<div class="callout warn"><div class="callout-title">使用要点</div><p>协变量数 <em>p</em> 不大时 Kernel SHAP 走精确枚举（<code>2^p</code> 个联盟）；<em>p</em> 较大时 kernelshap 自动切换为采样近似，此时结果随 <code>seed</code> 有轻微波动。上式的可加性残差是检验实现是否正确的直接手段，应为机器精度量级。</p></div>'
+      }
+    ]
+  },
+  en: {
+    title: "hte_shap()",
+    lede: 'Kernel SHAP: decomposes each individual CATE into a baseline plus per-covariate contributions, satisfying additivity.',
+    sections: [
+      {
+        id: "fn",
+        heading: "hte_shap()",
+        body:
+          '<p>The example below reuses the <code>d</code> / <code>fit</code> / <code>ex</code> objects built on the <code>hte_explainer()</code> page.</p>' +
+          '<div class="table-wrap"><table><thead><tr><th>参数</th><th>说明</th></tr></thead><tbody>' +
+          '<tr><td><code>object</code></td><td>An <code>hte_explainer()</code> result, or an object with <code>$predict</code></td></tr>' +
+          '<tr><td><code>X</code></td><td>Rows to explain; defaults to the explainer data</td></tr>' +
+          '<tr><td><code>bg_X</code></td><td>Background data for the coalition marginals</td></tr>' +
+          '<tr><td><code>n_background</code></td><td>Background size, default 100</td></tr>' +
+          '<tr><td><code>seed / verbose</code></td><td>Seed for background sampling / progress bar</td></tr>' +
+          '</tbody></table></div>' +
+          '<pre><code class="language-r">sv &lt;- hte_shap(ex, n_background = 50, seed = 1)\nS &lt;- as.matrix(sv$S)\nmax(abs(as.numeric(sv$baseline) + rowSums(S) - fit$predict(d$X)))</code></pre>' +
+          '<pre><code class="r-out">baseline = 0.912867\nmax |baseline + rowSums(S) - predict| = 4.44e-16</code></pre>' +
+          '<div class="callout warn"><div class="callout-title">Notes</div><p>For a small number of covariates <em>p</em>, Kernel SHAP enumerates all <code>2^p</code> coalitions exactly; for larger <em>p</em>, kernelshap switches to a sampling approximation and results fluctuate slightly with <code>seed</code>. The additivity residual above is a direct check on the implementation and should be at machine precision.</p></div>'
+      }
+    ]
+  }
+};
+
+window.SITE_PAGES.apishapdata = {
+  zh: {
+    title: "hte_shap_data()",
+    lede: '把 shapviz 对象摊平为长表，便于导出 CSV 或自行用 ggplot2 重画。',
+    sections: [
+      {
+        id: "fn",
+        heading: "hte_shap_data()",
+        body:
+          '<p>下例沿用 <code>hte_shap()</code> 页面建立的 <code>sv</code> 对象。</p>' +
+          '<pre><code class="language-r">utils::head(hte_shap_data(sv), 4)</code></pre>' +
+          '<pre><code class="r-out">  id variable    value        shap\n1  1      age 52.48255  0.16783351\n2  2      age 62.20372  0.09710957\n3  3      age 49.97246  0.21584552\n4  4      age 79.14337 -0.09103024</code></pre>' +
+          '<div class="callout warn"><div class="callout-title">使用要点</div><p>基线值 <code>phi_0</code> 放在返回值的 <code>baseline</code> 属性里，每行只记录单个变量对单个样本的贡献。</p></div>'
+      }
+    ]
+  },
+  en: {
+    title: "hte_shap_data()",
+    lede: 'Flattens a shapviz object into a long table for CSV export or custom ggplot2 redrawing.',
+    sections: [
+      {
+        id: "fn",
+        heading: "hte_shap_data()",
+        body:
+          '<p>The example below reuses the <code>sv</code> object built on the <code>hte_shap()</code> page.</p>' +
+          '<pre><code class="language-r">utils::head(hte_shap_data(sv), 4)</code></pre>' +
+          '<pre><code class="r-out">  id variable    value        shap\n1  1      age 52.48255  0.16783351\n2  2      age 62.20372  0.09710957\n3  3      age 49.97246  0.21584552\n4  4      age 79.14337 -0.09103024</code></pre>' +
+          '<div class="callout warn"><div class="callout-title">Notes</div><p>The baseline <code>phi_0</code> is stored in the <code>baseline</code> attribute; each row records one variable\'s contribution to one observation.</p></div>'
+      }
+    ]
+  }
+};
+
+window.SITE_PAGES.apiplotimportance = {
+  zh: {
+    title: "plot_hte_importance()",
+    lede: '画置换重要性的条形图，返回 ggplot 对象。',
+    sections: [
+      {
+        id: "fn",
+        heading: "plot_hte_importance()",
+        body:
+          '<p>下例沿用 <code>hte_explainer()</code> 页面建立的 <code>ex</code> 对象。</p>' +
+          '<pre><code class="language-r">imp &lt;- hte_feature_importance(ex, B = 3, N = 300, seed = 1)\np &lt;- plot_hte_importance(imp)\nc(classes = paste(class(p), collapse = "/"), is_ggplot = inherits(p, "ggplot"))</code></pre>' +
+          '<pre><code class="r-out">$classes\n[1] "ggplot2::ggplot/ggplot/ggplot2::gg/S7_object/gg"\n\n$is_ggplot\n[1] TRUE</code></pre>' +
+          '<div class="callout warn"><div class="callout-title">使用要点</div><p>返回的是 ggplot 对象，可直接用 <code>+</code> 叠加主题与标度，或用 <code>ggsave()</code> 导出；绘图数据就是 <code>hte_feature_importance()</code> 的返回值，可单独落盘。</p></div>'
+      }
+    ]
+  },
+  en: {
+    title: "plot_hte_importance()",
+    lede: 'Draws a bar chart of permutation importance and returns a ggplot object.',
+    sections: [
+      {
+        id: "fn",
+        heading: "plot_hte_importance()",
+        body:
+          '<p>The example below reuses the <code>ex</code> object built on the <code>hte_explainer()</code> page.</p>' +
+          '<pre><code class="language-r">imp &lt;- hte_feature_importance(ex, B = 3, N = 300, seed = 1)\np &lt;- plot_hte_importance(imp)\nc(classes = paste(class(p), collapse = "/"), is_ggplot = inherits(p, "ggplot"))</code></pre>' +
+          '<pre><code class="r-out">$classes\n[1] "ggplot2::ggplot/ggplot/ggplot2::gg/S7_object/gg"\n\n$is_ggplot\n[1] TRUE</code></pre>' +
+          '<div class="callout warn"><div class="callout-title">Notes</div><p>The returned ggplot object can be extended with <code>+</code> or exported with <code>ggsave()</code>. The underlying data is exactly the value returned by <code>hte_feature_importance()</code> and can be written to disk separately.</p></div>'
+      }
+    ]
+  }
+};
+
+window.SITE_PAGES.apiplotpdp = {
+  zh: {
+    title: "plot_hte_pdp()",
+    lede: '画偏依赖曲线，按变量分面，返回 ggplot 对象。',
+    sections: [
+      {
+        id: "fn",
+        heading: "plot_hte_pdp()",
+        body:
+          '<p>下例沿用 <code>hte_explainer()</code> 页面建立的 <code>ex</code> 对象。</p>' +
+          '<pre><code class="language-r">pd &lt;- hte_pdp(ex, variables = "lac", grid_points = 20)\np &lt;- plot_hte_pdp(pd)\nc(classes = paste(class(p), collapse = "/"), is_ggplot = inherits(p, "ggplot"))</code></pre>' +
+          '<pre><code class="r-out">$classes\n[1] "ggplot2::ggplot/ggplot/ggplot2::gg/S7_object/gg"\n\n$is_ggplot\n[1] TRUE</code></pre>' +
+          '<div class="callout warn"><div class="callout-title">使用要点</div><p><code>free_y</code> 默认 <code>TRUE</code>：不同变量的 CATE 量级可能相差数倍，共用纵轴会把次要变量压成一条平线。若要跨变量比较绝对幅度，设为 <code>FALSE</code>。</p></div>'
+      }
+    ]
+  },
+  en: {
+    title: "plot_hte_pdp()",
+    lede: 'Draws partial dependence curves faceted by variable and returns a ggplot object.',
+    sections: [
+      {
+        id: "fn",
+        heading: "plot_hte_pdp()",
+        body:
+          '<p>The example below reuses the <code>ex</code> object built on the <code>hte_explainer()</code> page.</p>' +
+          '<pre><code class="language-r">pd &lt;- hte_pdp(ex, variables = "lac", grid_points = 20)\np &lt;- plot_hte_pdp(pd)\nc(classes = paste(class(p), collapse = "/"), is_ggplot = inherits(p, "ggplot"))</code></pre>' +
+          '<pre><code class="r-out">$classes\n[1] "ggplot2::ggplot/ggplot/ggplot2::gg/S7_object/gg"\n\n$is_ggplot\n[1] TRUE</code></pre>' +
+          '<div class="callout warn"><div class="callout-title">Notes</div><p><code>free_y</code> defaults to <code>TRUE</code> because the CATE magnitudes of different covariates can differ several-fold and a shared axis would flatten the minor ones. Set it to <code>FALSE</code> to compare absolute magnitudes across variables.</p></div>'
+      }
+    ]
+  }
+};
+
+window.SITE_PAGES.apiplotshap = {
+  zh: {
+    title: "plot_hte_shap()",
+    lede: 'SHAP 的四种视图：重要性条形图、蜂群图、依赖图、单样本瀑布图，均返回 ggplot。',
+    sections: [
+      {
+        id: "fn",
+        heading: "plot_hte_shap()",
+        body:
+          '<p>下例沿用 <code>hte_shap()</code> 页面建立的 <code>sv</code> 对象。</p>' +
+          '<div class="table-wrap"><table><thead><tr><th>参数</th><th>说明</th></tr></thead><tbody>' +
+          '<tr><td><code>sv</code></td><td><code>hte_shap()</code> 返回的 shapviz 对象</td></tr>' +
+          '<tr><td><code>kind</code></td><td><code>"importance"</code> / <code>"beeswarm"</code> / <code>"dependence"</code> / <code>"waterfall"</code></td></tr>' +
+          '<tr><td><code>variable</code></td><td><code>dependence</code> 传变量名，<code>waterfall</code> 传样本行号</td></tr>' +
+          '<tr><td><code>max_vars</code></td><td>最多显示多少个变量，默认 8</td></tr>' +
+          '</tbody></table></div>' +
+          '<pre><code class="language-r">c(imp = inherits(plot_hte_shap(sv, "importance"), "ggplot"),\n  dep = inherits(plot_hte_shap(sv, "dependence", variable = "lac"), "ggplot"),\n  wf  = inherits(plot_hte_shap(sv, "waterfall", variable = 1), "ggplot"))</code></pre>' +
+          '<pre><code class="r-out"> imp  dep   wf\nTRUE TRUE TRUE</code></pre>' +
+          '<div class="callout warn"><div class="callout-title">使用要点</div><p>蜂群图同时给出三件事：变量的重要性（横轴跨度）、效应方向（正负）、以及取值高低与效应方向的关系（颜色梯度）。这是 PDP 无法提供的信息。</p></div>'
+      }
+    ]
+  },
+  en: {
+    title: "plot_hte_shap()",
+    lede: 'Four SHAP views — importance bars, beeswarm, dependence and a single-observation waterfall — all returning ggplot objects.',
+    sections: [
+      {
+        id: "fn",
+        heading: "plot_hte_shap()",
+        body:
+          '<p>The example below reuses the <code>sv</code> object built on the <code>hte_shap()</code> page.</p>' +
+          '<div class="table-wrap"><table><thead><tr><th>参数</th><th>说明</th></tr></thead><tbody>' +
+          '<tr><td><code>sv</code></td><td>A shapviz object from <code>hte_shap()</code></td></tr>' +
+          '<tr><td><code>kind</code></td><td><code>"importance"</code> / <code>"beeswarm"</code> / <code>"dependence"</code> / <code>"waterfall"</code></td></tr>' +
+          '<tr><td><code>variable</code></td><td>Variable name for <code>dependence</code>, row index for <code>waterfall</code></td></tr>' +
+          '<tr><td><code>max_vars</code></td><td>Maximum number of variables shown, default 8</td></tr>' +
+          '</tbody></table></div>' +
+          '<pre><code class="language-r">c(imp = inherits(plot_hte_shap(sv, "importance"), "ggplot"),\n  dep = inherits(plot_hte_shap(sv, "dependence", variable = "lac"), "ggplot"),\n  wf  = inherits(plot_hte_shap(sv, "waterfall", variable = 1), "ggplot"))</code></pre>' +
+          '<pre><code class="r-out"> imp  dep   wf\nTRUE TRUE TRUE</code></pre>' +
+          '<div class="callout warn"><div class="callout-title">Notes</div><p>The beeswarm plot conveys three things at once: importance (horizontal spread), direction of effect (sign), and how the covariate value relates to that direction (colour gradient). Partial dependence cannot provide this.</p></div>'
+      }
+    ]
+  }
+};
+
+window.SITE_PAGES.apidagdata = {
+  zh: {
+    title: "mlr3HTE_dag_data()",
+    lede: 'DAG 图的节点表与边表，含每条边的路由结果（曲率）。',
+    sections: [
+      {
+        id: "fn",
+        heading: "mlr3HTE_dag_data()",
+        body:
+          '<pre><code class="language-r">dd &lt;- mlr3HTE_dag_data("rct", "continuous")\ndd$edges[, c("from", "to", "type", "curve")]</code></pre>' +
+          '<pre><code class="r-out">  from  to type curve\n1    X tau base     0\n2    X  mu base     0\n3    A   Y base     0\n4  tau   Y base     0\n5   mu   Y base     0</code></pre>' +
+          '<div class="callout warn"><div class="callout-title">使用要点</div><p>任意两个节点之间只保留一条有向边。若某条边会从第三个节点身上穿过，自动加曲率绕行，<code>curve</code> 列即该边采用的曲率（0 表示直线）。绘图时按曲率分组，一层一个 <code>geom_curve</code>。</p></div>'
+      }
+    ]
+  },
+  en: {
+    title: "mlr3HTE_dag_data()",
+    lede: 'The node and edge tables behind the DAG plot, including the routing result (curvature) of every edge.',
+    sections: [
+      {
+        id: "fn",
+        heading: "mlr3HTE_dag_data()",
+        body:
+          '<pre><code class="language-r">dd &lt;- mlr3HTE_dag_data("rct", "continuous")\ndd$edges[, c("from", "to", "type", "curve")]</code></pre>' +
+          '<pre><code class="r-out">  from  to type curve\n1    X tau base     0\n2    X  mu base     0\n3    A   Y base     0\n4  tau   Y base     0\n5   mu   Y base     0</code></pre>' +
+          '<div class="callout warn"><div class="callout-title">Notes</div><p>At most one directed edge is kept between any pair of nodes. If an edge would pass through a third node, a curvature is added automatically and recorded in the <code>curve</code> column (0 means a straight line). The plot is then drawn with one <code>geom_curve</code> layer per curvature value.</p></div>'
+      }
+    ]
+  }
+};
+
+window.SITE_PAGES.apibenchdata = {
+  zh: {
+    title: "hte_benchmark_data()",
+    lede: '取出 hte_benchmark() 的曲线绘图数据，附各 learner 的参考线。',
+    sections: [
+      {
+        id: "fn",
+        heading: "hte_benchmark_data()",
+        body:
+          '<pre><code class="language-r"># bm 见 hte_benchmark() 页面\nqd &lt;- hte_benchmark_data(bm, "qini")\nprint(head(qd[qd$learner == "T", c("learner", "fraction", "qini")], 3),\n      row.names = FALSE)\nprint(attr(qd, "reference"), row.names = FALSE)</code></pre>' +
+          '<pre><code class="r-out"> learner fraction      qini\n       T   0.0500 0.1272805\n       T   0.0525 0.1669598\n       T   0.0550 0.2083948\n learner intercept   slope\n       S         0 0.68891\n       T         0 0.68891</code></pre>' +
+          '<div class="callout warn"><div class="callout-title">使用要点</div><p>Qini 面板的参考线是从原点到该 learner <code>Q(1)</code> 的随机靶向线；TOC 面板的参考线是全样本 ATE 的水平线（<code>slope = 0</code>）。<code>min_fraction</code> 控制左端截断，避免单个观测把纵轴拉爆。</p></div>'
+      }
+    ]
+  },
+  en: {
+    title: "hte_benchmark_data()",
+    lede: 'Returns the curve data used by hte_benchmark() plots, with the reference line for each learner attached.',
+    sections: [
+      {
+        id: "fn",
+        heading: "hte_benchmark_data()",
+        body:
+          '<pre><code class="language-r"># bm 见 hte_benchmark() 页面\nqd &lt;- hte_benchmark_data(bm, "qini")\nprint(head(qd[qd$learner == "T", c("learner", "fraction", "qini")], 3),\n      row.names = FALSE)\nprint(attr(qd, "reference"), row.names = FALSE)</code></pre>' +
+          '<pre><code class="r-out"> learner fraction      qini\n       T   0.0500 0.1272805\n       T   0.0525 0.1669598\n       T   0.0550 0.2083948\n learner intercept   slope\n       S         0 0.68891\n       T         0 0.68891</code></pre>' +
+          '<div class="callout warn"><div class="callout-title">Notes</div><p>In the Qini panel the reference is the random-targeting line from the origin to that learner\'s <code>Q(1)</code>; in the TOC panel it is the horizontal line at the overall ATE (<code>slope = 0</code>). <code>min_fraction</code> truncates the left tail so that a single observation cannot dominate the vertical axis.</p></div>'
+      }
+    ]
+  }
+};
+
+
+
+/* ================= v0.34 新增内容 ================= */
+
+window.SITE_PAGES.apisim = {
+  zh: {
+    title: "模拟数据与 DAG",
+    lede: '按结构可控、真值已知的原则生成模拟数据：10 个设计 × 3 类结局打包随包发布，并提供因果结构图（DAG）的数据与绘图。',
+    sections: [
+      {
+        id: "index",
+        heading: "模拟数据与 DAG",
+        body:
+          '<p>这一组函数回答“用什么数据做比较”与“因果结构长什么样”。四个结构维度（研究设计 / 混杂形式 / HTE 形式 / 共用变量）相互独立，便于固定其余、只改一个来做对照。</p>' +
+          '<div class="table-wrap"><table><thead><tr><th>函数</th><th>用途</th></tr></thead><tbody><tr><td><a href="#/apiscenarios">mlr3HTE_scenarios()</a></td><td>列出 10 个基准设计的结构标签</td></tr><tr><td><a href="#/apiscenario">mlr3HTE_scenario()</a></td><td>按场景 id 生成一份带真值的模拟数据</td></tr><tr><td><a href="#/apibench">mlr3HTE_bench()</a></td><td>取出随包发布的基准数据（10 设计 × 3 结局）</td></tr><tr><td><a href="#/apibenchindex">mlr3HTE_bench_index()</a></td><td>列出打包数据中实际存在的键与真值 ATE</td></tr><tr><td><a href="#/apidagdata">mlr3HTE_dag_data() · mlr3HTE_dag()()</a></td><td>DAG 的节点表、边表与绘图，含每条边的曲率路由</td></tr><tr><td><a href="#/apibenchdata">hte_benchmark_data()</a></td><td>取出基准测试的曲线绘图数据与参考线</td></tr></tbody></table></div>'
+      },
+      {
+        id: "dag",
+        heading: "DAG 的唯一箭头约定",
+        body:
+          '<p>任意两个节点之间只保留一条有向边；若某条边会从第三个节点身上穿过，<code>mlr3HTE_dag_data()</code> 会自动加曲率绕行，曲率记在 <code>curve</code> 列（0 表示直线）。绘图时按曲率分组，一层一个 <code>geom_curve</code>——因为 <code>curvature</code> 是参数而非美学映射，不能直接写进 <code>aes()</code>。</p>'
+      }
+    ]
+  },
+  en: {
+    title: "Simulation data & DAG",
+    lede: 'Simulated data generated under controllable structures with known ground truth: ten designs by three outcomes ship with the package, together with the data and plot for the causal structure diagram (DAG).',
+    sections: [
+      {
+        id: "index",
+        heading: "Simulation data & DAG",
+        body:
+          '<p>These functions answer which data to compare on and what the causal structure looks like. The four structural dimensions (design, confounding form, HTE form, shared variable) are independent, so one can be varied while the rest are held fixed.</p>' +
+          '<div class="table-wrap"><table><thead><tr><th>Function</th><th>Purpose</th></tr></thead><tbody><tr><td><a href="#/apiscenarios">mlr3HTE_scenarios()</a></td><td>Lists the structural labels of the ten benchmark designs</td></tr><tr><td><a href="#/apiscenario">mlr3HTE_scenario()</a></td><td>Generates one simulated dataset with known ground truth</td></tr><tr><td><a href="#/apibench">mlr3HTE_bench()</a></td><td>Returns the bundled benchmark data (10 designs x 3 outcomes)</td></tr><tr><td><a href="#/apibenchindex">mlr3HTE_bench_index()</a></td><td>Lists the keys present in the bundled data and the true ATE</td></tr><tr><td><a href="#/apidagdata">mlr3HTE_dag_data() · mlr3HTE_dag()()</a></td><td>Node and edge tables plus the DAG plot, including curvature routing</td></tr><tr><td><a href="#/apibenchdata">hte_benchmark_data()</a></td><td>Returns benchmark curve data with the reference lines</td></tr></tbody></table></div>'
+      },
+      {
+        id: "dag",
+        heading: "One arrow per pair of nodes",
+        body:
+          '<p>At most one directed edge is kept between any pair of nodes. If an edge would pass through a third node, <code>mlr3HTE_dag_data()</code> adds curvature automatically and records it in the <code>curve</code> column (0 means a straight line). The plot is drawn with one <code>geom_curve</code> layer per curvature value, because <code>curvature</code> is a parameter rather than an aesthetic and cannot go inside <code>aes()</code>.</p>'
+      }
+    ]
+  }
+};
+
+window.SITE_PAGES.apiexplain = {
+  zh: {
+    title: "CATE 可解释性",
+    lede: '把估计出的 CATE 曲面当作模型来解释：置换重要性、偏依赖与累积局部效应、Kernel SHAP，以及配套的三个绘图函数。解释对象是双重稳健伪结局。',
+    sections: [
+      {
+        id: "index",
+        heading: "CATE 可解释性",
+        body:
+          '<p>这一组函数回答“模型为什么给出这个 CATE”。它们衡量的是<strong>模型</strong>对变量的依赖，不构成因果效应分解。响应变量一律取双重稳健伪结局 <code>Y*</code>，因其满足 <code>E[Y*|X] = tau(X)</code>；若改用原始 <code>Y</code>，衡量的将是基线预后而非效应异质性。</p>' +
+          '<div class="table-wrap"><table><thead><tr><th>函数</th><th>用途</th></tr></thead><tbody><tr><td><a href="#/apiexplainer">hte_explainer()</a></td><td>把 CATE 模型包装为 DALEX 解释器（响应变量 = 伪结局）</td></tr><tr><td><a href="#/apisurrogate">hte_surrogate()</a></td><td>用单一 mlr3 学习器重拟合 CATE 曲面得到代理模型</td></tr><tr><td><a href="#/apiimportance">hte_feature_importance()</a></td><td>置换法变量重要性（相对伪结局的损失上升）</td></tr><tr><td><a href="#/apipdp">hte_pdp()</a></td><td>偏依赖（PDP）与累积局部效应（ALE）</td></tr><tr><td><a href="#/apishap">hte_shap()</a></td><td>Kernel SHAP：把个体 CATE 分解为基线加各变量贡献</td></tr><tr><td><a href="#/apishapdata">hte_shap_data()</a></td><td>把 shapviz 对象摊平为长表，便于导出与自绘</td></tr><tr><td><a href="#/apiplotimportance">plot_hte_importance()</a></td><td>重要性条形图（返回 ggplot）</td></tr><tr><td><a href="#/apiplotpdp">plot_hte_pdp()</a></td><td>偏依赖曲线分面图（返回 ggplot）</td></tr><tr><td><a href="#/apiplotshap">plot_hte_shap()</a></td><td>SHAP 四视图：重要性 / 蜂群 / 依赖 / 瀑布（返回 ggplot）</td></tr></tbody></table></div>'
+      },
+      {
+        id: "workflow",
+        heading: "推荐顺序",
+        body:
+          '<ol class="ref-list"><li>先确认估计质量（留出集上的 CATE 相关或 RMSE），再谈解释。</li><li><code>hte_explainer()</code> 建立解释器，响应变量自动取伪结局。</li><li><code>hte_feature_importance()</code> 看全局排序。</li><li><code>hte_pdp()</code> 看效应随单个变量如何变化（相关时用 ALE）。</li><li><code>hte_shap()</code> 做个体归因，并用可加性残差校验实现。</li><li>图形用 <code>ggsave()</code> 导出，数据用对应 <code>hte_*()</code> 落盘。</li></ol>'
+      }
+    ]
+  },
+  en: {
+    title: "CATE interpretability",
+    lede: 'Treats the estimated CATE surface as a model to be explained: permutation importance, partial dependence and accumulated local effects, Kernel SHAP, and the three companion plotting functions. The object of explanation is the doubly robust pseudo-outcome.',
+    sections: [
+      {
+        id: "index",
+        heading: "CATE interpretability",
+        body:
+          '<p>These functions answer why the model produced a given CATE. They measure the <strong>model\'s</strong> reliance on variables and do not constitute a causal decomposition. The response is always the doubly robust pseudo-outcome <code>Y*</code>, which satisfies <code>E[Y*|X] = tau(X)</code>; with the raw <code>Y</code> they would measure baseline prognosis rather than effect heterogeneity.</p>' +
+          '<div class="table-wrap"><table><thead><tr><th>Function</th><th>Purpose</th></tr></thead><tbody><tr><td><a href="#/apiexplainer">hte_explainer()</a></td><td>Wraps a CATE model as a DALEX explainer (response = pseudo-outcome)</td></tr><tr><td><a href="#/apisurrogate">hte_surrogate()</a></td><td>Refits the CATE surface with one mlr3 learner as a surrogate</td></tr><tr><td><a href="#/apiimportance">hte_feature_importance()</a></td><td>Permutation importance (rise in loss against the pseudo-outcome)</td></tr><tr><td><a href="#/apipdp">hte_pdp()</a></td><td>Partial dependence (PDP) and accumulated local effects (ALE)</td></tr><tr><td><a href="#/apishap">hte_shap()</a></td><td>Kernel SHAP: decomposes an individual CATE into a baseline plus contributions</td></tr><tr><td><a href="#/apishapdata">hte_shap_data()</a></td><td>Flattens a shapviz object into a long table for export and redrawing</td></tr><tr><td><a href="#/apiplotimportance">plot_hte_importance()</a></td><td>Importance bar chart (returns a ggplot)</td></tr><tr><td><a href="#/apiplotpdp">plot_hte_pdp()</a></td><td>Faceted partial dependence curves (returns a ggplot)</td></tr><tr><td><a href="#/apiplotshap">plot_hte_shap()</a></td><td>Four SHAP views: importance / beeswarm / dependence / waterfall (ggplot)</td></tr></tbody></table></div>'
+      },
+      {
+        id: "workflow",
+        heading: "Recommended order",
+        body:
+          '<ol class="ref-list"><li>Check estimation quality first (out-of-sample CATE correlation or RMSE); only then interpret.</li><li>Build the explainer with <code>hte_explainer()</code>; the response is the pseudo-outcome by default.</li><li>Rank globally with <code>hte_feature_importance()</code>.</li><li>Trace how the effect varies with one covariate using <code>hte_pdp()</code> (ALE when covariates are correlated).</li><li>Attribute individual effects with <code>hte_shap()</code> and verify the implementation via the additivity residual.</li><li>Export figures with <code>ggsave()</code> and write the data out with the corresponding <code>hte_*()</code> function.</li></ol>'
       }
     ]
   }

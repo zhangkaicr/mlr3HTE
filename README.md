@@ -254,10 +254,14 @@ R/
   engine.R         引擎：结局模型抽象 + 五种 metalearner + 调度器
   api.R            函数式 API + ml_task() + 4 个演示数据集
   learner.R        R6 Learner lrn("regr.metalearner")
+  scenarios.R      基准模拟数据网格（10 设计）+ mlr3HTE_bench() 取数
+  explain.R        CATE 可解释性（DALEX / kernelshap / shapviz）
+  dag.R            因果结构图：边去重 + Bezier 绕行路由
+  data.R           随包发布的基准数据文档（data/mlr3hte_bench_data.rda）
 smoke_test.R       连续结局 RCT 冒烟测试
 smoke_test2.R      二分类/生存/观察性冒烟测试
 smoke_test3.R      R6 Learner 三类结局 + resample 冒烟测试
-tests/testthat/   119 个测试
+tests/testthat/   14 个测试文件，全量实跑 FAIL 0 / PASS 505
 ```
 
 演示数据集（`*_obs_*` 为观察性版本，含真实 PS）：
@@ -282,7 +286,7 @@ tests/testthat/   119 个测试
 
 - `tutorial/00_教程.md` — 主文档：统一架构、6 格矩阵、五种 learner 公式与选用、
   调参避坑（含目录与对照表）
-- `tutorial/code/01..08_*.R` — 8 个配套脚本，每个自带章节目录，可独立运行
+- `tutorial/code/01..16_*.R` — 16 个配套脚本，每个自带章节目录，可独立运行
 
 运行方式（在 `mlr3HTE/` 目录下）：
 
@@ -305,6 +309,9 @@ Rscript tutorial/code/01_连续结局_随机化RCT.R
 | `11_评价指标真值对账.R` | 用已知真 `tau` 当标尺：误差拆成排序损失与估计噪声，c-for-benefit 闭式上界 |
 | `12_三类结局评价指标.R` | 三个指标在连续 / 二分类 / 生存上各跑一遍；生存要 IPCW，并演示「先拟合后切分」的泄漏 |
 | `13_换基学习器_基准对比.R` | **用 mlr3 体系的核心收益**：基学习器一行互换（ranger / xgboost / glmnet / rpart / lm），并复用 `benchmark()` 横向比 |
+| `14_RCT基准测试_Qini指标.R` | **不依赖真 tau 的现实 RCT 基准测试**：Qini 系数 / TOC 增益 / c-for-benefit，折按处理组分层做交叉拟合 |
+| `15_CATE模型可解释性_DALEX与SHAP.R` | **可解释性模块全链路**：代理模型、置换重要性、PDP/ALE、Kernel SHAP 四视图；响应变量是双重稳健伪结局而非原始结局 |
+| `16_基准模拟数据网格.R` | **基准数据网格**：10 个设计 × 3 类结局的混杂强度梯度、共用变量效应、线性 / 非线性 CATE 可估性对照 |
 
 ---
 
@@ -346,10 +353,14 @@ Rscript tutorial/code/01_连续结局_随机化RCT.R
 
 | 包 | 版本 | 角色 |
 |---|---|---|
-| `testthat` | 3.3.2 | 单元测试（8 文件 / 58 块 / 293 期望） |
+| `testthat` | 3.3.2 | 单元测试（14 个测试文件；全量实跑 FAIL 0 / PASS 505） |
 | `patchwork` | 1.3.2 | 多图拼接 |
 | `ggdag` | 0.2.13 | DAG 绘图（教程示意图） |
 | `survlearners` | 0.0.1 | 生存 learner 演示（可选） |
+| `DALEX` | 2.5.2 | CATE 可解释性：置换重要性、PDP / ALE（`R/explain.R`） |
+| `kernelshap` | 0.5.0 | Kernel SHAP 值计算（`hte_shap()`） |
+| `shapviz` | 0.10.0 | SHAP 可视化对象（`hte_shap()` / `plot_hte_shap()`） |
+| `ingredients` | 2.4.0 | PDP / ALE 计算后端（`hte_pdp()`） |
 | `rcmdcheck` | （CI 提供） | R CMD check；当前环境未安装，由 GitHub Actions 提供 |
 
 ### 6.4 完整递归依赖清单（89 个）

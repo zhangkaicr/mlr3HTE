@@ -85,7 +85,7 @@
 # 返回：与 roles 同序、同名的 list。S / R / DR 只有单一角色，仍是单 learner 语义。
 .resolve_learner_spec <- function(spec, roles) {
   if (inherits(spec, "Learner") || is.character(spec)) {
-    return(setNames(replicate(length(roles), spec, simplify = FALSE), roles))
+    return(stats::setNames(replicate(length(roles), spec, simplify = FALSE), roles))
   }
   if (is.list(spec)) {
     if (is.null(names(spec))) {

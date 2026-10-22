@@ -4,21 +4,35 @@
 \alias{plot_qini}
 \title{绘制 Qini 曲线}
 \usage{
-plot_qini(curve, main = "Qini curve", ...)
+plot_qini(curve, main = "Qini curve", color = "#1B6CA8", ...)
 }
 \arguments{
 \item{curve}{\code{\link{qini_curve}} 返回的 data.frame。}
 
 \item{main}{图标题。}
 
-\item{...}{传给 \code{plot()} 的其他参数。}
+\item{color}{曲线颜色。}
+
+\item{...}{不再使用，保留以兼容旧调用。}
 }
 \value{
-不可见地返回 \code{curve}。
+\code{ggplot} 对象。
 }
 \description{
-用 base graphics 画 \code{\link{qini_curve}} 的返回对象，并叠加
-随机靶向参考线（虚线）。
+画 \code{\link{qini_curve}} 的返回对象，并叠加随机靶向参考线（虚线）。
+}
+\details{
+返回 \code{ggplot} 对象，可继续用 \code{+} 叠加图层或主题；
+绘图所用的数据就是 \code{\link{qini_curve}} 的返回值本身。
+}
+\examples{
+set.seed(1)
+n <- 400
+A <- rbinom(n, 1, 0.5)
+tau <- rnorm(n)
+Y <- 1 + A * tau + rnorm(n)
+p <- plot_qini(qini_curve(tau, A, Y))
+class(p)
 }
 \references{
 Sverdrup E, Wu H, Athey S, Wager S. Qini Curves for Multi-Armed Treatment

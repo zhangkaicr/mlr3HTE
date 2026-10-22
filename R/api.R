@@ -339,8 +339,8 @@ mlr3HTE_demo_surv <- function(n = 4000, treat_frac = 0.5, t0 = 2, seed = 1203) {
   base_rate <- exp(-1.0 + 0.3 * z1 + 0.2 * z2 + 0.1 * (age - 60) / 12 + 0.15 * sex)
   A <- rbinom(n, 1, treat_frac)
   rate <- base_rate * exp(-A * tau)                 # 治疗把风险乘以 exp(-tau)
-  T <- rexp(n, rate = rate)
-  C <- rexp(n, rate = 0.12)                         # 独立删失
+  T <- stats::rexp(n, rate = rate)
+  C <- stats::rexp(n, rate = 0.12)                         # 独立删失
   time <- pmin(T, C)
   status <- as.integer(T <= C)
 
@@ -443,8 +443,8 @@ mlr3HTE_demo_obs_surv <- function(n = 4000, t0 = 2, seed = 1206) {
   e <- plogis(-0.5 + 0.8 * z1 + 0.4 * z2)
   A <- rbinom(n, 1, e)
   rate <- base_rate * exp(-A * tau)
-  T <- rexp(n, rate = rate)
-  C <- rexp(n, rate = 0.12)                         # 独立删失
+  T <- stats::rexp(n, rate = rate)
+  C <- stats::rexp(n, rate = 0.12)                         # 独立删失
   time <- pmin(T, C)
   status <- as.integer(T <= C)
 

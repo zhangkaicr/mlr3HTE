@@ -1,17 +1,22 @@
 Package: mlr3HTE
-Title: Metalearner Learners for Heterogeneous Treatment Effects in mlr3
-Version: 0.33
-Author: Flexible Pangzi <zhangkaicr@foxmail.com> [cre, aut]
-Maintainer: Flexible Pangzi <zhangkaicr@foxmail.com>
-Description: A small, mlr3-native R package that implements the S-, T-, X-, R- and DR-learners
-    for conditional average treatment effect (CATE) estimation. The same engine covers
-    continuous, binary and survival outcomes and handles both randomized (RCT) and
-    observational data (via internal propensity-score IPTW or user-supplied weights).
-    Survival outcomes are supported natively via 'survival' and 'ranger'
-    (no 'mlr3proba' dependency). It ships both a functional API and a parametric
-    mlr3 Learner subclass that plugs into resample()/benchmark()/tune().
+Title: Metalearner Learners for Heterogeneous Treatment Effects
+Version: 0.34
+Authors@R:
+    person(given = "Flexible", family = "Pangzi", role = c("cre", "aut"),
+           email = "zhangkaicr@foxmail.com")
+Description: A small, mlr3-native R package that implements the S-, T-, X-, R-
+    and DR-learners for conditional average treatment effect (CATE) estimation.
+    The same engine covers continuous, binary and survival outcomes and handles
+    both randomized (RCT) and observational data (via internal propensity-score
+    IPTW or user-supplied weights). Survival outcomes are supported natively via
+    'survival' and 'ranger' (no 'mlr3proba' dependency). It ships both a
+    functional API and a parametric mlr3 Learner subclass that plugs into
+    resample()/benchmark()/tune(), a simulation grid with known ground truth,
+    and a DALEX-based toolkit for explaining the estimated CATE surface.
 License: GPL-3
 Encoding: UTF-8
+LazyData: true
+LazyDataCompression: xz
 Imports:
     mlr3,
     mlr3learners,
@@ -20,6 +25,8 @@ Imports:
     survival,
     ranger,
     dplyr,
+    tibble,
+    tidyr,
     cli,
     ggplot2
 Suggests:
@@ -27,8 +34,10 @@ Suggests:
     patchwork,
     ggdag,
     survlearners,
-    rcmdcheck
-Remotes:
-    github::som-shahlab/survlearners/r-package/survlearners
+    rcmdcheck,
+    DALEX,
+    ingredients,
+    kernelshap,
+    shapviz
 Roxygen: list(markdown = TRUE)
 Config/roxygen2/version: 8.1.1

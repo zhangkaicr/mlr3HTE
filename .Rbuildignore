@@ -7,3 +7,4 @@
 ^\.github$
 ^run_checks\.R$
 ^dev$
+^data-raw$

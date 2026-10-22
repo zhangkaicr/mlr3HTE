@@ -16,24 +16,32 @@ mlr3HTE_dag(
 \code{"survival"}（生存）。仅影响图标题与节点文字，不改变因果结构。}
 }
 \value{
-一个 \code{ggplot} 对象。
+一个 \code{ggplot} 对象，可用 \code{+} 继续定制或 \code{ggsave()} 导出。
 }
 \description{
-为 mlr3HTE 的六个演示数据集画出配套的因果有向无环图（DAG），直观展示
+为 mlr3HTE 的演示数据集画出配套的因果有向无环图（DAG），展示
 \strong{数据生成机制（DGP）} 与\strong{真实值从何而来}：
 \itemize{
 \item \code{design = "rct"}：处理 \code{A} 随机化，与协变量 \code{X} 独立
 （\code{A} 没有任何父节点），因此不存在混杂，未调整的差分即可无偏估计 ATE。
-\item \code{design = "obs"}：处理概率 \code{e} 由协变量决定（病情越重越易接受治疗，
-confounding by indication），\code{X} 同时是 \code{A} 与结局 \code{Y} 的共同原因，
-打开了一条后门路径 \code{A <- e <- X -> mu -> Y}，须用 IPTW / DR 等校正。
+\item \code{design = "obs"}：处理概率 \code{e} 由协变量决定（病情越重越易接受
+治疗，confounding by indication），\code{X} 同时是 \code{A} 与结局 \code{Y}
+的共同原因，打开了一条后门路径 \code{A <- e <- X -> mu -> Y}，
+须用 IPTW / DR 等校正。
 }
 两种设计里，\code{X} 都同时驱动真实 CATE（\code{tau}，效应修饰）与基线结局
 （\code{mu}，预后），这正是异质处理效应（HTE）存在的来源。
+
+图中任意两个节点之间只有一条有向边；若某条边会从第三个节点身上穿过，
+自动加曲率绕行（见 \code{\link{mlr3HTE_dag_data}} 的 \code{curve} 列）。
 }
 \examples{
 if (requireNamespace("ggplot2", quietly = TRUE)) {
-  print(mlr3HTE_dag("rct", "continuous"))
-  print(mlr3HTE_dag("obs", "survival"))
+  p <- mlr3HTE_dag("rct", "continuous")
+  class(p)
+  head(mlr3HTE_dag_data("obs", "survival")$edges)
 }
+}
+\seealso{
+\code{\link{mlr3HTE_dag_data}}
 }

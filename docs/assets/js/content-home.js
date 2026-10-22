@@ -2,7 +2,7 @@
    content-home.js —— 导航定义 + 站点元信息 + 首页（中英双语）
    ===================================================================== */
 
-window.SITE_META = { version: "0.33", date: "2026-10-22" };
+window.SITE_META = { version: "0.34", date: "2026-10-22" };
 
 window.SITE_NAV = [
   { id: "home",      zh: "首页",           en: "Home"                    },
@@ -20,6 +20,8 @@ window.SITE_NAV = [
       { id: "tutoriallearners", zh: "4 换不同学习器",         en: "4 Swapping the base learner"       },
       { id: "tutorialmetrics",  zh: "5 模型评价指标",         en: "5 Model evaluation metrics"        },
       { id: "tutorialbenchmark", zh: "6 RCT 基准测试",        en: "6 RCT benchmark"                  },
+      { id: "tutorialbenchgrid", zh: "7 基准模拟数据网格", en: "7 Benchmark simulation grid" },
+      { id: "tutorialexplain",   zh: "8 CATE 可解释性",   en: "8 Interpreting the CATE model" },
     ]
   },
   {
@@ -36,6 +38,37 @@ window.SITE_NAV = [
       { id: "apimetrics",     zh: "HTE 评价指标",                 en: "HTE evaluation metrics"                  },
       { id: "apibenchmark",  zh: "RCT 基准测试",                en: "RCT benchmark"                         },
       { id: "apihelpers",     zh: "辅助函数",                       en: "Helpers"                                 }
+    ]
+  },
+  {
+    id: "apisim",
+    zh: "模拟数据",
+    en: "Simulation data",
+    children: [
+      { id: "apisim",            zh: "总览",                    en: "Overview"                             },
+      { id: "apiscenarios",      zh: "mlr3HTE_scenarios()",     en: "mlr3HTE_scenarios()"                  },
+      { id: "apiscenario",       zh: "mlr3HTE_scenario()",      en: "mlr3HTE_scenario()"                   },
+      { id: "apibench",          zh: "mlr3HTE_bench()",         en: "mlr3HTE_bench()"                      },
+      { id: "apibenchindex",     zh: "mlr3HTE_bench_index()",   en: "mlr3HTE_bench_index()"                },
+      { id: "apibenchdata",      zh: "hte_benchmark_data()",    en: "hte_benchmark_data()"                 },
+      { id: "apidagdata",        zh: "mlr3HTE_dag_data()",      en: "mlr3HTE_dag_data()"                   }
+    ]
+  },
+  {
+    id: "apiexplain",
+    zh: "可解释性",
+    en: "Interpretability",
+    children: [
+      { id: "apiexplain",        zh: "总览",                    en: "Overview"                             },
+      { id: "apiexplainer",      zh: "hte_explainer()",         en: "hte_explainer()"                      },
+      { id: "apisurrogate",      zh: "hte_surrogate()",         en: "hte_surrogate()"                      },
+      { id: "apiimportance",     zh: "hte_feature_importance()", en: "hte_feature_importance()"             },
+      { id: "apipdp",            zh: "hte_pdp()",               en: "hte_pdp()"                            },
+      { id: "apishap",           zh: "hte_shap()",              en: "hte_shap()"                           },
+      { id: "apishapdata",       zh: "hte_shap_data()",         en: "hte_shap_data()"                      },
+      { id: "apiplotimportance", zh: "plot_hte_importance()",   en: "plot_hte_importance()"                },
+      { id: "apiplotpdp",        zh: "plot_hte_pdp()",          en: "plot_hte_pdp()"                       },
+      { id: "apiplotshap",       zh: "plot_hte_shap()",         en: "plot_hte_shap()"                      }
     ]
   },
   { id: "changelog", zh: "更新日志",      en: "Changelog"                 },
@@ -76,7 +109,7 @@ window.SITE_PAGES.home = {
           '<ul>' +
           '<li><code>"none"</code> — 不加权。RCT 下倾向得分退化为常数 <code>mean(A)</code>。</li>' +
           '<li><code>"iptw"</code> — 内部训一个 PS 模型（默认 <code>classif.log_reg</code>）算逆概率权重。</li>' +
-          '<li><code>"external"</code> — 用你自己算好的权重（稳定化权重、重叠权重等），只套用不重算。</li>' +
+          '<li><code>"external"</code> — 使用预先计算好的权重（稳定化权重、重叠权重等），仅套用而不重新估计。</li>' +
           '</ul>' +
           '<div class="callout warn">' +
           '<div class="callout-title">这是设计层面的区别</div>' +
@@ -89,7 +122,7 @@ window.SITE_PAGES.home = {
         id: "install",
         heading: "安装",
         body:
-          '<pre><code># 开发期加载（在包目录下）\n' +
+          '<pre><code class="language-r"># 开发期加载（在包目录下）\n' +
           'pkgload::load_all("mlr3HTE")\n\n' +
           '# 或从 GitHub 安装\n' +
           'remotes::install_github("zhangkaicr/mlr3HTE")\n' +
@@ -113,7 +146,7 @@ window.SITE_PAGES.home = {
         id: "quickstart",
         heading: "三分钟上手",
         body:
-          '<pre><code>library(mlr3); library(mlr3learners); library(mlr3HTE)\n\n' +
+          '<pre><code class="language-r">library(mlr3); library(mlr3learners); library(mlr3HTE)\n\n' +
           '# 连续结局 · RCT\n' +
           'd &lt;- mlr3HTE_demo_data(n = 4000)\n' +
           'fit &lt;- metalearner("T", d$X, d$A, d$Y,\n' +
@@ -200,7 +233,7 @@ window.SITE_PAGES.home = {
         id: "install",
         heading: "Installation",
         body:
-          '<pre><code># Load during development (from the package root)\n' +
+          '<pre><code class="language-r"># Load during development (from the package root)\n' +
           'pkgload::load_all("mlr3HTE")\n\n' +
           '# Or install from GitHub\n' +
           'remotes::install_github("zhangkaicr/mlr3HTE")\n' +
@@ -225,7 +258,7 @@ window.SITE_PAGES.home = {
         id: "quickstart",
         heading: "Three-minute quickstart",
         body:
-          '<pre><code>library(mlr3); library(mlr3learners); library(mlr3HTE)\n\n' +
+          '<pre><code class="language-r">library(mlr3); library(mlr3learners); library(mlr3HTE)\n\n' +
           '# Continuous outcome, RCT\n' +
           'd &lt;- mlr3HTE_demo_data(n = 4000)\n' +
           'fit &lt;- metalearner("T", d$X, d$A, d$Y,\n' +
