@@ -9,8 +9,36 @@ window.SITE_PAGES.changelog = {
   /* ---------------- 中文 ---------------- */
   zh: {
     title: "更新日志",
-    lede: "mlr3HTE 的版本历史与重要变更。当前版本 v0.37。",
+    lede: "mlr3HTE 的版本历史与重要变更。当前版本 v0.38。",
     sections: [
+
+      {
+        id: "v038",
+        heading: "v0.38 · 2026-10-23",
+        body:
+          '<div class="callout ok"><div class="callout-title">四点评测修订：可解释性限定 + 每阶段 mlr3 模型 + 观察性演示 + S/T 混杂校正</div>' +
+          '<p>本次是针对用户四点评测反馈的统一修订，不引入新导出函数，只补文档、补测试、补模拟证据：</p></div>' +
+          '<h3>1. 可解释性文档的「语义最干净」加边界</h3>' +
+          '<p>「统一逐点重拟合」的「clean」只指<strong>算法行为一致</strong>——五族在每个时点都做同构的完整估计，不插值、不共享拟合。' +
+          '它<b>绝不</b>暗示能「看到」效应：CATE 是两个<strong>潜在结果</strong>之差，同一单位只能观测其一，' +
+          '除测试/模拟数据外现实数据里真值无从直接计算。文档里「伪结局与真值 tau 相关」的核对，仅是模拟数据下的内部诊断。</p>' +
+          '<h3>2. metalearner() 文档写明「每阶段、每种算法各拟合一个 mlr3 模型」</h3>' +
+          '<p>每个 metalearner 在内部会为每一个阶段、每一种机器学习算法各训练一个 mlr3 模型，' +
+          '全部留在返回对象的 <code>$models</code> 里（S={m}、T={m1,m0}、X={m1,m0,tau1,tau0}、R={mu,tau}、DR={m1,m0,tau}）。' +
+          '可以用「按角色命名的 learner 列表」让各阶段用不同算法，例如 T-Learner 写成 ' +
+          '<code>list(treated = lrn("regr.lm"), control = lrn("regr.ranger"))</code>。</p>' +
+          '<p>新增 <code>tests/testthat/test-ml-fit-models.R</code>：逐项断言 $models 里每个组件都是训练好的 ' +
+          'LearnerRegr、命名与文档一致、且重跑 <code>predict()</code> 能复现 <code>cate_train</code>（tolerance 1e-8）。</p>' +
+          '<h3>3. c_for_benefit() 帮助文档补上观察性数据演示</h3>' +
+          '<p>原 @examples 已有一条 <code>mlr3HTE_demo_obs</code> + dr_pseudo_outcome 三件套的观察性演示；' +
+          '本次再加一条走完整 <code>metalearner(weighting = "iptw")</code> 流水线的示例，并在结果里明确 ' +
+          'propensity/mu1/mu0 三件套怎么来。</p>' +
+          '<h3>4. 观察性研究里 S/T 学习器如何校正混杂（模拟证据）</h3>' +
+          '<p>新增 <code>dev/_sim_obs_confound.R</code>：构造一个 Z 同时影响 A 与 Y 的混杂设定（真实 ATE≈1）。模拟显示——' +
+          '（a）<strong>朴素</strong>估计偏 ≈+1.2；（b）S/T 只要把 Z 放进 X（条件结局模型）偏倚就 ≈0，' +
+          '漏掉 Z 则与朴素一样偏；（c）再叠加 <code>weighting = "iptw"</code> 进一步收紧。' +
+          '结论：S/T 的混杂校正靠的是<strong>结局模型纳入混杂因子</strong>，不是靠 IPW 单独作用。</p>'
+      },
 
       {
         id: "v037",
@@ -542,8 +570,34 @@ window.SITE_PAGES.changelog = {
   /* ---------------- English ---------------- */
   en: {
     title: "Changelog",
-    lede: "Version history and notable changes for mlr3HTE. Current version: v0.37.",
+    lede: "Version history and notable changes for mlr3HTE. Current version: v0.38.",
     sections: [
+
+      {
+        id: "v038",
+        heading: "v0.38 · 2026-10-23",
+        body:
+          '<div class="callout ok"><div class="callout-title">Four point-reviews: explainability caveat + per-phase mlr3 model + observational demo + S/T confounding</div>' +
+          '<p>A consolidated revision answering four pieces of user feedback. No new exports — only docs, tests, and a simulated evidence script:</p></div>' +
+          '<h3>1. The "cleanest semantics" claim in the explainability docs now has a boundary</h3>' +
+          '<p>"Uniform point-wise refitting" is "clean" only in the sense of <strong>algorithmic consistency</strong> — every family does an identical full estimate at each time point, no interpolation or shared fits. ' +
+          'It does <b>not</b> mean we can "see" the effect: the CATE is a contrast of two <strong>potential outcomes</strong>, of which a unit observes only one, ' +
+          'so outside test/simulated data the truth is not computable. The "pseudo-outcome vs tau" checks in the docs are internal diagnostics on simulated data only.</p>' +
+          '<h3>2. metalearner() docs now state "each phase, each algorithm fits its own mlr3 model"</h3>' +
+          '<p>Internally every metalearner trains one mlr3 model per phase and per ML algorithm, all retained in <code>$models</code> ' +
+          '(S={m}, T={m1,m0}, X={m1,m0,tau1,tau0}, R={mu,tau}, DR={m1,m0,tau}). A role-named learner list lets each phase use a different algorithm, ' +
+          'e.g. <code>list(treated = lrn("regr.lm"), control = lrn("regr.ranger"))</code> for a T-Learner.</p>' +
+          '<p>New <code>tests/testthat/test-ml-fit-models.R</code> asserts every <code>$models</code> component is a trained LearnerRegr, ' +
+          'named as documented, and that re-running <code>predict()</code> reproduces <code>cate_train</code> (tolerance 1e-8).</p>' +
+          '<h3>3. c_for_benefit() help now has an observational demo</h3>' +
+          '<p>An observational demo using <code>mlr3HTE_demo_obs</code> + dr_pseudo_outcome already existed; this batch adds a second one that runs the full ' +
+          '<code>metalearner(weighting = "iptw")</code> pipeline, making clear where propensity / mu1 / mu0 come from.</p>' +
+          '<h3>4. How S/T learners correct confounding in observational studies (simulated evidence)</h3>' +
+          '<p>New <code>dev/_sim_obs_confound.R</code> builds a confounded design where Z affects both A and Y (true ATE ≈ 1). The simulation shows — ' +
+          '(a) the <strong>naive</strong> estimate is biased ≈ +1.2; (b) S/T correct the bias to ≈ 0 once Z is included in X (a conditional outcome model), ' +
+          'while dropping Z stays as biased as naive; (c) adding <code>weighting = "iptw"</code> tightens it further. ' +
+          'Take-away: S/T correct confounding through the <strong>outcome model absorbing the confounders</strong>, not through IPW alone.</p>'
+      },
 
       {
         id: "v037",

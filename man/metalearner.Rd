@@ -69,10 +69,27 @@ regr.ranger（min.node.size = 50）。X-Learner 的两个效应回归可分别�
 会明确报错；未安装该包时也会给出安装提示）}
 }
 \value{
-含 $predict(newX)、$ate、$cate_train 的拟合对象
+含 \code{$predict(newX)}、\code{$ate}、\code{$cate_train} 与 \code{$models}
+（每阶段训练好的 mlr3 模型，见 \code{@details}）的拟合对象
 }
 \description{
 拟合一个 metalearner，返回可预测的对象
+}
+\details{
+每个 metalearner 在内部都会\strong{为每一个阶段、每一种机器学习算法各拟合一个 mlr3 模型}，
+由 \code{mlr3} 负责训练、预测与（如启用）交叉拟合；这些模型全部留在返回对象的
+\code{$models} 字段里，便于核查训练结果与复用。各类型的 \code{$models} 命名如下：
+\describe{
+\item{S}{单个结局模型 \code{m}（处理当普通特征，反事实相减）}
+\item{T}{\code{m1}（处理组结局模型）、\code{m0}（对照组结局模型）}
+\item{X}{\code{m1}、\code{m0}（两阶段插补的结局模型）与 \code{tau1}、\code{tau0}（效应回归）}
+\item{R}{\code{mu}（\eqn{E[Y|X]} 模型）、\code{tau}（Robinson 残差回归）}
+\item{DR}{\code{m1}、\code{m0}（两组结局模型）与 \code{tau}（双重稳健伪结果回归）}
+}
+\code{learner_base} / \code{learner_tau} / \code{learner_ps} 既可传单个 mlr3 learner
+（各阶段共用），也可传按角色命名的 list（见对应参数）让每组 / 每阶段用不同算法。
+例如 T-Learner 可用 \code{list(treated = lrn("regr.lm"), control = lrn("regr.ranger"))}
+让两组用不同模型；X-Learner 还能用 \code{list(tau1 = ..., tau0 = ...)} 分开两个效应回归。
 }
 \examples{
 d <- mlr3HTE_demo_data(n = 500, seed = 1)

@@ -460,6 +460,16 @@ dr_pseudo_outcome <- function(X, A, Y, cross_fitting = TRUE, n_folds = 5L,
 #' dr <- dr_pseudo_outcome(d$X, d$A, d$Y, seed = 1)
 #' c_for_benefit(dr$mu1 - dr$mu0, d$A, d$Y,
 #'               propensity = dr$propensity, mu1 = dr$mu1, mu0 = dr$mu0)
+#'
+#' # 观察性数据走完整 metalearner 流水线（IPTW 校正混杂），再评估获益排序
+#' # mlr3HTE_demo_obs 中处理概率随病情上升（混杂），weighting = "iptw" 用
+#' # 逆概率权重校正；dr_pseudo_outcome 提供 c-for-benefit 所需的观测获益三件套。
+#' set.seed(1)
+#' d <- mlr3HTE_demo_obs(n = 800)
+#' fit <- metalearner("T", d$X, d$A, d$Y, weighting = "iptw")
+#' dr <- dr_pseudo_outcome(d$X, d$A, d$Y, seed = 1)
+#' c_for_benefit(fit$cate_train, d$A, d$Y,
+#'               propensity = dr$propensity, mu1 = dr$mu1, mu0 = dr$mu0)
 c_for_benefit <- function(cate, A, Y, caliper = NULL,
                           propensity = NULL, mu1 = NULL, mu0 = NULL,
                           t0 = NULL, X = NULL,

@@ -1070,6 +1070,9 @@ window.SITE_PAGES.tutorialsurv = {
           '没有任何近似。S/T 的结局模型本身是生存模型、理论上能一次拟合出整条曲线，' +
           '但那样接口行为会按 learner 类型分叉；这里宁可慢，也要让五族语义一致。' +
           '代价是 G 个时点 = G 次完整拟合（含倾向得分模型）。</p>' +
+          '<p>所谓「语义一致」只指<strong>算法行为一致</strong>：五族在每个时点都做同构的完整估计，不靠插值、不共享拟合。' +
+          '它绝不暗示能「看到」效应——CATE 是两个<strong>潜在结果</strong>之差，同一单位只能观测其一，' +
+          '除测试数据外现实数据里真值无从直接计算，文档里「伪结局与真值相关」的核对也只是模拟下的内部诊断。</p>' +
           '<p>所以 <code>effect = "survdiff"</code> 的曲线看起来会抖——每个点都是独立的一次估计，' +
           '抖动反映的是单点抽样噪声。要看累积效应，用 <code>effect = "rmst"</code>：' +
           'ΔRMST(τ) 是 ΔS 在 [0, τ] 上的积分，因此随 τ 单调累积上升。</p></div>'
@@ -1268,6 +1271,11 @@ window.SITE_PAGES.tutorialsurv = {
           'produce the whole curve — but then the interface would behave differently by learner type. We choose ' +
           'slower but uniform semantics across all five learners. The cost is G time points = G complete fits ' +
           '(including the propensity model).</p>' +
+          '<p>"Uniform semantics" here means <strong>algorithmic consistency</strong> only: every time point gets an ' +
+          'identical full <code>metalearner()</code> estimate, with no interpolation or shared fits. It does not mean ' +
+          'we can "see" the effect — the CATE is a contrast of two <strong>potential outcomes</strong>, of which a unit ' +
+          'observes only one; outside test data the truth is not computable, and the "pseudo-outcome vs truth" checks ' +
+          'in the docs are internal diagnostics for simulated data only.</p>' +
           '<p>That is why the <code>effect = "survdiff"</code> curve looks jagged: every point is an independent ' +
           'estimate and the jaggedness is single-time sampling noise. For the cumulative picture use ' +
           '<code>effect = "rmst"</code>: ΔRMST(τ) integrates ΔS over [0, τ] and therefore rises monotonically ' +

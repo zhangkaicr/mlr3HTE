@@ -1,7 +1,7 @@
 # =====================================================================
 # api.R —— 函数式 API（与课程模块三教学代码风格一致）
 #
-# metalearner() 返回完整拟合对象（含 $predict / $ate / $cate_train）；
+# metalearner() 返回完整拟合对象（含 $predict / $ate / $cate_train / $models）；
 # s_learner()/t_learner()/... 直接返回训练集 CATE 向量，方便对照课程脚本；
 # ml_task() 把原始 X/A/Y 编码成 mlr3 Task，供 R6 Learner 使用。
 #
@@ -45,7 +45,23 @@
 #'   实现，五族齐全、支持 RMST 与任意 mlr3 基学习器）或 \code{"survlearners"}
 #'   （委托 GitHub 包 survlearners，只有 S/T/X/R 与 S(t0) 差尺度，DR 与 RMST
 #'   会明确报错；未安装该包时也会给出安装提示）
-#' @return 含 $predict(newX)、$ate、$cate_train 的拟合对象
+#' @details
+#' 每个 metalearner 在内部都会**为每一个阶段、每一种机器学习算法各拟合一个 mlr3 模型**，
+#' 由 \code{mlr3} 负责训练、预测与（如启用）交叉拟合；这些模型全部留在返回对象的
+#' \code{$models} 字段里，便于核查训练结果与复用。各类型的 \code{$models} 命名如下：
+#' \describe{
+#'   \item{S}{单个结局模型 \code{m}（处理当普通特征，反事实相减）}
+#'   \item{T}{\code{m1}（处理组结局模型）、\code{m0}（对照组结局模型）}
+#'   \item{X}{\code{m1}、\code{m0}（两阶段插补的结局模型）与 \code{tau1}、\code{tau0}（效应回归）}
+#'   \item{R}{\code{mu}（\eqn{E[Y|X]} 模型）、\code{tau}（Robinson 残差回归）}
+#'   \item{DR}{\code{m1}、\code{m0}（两组结局模型）与 \code{tau}（双重稳健伪结果回归）}
+#' }
+#' \code{learner_base} / \code{learner_tau} / \code{learner_ps} 既可传单个 mlr3 learner
+#' （各阶段共用），也可传按角色命名的 list（见对应参数）让每组 / 每阶段用不同算法。
+#' 例如 T-Learner 可用 \code{list(treated = lrn("regr.lm"), control = lrn("regr.ranger"))}
+#' 让两组用不同模型；X-Learner 还能用 \code{list(tau1 = ..., tau0 = ...)} 分开两个效应回归。
+#' @return 含 \code{$predict(newX)}、\code{$ate}、\code{$cate_train} 与 \code{$models}
+#'   （每阶段训练好的 mlr3 模型，见 \code{@@details}）的拟合对象
 #' @seealso \code{\link{s_learner}}, \code{\link{ml_task}}
 #' @export
 #' @examples
