@@ -2,7 +2,7 @@
    content-home.js —— 导航定义 + 站点元信息 + 首页（中英双语）
    ===================================================================== */
 
-window.SITE_META = { version: "0.36", date: "2026-10-23" };
+window.SITE_META = { version: "0.37", date: "2026-10-23" };
 
 window.SITE_NAV = [
   { id: "home",      zh: "首页",           en: "Home"                    },
@@ -44,6 +44,7 @@ window.SITE_NAV = [
       { id: "apishortcuts",   zh: "s_/t_/x_/r_/dr_learner() 快捷函数", en: "s_/t_/x_/r_/dr_learner() shortcuts" },
       { id: "apimltask",      zh: "ml_task()",                            en: "ml_task()"                               },
       { id: "apilearner",     zh: "learner_base / learner_tau",           en: "learner_base / learner_tau"              },
+      { id: "apisurvcurve",   zh: "surv_effect_curve() 效应—时间曲线",   en: "surv_effect_curve() effect over time"    },
       { id: "apidemo",        zh: "mlr3HTE_demo_*() 演示数据",     en: "mlr3HTE_demo_*() datasets"               },
       { id: "apimetrics",     zh: "HTE 评价指标",                 en: "HTE evaluation metrics"                  },
       { id: "apibenchmark",  zh: "RCT 基准测试",                en: "RCT benchmark"                         },

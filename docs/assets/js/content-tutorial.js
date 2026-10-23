@@ -1054,6 +1054,27 @@ window.SITE_PAGES.tutorialsurv = {
           'S-learner 的估计 SD 仅 0.011，异质性被完全压平。</p>'
       },
       {
+        id: "curve",
+        heading: "效应随时间怎么变：surv_effect_curve()",
+        body:
+          '<figure class="fig"><img src="assets/img/surv/curve_rmst.png" alt="RMST 差随时间的曲线"><figcaption>ΔRMST(τ) 随 τ 累积上升；阴影带是该时点个体 CATE 的 25%–75% 分位范围。</figcaption></figure>' +
+          '<p>前面所有生存分析都固定在<strong>一个</strong>时点 <code>t0</code> 上（本教程取 t0 = 2，' +
+          '即事件时间中位数）。但「手术 1 个月的生存获益」和「3 年的生存获益」' +
+          '不是一回事，临床上往往要看整条曲线。<code>surv_effect_curve()</code> 把一组时点' +
+          '逐个跑一遍，返回 <code>time</code> 与 <code>ate</code> 两列：</p>' +
+          '<pre><code class="language-r">d &lt;- mlr3HTE_demo_surv(n = 800, t0 = 2, seed = 103)\ncv &lt;- surv_effect_curve("T", d$X, d$A, d$Y, n_times = 12, effect = "rmst")\nhead(cv, 3)</code></pre>' +
+          '<p>实测输出：</p>' +
+          '<pre><code class="r-out">       time         ate\n1 0.2479055 0.004825087\n2 0.4124381 0.013505957\n3 0.5778213 0.029997681</code></pre>' +
+          '<div class="callout warn"><div class="callout-title">实现上是逐点重拟合，不是插值</div>' +
+          '<p>曲线上第 g 个点就是 <code>metalearner(..., t0 = times[g])</code> 的完整估计，' +
+          '没有任何近似。S/T 的结局模型本身是生存模型、理论上能一次拟合出整条曲线，' +
+          '但那样接口行为会按 learner 类型分叉；这里宁可慢，也要让五族语义一致。' +
+          '代价是 G 个时点 = G 次完整拟合（含倾向得分模型）。</p>' +
+          '<p>所以 <code>effect = "survdiff"</code> 的曲线看起来会抖——每个点都是独立的一次估计，' +
+          '抖动反映的是单点抽样噪声。要看累积效应，用 <code>effect = "rmst"</code>：' +
+          'ΔRMST(τ) 是 ΔS 在 [0, τ] 上的积分，因此随 τ 单调累积上升。</p></div>'
+      },
+      {
         id: "sl-engine",
         heading: "生存结局的第二套引擎：survlearners（脚本 09）",
         body:
@@ -1228,6 +1249,29 @@ window.SITE_PAGES.tutorialsurv = {
           'has an ATE bias of only +0.007 yet correlation 0.123 and RMSE 0.563, with an estimated SD ' +
           'of 0.546 — 3.6x the truth. <strong>Judging on ATE alone would call it a good method.</strong> ' +
           'The S-learner\'s estimated SD of 0.011 shows heterogeneity fully flattened.</p>'
+      },
+      {
+        id: "curve",
+        heading: "How the effect evolves: surv_effect_curve()",
+        body:
+          '<figure class="fig"><img src="assets/img/surv/curve_rmst.png" alt="RMST difference over time"><figcaption>ΔRMST(τ) accumulates with τ; the shaded band is the 25%–75% quantile range of the individual CATE at that time.</figcaption></figure>' +
+          '<p>Everything above fixes a <strong>single</strong> time point <code>t0</code> (this tutorial uses t0 = 2, ' +
+          'the median event time). But a one-month survival benefit and a three-year one are not the same ' +
+          'thing, and clinical questions usually concern the whole curve. <code>surv_effect_curve()</code> runs a ' +
+          'grid of time points and returns two columns, <code>time</code> and <code>ate</code>:</p>' +
+          '<pre><code class="language-r">d &lt;- mlr3HTE_demo_surv(n = 800, t0 = 2, seed = 103)\ncv &lt;- surv_effect_curve("T", d$X, d$A, d$Y, n_times = 12, effect = "rmst")\nhead(cv, 3)</code></pre>' +
+          '<p>Output:</p>' +
+          '<pre><code class="r-out">       time         ate\n1 0.2479055 0.004825087\n2 0.4124381 0.013505957\n3 0.5778213 0.029997681</code></pre>' +
+          '<div class="callout warn"><div class="callout-title">Point-by-point refitting, not interpolation</div>' +
+          '<p>The g-th point of the curve is a complete <code>metalearner(..., t0 = times[g])</code> estimate, with no ' +
+          'approximation. For S/T the outcome model is itself a survival model, so one fit could in principle ' +
+          'produce the whole curve — but then the interface would behave differently by learner type. We choose ' +
+          'slower but uniform semantics across all five learners. The cost is G time points = G complete fits ' +
+          '(including the propensity model).</p>' +
+          '<p>That is why the <code>effect = "survdiff"</code> curve looks jagged: every point is an independent ' +
+          'estimate and the jaggedness is single-time sampling noise. For the cumulative picture use ' +
+          '<code>effect = "rmst"</code>: ΔRMST(τ) integrates ΔS over [0, τ] and therefore rises monotonically ' +
+          'with τ.</p></div>'
       },
       {
         id: "sl-engine",

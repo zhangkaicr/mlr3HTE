@@ -1630,9 +1630,10 @@ window.SITE_PAGES.api = {
   /* ---------------- 中文 ---------------- */
   zh: {
     title: "函数文档",
-    lede: "mlr3HTE 共导出 40 个对象：1 个主拟合函数、5 个 meta-learner 便捷封装、1 个 Task 编码函数、1 个 R6 Learner " +
-          "类、1 个 CATE 置信区间辅助、2 个 DAG 函数、6 个演示数据集生成器、4 个 HTE 评价指标、1 个观察性数据干扰参数估计器、3 个 RCT " +
-          "基准测试函数、4 个基准模拟数据函数、6 个 CATE 可解释性函数、6 个绘图函数、1 个 mlr3 再导出。点函数名进入各自的详细说明页。",
+    lede: "mlr3HTE 共导出 42 个对象：1 个主拟合函数、5 个 meta-learner 便捷封装、1 个 Task 编码函数、1 个 R6 Learner " +
+          "类、1 个 CATE 置信区间辅助、1 个生存效应曲线函数、2 个 DAG 函数、6 个演示数据集生成器、4 个 HTE 评价指标、" +
+          "1 个观察性数据干扰参数估计器、3 个 RCT 基准测试函数、4 个基准模拟数据函数、6 个 CATE 可解释性函数、" +
+          "5 个绘图函数、1 个 mlr3 再导出。点函数名进入各自的详细说明页。",
     sections: [
 
       {
@@ -1651,6 +1652,8 @@ window.SITE_PAGES.api = {
           '<tr><td><a href="#/apimltask"><code>ml_task()</code></a></td><td>Task 编码</td><td>把 X/A/Y 编码成 mlr3 Task，三类结局统一</td></tr>' +
           '<tr><td><a href="#/apilearner"><code>LearnerRegrMetalearner</code></a></td><td>R6 Learner</td><td><code>lrn("regr.metalearner")</code>，接入 mlr3 工作流</td></tr>' +
           '<tr><td><a href="#/apicateci"><code>cate_ci()</code></a></td><td>辅助</td><td>CATE 的自助法置信区间（仅反映抽样波动）</td></tr>' +
+          '<tr><td><a href="#/apisurvcurve"><code>surv_effect_curve()</code></a></td><td>生存曲线</td><td>逐点重拟合，给出效应随时间变化的曲线</td></tr>' +
+          '<tr><td><a href="#/apisurvcurve"><code>plot_surv_effect_curve()</code></a></td><td>绘图</td><td>画效应—时间曲线，叠加个体 CATE 四分位带</td></tr>' +
           '<tr><td><a href="#/apiplotqini"><code>plot_qini()</code></a></td><td>绘图</td><td>Qini 曲线，返回 ggplot 对象</td></tr>' +
           '<tr><td><a href="#/apidag"><code>mlr3HTE_dag()</code></a></td><td>DAG</td><td>画 RCT / 观察性两种设计的因果结构图</td></tr>' +
           '<tr><td><a href="#/apidagdata"><code>mlr3HTE_dag_data()</code></a></td><td>DAG</td><td>DAG 的节点表 / 边表 / 曲率路由结果</td></tr>' +
@@ -1683,7 +1686,7 @@ window.SITE_PAGES.api = {
           '<tr><td><a href="#/apiplotshap"><code>plot_hte_shap()</code></a></td><td>绘图</td><td>SHAP 四视图：重要性 / 蜂群 / 依赖 / 瀑布</td></tr>' +
           '<tr><td><a href="#/apilrn"><code>lrn()</code></a></td><td>再导出</td><td>从 mlr3 再导出，免额外加载</td></tr>' +
           '</tbody></table></div>' +
-          '<p class="text-muted">全部 40 个导出对象均另有独立页面，示例代码与输出都是实跑结果。标注「绘图」的六个函数一律返回 ggplot 对象，可用 <code>+</code> 叠加图层、用 <code>ggsave()</code> 导出；其底层数据由对应的数据函数单独取出：<code>hte_feature_importance()</code>、<code>hte_pdp()</code>、<code>hte_shap_data()</code>、<code>hte_benchmark_data()</code>、<code>qini_curve()</code>、<code>mlr3HTE_dag_data()</code>。</p>'
+          '<p class="text-muted">全部 42 个导出对象均有对应的说明页面，示例代码与输出都是实跑结果。标注「绘图」的函数一律返回 ggplot 对象，可用 <code>+</code> 叠加图层、用 <code>ggsave()</code> 导出；其底层数据由对应的数据函数单独取出：<code>hte_feature_importance()</code>、<code>hte_pdp()</code>、<code>hte_shap_data()</code>、<code>hte_benchmark_data()</code>、<code>qini_curve()</code>、<code>mlr3HTE_dag_data()</code>、<code>surv_effect_curve()</code>。</p>'
       }
     ]
   },
@@ -1691,12 +1694,13 @@ window.SITE_PAGES.api = {
   /* ---------------- English ---------------- */
   en: {
     title: "API Reference",
-    lede: "mlr3HTE exports 40 objects: one main fitting function, five meta-learner " +
+    lede: "mlr3HTE exports 42 objects: one main fitting function, five meta-learner " +
           "shortcuts, one Task-encoding helper, one R6 Learner class, one CATE " +
-          "confidence-interval helper, two DAG functions, six demo data generators, four " +
+          "confidence-interval helper, one survival effect-curve function, two DAG " +
+          "functions, six demo data generators, four " +
           "HTE evaluation metrics, one nuisance-parameter estimator for observational " +
           "data, three RCT benchmark functions, four benchmark simulation functions, six " +
-          "CATE interpretability functions, six plotting functions and one mlr3 " +
+          "CATE interpretability functions, five plotting functions and one mlr3 " +
           "re-export. Click a function name to open its dedicated page.",
     sections: [
 
@@ -1716,6 +1720,8 @@ window.SITE_PAGES.api = {
           '<tr><td><a href="#/apimltask"><code>ml_task()</code></a></td><td>Task encoding</td><td>Encode X/A/Y into an mlr3 Task, uniform across outcomes</td></tr>' +
           '<tr><td><a href="#/apilearner"><code>LearnerRegrMetalearner</code></a></td><td>R6 Learner</td><td><code>lrn("regr.metalearner")</code> for mlr3 workflows</td></tr>' +
           '<tr><td><a href="#/apicateci"><code>cate_ci()</code></a></td><td>Helper</td><td>Bootstrap confidence interval for CATE (sampling noise only)</td></tr>' +
+          '<tr><td><a href="#/apisurvcurve"><code>surv_effect_curve()</code></a></td><td>Survival curve</td><td>Refits point by point and returns the effect-over-time curve</td></tr>' +
+          '<tr><td><a href="#/apisurvcurve"><code>plot_surv_effect_curve()</code></a></td><td>Plot</td><td>Draws the effect-over-time curve with an individual-CATE IQR band</td></tr>' +
           '<tr><td><a href="#/apiplotqini"><code>plot_qini()</code></a></td><td>Plot</td><td>Qini curve, returns a ggplot object</td></tr>' +
           '<tr><td><a href="#/apidag"><code>mlr3HTE_dag()</code></a></td><td>DAG</td><td>Causal diagram for the RCT and observational designs</td></tr>' +
           '<tr><td><a href="#/apidagdata"><code>mlr3HTE_dag_data()</code></a></td><td>DAG</td><td>Node and edge tables plus curvature routing for the DAG</td></tr>' +
@@ -1748,7 +1754,7 @@ window.SITE_PAGES.api = {
           '<tr><td><a href="#/apiplotshap"><code>plot_hte_shap()</code></a></td><td>Plot</td><td>Four SHAP views: importance / beeswarm / dependence / waterfall</td></tr>' +
           '<tr><td><a href="#/apilrn"><code>lrn()</code></a></td><td>Re-export</td><td>Re-exported from mlr3 so you need not load it</td></tr>' +
           '</tbody></table></div>' +
-          '<p class="text-muted">All forty exported objects have a dedicated page, and every example is an actual run. The six functions marked Plot return ggplot objects that accept further layers with <code>+</code> and export through <code>ggsave()</code>; their underlying data comes from the matching data function: <code>hte_feature_importance()</code>, <code>hte_pdp()</code>, <code>hte_shap_data()</code>, <code>hte_benchmark_data()</code>, <code>qini_curve()</code> and <code>mlr3HTE_dag_data()</code>.</p>'
+          '<p class="text-muted">All forty-two exported objects have a corresponding page, and every example is an actual run. The functions marked Plot return ggplot objects that accept further layers with <code>+</code> and export through <code>ggsave()</code>; their underlying data comes from the matching data function: <code>hte_feature_importance()</code>, <code>hte_pdp()</code>, <code>hte_shap_data()</code>, <code>hte_benchmark_data()</code>, <code>qini_curve()</code>, <code>mlr3HTE_dag_data()</code> and <code>surv_effect_curve()</code>.</p>'
       }
     ]
   },
@@ -2323,6 +2329,118 @@ window.SITE_PAGES.apiplotqini = {
         body:
           '<figure class="fig"><img src="assets/img/metrics/qini_curve.png" alt="Qini curve">' +
           '<figcaption>Qini curve of a DR-learner on the continuous RCT benchmark dataset (<code>rct_lin</code>); the dashed line is random targeting. The curve stays above the reference throughout, so the predicted ordering carries information.</figcaption></figure>'
+      }
+    ]
+  }
+};
+
+window.SITE_PAGES.apisurvcurve = {
+
+  zh: {
+    title: "surv_effect_curve()",
+    lede: "生存结局的效应—时间曲线：在一组时点上逐个重拟合 metalearner。",
+    sections: [
+      {
+        id: "what",
+        heading: "返回什么",
+        body:
+          '<div class="fn">' +
+          '<div class="fn-name">surv_effect_curve()<span class="badge">survival</span></div>' +
+          '<div class="fn-sig">surv_effect_curve(type, X, A, Y, times = NULL, n_times = 20L, effect = c("survdiff", "rmst"), learner_base = "coxph", newX = NULL, ...)</div>' +
+          '<p><code>metalearner()</code> 的生存效应只在<strong>一个</strong>时点 <code>t0</code> 上有定义，' +
+          '但临床解释常要回答「效应随时间怎么变」。本函数把一组时点逐个跑一遍，' +
+          '返回两列：<code>time</code> 与 <code>ate</code>；属性里的 <code>cate</code> 是 ' +
+          '<code>nrow(newX) × length(times)</code> 矩阵，第 j 列就是第 j 个时点上各样本的 CATE。</p>' +
+          '<p><code>times = NULL</code> 时取<strong>事件时间</strong>的 10%–90% 分位数共 ' +
+          '<code>n_times</code> 个——避开两端是因为尾部事件数少、估计不稳。' +
+          '<code>effect</code> 与 <code>metalearner()</code> 完全对齐：<code>"survdiff"</code> 给 ' +
+          '<code>ΔS(t)</code>，<code>"rmst"</code> 给限制到 τ 的平均生存时间差（每个 τ 各自重拟合，' +
+          '因为伪结局 ξ 本身随 τ 变化）。</p>' +
+          '</div>' +
+          '<div class="callout warn"><div class="callout-title">实现方式：逐点重拟合，五族行为完全一致</div>' +
+          '<p>曲线上第 g 个点就是 <code>metalearner(type, X, A, Y, t0 = times[g])</code> 的估计结果，' +
+          '没有任何近似或复用。S/T 的结局模型本身是生存模型、理论上能一次拟合出整条曲线，' +
+          '但那样接口行为会按 learner 类型分叉，用户得先记住「我是 S 还是 DR」才知道函数做了什么。' +
+          '这里宁可慢，也要语义单一。</p>' +
+          '<p><strong>代价</strong>：G 个时点 = G 次完整拟合，倾向得分模型也会重复训练 G 次。' +
+          '默认 <code>n_times = 20</code>；换成 <code>learner_base = "ranger"</code> 后会明显变慢。</p></div>'
+      },
+      {
+        id: "example",
+        heading: "实测示例",
+        body:
+          '<p>代码与输出均为<strong>真实跑出</strong>。背景数据：<code>mlr3HTE_demo_surv(n = 600, t0 = 2, seed = 103)</code>。</p>' +
+          '<pre><code class="language-r">d &lt;- mlr3HTE_demo_surv(n = 600, t0 = 2, seed = 103)\ncv &lt;- surv_effect_curve("T", d$X, d$A, d$Y, n_times = 4)\ncv\ndim(attr(cv, "cate"))\nattr(cv, "n_fits")</code></pre>' +
+          '<p>实测输出：</p>' +
+          '<pre><code class="r-out">       time       ate\n1 0.2514014 0.1090892\n2 0.9880915 0.1513944\n3 2.2045829 0.1655446\n4 5.3669247 0.1084557\n[1] 600   4\n[1] 4</code></pre>' +
+          '<p>最后一行的 <code>4</code> 是实际重拟合次数，等于时点个数——可用它核对没有偷偷复用模型。</p>'
+      },
+      {
+        id: "fig",
+        heading: "实跑图形",
+        body:
+          '<div class="fig-grid">' +
+          '<figure class="fig"><img src="assets/img/surv/curve_survdiff.png" alt="生存概率差随时间的曲线"><figcaption><code>effect = "survdiff"</code>：每个点是该时点的生存概率差。逐点独立拟合，所以曲线会抖——抖动本身反映了单点估计的抽样噪声，不是 bug。</figcaption></figure>' +
+          '<figure class="fig"><img src="assets/img/surv/curve_rmst.png" alt="RMST 差随时间的曲线"><figcaption><code>effect = "rmst"</code>：ΔRMST(τ) 是 ΔS 在 [0, τ] 上的积分，因此随 τ 单调累积上升。阴影带是该时点个体 CATE 的 25%–75% 分位范围。</figcaption></figure>' +
+          '</div>' +
+          '<p>两张图都来自 <code>plot_surv_effect_curve()</code>，返回 ggplot 对象，可继续用 <code>+</code> 叠加图层。</p>'
+      }
+    ]
+  },
+
+  en: {
+    title: "surv_effect_curve()",
+    lede: "Effect-over-time curve for survival outcomes: refits the metalearner at every time point.",
+    sections: [
+      {
+        id: "what",
+        heading: "What it returns",
+        body:
+          '<div class="fn">' +
+          '<div class="fn-name">surv_effect_curve()<span class="badge">survival</span></div>' +
+          '<div class="fn-sig">surv_effect_curve(type, X, A, Y, times = NULL, n_times = 20L, effect = c("survdiff", "rmst"), learner_base = "coxph", newX = NULL, ...)</div>' +
+          '<p>The survival effect of <code>metalearner()</code> is defined at a <strong>single</strong> ' +
+          'time point <code>t0</code>, yet clinical interpretation usually asks how the effect evolves. ' +
+          'This function runs a whole grid of time points and returns two columns, <code>time</code> and ' +
+          '<code>ate</code>; the <code>cate</code> attribute is a ' +
+          '<code>nrow(newX) × length(times)</code> matrix whose j-th column holds the individual CATEs ' +
+          'at the j-th time point.</p>' +
+          '<p>With <code>times = NULL</code> the grid is the 10%–90% quantiles of the ' +
+          '<strong>event</strong> times, <code>n_times</code> of them — the tails are skipped because few ' +
+          'events fall there and the estimates get unstable. <code>effect</code> mirrors ' +
+          '<code>metalearner()</code>: <code>"survdiff"</code> gives <code>ΔS(t)</code>, ' +
+          '<code>"rmst"</code> gives the difference in restricted mean survival up to τ (each τ is refitted ' +
+          'separately, since the pseudo-outcome ξ itself depends on τ).</p>' +
+          '</div>' +
+          '<div class="callout warn"><div class="callout-title">Implementation: point-by-point refitting, identical across all five learners</div>' +
+          '<p>The g-th point of the curve <em>is</em> <code>metalearner(type, X, A, Y, t0 = times[g])</code>, ' +
+          'with no approximation and no reuse. For S/T the outcome model is itself a survival model, so one ' +
+          'fit could in principle produce the whole curve — but then the behaviour of the interface would ' +
+          'diverge by learner type, and users would have to remember whether they are on S or DR before ' +
+          'knowing what the function does. We choose slower but uniform semantics.</p>' +
+          '<p><strong>Cost</strong>: G time points means G complete fits, and the propensity model is also ' +
+          'retrained G times. The default is <code>n_times = 20</code>; switching to ' +
+          '<code>learner_base = "ranger"</code> makes it noticeably slower.</p></div>'
+      },
+      {
+        id: "example",
+        heading: "Worked example (real output)",
+        body:
+          '<p>Both code and output are <strong>actually run</strong>. Background data: <code>mlr3HTE_demo_surv(n = 600, t0 = 2, seed = 103)</code>.</p>' +
+          '<pre><code class="language-r">d &lt;- mlr3HTE_demo_surv(n = 600, t0 = 2, seed = 103)\ncv &lt;- surv_effect_curve("T", d$X, d$A, d$Y, n_times = 4)\ncv\ndim(attr(cv, "cate"))\nattr(cv, "n_fits")</code></pre>' +
+          '<p>Output:</p>' +
+          '<pre><code class="r-out">       time       ate\n1 0.2514014 0.1090892\n2 0.9880915 0.1513944\n3 2.2045829 0.1655446\n4 5.3669247 0.1084557\n[1] 600   4\n[1] 4</code></pre>' +
+          '<p>The final <code>4</code> is the number of refits, equal to the number of time points — use it to confirm no model was quietly reused.</p>'
+      },
+      {
+        id: "fig",
+        heading: "Figures from an actual run",
+        body:
+          '<div class="fig-grid">' +
+          '<figure class="fig"><img src="assets/img/surv/curve_survdiff.png" alt="Survival difference over time"><figcaption><code>effect = "survdiff"</code>: each point is the survival difference at that time. Every point is fitted independently, so the curve is jagged — that jaggedness is the sampling noise of a single-time estimate, not a bug.</figcaption></figure>' +
+          '<figure class="fig"><img src="assets/img/surv/curve_rmst.png" alt="RMST difference over time"><figcaption><code>effect = "rmst"</code>: ΔRMST(τ) integrates ΔS over [0, τ], so it rises monotonically with τ. The shaded band is the 25%–75% quantile range of the individual CATE at that time.</figcaption></figure>' +
+          '</div>' +
+          '<p>Both figures come from <code>plot_surv_effect_curve()</code>, which returns a ggplot object you can keep customising with <code>+</code>.</p>'
       }
     ]
   }

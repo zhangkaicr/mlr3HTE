@@ -9,8 +9,39 @@ window.SITE_PAGES.changelog = {
   /* ---------------- 中文 ---------------- */
   zh: {
     title: "更新日志",
-    lede: "mlr3HTE 的版本历史与重要变更。当前版本 v0.36。",
+    lede: "mlr3HTE 的版本历史与重要变更。当前版本 v0.37。",
     sections: [
+
+      {
+        id: "v037",
+        heading: "v0.37 · 2026-10-23",
+        body:
+          '<div class="callout ok"><div class="callout-title">新增 surv_effect_curve()：生存效应—时间曲线</div>' +
+          '<p>此前所有生存效应都固定在<strong>一个</strong>时点 <code>t0</code> 上。' +
+          '新函数在一组时点上<strong>逐个重拟合</strong> metalearner，把「效应随时间怎么变」画成曲线。' +
+          '曲线上第 g 个点<em>就是</em> <code>metalearner(..., t0 = times[g])</code> 的完整估计，' +
+          '无近似、无复用。默认时点取<strong>事件时间</strong>的 10%–90% 分位数（避开尾部事件稀疏区）；' +
+          '<code>effect = "rmst"</code> 时每个 τ 各自重拟合，因为伪结局 ξ 本身随 τ 变化。</p>' +
+          '<p>返回 <code>data.frame(time, ate)</code>，属性含 <code>cate</code>（' +
+          '<code>nrow(newX) × G</code> 矩阵）、<code>type</code> / <code>effect</code> / ' +
+          '<code>n_fits</code>。</p></div>' +
+          '<p><strong>路线选择：统一逐点重拟合。</strong>S/T 的结局模型本身是生存模型，理论上一次拟合' +
+          '就能出整条曲线、快一到两个数量级；但那样接口行为会按 learner 类型分叉，用户得先记住' +
+          '「我是 S 还是 DR」才知道函数做了什么。这里宁可慢，也要语义单一。' +
+          '代价写进文档：G 个时点 = G 次完整拟合，倾向得分模型也会重复训练 G 次，默认 ' +
+          '<code>n_times = 20</code>。</p>' +
+          '<div class="callout warn"><div class="callout-title">用测试钉死契约</div>' +
+          '<p><code>test-surv-curve.R</code> 的核心断言：单点曲线的 ATE 必须与同一 t 上单独调用 ' +
+          '<code>metalearner()</code> 的结果<strong>逐位相等</strong>（tolerance 1e-12）。' +
+          '一旦有人为了性能改成「一次拟合出整条曲线」，这条测试立刻红。' +
+          '另覆盖五族结构一致、rmst 曲线首末上升、非生存结局报错、时点不足报错、' +
+          '超出随访范围给外推警告、<code>newX</code> 只影响 CATE 不影响 ATE 曲线。</p></div>' +
+          '<p><strong>新增 plot_surv_effect_curve()</strong>：横轴时间、纵轴效应，叠 0 参考线；' +
+          '默认再叠个体 CATE 的 25%–75% 四分位带，直接显示异质性随时间的张弛。返回 ggplot 对象。</p>' +
+          '<p><strong>文档</strong>：函数文档新增独立页（含 survdiff 与 rmst 两张实跑图）；' +
+          '函数总览 40 → <strong>42</strong> 个导出对象，顺带修掉原先「分类明细合计」与「总数」' +
+          '对不上的问题；生存教程新增「效应随时间怎么变」小节。</p>'
+      },
 
       {
         id: "v036",
@@ -511,8 +542,46 @@ window.SITE_PAGES.changelog = {
   /* ---------------- English ---------------- */
   en: {
     title: "Changelog",
-    lede: "Version history and notable changes for mlr3HTE. Current version: v0.36.",
+    lede: "Version history and notable changes for mlr3HTE. Current version: v0.37.",
     sections: [
+
+      {
+        id: "v037",
+        heading: "v0.37 · 2026-10-23",
+        body:
+          '<div class="callout ok"><div class="callout-title">New surv_effect_curve(): the survival effect over time</div>' +
+          '<p>Until now every survival effect was pinned to a <strong>single</strong> time point <code>t0</code>. ' +
+          'The new function <strong>refits the metalearner at every time point</strong> of a grid and turns ' +
+          '"how does the effect evolve" into a curve. The g-th point <em>is</em> ' +
+          '<code>metalearner(..., t0 = times[g])</code>, with no approximation and no reuse. The default grid is ' +
+          'the 10%–90% quantiles of the <strong>event</strong> times (the tails have too few events); with ' +
+          '<code>effect = "rmst"</code> each τ is refitted separately because the pseudo-outcome ξ itself ' +
+          'depends on τ.</p>' +
+          '<p>It returns <code>data.frame(time, ate)</code> with attributes <code>cate</code> (an ' +
+          '<code>nrow(newX) × G</code> matrix), <code>type</code>, <code>effect</code> and ' +
+          '<code>n_fits</code>.</p></div>' +
+          '<p><strong>Route chosen: uniform point-by-point refitting.</strong> For S/T the outcome model is ' +
+          'itself a survival model, so a single fit could produce the whole curve one or two orders of ' +
+          'magnitude faster — but then the interface would diverge by learner type and users would have to ' +
+          'remember whether they are on S or DR before knowing what the function does. We choose slower but ' +
+          'uniform semantics. The cost is documented: G time points = G complete fits, the propensity model is ' +
+          'retrained G times, and the default is <code>n_times = 20</code>.</p>' +
+          '<div class="callout warn"><div class="callout-title">The contract is pinned by a test</div>' +
+          '<p>The core assertion in <code>test-surv-curve.R</code>: the ATE of a single-point curve must equal ' +
+          'a standalone <code>metalearner()</code> call at the same t <strong>bit for bit</strong> ' +
+          '(tolerance 1e-12). If anyone ever trades correctness for speed by fitting the whole curve at once, ' +
+          'that test goes red immediately. Also covered: identical structure across the five learners, the ' +
+          'rmst curve rising from first to last point, errors for non-survival outcomes and for fewer than two ' +
+          'time points, an extrapolation warning beyond follow-up, and <code>newX</code> affecting only the ' +
+          'CATEs but not the ATE curve.</p></div>' +
+          '<p><strong>New plot_surv_effect_curve()</strong>: time on the x-axis, effect on the y-axis, a dashed ' +
+          'zero reference line, and by default a 25%–75% quantile band of the individual CATE so you can see ' +
+          'heterogeneity widen and narrow over time. Returns a ggplot object.</p>' +
+          '<p><strong>Docs</strong>: a dedicated function page with two real-run figures (survdiff and rmst); ' +
+          'the API overview goes from 40 to <strong>42</strong> exported objects, fixing an old mismatch between ' +
+          'the category breakdown and the stated total; and the survival tutorial gains a section on how the ' +
+          'effect evolves.</p>'
+      },
 
       {
         id: "v036",

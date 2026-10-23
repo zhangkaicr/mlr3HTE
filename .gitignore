@@ -20,3 +20,11 @@ Thumbs.db
 
 # 文档示例对账的中间产物（node dev/_extract_examples.js 生成，可随时重建）
 dev/_audit/
+
+# 拼接文档内容时留下的临时片段（v0.34 曾误提交一份，重复定义了 tutorialbenchgrid）
+docs/assets/js/_frag_*.js
+
+# dev/ 下的一次性生成物（示例代码副本、输出快照、探针图）
+dev/_*_code.R
+dev/_*snippet.txt
+dev/_*_probe.png
