@@ -9,8 +9,36 @@ window.SITE_PAGES.changelog = {
   /* ---------------- 中文 ---------------- */
   zh: {
     title: "更新日志",
-    lede: "mlr3HTE 的版本历史与重要变更。当前版本 v0.40。",
+    lede: "mlr3HTE 的版本历史与重要变更。当前版本 v0.41。",
     sections: [
+
+      {
+        id: "v041",
+        heading: "v0.41 · 2026-10-24",
+        body:
+          '<div class="callout ok"><div class="callout-title">教程目录重组：1+2 合并，可解释性主文并入，函数页移入函数文档</div>' +
+          '<p>纯文档站结构调整，<b>不改任何 R 代码与统计行为</b>——v0.40 的引擎、API、测试全部原样。</p></div>' +
+          '<h3>1. 教程下拉从 11 项减到 8 项</h3>' +
+          '<p>「1 RCT 设计下的分析」与「2 观察性研究分析」合并为 <strong>1 RCT 与观察性研究分析</strong>；' +
+          '后续条目顺延（生存→2、换学习器→3、评价指标→4、RCT 基准→5、基准网格→6）。' +
+          '合并的理由：两者的分析流程<strong>完全相同</strong>，唯一区别是混杂因子有没有进 <code>X</code>。' +
+          '场景按「结局 × 设计」编号（1 连续 RCT、2 连续观察性、3 二分类 RCT、4 二分类观察性），' +
+          '同一结局的两种设计挨在一起，正好直接对照。</p>' +
+          '<h3>2. 可解释性的处理</h3>' +
+          '<ul>' +
+          '<li>原「8 CATE 可解释性」主文的 10 个小节并入第 1 篇，标题加「可解释性 · 」前缀，在 16 节的目录里能看出分组；</li>' +
+          '<li>10 个函数页（<code>apiexplain</code> 起）<strong>页面 id 不变</strong>，只是从「教程」下拉移到「函数文档」下拉' +
+          '——它们本来就是函数文档，全站 84 处指向它们的锚链因此一条都不用改。</li>' +
+          '</ul>' +
+          '<h3>3. 顺带修的两处不准</h3>' +
+          '<p>（一）函数总览把可解释性函数数写成「6 个 + 5 个绘图函数」，实际是 <strong>9 个 + 3 个配套绘图函数</strong>' +
+          '（已按 NAMESPACE 的 42 个导出核对）；（二）<code>dev/_smoke_site.js</code> 还在导航到已不存在的 ' +
+          '<code>#/tutorialrct</code>，改为 <code>#/tutorialanalysis</code>。</p>' +
+          '<h3>4. 校验</h3>' +
+          '<p><code>dev/_validate.js</code> 62 页 ALL OK（64 − 3 + 1）；<code>_smoke_site.js</code> SMOKE OK' +
+          '（合并后的教程页 25 个代码块 / 16 个复制按钮）；全部 JS 文件 <code>node --check</code> 通过。</p>'
+
+      },
 
       {
         id: "v040",
@@ -608,8 +636,43 @@ window.SITE_PAGES.changelog = {
   /* ---------------- English ---------------- */
   en: {
     title: "Changelog",
-    lede: "Version history and notable changes for mlr3HTE. Current version: v0.40.",
+    lede: "Version history and notable changes for mlr3HTE. Current version: v0.41.",
     sections: [
+
+      {
+        id: "v041",
+        heading: "v0.41 · 2026-10-24",
+        body:
+          '<div class="callout ok"><div class="callout-title">Tutorial restructure: articles 1+2 merged, interpretability folded in, function pages moved to API Reference</div>' +
+          '<p>A documentation-site restructure only — <b>no R code and no statistical behaviour changed</b>. ' +
+          'The v0.40 engine, API and tests are untouched.</p></div>' +
+          '<h3>1. The tutorial dropdown shrinks from 11 entries to 8</h3>' +
+          '<p>"1 Analysis under RCT design" and "2 Observational studies" merge into ' +
+          '<strong>1 Analysis under RCT and observational designs</strong>; later entries renumber ' +
+          '(survival → 2, base learner → 3, metrics → 4, RCT benchmark → 5, benchmark grid → 6). ' +
+          'The reason for merging: the two pipelines are <strong>identical</strong>, and the only difference is ' +
+          'whether the confounders went into <code>X</code>. Scenarios are numbered by outcome × design ' +
+          '(1 continuous RCT, 2 continuous observational, 3 binary RCT, 4 binary observational), so the two ' +
+          'designs of one outcome sit side by side for direct comparison.</p>' +
+          '<h3>2. What happened to interpretability</h3>' +
+          '<ul>' +
+          '<li>The ten sections of the former "8 Interpreting the CATE model" article fold into article 1, ' +
+          'with an "Interpretability · " prefix on each heading so the grouping is visible in a 16-section table of contents;</li>' +
+          '<li>the ten function pages (from <code>apiexplain</code> onward) keep <strong>their page ids</strong> and ' +
+          'simply move from the Tutorial dropdown to the API Reference dropdown — they are function documentation ' +
+          'after all, so all 84 inbound site links keep working untouched.</li>' +
+          '</ul>' +
+          '<h3>3. Two inaccuracies fixed on the way</h3>' +
+          '<p>(i) The function overview counted "six interpretability functions plus five plotting functions"; ' +
+          'the real numbers are <strong>nine plus three companion plotting functions</strong> (checked against the ' +
+          '42 exports in NAMESPACE). (ii) <code>dev/_smoke_site.js</code> still navigated to the now-nonexistent ' +
+          '<code>#/tutorialrct</code>; it now uses <code>#/tutorialanalysis</code>.</p>' +
+          '<h3>4. Verification</h3>' +
+          '<p><code>dev/_validate.js</code>: 62 pages ALL OK (64 − 3 + 1); <code>_smoke_site.js</code>: SMOKE OK ' +
+          '(the merged tutorial page carries 25 code blocks and 16 copy buttons); every JS file passes ' +
+          '<code>node --check</code>.</p>'
+
+      },
 
       {
         id: "v040",

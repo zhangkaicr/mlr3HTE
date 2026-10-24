@@ -1,6 +1,6 @@
 Package: mlr3HTE
 Title: Metalearner Learners for Heterogeneous Treatment Effects
-Version: 0.40
+Version: 0.41
 Authors@R:
     person(given = "Flexible", family = "Pangzi", role = c("cre", "aut"),
            email = "zhangkaicr@foxmail.com")

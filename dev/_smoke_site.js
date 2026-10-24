@@ -85,7 +85,7 @@ server.listen(0, "127.0.0.1", () => {
     console.log("tokens     : " + toks.length);
 
     // 再切一篇教程页，确认跨页也生效
-    w.location.hash = "#/tutorialrct";
+    w.location.hash = "#/tutorialanalysis";
     w.dispatchEvent(new w.Event("hashchange"));
     setTimeout(() => {
       const c2 = d.getElementById("content");

@@ -1629,8 +1629,8 @@ window.SITE_PAGES.api = {
     title: "函数文档",
     lede: "mlr3HTE 共导出 42 个对象：1 个主拟合函数、5 个 meta-learner 便捷封装、1 个 Task 编码函数、1 个 R6 Learner " +
           "类、1 个 CATE 置信区间辅助、1 个生存效应曲线函数、2 个 DAG 函数、6 个演示数据集生成器、4 个 HTE 评价指标、" +
-          "1 个观察性数据干扰参数估计器、3 个 RCT 基准测试函数、4 个基准模拟数据函数、6 个 CATE 可解释性函数、" +
-          "5 个绘图函数、1 个 mlr3 再导出。点函数名进入各自的详细说明页。",
+          "1 个观察性数据干扰参数估计器、3 个 RCT 基准测试函数、4 个基准模拟数据函数、9 个 CATE 可解释性函数、" +
+          "3 个配套绘图函数、1 个 mlr3 再导出。点函数名进入各自的详细说明页。",
     sections: [
 
       {
@@ -1696,8 +1696,8 @@ window.SITE_PAGES.api = {
           "confidence-interval helper, one survival effect-curve function, two DAG " +
           "functions, six demo data generators, four " +
           "HTE evaluation metrics, one nuisance-parameter estimator for observational " +
-          "data, three RCT benchmark functions, four benchmark simulation functions, six " +
-          "CATE interpretability functions, five plotting functions and one mlr3 " +
+          "data, three RCT benchmark functions, four benchmark simulation functions, nine " +
+          "CATE interpretability functions, three companion plotting functions and one mlr3 " +
           "re-export. Click a function name to open its dedicated page.",
     sections: [
 

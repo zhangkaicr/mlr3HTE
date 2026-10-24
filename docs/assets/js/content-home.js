@@ -2,7 +2,7 @@
    content-home.js —— 导航定义 + 站点元信息 + 首页（中英双语）
    ===================================================================== */
 
-window.SITE_META = { version: "0.40", date: "2026-10-24" };
+window.SITE_META = { version: "0.41", date: "2026-10-24" };
 
 window.SITE_NAV = [
   { id: "home",      zh: "首页",           en: "Home"                    },
@@ -14,24 +14,12 @@ window.SITE_NAV = [
     children: [
       { id: "tutorial",         zh: "目录",                       en: "Contents"                          },
       { id: "tutorialbasics",   zh: "0 数据生成机制与 DAG", en: "0 Data-generating process & DAG"   },
-      { id: "tutorialrct",      zh: "1 RCT 设计下的分析",     en: "1 Analysis under RCT design"       },
-      { id: "tutorialobs",      zh: "2 观察性研究分析",   en: "2 Observational studies"           },
-      { id: "tutorialsurv",     zh: "3 生存结局分析",         en: "3 Survival outcomes"               },
-      { id: "tutoriallearners", zh: "4 换不同学习器",         en: "4 Swapping the base learner"       },
-      { id: "tutorialmetrics",  zh: "5 模型评价指标",         en: "5 Model evaluation metrics"        },
-      { id: "tutorialbenchmark", zh: "6 RCT 基准测试",        en: "6 RCT benchmark"                  },
-      { id: "tutorialbenchgrid", zh: "7 基准模拟数据网格", en: "7 Benchmark simulation grid" },
-      { id: "tutorialexplain",   zh: "8 CATE 可解释性",   en: "8 Interpreting the CATE model" },
-      { id: "apiexplain",        zh: "8.1 可解释性 · 函数总览",  en: "8.1 Interpretability · Overview"       },
-      { id: "apiexplainer",      zh: "hte_explainer()",          en: "hte_explainer()"                       },
-      { id: "apisurrogate",      zh: "hte_surrogate()",          en: "hte_surrogate()"                       },
-      { id: "apiimportance",     zh: "hte_feature_importance()", en: "hte_feature_importance()"              },
-      { id: "apipdp",            zh: "hte_pdp()",                en: "hte_pdp()"                             },
-      { id: "apishap",           zh: "hte_shap()",               en: "hte_shap()"                            },
-      { id: "apishapdata",       zh: "hte_shap_data()",          en: "hte_shap_data()"                       },
-      { id: "apiplotimportance", zh: "plot_hte_importance()",    en: "plot_hte_importance()"                 },
-      { id: "apiplotpdp",        zh: "plot_hte_pdp()",           en: "plot_hte_pdp()"                        },
-      { id: "apiplotshap",       zh: "plot_hte_shap()",          en: "plot_hte_shap()"                       }
+      { id: "tutorialanalysis", zh: "1 RCT 与观察性研究分析", en: "1 RCT & observational analysis"     },
+      { id: "tutorialsurv",     zh: "2 生存结局分析",         en: "2 Survival outcomes"               },
+      { id: "tutoriallearners", zh: "3 换不同学习器",         en: "3 Swapping the base learner"       },
+      { id: "tutorialmetrics",  zh: "4 模型评价指标",         en: "4 Model evaluation metrics"        },
+      { id: "tutorialbenchmark", zh: "5 RCT 基准测试",        en: "5 RCT benchmark"                  },
+      { id: "tutorialbenchgrid", zh: "6 基准模拟数据网格", en: "6 Benchmark simulation grid" }
     ]
   },
   {
@@ -48,7 +36,17 @@ window.SITE_NAV = [
       { id: "apidemo",        zh: "mlr3HTE_demo_*() 演示数据",     en: "mlr3HTE_demo_*() datasets"               },
       { id: "apimetrics",     zh: "HTE 评价指标",                 en: "HTE evaluation metrics"                  },
       { id: "apibenchmark",  zh: "RCT 基准测试",                en: "RCT benchmark"                         },
-      { id: "apihelpers",     zh: "辅助函数",                       en: "Helpers"                                 }
+      { id: "apihelpers",     zh: "辅助函数",                       en: "Helpers"                                 },
+      { id: "apiexplain",        zh: "CATE 可解释性 · 总览",       en: "CATE interpretability · Overview"        },
+      { id: "apiexplainer",      zh: "hte_explainer()",          en: "hte_explainer()"                       },
+      { id: "apisurrogate",      zh: "hte_surrogate()",          en: "hte_surrogate()"                       },
+      { id: "apiimportance",     zh: "hte_feature_importance()", en: "hte_feature_importance()"              },
+      { id: "apipdp",            zh: "hte_pdp()",                en: "hte_pdp()"                             },
+      { id: "apishap",           zh: "hte_shap()",               en: "hte_shap()"                            },
+      { id: "apishapdata",       zh: "hte_shap_data()",          en: "hte_shap_data()"                       },
+      { id: "apiplotimportance", zh: "plot_hte_importance()",    en: "plot_hte_importance()"                 },
+      { id: "apiplotpdp",        zh: "plot_hte_pdp()",           en: "plot_hte_pdp()"                        },
+      { id: "apiplotshap",       zh: "plot_hte_shap()",          en: "plot_hte_shap()"                       }
     ]
   },
   {

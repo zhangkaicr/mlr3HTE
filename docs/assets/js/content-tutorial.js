@@ -9,15 +9,15 @@ var TUT_MATRIX = {
   zh: '<div class="table-wrap"><table>' +
       '<thead><tr><th></th><th>随机化试验（RCT）</th><th>观察性研究</th></tr></thead>' +
       '<tbody>' +
-      '<tr><td><strong>连续</strong></td><td><a href="#/tutorialrct/s1">场景 1</a></td><td><a href="#/tutorialobs/s2">场景 2</a></td></tr>' +
-      '<tr><td><strong>二分类</strong></td><td><a href="#/tutorialrct/s3">场景 3</a></td><td><a href="#/tutorialobs/s4">场景 4</a></td></tr>' +
+      '<tr><td><strong>连续</strong></td><td><a href="#/tutorialanalysis/s1">场景 1</a></td><td><a href="#/tutorialanalysis/s2">场景 2</a></td></tr>' +
+      '<tr><td><strong>二分类</strong></td><td><a href="#/tutorialanalysis/s3">场景 3</a></td><td><a href="#/tutorialanalysis/s4">场景 4</a></td></tr>' +
       '<tr><td><strong>生存</strong></td><td><a href="#/tutorialsurv/s5">场景 5</a></td><td><a href="#/tutorialsurv/s6">场景 6</a></td></tr>' +
       '</tbody></table></div>',
   en: '<div class="table-wrap"><table>' +
       '<thead><tr><th></th><th>Randomized trial (RCT)</th><th>Observational study</th></tr></thead>' +
       '<tbody>' +
-      '<tr><td><strong>Continuous</strong></td><td><a href="#/tutorialrct/s1">Scenario 1</a></td><td><a href="#/tutorialobs/s2">Scenario 2</a></td></tr>' +
-      '<tr><td><strong>Binary</strong></td><td><a href="#/tutorialrct/s3">Scenario 3</a></td><td><a href="#/tutorialobs/s4">Scenario 4</a></td></tr>' +
+      '<tr><td><strong>Continuous</strong></td><td><a href="#/tutorialanalysis/s1">Scenario 1</a></td><td><a href="#/tutorialanalysis/s2">Scenario 2</a></td></tr>' +
+      '<tr><td><strong>Binary</strong></td><td><a href="#/tutorialanalysis/s3">Scenario 3</a></td><td><a href="#/tutorialanalysis/s4">Scenario 4</a></td></tr>' +
       '<tr><td><strong>Survival</strong></td><td><a href="#/tutorialsurv/s5">Scenario 5</a></td><td><a href="#/tutorialsurv/s6">Scenario 6</a></td></tr>' +
       '</tbody></table></div>'
 };
@@ -25,7 +25,7 @@ var TUT_MATRIX = {
 window.SITE_PAGES.tutorial = {
   zh: {
     title: "教程与模型评价",
-    lede: "七篇文章，每篇一张独立网页。前六篇按研究设计与结局类型组织，数据自带真值，对账口径统一为 ATE 偏差 + CATE 相关 + RMSE + 估计 SD；第七篇换成现实形态——没有真实 tau，只用 Qini / TOC / c-for-benefit 比 learner。",
+    lede: "七篇文章，每篇一张独立网页。第 1 篇是主干：场景 1-4 覆盖连续与二分类、随机化与观察性，末尾把 CATE 可解释性一次讲完；数据自带真值，对账口径统一为 ATE 偏差 + CATE 相关 + RMSE + 估计 SD。没有真实 tau 的现实 RCT 数据，则用 Qini / TOC / c-for-benefit 比 learner。",
     sections: [
       {
         id: "about",
@@ -43,11 +43,14 @@ window.SITE_PAGES.tutorial = {
           '重点在于各 learner 能抓到多少异质性；观察性研究存在混杂后门路径，' +
           '必须把混杂因子交给 learner 处理（S/T/X 放进 <code>X</code> 条件化、R 残差化、DR 双稳健），' +
           '否则再好的 learner 也只是在拟合偏倚。</p>' +
-          '<p>下面七篇教程按上手方式组织，每篇一张独立网页。前六篇用自带真值的模拟数据逐人对账：' +
-          '真实 tau 只有模拟数据才拿得到，所以对账口径统一为 <strong>ATE 偏差 + CATE 相关 + RMSE + 估计 SD</strong>——' +
-          '仅报告 ATE 会遗漏「总体均值正确而个体效应全错」的情形。第七篇换成现实研究的形态：没有真值，' +
-          '改用 <a href="#/tutorialbenchmark">Qini 系数、TOC 增益与 c-for-benefit</a> 比较排序能力，' +
-          '这三个指标只依赖随机化带来的可交换性，因此现实 RCT 数据上同样可用。</p>'
+          '<p>下面七篇教程按上手方式组织，每篇一张独立网页。<strong>第 1 篇是主干</strong>：' +
+          '场景 1-4 把连续与二分类、随机化与观察性各跑一遍——分析流程完全相同，唯一区别是混杂因子有没有进 ' +
+          '<code>X</code>；末尾再把 CATE 可解释性一次讲完。真实 tau 只有模拟数据才拿得到，' +
+          '所以对账口径统一为 <strong>ATE 偏差 + CATE 相关 + RMSE + 估计 SD</strong>——' +
+          '仅报告 ATE 会遗漏「总体均值正确而个体效应全错」的情形。' +
+          '换成没有真值的现实 RCT 数据时，改用 ' +
+          '<a href="#/tutorialbenchmark">Qini 系数、TOC 增益与 c-for-benefit</a> 比较排序能力，' +
+          '这三个指标只依赖随机化带来的可交换性，因此现实数据上同样可用。</p>'
       },
       {
         id: "articles",
@@ -56,14 +59,12 @@ window.SITE_PAGES.tutorial = {
           '<p>下面每一条都是一篇<strong>独立成页</strong>的教程：数据 → 代码 → 实测输出 → 与真值对账，每篇均给出一条可独立执行的完整流程。初次使用建议自第 0 篇顺序阅读；若已有明确的研究设计，可直接查阅对应框架。各篇自成一个单元，不要求按序阅读。</p>' +
           '<ul class="article-list">' +
           '<li><a href="#/tutorialbasics"><span class="art-num">0</span><span class="art-body"><strong>数据生成机制与 DAG</strong><em>六种设计共用一套模拟数据，每个场景都带真值 tau / ate，所以能逐人对账。先看因果结构。</em></span></a></li>' +
-          '<li><a href="#/tutorialrct"><span class="art-num">1</span><span class="art-body"><strong>RCT 设计下的分析</strong><em>随机化下 A 与 X 独立，粗差分即无偏；重点看五种 meta-learner 各能抓到多少异质性。</em></span></a></li>' +
-          '<li><a href="#/tutorialobs"><span class="art-num">2</span><span class="art-body"><strong>观察性研究分析</strong><em>混杂后门 X → e → A 让粗差分开局就偏；把混杂因子放进 X 做条件化，五族把偏差压回 0.14 以内。</em></span></a></li>' +
-          '<li><a href="#/tutorialsurv"><span class="art-num">3</span><span class="art-body"><strong>生存结局分析</strong><em>效应是时间点依赖的：报告必须写清 t0，删矢用 IPCW 处理。</em></span></a></li>' +
-          '<li><a href="#/tutoriallearners"><span class="art-num">4</span><span class="art-body"><strong>换不同学习器</strong><em>五种 meta-learner 只规定估计流程，实际拟合由基学习器完成；更换算法仅需改动一个参数，并可按处理组或估计阶段分别指定。</em></span></a></li>' +
-          '<li><a href="#/tutorialmetrics"><span class="art-num">5</span><span class="art-body"><strong>模型评价指标</strong><em>Qini / c-for-benefit / TOC 回答的是「排序能力」，不是「估得准不准」，两者要分开看。</em></span></a></li>' +
-          '<li><a href="#/tutorialbenchmark"><span class="art-num">6</span><span class="art-body"><strong>RCT 基准测试</strong><em>没有真实 tau 的现实 RCT 数据，怎么比 learner？用 Qini / TOC / c-for-benefit，配合交叉拟合。</em></span></a></li>' +
-          '<li><a href="#/tutorialbenchgrid"><span class="art-num">7</span><span class="art-body"><strong>基准模拟数据网格</strong><em>10 个设计 × 3 类结局 = 30 份固定数据，四个结构维度相互独立；给出混杂强度的量化标尺与线性 / 非线性 HTE 的可估性对照。</em></span></a></li>' +
-          '<li><a href="#/tutorialexplain"><span class="art-num">8</span><span class="art-body"><strong>CATE 模型可解释性</strong><em>以双重稳健伪结局为响应变量，用置换重要性、偏依赖、ALE 与 Kernel SHAP 解释谁更获益；图与数据分离导出。</em></span></a></li>' +
+          '<li><a href="#/tutorialanalysis"><span class="art-num">1</span><span class="art-body"><strong>RCT 与观察性研究分析</strong><em>场景 1-4：分析流程完全相同，唯一区别是混杂因子有没有进 X。后半部分把 CATE 可解释性一次讲完。</em></span></a></li>' +
+          '<li><a href="#/tutorialsurv"><span class="art-num">2</span><span class="art-body"><strong>生存结局分析</strong><em>效应是时间点依赖的：报告必须写清 t0，删矢用 IPCW 处理。</em></span></a></li>' +
+          '<li><a href="#/tutoriallearners"><span class="art-num">3</span><span class="art-body"><strong>换不同学习器</strong><em>五种 meta-learner 只规定估计流程，实际拟合由基学习器完成；更换算法仅需改动一个参数，并可按处理组或估计阶段分别指定。</em></span></a></li>' +
+          '<li><a href="#/tutorialmetrics"><span class="art-num">4</span><span class="art-body"><strong>模型评价指标</strong><em>Qini / c-for-benefit / TOC 回答的是「排序能力」，不是「估得准不准」，两者要分开看。</em></span></a></li>' +
+          '<li><a href="#/tutorialbenchmark"><span class="art-num">5</span><span class="art-body"><strong>RCT 基准测试</strong><em>没有真实 tau 的现实 RCT 数据，怎么比 learner？用 Qini / TOC / c-for-benefit，配合交叉拟合。</em></span></a></li>' +
+          '<li><a href="#/tutorialbenchgrid"><span class="art-num">6</span><span class="art-body"><strong>基准模拟数据网格</strong><em>10 个设计 × 3 类结局 = 30 份固定数据，四个结构维度相互独立；给出混杂强度的量化标尺与线性 / 非线性 HTE 的可估性对照。</em></span></a></li>' +
           '</ul>' +
           '<p>下面是按「研究设计 × 结局类型」排的六格速查表，与配套脚本的编号一一对应。</p>'
       },
@@ -233,14 +234,12 @@ window.SITE_PAGES.tutorial = {
           '<p>Each entry below is a <strong>standalone article</strong> presenting one independently executable workflow: data → code → actual output → reconciliation against the ground truth. Readers new to the package are advised to proceed from article 0; those with a specific study design may consult the relevant framework directly.</p>' +
           '<ul class="article-list">' +
           '<li><a href="#/tutorialbasics"><span class="art-num">0</span><span class="art-body"><strong>Data-generating process & DAGs</strong><em>All six designs share one simulated dataset carrying the true tau / ate, which is what makes unit-by-unit reconciliation possible.</em></span></a></li>' +
-          '<li><a href="#/tutorialrct"><span class="art-num">1</span><span class="art-body"><strong>Analysis under RCT design</strong><em>Under randomization A is independent of X, so the naive difference is already unbiased; the question is how much heterogeneity each meta-learner captures.</em></span></a></li>' +
-          '<li><a href="#/tutorialobs"><span class="art-num">2</span><span class="art-body"><strong>Observational studies</strong><em>The back-door X → e → A biases the naive difference from the start; placing the confounders in X keeps every family\'s bias within 0.14.</em></span></a></li>' +
-          '<li><a href="#/tutorialsurv"><span class="art-num">3</span><span class="art-body"><strong>Survival outcomes</strong><em>Effects are time-point dependent: always state t0, and correct censoring with IPCW.</em></span></a></li>' +
-          '<li><a href="#/tutoriallearners"><span class="art-num">4</span><span class="art-body"><strong>Swapping the base learner</strong><em>The five meta-learners are recipes; the real work is done by the base learner. Swap it in one line, per group or per stage if you like.</em></span></a></li>' +
-          '<li><a href="#/tutorialmetrics"><span class="art-num">5</span><span class="art-body"><strong>Model evaluation metrics</strong><em>Qini / c-for-benefit / TOC answer "how well does it rank" — not "is the estimate unbiased". Keep the two questions apart.</em></span></a></li>' +
-          '<li><a href="#/tutorialbenchmark"><span class="art-num">6</span><span class="art-body"><strong>RCT benchmark</strong><em>Real RCT data has no true tau — how do you compare learners? Qini / TOC / c-for-benefit with cross-fitting.</em></span></a></li>' +
-          '<li><a href="#/tutorialbenchgrid"><span class="art-num">7</span><span class="art-body"><strong>Benchmark simulation grid</strong><em>Ten designs by three outcomes give thirty fixed datasets with four independent structural dimensions; a quantitative confounding yardstick and a comparison of linear versus nonlinear HTE estimability.</em></span></a></li>' +
-          '<li><a href="#/tutorialexplain"><span class="art-num">8</span><span class="art-body"><strong>Interpreting the CATE model</strong><em>With the doubly robust pseudo-outcome as response, permutation importance, partial dependence, ALE and Kernel SHAP explain who benefits more; figures and data are exported separately.</em></span></a></li>' +
+          '<li><a href="#/tutorialanalysis"><span class="art-num">1</span><span class="art-body"><strong>Analysis under RCT and observational designs</strong><em>Scenarios 1-4: the pipeline is identical; the only difference is whether the confounders went into X. The second half covers CATE interpretability in one pass.</em></span></a></li>' +
+          '<li><a href="#/tutorialsurv"><span class="art-num">2</span><span class="art-body"><strong>Survival outcomes</strong><em>Effects are time-point dependent: always state t0, and correct censoring with IPCW.</em></span></a></li>' +
+          '<li><a href="#/tutoriallearners"><span class="art-num">3</span><span class="art-body"><strong>Swapping the base learner</strong><em>The five meta-learners are recipes; the real work is done by the base learner. Swap it in one line, per group or per stage if you like.</em></span></a></li>' +
+          '<li><a href="#/tutorialmetrics"><span class="art-num">4</span><span class="art-body"><strong>Model evaluation metrics</strong><em>Qini / c-for-benefit / TOC answer "how well does it rank" — not "is the estimate unbiased". Keep the two questions apart.</em></span></a></li>' +
+          '<li><a href="#/tutorialbenchmark"><span class="art-num">5</span><span class="art-body"><strong>RCT benchmark</strong><em>Real RCT data has no true tau — how do you compare learners? Qini / TOC / c-for-benefit with cross-fitting.</em></span></a></li>' +
+          '<li><a href="#/tutorialbenchgrid"><span class="art-num">6</span><span class="art-body"><strong>Benchmark simulation grid</strong><em>Ten designs by three outcomes give thirty fixed datasets with four independent structural dimensions; a quantitative confounding yardstick and a comparison of linear versus nonlinear HTE estimability.</em></span></a></li>' +
           '</ul>' +
           '<p>Below is the 2 × 3 lookup table (design × outcome), numbered the same way as the companion scripts.</p>'
       },
@@ -499,7 +498,7 @@ window.SITE_PAGES.tutorialbasics = {
         body:
           '<div class="callout"><div class="callout-title">继续读</div><p>' +
           '<a href="#/tutorial">← 返回全部教程</a>' +
-          '　·　下一篇：<a href="#/tutorialrct">1 RCT 设计下的分析 →</a>' +
+          '　·　下一篇：<a href="#/tutorialanalysis">1 RCT 与观察性研究分析 →</a>' +
           '</p></div>'
       }
     ]
@@ -637,35 +636,50 @@ window.SITE_PAGES.tutorialbasics = {
         body:
           '<div class="callout"><div class="callout-title">Keep reading</div><p>' +
           '<a href="#/tutorial">← All tutorials</a>' +
-          ' &middot; Next: <a href="#/tutorialrct">1 Analysis under RCT design →</a>' +
+          ' &middot; Next: <a href="#/tutorialanalysis">1 Analysis under RCT and observational designs →</a>' +
           '</p></div>'
       }
     ]
   }
 };
 
-window.SITE_PAGES.tutorialrct = {
+window.SITE_PAGES.tutorialanalysis = {
   zh: {
-    title: "1 · RCT 设计下的分析",
-    lede: "随机化下 A 与 X 独立，粗差分即无偏；难的是五种 meta-learner 各能抓到多少异质性。",
+    title: "1 · RCT 与观察性研究分析",
+    lede: "RCT 与观察性的分析流程完全相同，区别只在混杂因子有没有进 X；估计出 CATE 之后再解释它。",
     sections: [
       {
-        id: "fw-rct",
+        id: "fw-analysis",
         heading: "本篇速览",
         body:
-          '<p>随机化试验里 <code>A ⊥ X</code>，协变量只修饰效应、不混杂，所以粗差分本身就是无偏的因果估计。' +
-          '这里的重点不是「纠偏」，而是<strong>五种 meta-learner 各自能抓到多少异质性</strong>' +
-          '（CATE 与真 <em>τ</em> 的相关）。</p>' +
+          '<p>RCT 与观察性研究的分析流程<strong>完全相同</strong>——同样的五种 meta-learner、同样的结局模型、' +
+          '同一套对账口径。唯一的区别是<strong>混杂因子有没有进 <code>X</code></strong>：随机化下 ' +
+          '<code>A ⊥ X</code>，粗差分即无偏；观察性下处理分配依赖协变量，后门路径 ' +
+          '<code>A ← e ← X → 结局 → Y</code> 开放，必须把混杂变量交给结局模型条件化。</p>' +
           '<div class="table-wrap"><table>' +
           '<thead><tr><th>场景</th><th>脚本</th><th>关键结论</th></tr></thead><tbody>' +
-          '<tr><td><a href="#/tutorialrct/s1">场景 1 · 连续 × RCT</a></td>' +
+          '<tr><td><a href="#/tutorialanalysis/s1">场景 1 · 连续 × RCT</a></td>' +
           '<td><code>01_连续结局_随机化RCT.R</code></td>' +
           '<td>X-learner 最贴合真值：CATE 与真 <em>τ</em> 相关 <strong>0.963</strong></td></tr>' +
-          '<tr><td><a href="#/tutorialrct/s3">场景 3 · 二分类 × RCT</a></td>' +
+          '<tr><td><a href="#/tutorialanalysis/s2">场景 2 · 连续 × 观察性</a></td>' +
+          '<td><code>02_连续结局_观察性研究.R</code></td>' +
+          '<td>未调整偏差 <strong>+0.689</strong> → 混杂全进 X 后五族 |偏差| ≤ 0.073；X-learner 相关 <strong>0.954</strong>、RMSE 0.320</td></tr>' +
+          '<tr><td><a href="#/tutorialanalysis/s3">场景 3 · 二分类 × RCT</a></td>' +
           '<td><code>03_二分类结局_随机化RCT.R</code></td>' +
           '<td>效应尺度换成风险差；X-learner 相关 <strong>0.794</strong></td></tr>' +
-          '</tbody></table></div>'
-
+          '<tr><td><a href="#/tutorialanalysis/s4">场景 4 · 二分类 × 观察性</a></td>' +
+          '<td><code>04_二分类结局_观察性研究.R</code></td>' +
+          '<td>未调整风险差 <strong>+0.125</strong> → 混杂全进 X 后五族 |偏差| ≤ 0.014；X-learner 偏差 +0.006、相关 <strong>0.758</strong></td></tr>' +
+          '</tbody></table></div>' +
+          '<div class="callout warn"><div class="callout-title">两个前提</div>' +
+          '<p>（一）观察性场景的混杂全部来自<strong>已测量</strong>协变量，所以条件化能奏效；' +
+          '真实研究里若有未测量混杂，任何方法都救不回来。' +
+          '（二）R/DR 必须开 <code>cross_fitting = TRUE</code>，否则 tau 被高弹性学习器衰减' +
+          '——实测 R-learner 的 ATE 从 0.976 掉到 0.432。</p></div>' +
+          '<p>更系统的证据见<a href="#/tutorial/conf-sweep">混杂强度扫描</a>：' +
+          '5 档强度下未调整偏差从 +0.01 涨到 +1.05，五族始终在 0.14 以内。</p>' +
+          '<p>估计出 CATE 之后还要回答「哪些变量驱动了效应异质性」。本篇后半部分把可解释性一次讲完，' +
+          '每个函数的参数细节见<a href="#/apiexplain">函数总览</a>。</p>'
       },
       {
         id: "s1",
@@ -694,170 +708,6 @@ window.SITE_PAGES.tutorialrct = {
           '</tbody></table></div>' +
           '<p>真实 ATE = <strong>1.048</strong>。X-learner 最好；R 的 ATE 明显偏低，' +
           '是伪结果噪声 + 二阶段正则化不足所致（见<a href="#/guide/pitfalls">调参要点</a>）。</p>'
-      },
-      {
-        id: "s3",
-        heading: "场景 3 · 二分类结局 × RCT",
-        body:
-          '<figure class="fig"><img src="assets/img/dag/dag_rct_binary.png" ' +
-          'alt="场景 3 的 DAG：随机化二分类结局">' +
-          '<figcaption>图 3 · 场景 3 因果图：结构与场景 1 相同，结局换成 ' +
-          '<code>Y ~ Bern(plogis(qlogis(p0) + tau_logit))</code></figcaption></figure>' +
-          '<pre><code class="language-r">d &lt;- mlr3HTE_demo_binary(n = 4000, seed = 1202)\n' +
-          'lb &lt;- lrn("classif.ranger", num.trees = 300, seed = 1)\n' +
-          'fit &lt;- metalearner("T", d$X, d$A, d$Y, learner_base = lb)\n' +
-          'fit$ate   # 平均风险差</code></pre>' +
-          '<div class="callout ok"><div class="callout-title">效应尺度是风险差</div>' +
-          '<p>基学习器必须是 <code>classif.*</code>，引擎自动判定 <code>outcome = "binary"</code>，' +
-          '结局模型返回 <code>P(Y=1|X)</code>，所以 CATE 天然落在<strong>风险差</strong>尺度上' +
-          '（不是对数比、不是比值比）。</p></div>' +
-          '<div class="table-wrap"><table>' +
-          '<thead><tr><th>Learner</th><th>ATE</th><th>与真相关</th><th>RMSE</th></tr></thead>' +
-          '<tbody>' +
-          '<tr><td>S</td><td>0.129</td><td>0.603</td><td>0.157</td></tr>' +
-          '<tr><td>T</td><td>0.128</td><td>0.492</td><td>0.223</td></tr>' +
-          '<tr><td><strong>X</strong></td><td>0.129</td><td><strong>0.794</strong></td><td><strong>0.096</strong></td></tr>' +
-          '<tr><td>R</td><td>0.078</td><td>0.477</td><td>0.167</td></tr>' +
-          '<tr><td>DR</td><td>0.132</td><td>0.601</td><td>0.172</td></tr>' +
-          '</tbody></table></div>' +
-          '<p>真实 ATE（风险差）= <strong>0.131</strong>。</p>'
-      },
-      {
-        id: "next",
-        notoc: true,
-        heading: "继续读",
-        body:
-          '<div class="callout"><div class="callout-title">继续读</div><p>' +
-          '<a href="#/tutorial">← 返回全部教程</a>' +
-          '　·　下一篇：<a href="#/tutorialobs">2 观察性研究分析 →</a>' +
-          '</p></div>'
-      }
-    ]
-  },
-  en: {
-    title: "1 · Analysis under RCT design",
-    lede: "Under randomization A is independent of X, so the naive difference is already unbiased; the hard part is how much heterogeneity each meta-learner captures.",
-    sections: [
-      {
-        id: "fw-rct",
-        heading: "At a glance",
-        body:
-          '<p>Under randomization <code>A ⊥ X</code>, so covariates only modify the effect, they do not confound; ' +
-          'the naive difference is already an unbiased causal estimate. The point here is not "debiasing" but ' +
-          '<strong>how much heterogeneity each meta-learner captures</strong> (correlation of CATE with the true <em>τ</em>).</p>' +
-          '<div class="table-wrap"><table>' +
-          '<thead><tr><th>Scenario</th><th>Script</th><th>Key result</th></tr></thead><tbody>' +
-          '<tr><td><a href="#/tutorialrct/s1">Scenario 1 · Continuous × RCT</a></td>' +
-          '<td><code>01_连续结局_随机化RCT.R</code></td>' +
-          '<td>X-learner closest to truth: CATE vs true <em>τ</em> correlation <strong>0.963</strong></td></tr>' +
-          '<tr><td><a href="#/tutorialrct/s3">Scenario 3 · Binary × RCT</a></td>' +
-          '<td><code>03_二分类结局_随机化RCT.R</code></td>' +
-          '<td>Effect scale becomes risk difference; X-learner correlation <strong>0.794</strong></td></tr>' +
-          '</tbody></table></div>'
-
-      },
-      {
-        id: "s1",
-        heading: "Scenario 1 · Continuous outcome × RCT",
-        body:
-          '<figure class="fig"><img src="assets/img/dag/dag_rct_continuous.png" ' +
-          'alt="Scenario 1 DAG: randomised continuous outcome">' +
-          '<figcaption>Figure 1 · Scenario 1 DAG: <code>A</code> is randomised; ' +
-          '<code>X</code> modifies the effect but does not confound</figcaption></figure>' +
-          '<pre><code class="language-r">d &lt;- mlr3HTE_demo_data(n = 4000, seed = 1201)\n' +
-          'lb &lt;- lrn("regr.ranger", num.trees = 300, seed = 1)\n\n' +
-          'for (tp in c("S","T","X","R","DR")) {\n' +
-          '  fit &lt;- metalearner(tp, d$X, d$A, d$Y, learner_base = lb)\n' +
-          '  cat(tp, fit$ate, cor(fit$cate_train, d$tau), "\\n")\n' +
-          '}</code></pre>' +
-          '<div class="callout"><div class="callout-title">Data-generating process</div>' +
-          '<p>True CATE <code>tau = 1.0 + 0.8·z1 − 0.5·z2 + 0.6·(z1&gt;1 &amp; z2&lt;0)</code>; ' +
-          'true baseline <code>mu = 6 + 0.4·z1 + 0.5·z2 − 0.02·(age−60) + 0.3·sex</code>.</p></div>' +
-          '<div class="table-wrap"><table>' +
-          '<thead><tr><th>Learner</th><th>ATE</th><th>Corr. with truth</th><th>RMSE</th></tr></thead>' +
-          '<tbody>' +
-          '<tr><td>S</td><td>0.935</td><td>0.895</td><td>0.483</td></tr>' +
-          '<tr><td>T</td><td>0.951</td><td>0.845</td><td>0.653</td></tr>' +
-          '<tr><td><strong>X</strong></td><td>0.950</td><td><strong>0.963</strong></td><td><strong>0.296</strong></td></tr>' +
-          '<tr><td>R</td><td>0.450</td><td>0.812</td><td>0.907</td></tr>' +
-          '<tr><td>DR</td><td>0.954</td><td>0.924</td><td>0.430</td></tr>' +
-          '</tbody></table></div>' +
-          '<p>True ATE = <strong>1.048</strong>. X wins; R\'s ATE is clearly low because of ' +
-          'pseudo-outcome noise plus insufficient stage-2 regularisation ' +
-          '(see <a href="#/guide/pitfalls">tuning notes</a>).</p>'
-      },
-      {
-        id: "s3",
-        heading: "Scenario 3 · Binary outcome × RCT",
-        body:
-          '<figure class="fig"><img src="assets/img/dag/dag_rct_binary.png" ' +
-          'alt="Scenario 3 DAG: randomised binary outcome">' +
-          '<figcaption>Figure 3 · Scenario 3 DAG: same structure as Scenario 1, with the ' +
-          'outcome swapped for <code>Y ~ Bern(plogis(qlogis(p0) + tau_logit))</code></figcaption></figure>' +
-          '<pre><code class="language-r">d &lt;- mlr3HTE_demo_binary(n = 4000, seed = 1202)\n' +
-          'lb &lt;- lrn("classif.ranger", num.trees = 300, seed = 1)\n' +
-          'fit &lt;- metalearner("T", d$X, d$A, d$Y, learner_base = lb)\n' +
-          'fit$ate   # average risk difference</code></pre>' +
-          '<div class="callout ok"><div class="callout-title">The effect scale is the risk difference</div>' +
-          '<p>The base learner must be <code>classif.*</code>; the engine detects ' +
-          '<code>outcome = "binary"</code>, the outcome model returns <code>P(Y=1|X)</code>, and the ' +
-          'CATE therefore lives on the <strong>risk-difference</strong> scale (not log-odds, not ' +
-          'odds ratio).</p></div>' +
-          '<div class="table-wrap"><table>' +
-          '<thead><tr><th>Learner</th><th>ATE</th><th>Corr. with truth</th><th>RMSE</th></tr></thead>' +
-          '<tbody>' +
-          '<tr><td>S</td><td>0.129</td><td>0.603</td><td>0.157</td></tr>' +
-          '<tr><td>T</td><td>0.128</td><td>0.492</td><td>0.223</td></tr>' +
-          '<tr><td><strong>X</strong></td><td>0.129</td><td><strong>0.794</strong></td><td><strong>0.096</strong></td></tr>' +
-          '<tr><td>R</td><td>0.078</td><td>0.477</td><td>0.167</td></tr>' +
-          '<tr><td>DR</td><td>0.132</td><td>0.601</td><td>0.172</td></tr>' +
-          '</tbody></table></div>' +
-          '<p>True ATE (risk difference) = <strong>0.131</strong>.</p>'
-      },
-      {
-        id: "next",
-        notoc: true,
-        heading: "Keep reading",
-        body:
-          '<div class="callout"><div class="callout-title">Keep reading</div><p>' +
-          '<a href="#/tutorial">← All tutorials</a>' +
-          ' &middot; Next: <a href="#/tutorialobs">2 Observational studies →</a>' +
-          '</p></div>'
-      }
-    ]
-  }
-};
-
-window.SITE_PAGES.tutorialobs = {
-  zh: {
-    title: "2 · 观察性研究分析",
-    lede: "混杂后门让粗差分开局就偏；把混杂变量放进 X 做条件化，五族把偏差压回 0.08 以内——前提是混杂全部已测量。",
-    sections: [
-      {
-        id: "fw-obs",
-        heading: "本篇速览",
-        body:
-          '<p>观察性研究里 <code>X → e → A</code> 形成混杂后门路径，粗差分开局就偏' +
-          '（连续 +0.689、二分类 +0.125、生存 −0.072）。v0.40 起本框架不再提供 IPTW 加权选项，' +
-          '去混杂的主路径是<strong>把混杂变量放进 X 条件化</strong>：S/T/X 靠结局模型 ' +
-          '<code>E[Y|A,X]</code>，R 靠残差化，DR 两者都做。</p>' +
-          '<div class="table-wrap"><table>' +
-          '<thead><tr><th>场景</th><th>脚本</th><th>关键结论</th></tr></thead><tbody>' +
-          '<tr><td><a href="#/tutorialobs/s2">场景 2 · 连续 × 观察性</a></td>' +
-          '<td><code>02_连续结局_观察性研究.R</code></td>' +
-          '<td>未调整 <strong>+0.689</strong> → 混杂全进 X 后五族 |偏差| ≤ 0.073；X-learner 的 CATE 相关 <strong>0.954</strong>、RMSE 0.320（真实 ATE 1.049）</td></tr>' +
-          '<tr><td><a href="#/tutorialobs/s4">场景 4 · 二分类 × 观察性</a></td>' +
-          '<td><code>04_二分类结局_观察性研究.R</code></td>' +
-          '<td>未调整风险差 <strong>+0.125</strong> → 混杂全进 X 后五族 |偏差| ≤ 0.014；X-learner 偏差 +0.006、相关 <strong>0.758</strong>、RMSE 0.110（真实 0.131）</td></tr>' +
-          '</tbody></table></div>' +
-          '<div class="callout warn"><div class="callout-title">两个前提</div>' +
-          '<p>（一）本数据的混杂全部来自<strong>已测量</strong>协变量，所以条件化能奏效；' +
-          '真实研究里若有未测量混杂，任何方法都救不回来。（二）R/DR 必须开 ' +
-          '<code>cross_fitting = TRUE</code>，否则 tau 被高弹性学习器衰减——实测 R-learner ' +
-          '的 ATE 从 0.976 掉到 0.432。</p></div>' +
-          '<p>更系统的证据见<a href="#/tutorial/conf-sweep">教程 17 · 混杂强度扫描</a>：' +
-          '5 档强度下未调整偏差从 +0.01 涨到 +1.05，五族始终在 0.14 以内。</p>'
-
       },
       {
         id: "s2",
@@ -933,6 +783,33 @@ window.SITE_PAGES.tutorialobs = {
           '真实研究里若有未测量混杂，任何方法都救不回来。</p></div>'
       },
       {
+        id: "s3",
+        heading: "场景 3 · 二分类结局 × RCT",
+        body:
+          '<figure class="fig"><img src="assets/img/dag/dag_rct_binary.png" ' +
+          'alt="场景 3 的 DAG：随机化二分类结局">' +
+          '<figcaption>图 3 · 场景 3 因果图：结构与场景 1 相同，结局换成 ' +
+          '<code>Y ~ Bern(plogis(qlogis(p0) + tau_logit))</code></figcaption></figure>' +
+          '<pre><code class="language-r">d &lt;- mlr3HTE_demo_binary(n = 4000, seed = 1202)\n' +
+          'lb &lt;- lrn("classif.ranger", num.trees = 300, seed = 1)\n' +
+          'fit &lt;- metalearner("T", d$X, d$A, d$Y, learner_base = lb)\n' +
+          'fit$ate   # 平均风险差</code></pre>' +
+          '<div class="callout ok"><div class="callout-title">效应尺度是风险差</div>' +
+          '<p>基学习器必须是 <code>classif.*</code>，引擎自动判定 <code>outcome = "binary"</code>，' +
+          '结局模型返回 <code>P(Y=1|X)</code>，所以 CATE 天然落在<strong>风险差</strong>尺度上' +
+          '（不是对数比、不是比值比）。</p></div>' +
+          '<div class="table-wrap"><table>' +
+          '<thead><tr><th>Learner</th><th>ATE</th><th>与真相关</th><th>RMSE</th></tr></thead>' +
+          '<tbody>' +
+          '<tr><td>S</td><td>0.129</td><td>0.603</td><td>0.157</td></tr>' +
+          '<tr><td>T</td><td>0.128</td><td>0.492</td><td>0.223</td></tr>' +
+          '<tr><td><strong>X</strong></td><td>0.129</td><td><strong>0.794</strong></td><td><strong>0.096</strong></td></tr>' +
+          '<tr><td>R</td><td>0.078</td><td>0.477</td><td>0.167</td></tr>' +
+          '<tr><td>DR</td><td>0.132</td><td>0.601</td><td>0.172</td></tr>' +
+          '</tbody></table></div>' +
+          '<p>真实 ATE（风险差）= <strong>0.131</strong>。</p>'
+      },
+      {
         id: "s4",
         heading: "场景 4 · 二分类结局 × 观察性研究",
         body:
@@ -975,46 +852,175 @@ window.SITE_PAGES.tutorialobs = {
           '回到未调整的 +0.125 附近——又一次印证「变量选对」比「方法选高级」重要。</p>'
       },
       {
+        id: "target",
+        heading: "可解释性 · 一、解释对象必须是伪结局",
+        body:
+          '<p>可解释性工具衡量的是<strong>响应变量</strong>与模型预测之间的关系。若直接把原始结局 <code>Y</code> 当作响应变量，置换重要性与偏依赖衡量的是该变量对基线预后 <code>mu(X)</code> 的贡献——一个强预后因子即使完全不修饰疗效，也会排在重要性榜首。这与“谁更获益”是两件事。</p>' +
+          '<p>双重稳健伪结局 <code>Y*</code> 满足 <code>E[Y*|X] = tau(X)</code>，其条件期望就是 CATE。因此把 <code>Y*</code> 作为响应变量，置换重要性与偏依赖衡量的才是效应异质性。本包的 <code>hte_explainer()</code> 在未显式传入 <code>pseudo</code> 时，会自动调用 <code>dr_pseudo_outcome()</code> 计算它。</p>'
+      },
+      {
+        id: "fit",
+        heading: "可解释性 · 二、先确认估计质量",
+        body:
+          '<p>解释一个拟合失败的 CATE 曲面没有任何意义。第一步永远是看估计值与真值的距离。</p>' +
+          '<pre><code class="language-r">d &lt;- mlr3HTE_scenario("rct_nonlin", "continuous", n = 600, seed = 1)\nfit &lt;- metalearner("T", d$X, d$A, d$Y,\n                   learner_base = lrn("regr.ranger", num.trees = 300))\ntau_hat &lt;- fit$predict(d$X)\nc(ate_hat = mean(tau_hat), ate_true = d$ate,\n  cor = round(cor(tau_hat, d$tau), 3))</code></pre><pre><code class="r-out"> ate_hat ate_true      cor\n1.116643 1.002500 0.769000</code></pre>' +
+          '<div class="callout warn"><div class="callout-title">使用要点</div><p>留出集上的相关才是可信指标；训练集回代会系统性虚高。上面的 0.769 是训练集相关，只用于演示，正式比较请按教程 7 的做法做显式划分。</p></div>'
+      },
+      {
+        id: "explainer",
+        heading: "可解释性 · 三、包装为 DALEX 解释器",
+        body:
+          '<pre><code class="language-r">ex &lt;- hte_explainer(fit, d$X, d$A, d$Y, seed = 1)\nlength(ex$pseudo)\nround(cor(ex$pseudo, d$tau), 3)</code></pre><pre><code class="r-out">[1] 600\n[1] 0.39</code></pre>' +
+          '<p>伪结局是逐人的无偏估计，方差很大：上例中它与真值 <code>tau</code> 的相关只有 0.39。这不影响它作为解释目标的资格——<code>E[Y*|X] = tau(X)</code> 是<strong>条件期望</strong>层面的性质，与单点噪声无关。若需要逐点精度，应当看 metalearner 的 CATE 估计而非伪结局。</p>'
+      },
+      {
+        id: "surrogate",
+        heading: "可解释性 · 四、代理模型",
+        body:
+          '<p>若原始 CATE 曲面由多阶段、带权重、带交叉拟合的过程得到，结构复杂难以直接解读，可以用单一学习器把它重拟合一遍，得到一个可解释的代理模型。</p>' +
+          '<pre><code class="language-r">sur &lt;- hte_surrogate(d$X, tau_hat)\nsur$learner_id\nround(cor(sur$predict(d$X), tau_hat), 3)</code></pre><pre><code class="r-out">[1] "regr.ranger"\n[1] 0.937</code></pre>' +
+          '<div class="callout warn"><div class="callout-title">使用要点</div><p>代理模型只用于解释与可视化，不应替代原 metalearner 做效应估计：它把多阶段过程压缩成单一回归，精度必然下降（上例与原模型相关 0.937，不等于与原模型等价）。</p></div>'
+      },
+      {
+        id: "importance",
+        heading: "可解释性 · 五、置换重要性",
+        body:
+          '<p>把某个协变量随机打乱后，模型相对伪结局的损失上升多少。上升越多，说明模型越依赖该变量来区分个体效应。</p>' +
+          '<pre><code class="language-r">imp &lt;- hte_feature_importance(ex, B = 10, N = 600, seed = 1)\nimp</code></pre><pre><code class="r-out">  variable dropout_loss baseline    dropout dropout_pct\n2      lac     2.232817 1.657445 0.57537262   34.714435\n4    tumor     2.158512 1.657445 0.50106702   30.231294\n1      age     1.974394 1.657445 0.31694939   19.122771\n3      sex     1.746382 1.657445 0.08893715    5.365919</code></pre>' +
+          '<pre><code class="language-r">p_imp &lt;- plot_hte_importance(imp)\nggplot2::ggsave("15_importance.png", p_imp, width = 7, height = 4, dpi = 150)</code></pre>' +
+          '<div class="callout warn"><div class="callout-title">使用要点</div><p>这是对<strong>模型</strong>的解释，不是因果效应分解。重要性高只说明模型用到了该变量，不说明该变量真的修饰了治疗效果；判断后者需要设计层面的证据，例如随机化下的分层分析或预先设定的交互项检验。</p></div>' +
+          '<figure class="fig"><img src="assets/img/explain/tut_importance.png" alt="置换重要性条形图">' +
+          '<figcaption>教程脚本 15 实跑：连续结局、n = 600、T-learner 配 <code>regr.ranger</code>，<code>B = 10</code>、<code>N = 600</code>、种子 1。</figcaption></figure>'
+      },
+      {
+        id: "pdp",
+        heading: "可解释性 · 六、偏依赖与累积局部效应",
+        body:
+          '<p>把某个协变量固定在网格上逐点变动、其余变量保持观测分布，看平均预测 CATE 如何变化。这是回答“效应随这个变量怎么变”的直接手段。</p>' +
+          '<pre><code class="language-r">pd &lt;- hte_pdp(ex, variables = "lac", grid_points = 40)\nutils::head(pd, 6)</code></pre><pre><code class="r-out">  variable           x      yhat    type\n1      lac -1.35582624 0.7757646 partial\n2      lac -0.08519213 0.3333775 partial\n3      lac  0.35384536 0.3611582 partial\n4      lac  0.67263365 0.2769214 partial\n5      lac  0.84518778 0.3285855 partial\n6      lac  0.99896256 0.1739816 partial</code></pre>' +
+          '<pre><code class="language-r"># 协变量相关时 PDP 会在观测支撑集之外外推，ALE 更稳健\npd_ale &lt;- hte_pdp(ex, variables = "lac", grid_points = 40,\n                  type = "accumulated")\nutils::head(pd_ale, 3)</code></pre><pre><code class="r-out">  variable           x      yhat        type\n1      lac -1.35582624 0.9545599 accumulated\n2      lac -0.08519213 0.4735859 accumulated\n3      lac  0.35384536 0.4951885 accumulated</code></pre>' +
+          '<div class="callout warn"><div class="callout-title">使用要点</div><p><code>hte_pdp()</code> 默认 <code>center = FALSE</code>，纵轴保留<strong>绝对的平均预测 CATE</strong>。CATE 语境下这一点很重要：曲线围绕 0 波动会掩盖效应水平本身，而“平均获益 1.2”与“平均获益 0.2”是两个完全不同的临床结论。DALEX 的 <code>model_profile()</code> 默认 <code>center = TRUE</code>，本包显式覆盖。</p></div>' +
+          '<figure class="fig"><img src="assets/img/explain/tut_pdp.png" alt="lac 的偏依赖曲线">' +
+          '<figcaption>同上设置的 <code>lac</code> 偏依赖曲线（40 个网格点）。纵轴未中心化，读的是绝对的平均预测 CATE。</figcaption></figure>'
+      },
+      {
+        id: "shap",
+        heading: "可解释性 · 七、Kernel SHAP",
+        body:
+          '<p>SHAP 把每个个体的 CATE 分解为基线值加各协变量的贡献，同时给出<strong>全局重要性</strong>（贡献的跨度）与<strong>局部归因</strong>（这一个体身上各变量贡献多少）。这是偏依赖图无法提供的信息。</p>' +
+          '<pre><code class="language-r">sv &lt;- hte_shap(ex, n_background = 100, seed = 1)\nutils::head(hte_shap_data(sv), 4)\nattr(hte_shap_data(sv), "baseline")</code></pre><pre><code class="r-out">  id variable    value       shap\n1  1      age 52.48255 -0.1364983\n2  2      age 62.20372 -0.5994672\n3  3      age 49.97246 -0.2239525\n4  4      age 79.14337 -0.1643312\n[1] 1.261608</code></pre>' +
+          '<p>可加性是检验实现是否正确的直接手段：<code>phi_0 + sum(phi_j)</code> 必须等于模型对该个体的预测值，残差应在机器精度量级。</p>' +
+          '<pre><code class="language-r">S &lt;- as.matrix(sv$S)\nmax(abs(as.numeric(sv$baseline) + rowSums(S) - tau_hat))</code></pre><pre><code class="r-out">[1] 4.440892e-16</code></pre>' +
+          '<pre><code class="language-r">plot_hte_shap(sv, "beeswarm")\nplot_hte_shap(sv, "dependence", variable = "lac")\nplot_hte_shap(sv, "waterfall", variable = 1)</code></pre>' +
+          '<div class="callout warn"><div class="callout-title">使用要点</div><p>协变量数 <em>p</em> 不大时 Kernel SHAP 走精确枚举（<code>2^p</code> 个联盟）；<em>p</em> 较大时 kernelshap 自动切换为采样近似，结果随 <code>seed</code> 有轻微波动。报告时请固定 <code>seed</code>。</p></div>' +
+          '<div class="fig-grid">' +
+          '<figure class="fig"><img src="assets/img/explain/tut_shap_beeswarm.png" alt="SHAP 蜂群图"><figcaption>蜂群图：全局重要性与变量取值的联合分布。</figcaption></figure>' +
+          '<figure class="fig"><img src="assets/img/explain/tut_shap_dependence.png" alt="SHAP 依赖图"><figcaption>依赖图：<code>lac</code> 取值与 SHAP 贡献的关系，单调段对应效应修饰的线性区间。</figcaption></figure>' +
+          '<figure class="fig"><img src="assets/img/explain/tut_shap_waterfall.png" alt="SHAP 瀑布图"><figcaption>瀑布图：第 1 号个体的逐项归因。</figcaption></figure>' +
+          '</div>'
+      },
+      {
+        id: "export",
+        heading: "可解释性 · 八、图形与数据分离",
+        body:
+          '<p>本包所有 <code>plot_*</code> 函数都返回 <strong>ggplot 对象</strong>，可用 <code>+</code> 叠加图层、用 <code>ggsave()</code> 导出；绘图所用的原始数据同时可单独取出落盘。二者分离，便于按期刊要求重画。</p>' +
+          '<pre><code class="language-r">qd &lt;- hte_shap_data(sv)\nutils::write.csv(qd, "15_shap_values.csv", row.names = FALSE)\n\nggplot2::ggplot(qd, ggplot2::aes(x = value, y = shap)) +\n  ggplot2::geom_point(alpha = 0.5, colour = "#1B6CA8") +\n  ggplot2::geom_hline(yintercept = 0, linetype = 2, colour = "grey60") +\n  ggplot2::facet_wrap(~ variable, scales = "free_x") +\n  ggplot2::labs(x = "协变量取值", y = "SHAP 贡献",\n                title = "SHAP 依赖图（用导出数据自行绘制）") +\n  ggplot2::theme_minimal(base_size = 12)</code></pre>' +
+          '<div class="table-wrap"><table><thead><tr><th>绘图函数</th><th>对应的数据函数</th></tr></thead><tbody><tr><td><code>plot_hte_importance()</code></td><td><code>hte_feature_importance()</code></td></tr><tr><td><code>plot_hte_pdp()</code></td><td><code>hte_pdp()</code></td></tr><tr><td><code>plot_hte_shap()</code></td><td><code>hte_shap_data()</code></td></tr><tr><td><code>plot_hte_benchmark()</code></td><td><code>hte_benchmark_data()</code></td></tr><tr><td><code>plot_qini()</code></td><td><code>qini_curve()</code></td></tr><tr><td><code>mlr3HTE_dag()</code></td><td><code>mlr3HTE_dag_data()</code></td></tr></tbody></table></div>'
+      },
+      {
+        id: "survival",
+        heading: "可解释性 · 九、生存结局同样可解释",
+        body:
+          '<pre><code class="language-r">s &lt;- mlr3HTE_scenario("rct_lin", "survival", n = 400, seed = 1)\nfit_s &lt;- metalearner("T", s$X, s$A, s$Y, learner_base = "coxph", t0 = s$t0)\nex_s &lt;- hte_explainer(fit_s, s$X, s$A, s$Y, t0 = s$t0,\n                     effect = "survdiff", seed = 1)\nlength(ex_s$pseudo)\nex_s$t0\nhte_feature_importance(ex_s, B = 5, N = 400, seed = 1)</code></pre><pre><code class="r-out">[1] 400\n[1] 2\n  variable dropout_loss baseline      dropout dropout_pct\n4    tumor     1.183836 1.170557 1.327878e-02 1.134398187\n2      lac     1.181124 1.170557 1.056649e-02 0.902689305\n3      sex     1.172480 1.170557 1.922358e-03 0.164225871\n1      age     1.170578 1.170557 2.079801e-05 0.001776762</code></pre>' +
+          '<div class="callout warn"><div class="callout-title">使用要点</div><p>生存分支的伪结局已用删失 IPCW 校正，效应标尺由 <code>effect</code> 指定（<code>"survdiff"</code> 或 <code>"rmst"</code>）。切换标尺会改变伪结局的量纲，重要性排序也可能随之改变，报告时须写明。</p></div>'
+      },
+      {
+        id: "boundary",
+        heading: "可解释性 · 十、能力边界",
+        body:
+          '<ol class="ref-list"><li>可解释性工具解释的是<strong>模型</strong>，不是数据生成机制。模型错了，解释再漂亮也是错的。</li><li>变量重要性不构成因果结论。判断某变量是否真为效应修饰因子，需要设计层面的证据（随机化下的分层分析、预先设定的交互项检验），或在目标试验模拟框架下预先申明。</li><li>SHAP 的可加性是数学恒等式，不保证各分项可单独干预。</li><li>偏依赖在观测支撑集之外做外推；协变量相关时应改用 ALE。</li></ol>'
+      },
+      {
         id: "next",
         notoc: true,
         heading: "继续读",
         body:
           '<div class="callout"><div class="callout-title">继续读</div><p>' +
           '<a href="#/tutorial">← 返回全部教程</a>' +
-          '　·　下一篇：<a href="#/tutorialsurv">3 生存结局分析 →</a>' +
+          '　·　下一篇：<a href="#/tutorialsurv">2 生存结局分析 →</a>' +
           '</p></div>'
       }
     ]
   },
   en: {
-    title: "2 · Observational studies",
-    lede: "The confounding back-door biases the naive difference from the start; putting the confounders in X keeps every family's bias within 0.08 — provided all confounding is measured.",
+    title: "1 · Analysis under RCT and observational designs",
+    lede: "The pipeline is identical for RCT and observational data; the only difference is whether the confounders went into X. Interpreting the estimated CATE comes after.",
     sections: [
       {
-        id: "fw-obs",
+        id: "fw-analysis",
         heading: "At a glance",
         body:
-          '<p>In observational data <code>X → e → A</code> opens a confounding back-door, so the naive ' +
-          'difference starts biased (continuous +0.689, binary +0.125, survival −0.072). Since v0.40 the framework ' +
-          'offers no IPTW weighting option; the main route to deconfounding is <strong>putting the confounders ' +
-          'in X</strong>: S/T/X condition through the outcome model <code>E[Y|A,X]</code>, R residualises, DR does both.</p>' +
+          '<p>The analysis pipeline is <strong>identical</strong> for RCT and observational data — the same five ' +
+          'meta-learners, the same outcome models, the same reconciliation protocol. The only difference is ' +
+          '<strong>whether the confounders went into <code>X</code></strong>: under randomization ' +
+          '<code>A ⊥ X</code>, so the crude difference is already unbiased; in observational data treatment ' +
+          'depends on covariates, the back-door path <code>A ← e ← X → outcome → Y</code> is open, and the ' +
+          'confounders must be conditioned on by the outcome model.</p>' +
           '<div class="table-wrap"><table>' +
           '<thead><tr><th>Scenario</th><th>Script</th><th>Key result</th></tr></thead><tbody>' +
-          '<tr><td><a href="#/tutorialobs/s2">Scenario 2 · Continuous × observational</a></td>' +
+          '<tr><td><a href="#/tutorialanalysis/s1">Scenario 1 · Continuous × RCT</a></td>' +
+          '<td><code>01_连续结局_随机化RCT.R</code></td>' +
+          '<td>The X-learner tracks the truth best: CATE correlation <strong>0.963</strong></td></tr>' +
+          '<tr><td><a href="#/tutorialanalysis/s2">Scenario 2 · Continuous × observational</a></td>' +
           '<td><code>02_连续结局_观察性研究.R</code></td>' +
-          '<td>Naive <strong>+0.689</strong> → with all confounders in X every family stays within |bias| ≤ 0.073; the X-learner reaches CATE correlation <strong>0.954</strong> with RMSE 0.320 (true ATE 1.049)</td></tr>' +
-          '<tr><td><a href="#/tutorialobs/s4">Scenario 4 · Binary × observational</a></td>' +
+          '<td>Unadjusted bias <strong>+0.689</strong> → with all confounders in X every family stays within |bias| ≤ 0.073; the X-learner reaches correlation <strong>0.954</strong> with RMSE 0.320</td></tr>' +
+          '<tr><td><a href="#/tutorialanalysis/s3">Scenario 3 · Binary × RCT</a></td>' +
+          '<td><code>03_二分类结局_随机化RCT.R</code></td>' +
+          '<td>The effect scale switches to risk difference; the X-learner reaches correlation <strong>0.794</strong></td></tr>' +
+          '<tr><td><a href="#/tutorialanalysis/s4">Scenario 4 · Binary × observational</a></td>' +
           '<td><code>04_二分类结局_观察性研究.R</code></td>' +
-          '<td>Naive risk difference <strong>+0.125</strong> → with all confounders in X every family stays within |bias| ≤ 0.014; the X-learner has bias +0.006, correlation <strong>0.758</strong> and RMSE 0.110 (true 0.131)</td></tr>' +
+          '<td>Unadjusted risk difference <strong>+0.125</strong> → with all confounders in X every family stays within |bias| ≤ 0.014; the X-learner has bias +0.006 and correlation <strong>0.758</strong></td></tr>' +
           '</tbody></table></div>' +
           '<div class="callout warn"><div class="callout-title">Two caveats</div>' +
-          '<p>(i) All confounding here comes from <strong>measured</strong> covariates, which is why conditioning works. ' +
-          'With unmeasured confounding in a real study, no method rescues you. ' +
-          '(ii) R/DR need <code>cross_fitting = TRUE</code>, otherwise tau is attenuated by flexible learners — ' +
-          'measured: the R-learner\'s ATE drops from 0.976 to 0.432.</p></div>' +
-          '<p>For systematic evidence see <a href="#/tutorial/conf-sweep">tutorial 17 · confounding-strength sweep</a>: ' +
-          'across 5 strengths the unadjusted bias grows from +0.01 to +1.05 while all five families stay within 0.14.</p>'
-
+          '<p>(i) All confounding in the observational scenarios comes from <strong>measured</strong> covariates, ' +
+          'which is why conditioning works; with unmeasured confounding in a real study, no method rescues you. ' +
+          '(ii) R/DR need <code>cross_fitting = TRUE</code>, otherwise tau is attenuated by flexible learners ' +
+          '— measured: the R-learner\'s ATE drops from 0.976 to 0.432.</p></div>' +
+          '<p>For systematic evidence see the <a href="#/tutorial/conf-sweep">confounding-strength sweep</a>: ' +
+          'across 5 strengths the unadjusted bias grows from +0.01 to +1.05 while all five families stay within 0.14.</p>' +
+          '<p>Once the CATE is estimated there is still the question "which variables drive the heterogeneity". ' +
+          'The second half of this article covers interpretability in one pass; per-function parameter details ' +
+          'live in the <a href="#/apiexplain">function overview</a>.</p>'
+      },
+      {
+        id: "s1",
+        heading: "Scenario 1 · Continuous outcome × RCT",
+        body:
+          '<figure class="fig"><img src="assets/img/dag/dag_rct_continuous.png" ' +
+          'alt="Scenario 1 DAG: randomised continuous outcome">' +
+          '<figcaption>Figure 1 · Scenario 1 DAG: <code>A</code> is randomised; ' +
+          '<code>X</code> modifies the effect but does not confound</figcaption></figure>' +
+          '<pre><code class="language-r">d &lt;- mlr3HTE_demo_data(n = 4000, seed = 1201)\n' +
+          'lb &lt;- lrn("regr.ranger", num.trees = 300, seed = 1)\n\n' +
+          'for (tp in c("S","T","X","R","DR")) {\n' +
+          '  fit &lt;- metalearner(tp, d$X, d$A, d$Y, learner_base = lb)\n' +
+          '  cat(tp, fit$ate, cor(fit$cate_train, d$tau), "\\n")\n' +
+          '}</code></pre>' +
+          '<div class="callout"><div class="callout-title">Data-generating process</div>' +
+          '<p>True CATE <code>tau = 1.0 + 0.8·z1 − 0.5·z2 + 0.6·(z1&gt;1 &amp; z2&lt;0)</code>; ' +
+          'true baseline <code>mu = 6 + 0.4·z1 + 0.5·z2 − 0.02·(age−60) + 0.3·sex</code>.</p></div>' +
+          '<div class="table-wrap"><table>' +
+          '<thead><tr><th>Learner</th><th>ATE</th><th>Corr. with truth</th><th>RMSE</th></tr></thead>' +
+          '<tbody>' +
+          '<tr><td>S</td><td>0.935</td><td>0.895</td><td>0.483</td></tr>' +
+          '<tr><td>T</td><td>0.951</td><td>0.845</td><td>0.653</td></tr>' +
+          '<tr><td><strong>X</strong></td><td>0.950</td><td><strong>0.963</strong></td><td><strong>0.296</strong></td></tr>' +
+          '<tr><td>R</td><td>0.450</td><td>0.812</td><td>0.907</td></tr>' +
+          '<tr><td>DR</td><td>0.954</td><td>0.924</td><td>0.430</td></tr>' +
+          '</tbody></table></div>' +
+          '<p>True ATE = <strong>1.048</strong>. X wins; R\'s ATE is clearly low because of ' +
+          'pseudo-outcome noise plus insufficient stage-2 regularisation ' +
+          '(see <a href="#/guide/pitfalls">tuning notes</a>).</p>'
       },
       {
         id: "s2",
@@ -1090,6 +1096,34 @@ window.SITE_PAGES.tutorialobs = {
           'With unmeasured confounding in a real study, no method can save you.</p></div>'
       },
       {
+        id: "s3",
+        heading: "Scenario 3 · Binary outcome × RCT",
+        body:
+          '<figure class="fig"><img src="assets/img/dag/dag_rct_binary.png" ' +
+          'alt="Scenario 3 DAG: randomised binary outcome">' +
+          '<figcaption>Figure 3 · Scenario 3 DAG: same structure as Scenario 1, with the ' +
+          'outcome swapped for <code>Y ~ Bern(plogis(qlogis(p0) + tau_logit))</code></figcaption></figure>' +
+          '<pre><code class="language-r">d &lt;- mlr3HTE_demo_binary(n = 4000, seed = 1202)\n' +
+          'lb &lt;- lrn("classif.ranger", num.trees = 300, seed = 1)\n' +
+          'fit &lt;- metalearner("T", d$X, d$A, d$Y, learner_base = lb)\n' +
+          'fit$ate   # average risk difference</code></pre>' +
+          '<div class="callout ok"><div class="callout-title">The effect scale is the risk difference</div>' +
+          '<p>The base learner must be <code>classif.*</code>; the engine detects ' +
+          '<code>outcome = "binary"</code>, the outcome model returns <code>P(Y=1|X)</code>, and the ' +
+          'CATE therefore lives on the <strong>risk-difference</strong> scale (not log-odds, not ' +
+          'odds ratio).</p></div>' +
+          '<div class="table-wrap"><table>' +
+          '<thead><tr><th>Learner</th><th>ATE</th><th>Corr. with truth</th><th>RMSE</th></tr></thead>' +
+          '<tbody>' +
+          '<tr><td>S</td><td>0.129</td><td>0.603</td><td>0.157</td></tr>' +
+          '<tr><td>T</td><td>0.128</td><td>0.492</td><td>0.223</td></tr>' +
+          '<tr><td><strong>X</strong></td><td>0.129</td><td><strong>0.794</strong></td><td><strong>0.096</strong></td></tr>' +
+          '<tr><td>R</td><td>0.078</td><td>0.477</td><td>0.167</td></tr>' +
+          '<tr><td>DR</td><td>0.132</td><td>0.601</td><td>0.172</td></tr>' +
+          '</tbody></table></div>' +
+          '<p>True ATE (risk difference) = <strong>0.131</strong>.</p>'
+      },
+      {
         id: "s4",
         heading: "Scenario 4 · Binary outcome × observational",
         body:
@@ -1134,19 +1168,107 @@ window.SITE_PAGES.tutorialobs = {
           'than getting the method fancy.</p>'
       },
       {
+        id: "target",
+        heading: "Interpretability · 1. The object of explanation",
+        body:
+          '<p>Interpretability tools measure the relationship between the <strong>response</strong> and the model\'s predictions. With the raw outcome <code>Y</code> as the response, permutation importance and partial dependence measure a variable\'s contribution to the baseline prognosis <code>mu(X)</code>: a strong prognostic factor tops the ranking even when it does not modify the effect at all. That is a different question from who benefits more.</p>' +
+          '<p>The doubly robust pseudo-outcome <code>Y*</code> satisfies <code>E[Y*|X] = tau(X)</code>, so its conditional expectation is the CATE. Using <code>Y*</code> as the response makes permutation importance and partial dependence quantify effect heterogeneity instead. <code>hte_explainer()</code> calls <code>dr_pseudo_outcome()</code> automatically when <code>pseudo</code> is not supplied.</p>'
+      },
+      {
+        id: "fit",
+        heading: "Interpretability · 2. Check estimation quality first",
+        body:
+          '<p>Explaining a poorly fitted CATE surface is meaningless. The first step is always to check how close the estimates are to the truth.</p>' +
+          '<pre><code class="language-r">d &lt;- mlr3HTE_scenario("rct_nonlin", "continuous", n = 600, seed = 1)\nfit &lt;- metalearner("T", d$X, d$A, d$Y,\n                   learner_base = lrn("regr.ranger", num.trees = 300))\ntau_hat &lt;- fit$predict(d$X)\nc(ate_hat = mean(tau_hat), ate_true = d$ate,\n  cor = round(cor(tau_hat, d$tau), 3))</code></pre><pre><code class="r-out"> ate_hat ate_true      cor\n1.116643 1.002500 0.769000</code></pre>' +
+          '<div class="callout warn"><div class="callout-title">Notes</div><p>Only out-of-sample correlation is trustworthy; in-sample values are systematically inflated. The 0.769 above is an in-sample figure used for demonstration only — formal comparisons should use an explicit split as in Tutorial 7.</p></div>'
+      },
+      {
+        id: "explainer",
+        heading: "Interpretability · 3. Wrapping it as a DALEX explainer",
+        body:
+          '<pre><code class="language-r">ex &lt;- hte_explainer(fit, d$X, d$A, d$Y, seed = 1)\nlength(ex$pseudo)\nround(cor(ex$pseudo, d$tau), 3)</code></pre><pre><code class="r-out">[1] 600\n[1] 0.39</code></pre>' +
+          '<p>The pseudo-outcome is an unbiased but high-variance individual-level estimate: its correlation with the true <code>tau</code> is only 0.39 above. That does not disqualify it as an explanation target, because <code>E[Y*|X] = tau(X)</code> is a property of the <strong>conditional expectation</strong> rather than of individual noise. For point-wise accuracy, consult the metalearner\'s CATE estimate instead.</p>'
+      },
+      {
+        id: "surrogate",
+        heading: "Interpretability · 4. Surrogate model",
+        body:
+          '<p>When the CATE surface comes from a multi-stage, weighted, cross-fitted procedure whose structure resists direct reading, a single learner can refit it into an interpretable surrogate.</p>' +
+          '<pre><code class="language-r">sur &lt;- hte_surrogate(d$X, tau_hat)\nsur$learner_id\nround(cor(sur$predict(d$X), tau_hat), 3)</code></pre><pre><code class="r-out">[1] "regr.ranger"\n[1] 0.937</code></pre>' +
+          '<div class="callout warn"><div class="callout-title">Notes</div><p>The surrogate serves explanation and visualisation only; it should not replace the original metalearner for effect estimation, because compressing a multi-stage procedure into a single regression necessarily loses precision (the correlation of 0.937 above does not imply equivalence).</p></div>'
+      },
+      {
+        id: "importance",
+        heading: "Interpretability · 5. Permutation importance",
+        body:
+          '<p>How much the loss against the pseudo-outcome rises after a covariate is randomly permuted. A larger rise means the model relies more on that variable to discriminate individual effects.</p>' +
+          '<pre><code class="language-r">imp &lt;- hte_feature_importance(ex, B = 10, N = 600, seed = 1)\nimp</code></pre><pre><code class="r-out">  variable dropout_loss baseline    dropout dropout_pct\n2      lac     2.232817 1.657445 0.57537262   34.714435\n4    tumor     2.158512 1.657445 0.50106702   30.231294\n1      age     1.974394 1.657445 0.31694939   19.122771\n3      sex     1.746382 1.657445 0.08893715    5.365919</code></pre>' +
+          '<pre><code class="language-r">p_imp &lt;- plot_hte_importance(imp)\nggplot2::ggsave("15_importance.png", p_imp, width = 7, height = 4, dpi = 150)</code></pre>' +
+          '<div class="callout warn"><div class="callout-title">Notes</div><p>This explains the <strong>model</strong>, not a causal decomposition. High importance means only that the model relied on the variable; it does not establish that the variable truly modifies the treatment effect, which requires design-level evidence such as a stratified analysis under randomisation or a pre-specified interaction test.</p></div>' +
+          '<figure class="fig"><img src="assets/img/explain/tut_importance.png" alt="Bar chart of permutation importance">' +
+          '<figcaption>Actual run of tutorial script 15: continuous outcome, n = 600, T-learner with <code>regr.ranger</code>, <code>B = 10</code>, <code>N = 600</code>, seed 1.</figcaption></figure>'
+      },
+      {
+        id: "pdp",
+        heading: "Interpretability · 6. Partial dependence and accumulated local effects",
+        body:
+          '<p>Fix a covariate at successive grid points while holding the others at their observed distribution, and record how the average predicted CATE changes. This answers directly how the effect varies with that variable.</p>' +
+          '<pre><code class="language-r">pd &lt;- hte_pdp(ex, variables = "lac", grid_points = 40)\nutils::head(pd, 6)</code></pre><pre><code class="r-out">  variable           x      yhat    type\n1      lac -1.35582624 0.7757646 partial\n2      lac -0.08519213 0.3333775 partial\n3      lac  0.35384536 0.3611582 partial\n4      lac  0.67263365 0.2769214 partial\n5      lac  0.84518778 0.3285855 partial\n6      lac  0.99896256 0.1739816 partial</code></pre>' +
+          '<pre><code class="language-r"># 协变量相关时 PDP 会在观测支撑集之外外推，ALE 更稳健\npd_ale &lt;- hte_pdp(ex, variables = "lac", grid_points = 40,\n                  type = "accumulated")\nutils::head(pd_ale, 3)</code></pre><pre><code class="r-out">  variable           x      yhat        type\n1      lac -1.35582624 0.9545599 accumulated\n2      lac -0.08519213 0.4735859 accumulated\n3      lac  0.35384536 0.4951885 accumulated</code></pre>' +
+          '<div class="callout warn"><div class="callout-title">Notes</div><p><code>hte_pdp()</code> defaults to <code>center = FALSE</code>, keeping the <strong>absolute</strong> average predicted CATE on the vertical axis. That matters here: a curve oscillating about zero conceals the effect level itself, and an average benefit of 1.2 is a very different clinical statement from one of 0.2. DALEX\'s <code>model_profile()</code> defaults to <code>center = TRUE</code>; this package overrides it explicitly.</p></div>' +
+          '<figure class="fig"><img src="assets/img/explain/tut_pdp.png" alt="Partial dependence curve for lac">' +
+          '<figcaption>Partial dependence of <code>lac</code> (40 grid points) under the same setup. The vertical axis is not centred, so it reads as the absolute mean predicted CATE.</figcaption></figure>'
+      },
+      {
+        id: "shap",
+        heading: "Interpretability · 7. Kernel SHAP",
+        body:
+          '<p>SHAP decomposes each individual CATE into a baseline plus per-covariate contributions, giving both <strong>global importance</strong> (the spread of contributions) and <strong>local attribution</strong> (each variable\'s contribution for one individual). Partial dependence cannot provide this.</p>' +
+          '<pre><code class="language-r">sv &lt;- hte_shap(ex, n_background = 100, seed = 1)\nutils::head(hte_shap_data(sv), 4)\nattr(hte_shap_data(sv), "baseline")</code></pre><pre><code class="r-out">  id variable    value       shap\n1  1      age 52.48255 -0.1364983\n2  2      age 62.20372 -0.5994672\n3  3      age 49.97246 -0.2239525\n4  4      age 79.14337 -0.1643312\n[1] 1.261608</code></pre>' +
+          '<p>Additivity is a direct check on the implementation: <code>phi_0 + sum(phi_j)</code> must equal the model\'s prediction for that individual, with a residual at machine precision.</p>' +
+          '<pre><code class="language-r">S &lt;- as.matrix(sv$S)\nmax(abs(as.numeric(sv$baseline) + rowSums(S) - tau_hat))</code></pre><pre><code class="r-out">[1] 4.440892e-16</code></pre>' +
+          '<pre><code class="language-r">plot_hte_shap(sv, "beeswarm")\nplot_hte_shap(sv, "dependence", variable = "lac")\nplot_hte_shap(sv, "waterfall", variable = 1)</code></pre>' +
+          '<div class="callout warn"><div class="callout-title">Notes</div><p>With a small number of covariates <em>p</em>, Kernel SHAP enumerates all <code>2^p</code> coalitions exactly; for larger <em>p</em>, kernelshap switches to a sampling approximation and results fluctuate slightly with <code>seed</code>. Fix the seed when reporting.</p></div>' +
+          '<div class="fig-grid">' +
+          '<figure class="fig"><img src="assets/img/explain/tut_shap_beeswarm.png" alt="SHAP beeswarm"><figcaption>Beeswarm: global importance against the joint distribution of covariate values.</figcaption></figure>' +
+          '<figure class="fig"><img src="assets/img/explain/tut_shap_dependence.png" alt="SHAP dependence"><figcaption>Dependence: value of <code>lac</code> against its SHAP contribution; monotone stretches mark the linear region of the effect modification.</figcaption></figure>' +
+          '<figure class="fig"><img src="assets/img/explain/tut_shap_waterfall.png" alt="SHAP waterfall"><figcaption>Waterfall: term-by-term attribution for individual 1.</figcaption></figure>' +
+          '</div>'
+      },
+      {
+        id: "export",
+        heading: "Interpretability · 8. Separating plot from data",
+        body:
+          '<p>Every <code>plot_*</code> function returns a <strong>ggplot object</strong> that can be extended with <code>+</code> and exported with <code>ggsave()</code>; the underlying data is available separately for writing to disk. Keeping the two apart makes it straightforward to redraw figures to a journal\'s specification.</p>' +
+          '<pre><code class="language-r">qd &lt;- hte_shap_data(sv)\nutils::write.csv(qd, "15_shap_values.csv", row.names = FALSE)\n\nggplot2::ggplot(qd, ggplot2::aes(x = value, y = shap)) +\n  ggplot2::geom_point(alpha = 0.5, colour = "#1B6CA8") +\n  ggplot2::geom_hline(yintercept = 0, linetype = 2, colour = "grey60") +\n  ggplot2::facet_wrap(~ variable, scales = "free_x") +\n  ggplot2::labs(x = "协变量取值", y = "SHAP 贡献",\n                title = "SHAP 依赖图（用导出数据自行绘制）") +\n  ggplot2::theme_minimal(base_size = 12)</code></pre>' +
+          '<div class="table-wrap"><table><thead><tr><th>Plot function</th><th>Corresponding data function</th></tr></thead><tbody><tr><td><code>plot_hte_importance()</code></td><td><code>hte_feature_importance()</code></td></tr><tr><td><code>plot_hte_pdp()</code></td><td><code>hte_pdp()</code></td></tr><tr><td><code>plot_hte_shap()</code></td><td><code>hte_shap_data()</code></td></tr><tr><td><code>plot_hte_benchmark()</code></td><td><code>hte_benchmark_data()</code></td></tr><tr><td><code>plot_qini()</code></td><td><code>qini_curve()</code></td></tr><tr><td><code>mlr3HTE_dag()</code></td><td><code>mlr3HTE_dag_data()</code></td></tr></tbody></table></div>'
+      },
+      {
+        id: "survival",
+        heading: "Interpretability · 9. Survival outcomes too",
+        body:
+          '<pre><code class="language-r">s &lt;- mlr3HTE_scenario("rct_lin", "survival", n = 400, seed = 1)\nfit_s &lt;- metalearner("T", s$X, s$A, s$Y, learner_base = "coxph", t0 = s$t0)\nex_s &lt;- hte_explainer(fit_s, s$X, s$A, s$Y, t0 = s$t0,\n                     effect = "survdiff", seed = 1)\nlength(ex_s$pseudo)\nex_s$t0\nhte_feature_importance(ex_s, B = 5, N = 400, seed = 1)</code></pre><pre><code class="r-out">[1] 400\n[1] 2\n  variable dropout_loss baseline      dropout dropout_pct\n4    tumor     1.183836 1.170557 1.327878e-02 1.134398187\n2      lac     1.181124 1.170557 1.056649e-02 0.902689305\n3      sex     1.172480 1.170557 1.922358e-03 0.164225871\n1      age     1.170578 1.170557 2.079801e-05 0.001776762</code></pre>' +
+          '<div class="callout warn"><div class="callout-title">Notes</div><p>In the survival branch the pseudo-outcome is corrected for censoring by IPCW, and the effect scale is set by <code>effect</code> (<code>"survdiff"</code> or <code>"rmst"</code>). Changing the scale changes the units of the pseudo-outcome and may change the importance ranking, so the choice must be stated.</p></div>'
+      },
+      {
+        id: "boundary",
+        heading: "Interpretability · 10. Limits",
+        body:
+          '<ol class="ref-list"><li>Interpretability tools explain the <strong>model</strong>, not the data-generating mechanism. If the model is wrong, an elegant explanation is still wrong.</li><li>Variable importance is not a causal conclusion. Establishing that a variable truly modifies the effect requires design-level evidence (stratified analysis under randomisation, a pre-specified interaction test) or a pre-specified estimand in a target trial emulation.</li><li>SHAP additivity is a mathematical identity; it does not license intervening on individual components.</li><li>Partial dependence extrapolates beyond the observed support; use ALE when covariates are correlated.</li></ol>'
+      },
+      {
         id: "next",
         notoc: true,
         heading: "Keep reading",
         body:
           '<div class="callout"><div class="callout-title">Keep reading</div><p>' +
           '<a href="#/tutorial">← All tutorials</a>' +
-          ' &middot; Next: <a href="#/tutorialsurv">3 Survival outcomes →</a>' +
+          ' &middot; Next: <a href="#/tutorialsurv">2 Survival outcomes →</a>' +
           '</p></div>'
       }
     ]
   }
 };
-
 window.SITE_PAGES.tutorialsurv = {
   zh: {
     title: "3 · 生存结局分析",
@@ -2792,199 +2914,6 @@ window.SITE_PAGES.tutorialbenchgrid = {
         heading: "Conventions",
         body:
           '<ol class="ref-list"><li>Use <code>mlr3HTE_bench()</code> for all method comparisons; do not re-simulate separately in a paper or report.</li><li>Report results stratified by design, confounding form, HTE form and shared variable; do not average across those dimensions.</li><li>When reporting CATE accuracy, state whether it was computed out-of-sample or in-sample; the two are not comparable.</li><li>For survival outcomes, always state the effect scale (<code>survdiff</code> or <code>rmst</code>) and <code>t0</code>.</li></ol>'
-      }
-    ]
-  }
-};
-
-window.SITE_PAGES.tutorialexplain = {
-  zh: {
-    title: "8 CATE 模型可解释性",
-    lede: '把估计出的 CATE 曲面当成一个模型来解释：哪些变量驱动了效应异质性、效应随某变量如何变化、单个个体的效应由哪些变量推高或拉低。解释对象是双重稳健伪结局，不是原始结局。',
-    sections: [
-      {
-        id: "target",
-        heading: "一、解释对象必须是伪结局",
-        body:
-          '<p>可解释性工具衡量的是<strong>响应变量</strong>与模型预测之间的关系。若直接把原始结局 <code>Y</code> 当作响应变量，置换重要性与偏依赖衡量的是该变量对基线预后 <code>mu(X)</code> 的贡献——一个强预后因子即使完全不修饰疗效，也会排在重要性榜首。这与“谁更获益”是两件事。</p>' +
-          '<p>双重稳健伪结局 <code>Y*</code> 满足 <code>E[Y*|X] = tau(X)</code>，其条件期望就是 CATE。因此把 <code>Y*</code> 作为响应变量，置换重要性与偏依赖衡量的才是效应异质性。本包的 <code>hte_explainer()</code> 在未显式传入 <code>pseudo</code> 时，会自动调用 <code>dr_pseudo_outcome()</code> 计算它。</p>'
-      },
-      {
-        id: "fit",
-        heading: "二、先确认估计质量",
-        body:
-          '<p>解释一个拟合失败的 CATE 曲面没有任何意义。第一步永远是看估计值与真值的距离。</p>' +
-          '<pre><code class="language-r">d &lt;- mlr3HTE_scenario("rct_nonlin", "continuous", n = 600, seed = 1)\nfit &lt;- metalearner("T", d$X, d$A, d$Y,\n                   learner_base = lrn("regr.ranger", num.trees = 300))\ntau_hat &lt;- fit$predict(d$X)\nc(ate_hat = mean(tau_hat), ate_true = d$ate,\n  cor = round(cor(tau_hat, d$tau), 3))</code></pre><pre><code class="r-out"> ate_hat ate_true      cor\n1.116643 1.002500 0.769000</code></pre>' +
-          '<div class="callout warn"><div class="callout-title">使用要点</div><p>留出集上的相关才是可信指标；训练集回代会系统性虚高。上面的 0.769 是训练集相关，只用于演示，正式比较请按教程 7 的做法做显式划分。</p></div>'
-      },
-      {
-        id: "explainer",
-        heading: "三、包装为 DALEX 解释器",
-        body:
-          '<pre><code class="language-r">ex &lt;- hte_explainer(fit, d$X, d$A, d$Y, seed = 1)\nlength(ex$pseudo)\nround(cor(ex$pseudo, d$tau), 3)</code></pre><pre><code class="r-out">[1] 600\n[1] 0.39</code></pre>' +
-          '<p>伪结局是逐人的无偏估计，方差很大：上例中它与真值 <code>tau</code> 的相关只有 0.39。这不影响它作为解释目标的资格——<code>E[Y*|X] = tau(X)</code> 是<strong>条件期望</strong>层面的性质，与单点噪声无关。若需要逐点精度，应当看 metalearner 的 CATE 估计而非伪结局。</p>'
-      },
-      {
-        id: "surrogate",
-        heading: "四、代理模型",
-        body:
-          '<p>若原始 CATE 曲面由多阶段、带权重、带交叉拟合的过程得到，结构复杂难以直接解读，可以用单一学习器把它重拟合一遍，得到一个可解释的代理模型。</p>' +
-          '<pre><code class="language-r">sur &lt;- hte_surrogate(d$X, tau_hat)\nsur$learner_id\nround(cor(sur$predict(d$X), tau_hat), 3)</code></pre><pre><code class="r-out">[1] "regr.ranger"\n[1] 0.937</code></pre>' +
-          '<div class="callout warn"><div class="callout-title">使用要点</div><p>代理模型只用于解释与可视化，不应替代原 metalearner 做效应估计：它把多阶段过程压缩成单一回归，精度必然下降（上例与原模型相关 0.937，不等于与原模型等价）。</p></div>'
-      },
-      {
-        id: "importance",
-        heading: "五、置换重要性",
-        body:
-          '<p>把某个协变量随机打乱后，模型相对伪结局的损失上升多少。上升越多，说明模型越依赖该变量来区分个体效应。</p>' +
-          '<pre><code class="language-r">imp &lt;- hte_feature_importance(ex, B = 10, N = 600, seed = 1)\nimp</code></pre><pre><code class="r-out">  variable dropout_loss baseline    dropout dropout_pct\n2      lac     2.232817 1.657445 0.57537262   34.714435\n4    tumor     2.158512 1.657445 0.50106702   30.231294\n1      age     1.974394 1.657445 0.31694939   19.122771\n3      sex     1.746382 1.657445 0.08893715    5.365919</code></pre>' +
-          '<pre><code class="language-r">p_imp &lt;- plot_hte_importance(imp)\nggplot2::ggsave("15_importance.png", p_imp, width = 7, height = 4, dpi = 150)</code></pre>' +
-          '<div class="callout warn"><div class="callout-title">使用要点</div><p>这是对<strong>模型</strong>的解释，不是因果效应分解。重要性高只说明模型用到了该变量，不说明该变量真的修饰了治疗效果；判断后者需要设计层面的证据，例如随机化下的分层分析或预先设定的交互项检验。</p></div>' +
-          '<figure class="fig"><img src="assets/img/explain/tut_importance.png" alt="置换重要性条形图">' +
-          '<figcaption>教程脚本 15 实跑：连续结局、n = 600、T-learner 配 <code>regr.ranger</code>，<code>B = 10</code>、<code>N = 600</code>、种子 1。</figcaption></figure>'
-      },
-      {
-        id: "pdp",
-        heading: "六、偏依赖与累积局部效应",
-        body:
-          '<p>把某个协变量固定在网格上逐点变动、其余变量保持观测分布，看平均预测 CATE 如何变化。这是回答“效应随这个变量怎么变”的直接手段。</p>' +
-          '<pre><code class="language-r">pd &lt;- hte_pdp(ex, variables = "lac", grid_points = 40)\nutils::head(pd, 6)</code></pre><pre><code class="r-out">  variable           x      yhat    type\n1      lac -1.35582624 0.7757646 partial\n2      lac -0.08519213 0.3333775 partial\n3      lac  0.35384536 0.3611582 partial\n4      lac  0.67263365 0.2769214 partial\n5      lac  0.84518778 0.3285855 partial\n6      lac  0.99896256 0.1739816 partial</code></pre>' +
-          '<pre><code class="language-r"># 协变量相关时 PDP 会在观测支撑集之外外推，ALE 更稳健\npd_ale &lt;- hte_pdp(ex, variables = "lac", grid_points = 40,\n                  type = "accumulated")\nutils::head(pd_ale, 3)</code></pre><pre><code class="r-out">  variable           x      yhat        type\n1      lac -1.35582624 0.9545599 accumulated\n2      lac -0.08519213 0.4735859 accumulated\n3      lac  0.35384536 0.4951885 accumulated</code></pre>' +
-          '<div class="callout warn"><div class="callout-title">使用要点</div><p><code>hte_pdp()</code> 默认 <code>center = FALSE</code>，纵轴保留<strong>绝对的平均预测 CATE</strong>。CATE 语境下这一点很重要：曲线围绕 0 波动会掩盖效应水平本身，而“平均获益 1.2”与“平均获益 0.2”是两个完全不同的临床结论。DALEX 的 <code>model_profile()</code> 默认 <code>center = TRUE</code>，本包显式覆盖。</p></div>' +
-          '<figure class="fig"><img src="assets/img/explain/tut_pdp.png" alt="lac 的偏依赖曲线">' +
-          '<figcaption>同上设置的 <code>lac</code> 偏依赖曲线（40 个网格点）。纵轴未中心化，读的是绝对的平均预测 CATE。</figcaption></figure>'
-      },
-      {
-        id: "shap",
-        heading: "七、Kernel SHAP",
-        body:
-          '<p>SHAP 把每个个体的 CATE 分解为基线值加各协变量的贡献，同时给出<strong>全局重要性</strong>（贡献的跨度）与<strong>局部归因</strong>（这一个体身上各变量贡献多少）。这是偏依赖图无法提供的信息。</p>' +
-          '<pre><code class="language-r">sv &lt;- hte_shap(ex, n_background = 100, seed = 1)\nutils::head(hte_shap_data(sv), 4)\nattr(hte_shap_data(sv), "baseline")</code></pre><pre><code class="r-out">  id variable    value       shap\n1  1      age 52.48255 -0.1364983\n2  2      age 62.20372 -0.5994672\n3  3      age 49.97246 -0.2239525\n4  4      age 79.14337 -0.1643312\n[1] 1.261608</code></pre>' +
-          '<p>可加性是检验实现是否正确的直接手段：<code>phi_0 + sum(phi_j)</code> 必须等于模型对该个体的预测值，残差应在机器精度量级。</p>' +
-          '<pre><code class="language-r">S &lt;- as.matrix(sv$S)\nmax(abs(as.numeric(sv$baseline) + rowSums(S) - tau_hat))</code></pre><pre><code class="r-out">[1] 4.440892e-16</code></pre>' +
-          '<pre><code class="language-r">plot_hte_shap(sv, "beeswarm")\nplot_hte_shap(sv, "dependence", variable = "lac")\nplot_hte_shap(sv, "waterfall", variable = 1)</code></pre>' +
-          '<div class="callout warn"><div class="callout-title">使用要点</div><p>协变量数 <em>p</em> 不大时 Kernel SHAP 走精确枚举（<code>2^p</code> 个联盟）；<em>p</em> 较大时 kernelshap 自动切换为采样近似，结果随 <code>seed</code> 有轻微波动。报告时请固定 <code>seed</code>。</p></div>' +
-          '<div class="fig-grid">' +
-          '<figure class="fig"><img src="assets/img/explain/tut_shap_beeswarm.png" alt="SHAP 蜂群图"><figcaption>蜂群图：全局重要性与变量取值的联合分布。</figcaption></figure>' +
-          '<figure class="fig"><img src="assets/img/explain/tut_shap_dependence.png" alt="SHAP 依赖图"><figcaption>依赖图：<code>lac</code> 取值与 SHAP 贡献的关系，单调段对应效应修饰的线性区间。</figcaption></figure>' +
-          '<figure class="fig"><img src="assets/img/explain/tut_shap_waterfall.png" alt="SHAP 瀑布图"><figcaption>瀑布图：第 1 号个体的逐项归因。</figcaption></figure>' +
-          '</div>'
-      },
-      {
-        id: "export",
-        heading: "八、图形与数据分离",
-        body:
-          '<p>本包所有 <code>plot_*</code> 函数都返回 <strong>ggplot 对象</strong>，可用 <code>+</code> 叠加图层、用 <code>ggsave()</code> 导出；绘图所用的原始数据同时可单独取出落盘。二者分离，便于按期刊要求重画。</p>' +
-          '<pre><code class="language-r">qd &lt;- hte_shap_data(sv)\nutils::write.csv(qd, "15_shap_values.csv", row.names = FALSE)\n\nggplot2::ggplot(qd, ggplot2::aes(x = value, y = shap)) +\n  ggplot2::geom_point(alpha = 0.5, colour = "#1B6CA8") +\n  ggplot2::geom_hline(yintercept = 0, linetype = 2, colour = "grey60") +\n  ggplot2::facet_wrap(~ variable, scales = "free_x") +\n  ggplot2::labs(x = "协变量取值", y = "SHAP 贡献",\n                title = "SHAP 依赖图（用导出数据自行绘制）") +\n  ggplot2::theme_minimal(base_size = 12)</code></pre>' +
-          '<div class="table-wrap"><table><thead><tr><th>绘图函数</th><th>对应的数据函数</th></tr></thead><tbody><tr><td><code>plot_hte_importance()</code></td><td><code>hte_feature_importance()</code></td></tr><tr><td><code>plot_hte_pdp()</code></td><td><code>hte_pdp()</code></td></tr><tr><td><code>plot_hte_shap()</code></td><td><code>hte_shap_data()</code></td></tr><tr><td><code>plot_hte_benchmark()</code></td><td><code>hte_benchmark_data()</code></td></tr><tr><td><code>plot_qini()</code></td><td><code>qini_curve()</code></td></tr><tr><td><code>mlr3HTE_dag()</code></td><td><code>mlr3HTE_dag_data()</code></td></tr></tbody></table></div>'
-      },
-      {
-        id: "survival",
-        heading: "九、生存结局同样可解释",
-        body:
-          '<pre><code class="language-r">s &lt;- mlr3HTE_scenario("rct_lin", "survival", n = 400, seed = 1)\nfit_s &lt;- metalearner("T", s$X, s$A, s$Y, learner_base = "coxph", t0 = s$t0)\nex_s &lt;- hte_explainer(fit_s, s$X, s$A, s$Y, t0 = s$t0,\n                     effect = "survdiff", seed = 1)\nlength(ex_s$pseudo)\nex_s$t0\nhte_feature_importance(ex_s, B = 5, N = 400, seed = 1)</code></pre><pre><code class="r-out">[1] 400\n[1] 2\n  variable dropout_loss baseline      dropout dropout_pct\n4    tumor     1.183836 1.170557 1.327878e-02 1.134398187\n2      lac     1.181124 1.170557 1.056649e-02 0.902689305\n3      sex     1.172480 1.170557 1.922358e-03 0.164225871\n1      age     1.170578 1.170557 2.079801e-05 0.001776762</code></pre>' +
-          '<div class="callout warn"><div class="callout-title">使用要点</div><p>生存分支的伪结局已用删失 IPCW 校正，效应标尺由 <code>effect</code> 指定（<code>"survdiff"</code> 或 <code>"rmst"</code>）。切换标尺会改变伪结局的量纲，重要性排序也可能随之改变，报告时须写明。</p></div>'
-      },
-      {
-        id: "boundary",
-        heading: "十、能力边界",
-        body:
-          '<ol class="ref-list"><li>可解释性工具解释的是<strong>模型</strong>，不是数据生成机制。模型错了，解释再漂亮也是错的。</li><li>变量重要性不构成因果结论。判断某变量是否真为效应修饰因子，需要设计层面的证据（随机化下的分层分析、预先设定的交互项检验），或在目标试验模拟框架下预先申明。</li><li>SHAP 的可加性是数学恒等式，不保证各分项可单独干预。</li><li>偏依赖在观测支撑集之外做外推；协变量相关时应改用 ALE。</li></ol>'
-      }
-    ]
-  },
-  en: {
-    title: "8 Interpreting the CATE model",
-    lede: 'Treat the estimated CATE surface as a model to be explained: which variables drive effect heterogeneity, how the effect varies with a covariate, and which variables push an individual\'s effect up or down. The object of explanation is the doubly robust pseudo-outcome, not the raw outcome.',
-    sections: [
-      {
-        id: "target",
-        heading: "1. The object of explanation",
-        body:
-          '<p>Interpretability tools measure the relationship between the <strong>response</strong> and the model\'s predictions. With the raw outcome <code>Y</code> as the response, permutation importance and partial dependence measure a variable\'s contribution to the baseline prognosis <code>mu(X)</code>: a strong prognostic factor tops the ranking even when it does not modify the effect at all. That is a different question from who benefits more.</p>' +
-          '<p>The doubly robust pseudo-outcome <code>Y*</code> satisfies <code>E[Y*|X] = tau(X)</code>, so its conditional expectation is the CATE. Using <code>Y*</code> as the response makes permutation importance and partial dependence quantify effect heterogeneity instead. <code>hte_explainer()</code> calls <code>dr_pseudo_outcome()</code> automatically when <code>pseudo</code> is not supplied.</p>'
-      },
-      {
-        id: "fit",
-        heading: "2. Check estimation quality first",
-        body:
-          '<p>Explaining a poorly fitted CATE surface is meaningless. The first step is always to check how close the estimates are to the truth.</p>' +
-          '<pre><code class="language-r">d &lt;- mlr3HTE_scenario("rct_nonlin", "continuous", n = 600, seed = 1)\nfit &lt;- metalearner("T", d$X, d$A, d$Y,\n                   learner_base = lrn("regr.ranger", num.trees = 300))\ntau_hat &lt;- fit$predict(d$X)\nc(ate_hat = mean(tau_hat), ate_true = d$ate,\n  cor = round(cor(tau_hat, d$tau), 3))</code></pre><pre><code class="r-out"> ate_hat ate_true      cor\n1.116643 1.002500 0.769000</code></pre>' +
-          '<div class="callout warn"><div class="callout-title">Notes</div><p>Only out-of-sample correlation is trustworthy; in-sample values are systematically inflated. The 0.769 above is an in-sample figure used for demonstration only — formal comparisons should use an explicit split as in Tutorial 7.</p></div>'
-      },
-      {
-        id: "explainer",
-        heading: "3. Wrapping it as a DALEX explainer",
-        body:
-          '<pre><code class="language-r">ex &lt;- hte_explainer(fit, d$X, d$A, d$Y, seed = 1)\nlength(ex$pseudo)\nround(cor(ex$pseudo, d$tau), 3)</code></pre><pre><code class="r-out">[1] 600\n[1] 0.39</code></pre>' +
-          '<p>The pseudo-outcome is an unbiased but high-variance individual-level estimate: its correlation with the true <code>tau</code> is only 0.39 above. That does not disqualify it as an explanation target, because <code>E[Y*|X] = tau(X)</code> is a property of the <strong>conditional expectation</strong> rather than of individual noise. For point-wise accuracy, consult the metalearner\'s CATE estimate instead.</p>'
-      },
-      {
-        id: "surrogate",
-        heading: "4. Surrogate model",
-        body:
-          '<p>When the CATE surface comes from a multi-stage, weighted, cross-fitted procedure whose structure resists direct reading, a single learner can refit it into an interpretable surrogate.</p>' +
-          '<pre><code class="language-r">sur &lt;- hte_surrogate(d$X, tau_hat)\nsur$learner_id\nround(cor(sur$predict(d$X), tau_hat), 3)</code></pre><pre><code class="r-out">[1] "regr.ranger"\n[1] 0.937</code></pre>' +
-          '<div class="callout warn"><div class="callout-title">Notes</div><p>The surrogate serves explanation and visualisation only; it should not replace the original metalearner for effect estimation, because compressing a multi-stage procedure into a single regression necessarily loses precision (the correlation of 0.937 above does not imply equivalence).</p></div>'
-      },
-      {
-        id: "importance",
-        heading: "5. Permutation importance",
-        body:
-          '<p>How much the loss against the pseudo-outcome rises after a covariate is randomly permuted. A larger rise means the model relies more on that variable to discriminate individual effects.</p>' +
-          '<pre><code class="language-r">imp &lt;- hte_feature_importance(ex, B = 10, N = 600, seed = 1)\nimp</code></pre><pre><code class="r-out">  variable dropout_loss baseline    dropout dropout_pct\n2      lac     2.232817 1.657445 0.57537262   34.714435\n4    tumor     2.158512 1.657445 0.50106702   30.231294\n1      age     1.974394 1.657445 0.31694939   19.122771\n3      sex     1.746382 1.657445 0.08893715    5.365919</code></pre>' +
-          '<pre><code class="language-r">p_imp &lt;- plot_hte_importance(imp)\nggplot2::ggsave("15_importance.png", p_imp, width = 7, height = 4, dpi = 150)</code></pre>' +
-          '<div class="callout warn"><div class="callout-title">Notes</div><p>This explains the <strong>model</strong>, not a causal decomposition. High importance means only that the model relied on the variable; it does not establish that the variable truly modifies the treatment effect, which requires design-level evidence such as a stratified analysis under randomisation or a pre-specified interaction test.</p></div>' +
-          '<figure class="fig"><img src="assets/img/explain/tut_importance.png" alt="Bar chart of permutation importance">' +
-          '<figcaption>Actual run of tutorial script 15: continuous outcome, n = 600, T-learner with <code>regr.ranger</code>, <code>B = 10</code>, <code>N = 600</code>, seed 1.</figcaption></figure>'
-      },
-      {
-        id: "pdp",
-        heading: "6. Partial dependence and accumulated local effects",
-        body:
-          '<p>Fix a covariate at successive grid points while holding the others at their observed distribution, and record how the average predicted CATE changes. This answers directly how the effect varies with that variable.</p>' +
-          '<pre><code class="language-r">pd &lt;- hte_pdp(ex, variables = "lac", grid_points = 40)\nutils::head(pd, 6)</code></pre><pre><code class="r-out">  variable           x      yhat    type\n1      lac -1.35582624 0.7757646 partial\n2      lac -0.08519213 0.3333775 partial\n3      lac  0.35384536 0.3611582 partial\n4      lac  0.67263365 0.2769214 partial\n5      lac  0.84518778 0.3285855 partial\n6      lac  0.99896256 0.1739816 partial</code></pre>' +
-          '<pre><code class="language-r"># 协变量相关时 PDP 会在观测支撑集之外外推，ALE 更稳健\npd_ale &lt;- hte_pdp(ex, variables = "lac", grid_points = 40,\n                  type = "accumulated")\nutils::head(pd_ale, 3)</code></pre><pre><code class="r-out">  variable           x      yhat        type\n1      lac -1.35582624 0.9545599 accumulated\n2      lac -0.08519213 0.4735859 accumulated\n3      lac  0.35384536 0.4951885 accumulated</code></pre>' +
-          '<div class="callout warn"><div class="callout-title">Notes</div><p><code>hte_pdp()</code> defaults to <code>center = FALSE</code>, keeping the <strong>absolute</strong> average predicted CATE on the vertical axis. That matters here: a curve oscillating about zero conceals the effect level itself, and an average benefit of 1.2 is a very different clinical statement from one of 0.2. DALEX\'s <code>model_profile()</code> defaults to <code>center = TRUE</code>; this package overrides it explicitly.</p></div>' +
-          '<figure class="fig"><img src="assets/img/explain/tut_pdp.png" alt="Partial dependence curve for lac">' +
-          '<figcaption>Partial dependence of <code>lac</code> (40 grid points) under the same setup. The vertical axis is not centred, so it reads as the absolute mean predicted CATE.</figcaption></figure>'
-      },
-      {
-        id: "shap",
-        heading: "7. Kernel SHAP",
-        body:
-          '<p>SHAP decomposes each individual CATE into a baseline plus per-covariate contributions, giving both <strong>global importance</strong> (the spread of contributions) and <strong>local attribution</strong> (each variable\'s contribution for one individual). Partial dependence cannot provide this.</p>' +
-          '<pre><code class="language-r">sv &lt;- hte_shap(ex, n_background = 100, seed = 1)\nutils::head(hte_shap_data(sv), 4)\nattr(hte_shap_data(sv), "baseline")</code></pre><pre><code class="r-out">  id variable    value       shap\n1  1      age 52.48255 -0.1364983\n2  2      age 62.20372 -0.5994672\n3  3      age 49.97246 -0.2239525\n4  4      age 79.14337 -0.1643312\n[1] 1.261608</code></pre>' +
-          '<p>Additivity is a direct check on the implementation: <code>phi_0 + sum(phi_j)</code> must equal the model\'s prediction for that individual, with a residual at machine precision.</p>' +
-          '<pre><code class="language-r">S &lt;- as.matrix(sv$S)\nmax(abs(as.numeric(sv$baseline) + rowSums(S) - tau_hat))</code></pre><pre><code class="r-out">[1] 4.440892e-16</code></pre>' +
-          '<pre><code class="language-r">plot_hte_shap(sv, "beeswarm")\nplot_hte_shap(sv, "dependence", variable = "lac")\nplot_hte_shap(sv, "waterfall", variable = 1)</code></pre>' +
-          '<div class="callout warn"><div class="callout-title">Notes</div><p>With a small number of covariates <em>p</em>, Kernel SHAP enumerates all <code>2^p</code> coalitions exactly; for larger <em>p</em>, kernelshap switches to a sampling approximation and results fluctuate slightly with <code>seed</code>. Fix the seed when reporting.</p></div>' +
-          '<div class="fig-grid">' +
-          '<figure class="fig"><img src="assets/img/explain/tut_shap_beeswarm.png" alt="SHAP beeswarm"><figcaption>Beeswarm: global importance against the joint distribution of covariate values.</figcaption></figure>' +
-          '<figure class="fig"><img src="assets/img/explain/tut_shap_dependence.png" alt="SHAP dependence"><figcaption>Dependence: value of <code>lac</code> against its SHAP contribution; monotone stretches mark the linear region of the effect modification.</figcaption></figure>' +
-          '<figure class="fig"><img src="assets/img/explain/tut_shap_waterfall.png" alt="SHAP waterfall"><figcaption>Waterfall: term-by-term attribution for individual 1.</figcaption></figure>' +
-          '</div>'
-      },
-      {
-        id: "export",
-        heading: "8. Separating plot from data",
-        body:
-          '<p>Every <code>plot_*</code> function returns a <strong>ggplot object</strong> that can be extended with <code>+</code> and exported with <code>ggsave()</code>; the underlying data is available separately for writing to disk. Keeping the two apart makes it straightforward to redraw figures to a journal\'s specification.</p>' +
-          '<pre><code class="language-r">qd &lt;- hte_shap_data(sv)\nutils::write.csv(qd, "15_shap_values.csv", row.names = FALSE)\n\nggplot2::ggplot(qd, ggplot2::aes(x = value, y = shap)) +\n  ggplot2::geom_point(alpha = 0.5, colour = "#1B6CA8") +\n  ggplot2::geom_hline(yintercept = 0, linetype = 2, colour = "grey60") +\n  ggplot2::facet_wrap(~ variable, scales = "free_x") +\n  ggplot2::labs(x = "协变量取值", y = "SHAP 贡献",\n                title = "SHAP 依赖图（用导出数据自行绘制）") +\n  ggplot2::theme_minimal(base_size = 12)</code></pre>' +
-          '<div class="table-wrap"><table><thead><tr><th>Plot function</th><th>Corresponding data function</th></tr></thead><tbody><tr><td><code>plot_hte_importance()</code></td><td><code>hte_feature_importance()</code></td></tr><tr><td><code>plot_hte_pdp()</code></td><td><code>hte_pdp()</code></td></tr><tr><td><code>plot_hte_shap()</code></td><td><code>hte_shap_data()</code></td></tr><tr><td><code>plot_hte_benchmark()</code></td><td><code>hte_benchmark_data()</code></td></tr><tr><td><code>plot_qini()</code></td><td><code>qini_curve()</code></td></tr><tr><td><code>mlr3HTE_dag()</code></td><td><code>mlr3HTE_dag_data()</code></td></tr></tbody></table></div>'
-      },
-      {
-        id: "survival",
-        heading: "9. Survival outcomes too",
-        body:
-          '<pre><code class="language-r">s &lt;- mlr3HTE_scenario("rct_lin", "survival", n = 400, seed = 1)\nfit_s &lt;- metalearner("T", s$X, s$A, s$Y, learner_base = "coxph", t0 = s$t0)\nex_s &lt;- hte_explainer(fit_s, s$X, s$A, s$Y, t0 = s$t0,\n                     effect = "survdiff", seed = 1)\nlength(ex_s$pseudo)\nex_s$t0\nhte_feature_importance(ex_s, B = 5, N = 400, seed = 1)</code></pre><pre><code class="r-out">[1] 400\n[1] 2\n  variable dropout_loss baseline      dropout dropout_pct\n4    tumor     1.183836 1.170557 1.327878e-02 1.134398187\n2      lac     1.181124 1.170557 1.056649e-02 0.902689305\n3      sex     1.172480 1.170557 1.922358e-03 0.164225871\n1      age     1.170578 1.170557 2.079801e-05 0.001776762</code></pre>' +
-          '<div class="callout warn"><div class="callout-title">Notes</div><p>In the survival branch the pseudo-outcome is corrected for censoring by IPCW, and the effect scale is set by <code>effect</code> (<code>"survdiff"</code> or <code>"rmst"</code>). Changing the scale changes the units of the pseudo-outcome and may change the importance ranking, so the choice must be stated.</p></div>'
-      },
-      {
-        id: "boundary",
-        heading: "10. Limits",
-        body:
-          '<ol class="ref-list"><li>Interpretability tools explain the <strong>model</strong>, not the data-generating mechanism. If the model is wrong, an elegant explanation is still wrong.</li><li>Variable importance is not a causal conclusion. Establishing that a variable truly modifies the effect requires design-level evidence (stratified analysis under randomisation, a pre-specified interaction test) or a pre-specified estimand in a target trial emulation.</li><li>SHAP additivity is a mathematical identity; it does not license intervening on individual components.</li><li>Partial dependence extrapolates beyond the observed support; use ALE when covariates are correlated.</li></ol>'
       }
     ]
   }
