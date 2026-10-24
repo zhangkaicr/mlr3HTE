@@ -8,7 +8,7 @@ skip_if_not_installed("shapviz")
   d <- mlr3HTE_scenario("obs_lin_lin_sharedT", "continuous", n = n, seed = seed)
   fit <- metalearner("T", d$X, d$A, d$Y,
                      learner_base = mlr3::lrn("regr.ranger", num.trees = 120),
-                     weighting = "iptw")
+                     )
   list(d = d, fit = fit)
 }
 

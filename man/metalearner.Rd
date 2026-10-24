@@ -12,9 +12,6 @@ metalearner(
   learner_base = mlr3::lrn("regr.ranger"),
   learner_tau = NULL,
   learner_ps = NULL,
-  weighting = "none",
-  weights = NULL,
-  stabilize = FALSE,
   t0 = NULL,
   outcome = "auto",
   effect = "survdiff",
@@ -43,13 +40,17 @@ metalearner(
 regr.ranger（min.node.size = 50）。X-Learner 的两个效应回归可分别指定：
 \code{list(tau1 = ..., tau0 = ...)}；其余 learner 传单个 learner 即可。}
 
-\item{learner_ps}{倾向得分学习器（IPTW 时用，默认 classif.log_reg）}
-
-\item{weighting}{"none"（RCT）/ "iptw" / "external"}
-
-\item{weights}{当 weighting = "external" 时的权重向量}
-
-\item{stabilize}{IPTW 是否使用稳定化权重}
+\item{learner_ps}{倾向得分。仅 X / R / DR 使用，S / T 忽略（它们是纯结局回归，
+去混杂靠把混杂因子放进 \code{X} 条件化）。三种形态：
+\describe{
+\item{mlr3 分类学习器}{内部拟合，观察性数据的默认做法；不指定时用
+\code{classif.log_reg}}
+\item{标量}{常数倾向得分，用于 RCT 已知随机化概率（如 \code{0.5}），
+也免掉拟计入的噪声}
+\item{函数}{用户自建的 \code{function(newX)}，例如用别的包估好后封起来}
+}
+注意 X-learner 的 \code{g(x)} 融合、R 的 Robinson 中心化、DR 的 AIPW 伪结果
+都把 \code{e(x)} 当作算法定义的必需输入——它们\strong{不是}可开关的去混杂加权。}
 
 \item{t0}{生存结局的效应评估时点，默认取事件时间中位数}
 
@@ -91,10 +92,37 @@ regr.ranger（min.node.size = 50）。X-Learner 的两个效应回归可分别�
 例如 T-Learner 可用 \code{list(treated = lrn("regr.lm"), control = lrn("regr.ranger"))}
 让两组用不同模型；X-Learner 还能用 \code{list(tau1 = ..., tau0 = ...)} 分开两个效应回归。
 }
+\section{观察性数据与「加权」的设计边界}{
+
+本包\strong{不提供} \code{weighting} / \code{weights} / \code{stabilize} 参数（v0.40 起移除）。
+理由是：经典 metalearner 文献（Künzel et al. 2019 PNAS 的 X-learner，以及 CausalML 的
+BaseS / BaseT / BaseX）从不给 S/T/X 的结局模型套逆概率权重。各 learner 处理混杂的
+方式各不相同，且都写在各自的定义里：
+\describe{
+\item{S / T / X}{靠\strong{把混杂因子放进 \code{X}}、由结局模型条件化。
+漏掉混杂因子时偏倚与朴素估计相同——加任何权重都救不回来}
+\item{R}{Robinson 残差化：结局与处理都对 \code{X} 取残差后回归}
+\item{DR}{AIPW 双重稳健伪结果：只要 \code{(m1, m0)} 或 \code{e(x)} 之一设定正确
+就一致，是观察性数据下最稳健的选择}
+}
+一个只会重估结局模型的「单稳健」加权既不是文献做法，也无法单独去混杂，
+因此不再保留。生存结局另有\strong{删矢 IPCW}（\code{effect = "survdiff"} 时乘在个体结局
+\code{I(T > t0)} 上），那是估计量对删矢的标准处理，不是用户可开关的选项。
+}
+
 \examples{
+# RCT：默认即可，无需任何加权
 d <- mlr3HTE_demo_data(n = 500, seed = 1)
 fit <- metalearner("T", d$X, d$A, d$Y, learner_base = mlr3::lrn("regr.lm"))
 cor(fit$cate_train, d$tau)
+
+# 观察性数据：DR-Learner 默认内部拟合倾向得分，双重稳健
+dobs <- mlr3HTE_demo_obs(n = 800, seed = 1)
+fit_obs <- metalearner("DR", dobs$X, dobs$A, dobs$Y)
+fit_obs$ate                     # 对比 dobs$ate（真实 ATE）
+
+# RCT 已知随机化概率 0.5 时，可直接把常数倾向得分传给 X/R/DR
+fit_rct <- metalearner("X", d$X, d$A, d$Y, learner_ps = 0.5)
 }
 \seealso{
 \code{\link{s_learner}}, \code{\link{ml_task}}

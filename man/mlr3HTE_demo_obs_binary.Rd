@@ -4,10 +4,12 @@
 \alias{mlr3HTE_demo_obs_binary}
 \title{演示数据：二分类结局 + 观察性（混杂）}
 \usage{
-mlr3HTE_demo_obs_binary(n = 4000, seed = 1205)
+mlr3HTE_demo_obs_binary(n = 4000, strength = 1, seed = 1205)
 }
 \arguments{
 \item{n}{样本量，默认 4000}
+
+\item{strength}{混杂强度，默认 1；\code{0} 时等价 RCT}
 
 \item{seed}{随机种子}
 }

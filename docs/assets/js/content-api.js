@@ -23,9 +23,6 @@ window.SITE_PAGES.apimetalearner = {
           '            learner_base = lrn("regr.ranger"),\n' +
           '            learner_tau  = NULL,\n' +
           '            learner_ps   = NULL,\n' +
-          '            weighting    = "none",\n' +
-          '            weights      = NULL,\n' +
-          '            stabilize    = FALSE,\n' +
           '            t0           = NULL,\n' +
           '            outcome      = "auto")</div>' +
           '<div class="table-wrap"><table class="fn-args">' +
@@ -37,13 +34,16 @@ window.SITE_PAGES.apimetalearner = {
           '<tr><td><code>Y</code></td><td>结局：数值 / 0-1 或两水平因子 / <code>Surv</code> 对象</td></tr>' +
           '<tr><td><code>learner_base</code></td><td>结局模型基学习器。连续 → <code>regr.*</code>；二分类 → <code>classif.*</code>；生存 → <code>"coxph"</code> / <code>"ranger"</code>。也接受按角色命名的 list（见下）。</td></tr>' +
           '<tr><td><code>learner_tau</code></td><td>效应阶段回归学习器（X/R/DR 用）。<code>NULL</code> 时引擎建 <code>regr.ranger(min.node.size = 50)</code>；也接受命名 list。</td></tr>' +
-          '<tr><td><code>learner_ps</code></td><td>倾向得分学习器；<code>weighting="iptw"</code> 时默认 <code>classif.log_reg</code></td></tr>' +
-          '<tr><td><code>weighting</code></td><td><code>"none"</code>（RCT）/ <code>"iptw"</code> / <code>"external"</code></td></tr>' +
-          '<tr><td><code>weights</code></td><td><code>weighting="external"</code> 时的权重向量（必填）</td></tr>' +
-          '<tr><td><code>stabilize</code></td><td>IPTW 是否用稳定化权重（默认 <code>FALSE</code>）</td></tr>' +
+          '<tr><td><code>learner_ps</code></td><td>倾向得分，<strong>仅 X / R / DR 使用</strong>（S / T 忽略）。三种形态：mlr3 分类学习器（默认 <code>classif.log_reg</code>）、常数标量（RCT 已知随机化概率，如 <code>0.5</code>）、或 <code>function(newX)</code>。</td></tr>' +
           '<tr><td><code>t0</code></td><td>生存结局的效应评估时点；<code>NULL</code> 时取事件时间中位数</td></tr>' +
           '<tr><td><code>outcome</code></td><td><code>"auto"</code> / <code>"continuous"</code> / <code>"binary"</code> / <code>"survival"</code></td></tr>' +
           '</tbody></table></div>' +
+          '<div class="callout warn"><div class="callout-title">v0.40 破坏性变更</div>' +
+          '<p><code>weighting</code> / <code>weights</code> / <code>stabilize</code> 三个参数已移除。' +
+          '经典 metalearner 文献（Künzel et al. 2019 PNAS、CausalML 的 BaseS/BaseT/BaseX）从不给 ' +
+          'S/T/X 的结局模型套逆概率权重；只会重估结局模型的「单稳健」加权既不是文献做法，' +
+          '也无法单独去混杂。去混杂现在写在各 learner 的定义里：S/T/X 把混杂因子放进 <code>X</code> ' +
+          '条件化，R 走 Robinson 残差化，DR 走 AIPW 双重稳健。</p></div>' +
           '<h4>按角色命名 list（v0.22+）</h4>' +
           '<p><code>learner_base</code> / <code>learner_tau</code> 既能传单个 mlr3 learner（所有分组 / 阶段共用），' +
           '也能传<strong>按角色命名的 list</strong>：</p>' +
@@ -57,7 +57,8 @@ window.SITE_PAGES.apimetalearner = {
           '<div class="callout"><div class="callout-title">护栏</div>' +
           '<p>S / R / DR 与 <code>engine = "survlearners"</code> 只接受单个 learner，传命名 list 会明确报错。</p></div>' +
           '<p><strong>返回</strong>：list，含 <code>$predict(newX)</code>、<code>$ate</code>、' +
-          '<code>$cate_train</code>、<code>$type</code>、<code>$outcome</code>、<code>$weighting</code>、<code>$t0</code>。</p>' +
+          '<code>$cate_train</code>、<code>$models</code>（每阶段训练好的 mlr3 模型）、' +
+          '<code>$type</code>、<code>$outcome</code>、<code>$t0</code>。</p>' +
           '<pre><code class="language-r">fit &lt;- metalearner("T", X, A, Y,\n' +
           '                   learner_base = lrn("regr.ranger", num.trees = 300, seed = 1))\n' +
           'fit$ate\n' +
@@ -80,9 +81,6 @@ window.SITE_PAGES.apimetalearner = {
           '            learner_base = lrn("regr.ranger"),\n' +
           '            learner_tau  = NULL,\n' +
           '            learner_ps   = NULL,\n' +
-          '            weighting    = "none",\n' +
-          '            weights      = NULL,\n' +
-          '            stabilize    = FALSE,\n' +
           '            t0           = NULL,\n' +
           '            outcome      = "auto")</div>' +
           '<div class="table-wrap"><table class="fn-args">' +
@@ -94,13 +92,18 @@ window.SITE_PAGES.apimetalearner = {
           '<tr><td><code>Y</code></td><td>Outcome: numeric / 0–1 or two-level factor / <code>Surv</code> object</td></tr>' +
           '<tr><td><code>learner_base</code></td><td>Outcome-model base learner. Continuous → <code>regr.*</code>; binary → <code>classif.*</code>; survival → <code>"coxph"</code> / <code>"ranger"</code>. Also accepts a per-role named list (see below).</td></tr>' +
           '<tr><td><code>learner_tau</code></td><td>Stage-2 regression learner (for X/R/DR). <code>NULL</code> builds <code>regr.ranger(min.node.size = 50)</code>; also accepts a named list.</td></tr>' +
-          '<tr><td><code>learner_ps</code></td><td>Propensity-score learner; defaults to <code>classif.log_reg</code> when <code>weighting="iptw"</code></td></tr>' +
-          '<tr><td><code>weighting</code></td><td><code>"none"</code> (RCT) / <code>"iptw"</code> / <code>"external"</code></td></tr>' +
-          '<tr><td><code>weights</code></td><td>Weight vector, required when <code>weighting="external"</code></td></tr>' +
-          '<tr><td><code>stabilize</code></td><td>Use stabilised IPTW weights (default <code>FALSE</code>)</td></tr>' +
+          '<tr><td><code>learner_ps</code></td><td>Propensity score, <strong>used by X / R / DR only</strong> (ignored by S / T). Three forms: an mlr3 classification learner (default <code>classif.log_reg</code>), a constant scalar (known randomisation probability in an RCT, e.g. <code>0.5</code>), or <code>function(newX)</code>.</td></tr>' +
           '<tr><td><code>t0</code></td><td>Horizon for survival effects; <code>NULL</code> uses the median event time</td></tr>' +
           '<tr><td><code>outcome</code></td><td><code>"auto"</code> / <code>"continuous"</code> / <code>"binary"</code> / <code>"survival"</code></td></tr>' +
           '</tbody></table></div>' +
+          '<div class="callout warn"><div class="callout-title">Breaking change in v0.40</div>' +
+          '<p>The <code>weighting</code> / <code>weights</code> / <code>stabilize</code> arguments ' +
+          'were removed. The classic meta-learner literature (Künzel et al. 2019 PNAS; CausalML ' +
+          'BaseS/BaseT/BaseX) never applies inverse-probability weights to the S/T/X outcome models, ' +
+          'and a "singly robust" weighting that only re-fits the outcome model is neither standard ' +
+          'practice nor able to deconfound on its own. Deconfounding now lives in each learner\'s ' +
+          'definition: S/T/X condition on confounders placed in <code>X</code>, R uses Robinson ' +
+          'residualisation, DR uses AIPW double robustness.</p></div>' +
           '<h4>Per-role named list (v0.22+)</h4>' +
           '<p><code>learner_base</code> / <code>learner_tau</code> accept either a single mlr3 learner ' +
           '(shared by all groups / stages) or a <strong>per-role named list</strong>:</p>' +
@@ -114,8 +117,8 @@ window.SITE_PAGES.apimetalearner = {
           '<div class="callout"><div class="callout-title">Guardrail</div>' +
           '<p>S / R / DR and <code>engine = "survlearners"</code> accept only a single learner; passing a named list raises an explicit error.</p></div>' +
           '<p><strong>Returns</strong> a list with <code>$predict(newX)</code>, <code>$ate</code>, ' +
-          '<code>$cate_train</code>, <code>$type</code>, <code>$outcome</code>, ' +
-          '<code>$weighting</code> and <code>$t0</code>.</p>' +
+          '<code>$cate_train</code>, <code>$models</code> (one trained mlr3 model per stage and ' +
+          'algorithm), <code>$type</code>, <code>$outcome</code> and <code>$t0</code>.</p>' +
           '<pre><code class="language-r">fit &lt;- metalearner("T", X, A, Y,\n' +
           '                   learner_base = lrn("regr.ranger", num.trees = 300, seed = 1))\n' +
           'fit$ate\n' +
@@ -205,8 +208,7 @@ window.SITE_PAGES.apilearner = {
           '<div class="fn">' +
           '<div class="fn-name">lrn("regr.metalearner")<span class="badge">mlr3 工作流</span></div>' +
           '<div class="fn-sig">lrn("regr.metalearner", id = NULL,\n' +
-          '    metalearner = "T",      # 可调参数\n' +
-          '    weighting   = "none")   # 可调参数</div>' +
+          '    metalearner = "T")      # 可调参数</div>' +
           '<p>CATE 是连续量，所以只有<strong>一个</strong> Learner 类，三类结局通用' +
           '（结局类型由 <code>ml_task()</code> 写进 <code>extra_args</code>）。</p>' +
           '<h4>可调参数（可进 <code>tune()</code>）</h4>' +
@@ -214,7 +216,6 @@ window.SITE_PAGES.apilearner = {
           '<thead><tr><th>参数</th><th>取值</th></tr></thead>' +
           '<tbody>' +
           '<tr><td><code>metalearner</code></td><td>S / T / X / R / DR</td></tr>' +
-          '<tr><td><code>weighting</code></td><td>none / iptw / external</td></tr>' +
           '</tbody></table></div>' +
           '<h4>可调字段（R6 public field，不是 param）</h4>' +
           '<div class="table-wrap"><table>' +
@@ -222,11 +223,10 @@ window.SITE_PAGES.apilearner = {
           '<tbody>' +
           '<tr><td><code>learner_base</code></td><td>结局模型基学习器（支持按角色命名 list）</td></tr>' +
           '<tr><td><code>learner_tau</code></td><td>效应阶段回归学习器（支持按角色命名 list）</td></tr>' +
-          '<tr><td><code>learner_ps</code></td><td>倾向得分学习器</td></tr>' +
+          '<tr><td><code>learner_ps</code></td><td>倾向得分（X/R/DR 用）：mlr3 分类学习器 / 常数标量 / <code>function(newX)</code></td></tr>' +
           '<tr><td><code>treatment_col</code></td><td>处理列名，默认 <code>"A"</code></td></tr>' +
           '<tr><td><code>status_col</code></td><td>生存事件指示列名，默认 <code>".status"</code></td></tr>' +
           '<tr><td><code>t0</code></td><td>生存效应时点</td></tr>' +
-          '<tr><td><code>stabilize</code></td><td>IPTW 是否用稳定化权重</td></tr>' +
           '</tbody></table></div>' +
           '<div class="callout warn"><div class="callout-title">为什么用字段而不是参数</div>' +
           '<p>paradox 1.0 的 <code>p_uty()</code> 只能存函数或 NULL，<strong>存不下 Learner 对象</strong>，' +
@@ -256,8 +256,7 @@ window.SITE_PAGES.apilearner = {
           '<div class="fn">' +
           '<div class="fn-name">lrn("regr.metalearner")<span class="badge">mlr3 workflows</span></div>' +
           '<div class="fn-sig">lrn("regr.metalearner", id = NULL,\n' +
-          '    metalearner = "T",      # tunable\n' +
-          '    weighting   = "none")   # tunable</div>' +
+          '    metalearner = "T")      # tunable</div>' +
           '<p>CATE is a continuous quantity, so there is only <strong>one</strong> Learner class, ' +
           'shared by all three outcome types (the outcome type comes from ' +
           '<code>ml_task()</code> via <code>extra_args</code>).</p>' +
@@ -266,7 +265,6 @@ window.SITE_PAGES.apilearner = {
           '<thead><tr><th>Param</th><th>Values</th></tr></thead>' +
           '<tbody>' +
           '<tr><td><code>metalearner</code></td><td>S / T / X / R / DR</td></tr>' +
-          '<tr><td><code>weighting</code></td><td>none / iptw / external</td></tr>' +
           '</tbody></table></div>' +
           '<h4>Public fields (not params)</h4>' +
           '<div class="table-wrap"><table>' +
@@ -274,11 +272,10 @@ window.SITE_PAGES.apilearner = {
           '<tbody>' +
           '<tr><td><code>learner_base</code></td><td>Outcome-model base learner (per-role named list supported)</td></tr>' +
           '<tr><td><code>learner_tau</code></td><td>Stage-2 regression learner (per-role named list supported)</td></tr>' +
-          '<tr><td><code>learner_ps</code></td><td>Propensity-score learner</td></tr>' +
+          '<tr><td><code>learner_ps</code></td><td>Propensity score (for X/R/DR): mlr3 classification learner / constant scalar / <code>function(newX)</code></td></tr>' +
           '<tr><td><code>treatment_col</code></td><td>Treatment column name, default <code>"A"</code></td></tr>' +
           '<tr><td><code>status_col</code></td><td>Survival event column name, default <code>".status"</code></td></tr>' +
           '<tr><td><code>t0</code></td><td>Survival effect horizon</td></tr>' +
-          '<tr><td><code>stabilize</code></td><td>Use stabilised IPTW weights</td></tr>' +
           '</tbody></table></div>' +
           '<div class="callout warn"><div class="callout-title">Why fields instead of params</div>' +
           '<p>paradox 1.0\'s <code>p_uty()</code> only accepts functions or NULL — it ' +
@@ -326,7 +323,7 @@ window.SITE_PAGES.apis = {
           '<tr><td><code>A</code></td><td>处理指示（0/1 或逻辑）</td></tr>' +
           '<tr><td><code>Y</code></td><td>结局：连续数值、0/1 二分类、或 <code>survival::Surv(time, status)</code></td></tr>' +
           '<tr><td><code>learner_base</code></td><td>基学习器；默认 <code>regr.ranger</code>。<strong>二分类结局必须换 classif.*</strong>（并把 <code>predict_type = "prob"</code> 设好），生存结局用 <code>"coxph"</code> / <code>"ranger"</code></td></tr>' +
-          '<tr><td><code>...</code></td><td>其余参数原样转给 <code>metalearner()</code>（<code>t0</code>、<code>weighting</code>、<code>learner_tau</code> 等）</td></tr>' +
+          '<tr><td><code>...</code></td><td>其余参数原样转给 <code>metalearner()</code>（<code>t0</code>、<code>learner_ps</code>、<code>learner_tau</code> 等）</td></tr>' +
           '</tbody></table></div></div>'
       },
       {
@@ -381,7 +378,7 @@ window.SITE_PAGES.apis = {
           '<tr><td><code>A</code></td><td>Treatment indicator (0/1 or logical)</td></tr>' +
           '<tr><td><code>Y</code></td><td>Outcome: continuous, 0/1 binary, or <code>survival::Surv(time, status)</code></td></tr>' +
           '<tr><td><code>learner_base</code></td><td>Base learner; default <code>regr.ranger</code>. <strong>Binary outcomes need classif.*</strong> (with <code>predict_type = "prob"</code> set); survival uses <code>"coxph"</code> / <code>"ranger"</code></td></tr>' +
-          '<tr><td><code>...</code></td><td>Everything else passes straight through to <code>metalearner()</code> (<code>t0</code>, <code>weighting</code>, <code>learner_tau</code>, ...)</td></tr>' +
+          '<tr><td><code>...</code></td><td>Everything else passes straight through to <code>metalearner()</code> (<code>t0</code>, <code>learner_ps</code>, <code>learner_tau</code>, ...)</td></tr>' +
           '</tbody></table></div></div>'
       },
       {
@@ -440,7 +437,7 @@ window.SITE_PAGES.apit = {
           '<tr><td><code>A</code></td><td>处理指示（0/1 或逻辑）</td></tr>' +
           '<tr><td><code>Y</code></td><td>结局：连续数值、0/1 二分类、或 <code>survival::Surv(time, status)</code></td></tr>' +
           '<tr><td><code>learner_base</code></td><td>基学习器；默认 <code>regr.ranger</code>。<strong>二分类结局必须换 classif.*</strong>（并把 <code>predict_type = "prob"</code> 设好），生存结局用 <code>"coxph"</code> / <code>"ranger"</code></td></tr>' +
-          '<tr><td><code>...</code></td><td>其余参数原样转给 <code>metalearner()</code>（<code>t0</code>、<code>weighting</code>、<code>learner_tau</code> 等）</td></tr>' +
+          '<tr><td><code>...</code></td><td>其余参数原样转给 <code>metalearner()</code>（<code>t0</code>、<code>learner_ps</code>、<code>learner_tau</code> 等）</td></tr>' +
           '</tbody></table></div></div>'
       },
       {
@@ -495,7 +492,7 @@ window.SITE_PAGES.apit = {
           '<tr><td><code>A</code></td><td>Treatment indicator (0/1 or logical)</td></tr>' +
           '<tr><td><code>Y</code></td><td>Outcome: continuous, 0/1 binary, or <code>survival::Surv(time, status)</code></td></tr>' +
           '<tr><td><code>learner_base</code></td><td>Base learner; default <code>regr.ranger</code>. <strong>Binary outcomes need classif.*</strong> (with <code>predict_type = "prob"</code> set); survival uses <code>"coxph"</code> / <code>"ranger"</code></td></tr>' +
-          '<tr><td><code>...</code></td><td>Everything else passes straight through to <code>metalearner()</code> (<code>t0</code>, <code>weighting</code>, <code>learner_tau</code>, ...)</td></tr>' +
+          '<tr><td><code>...</code></td><td>Everything else passes straight through to <code>metalearner()</code> (<code>t0</code>, <code>learner_ps</code>, <code>learner_tau</code>, ...)</td></tr>' +
           '</tbody></table></div></div>'
       },
       {
@@ -554,7 +551,7 @@ window.SITE_PAGES.apix = {
           '<tr><td><code>A</code></td><td>处理指示（0/1 或逻辑）</td></tr>' +
           '<tr><td><code>Y</code></td><td>结局：连续数值、0/1 二分类、或 <code>survival::Surv(time, status)</code></td></tr>' +
           '<tr><td><code>learner_base</code></td><td>基学习器；默认 <code>regr.ranger</code>。<strong>二分类结局必须换 classif.*</strong>（并把 <code>predict_type = "prob"</code> 设好），生存结局用 <code>"coxph"</code> / <code>"ranger"</code></td></tr>' +
-          '<tr><td><code>...</code></td><td>其余参数原样转给 <code>metalearner()</code>（<code>t0</code>、<code>weighting</code>、<code>learner_tau</code> 等）</td></tr>' +
+          '<tr><td><code>...</code></td><td>其余参数原样转给 <code>metalearner()</code>（<code>t0</code>、<code>learner_ps</code>、<code>learner_tau</code> 等）</td></tr>' +
           '</tbody></table></div></div>'
       },
       {
@@ -609,7 +606,7 @@ window.SITE_PAGES.apix = {
           '<tr><td><code>A</code></td><td>Treatment indicator (0/1 or logical)</td></tr>' +
           '<tr><td><code>Y</code></td><td>Outcome: continuous, 0/1 binary, or <code>survival::Surv(time, status)</code></td></tr>' +
           '<tr><td><code>learner_base</code></td><td>Base learner; default <code>regr.ranger</code>. <strong>Binary outcomes need classif.*</strong> (with <code>predict_type = "prob"</code> set); survival uses <code>"coxph"</code> / <code>"ranger"</code></td></tr>' +
-          '<tr><td><code>...</code></td><td>Everything else passes straight through to <code>metalearner()</code> (<code>t0</code>, <code>weighting</code>, <code>learner_tau</code>, ...)</td></tr>' +
+          '<tr><td><code>...</code></td><td>Everything else passes straight through to <code>metalearner()</code> (<code>t0</code>, <code>learner_ps</code>, <code>learner_tau</code>, ...)</td></tr>' +
           '</tbody></table></div></div>'
       },
       {
@@ -668,7 +665,7 @@ window.SITE_PAGES.apir = {
           '<tr><td><code>A</code></td><td>处理指示（0/1 或逻辑）</td></tr>' +
           '<tr><td><code>Y</code></td><td>结局：连续数值、0/1 二分类、或 <code>survival::Surv(time, status)</code></td></tr>' +
           '<tr><td><code>learner_base</code></td><td>基学习器；默认 <code>regr.ranger</code>。<strong>二分类结局必须换 classif.*</strong>（并把 <code>predict_type = "prob"</code> 设好），生存结局用 <code>"coxph"</code> / <code>"ranger"</code></td></tr>' +
-          '<tr><td><code>...</code></td><td>其余参数原样转给 <code>metalearner()</code>（<code>t0</code>、<code>weighting</code>、<code>learner_tau</code> 等）</td></tr>' +
+          '<tr><td><code>...</code></td><td>其余参数原样转给 <code>metalearner()</code>（<code>t0</code>、<code>learner_ps</code>、<code>learner_tau</code> 等）</td></tr>' +
           '</tbody></table></div></div>'
       },
       {
@@ -723,7 +720,7 @@ window.SITE_PAGES.apir = {
           '<tr><td><code>A</code></td><td>Treatment indicator (0/1 or logical)</td></tr>' +
           '<tr><td><code>Y</code></td><td>Outcome: continuous, 0/1 binary, or <code>survival::Surv(time, status)</code></td></tr>' +
           '<tr><td><code>learner_base</code></td><td>Base learner; default <code>regr.ranger</code>. <strong>Binary outcomes need classif.*</strong> (with <code>predict_type = "prob"</code> set); survival uses <code>"coxph"</code> / <code>"ranger"</code></td></tr>' +
-          '<tr><td><code>...</code></td><td>Everything else passes straight through to <code>metalearner()</code> (<code>t0</code>, <code>weighting</code>, <code>learner_tau</code>, ...)</td></tr>' +
+          '<tr><td><code>...</code></td><td>Everything else passes straight through to <code>metalearner()</code> (<code>t0</code>, <code>learner_ps</code>, <code>learner_tau</code>, ...)</td></tr>' +
           '</tbody></table></div></div>'
       },
       {
@@ -782,7 +779,7 @@ window.SITE_PAGES.apidr = {
           '<tr><td><code>A</code></td><td>处理指示（0/1 或逻辑）</td></tr>' +
           '<tr><td><code>Y</code></td><td>结局：连续数值、0/1 二分类、或 <code>survival::Surv(time, status)</code></td></tr>' +
           '<tr><td><code>learner_base</code></td><td>基学习器；默认 <code>regr.ranger</code>。<strong>二分类结局必须换 classif.*</strong>（并把 <code>predict_type = "prob"</code> 设好），生存结局用 <code>"coxph"</code> / <code>"ranger"</code></td></tr>' +
-          '<tr><td><code>...</code></td><td>其余参数原样转给 <code>metalearner()</code>（<code>t0</code>、<code>weighting</code>、<code>learner_tau</code> 等）</td></tr>' +
+          '<tr><td><code>...</code></td><td>其余参数原样转给 <code>metalearner()</code>（<code>t0</code>、<code>learner_ps</code>、<code>learner_tau</code> 等）</td></tr>' +
           '</tbody></table></div></div>'
       },
       {
@@ -837,7 +834,7 @@ window.SITE_PAGES.apidr = {
           '<tr><td><code>A</code></td><td>Treatment indicator (0/1 or logical)</td></tr>' +
           '<tr><td><code>Y</code></td><td>Outcome: continuous, 0/1 binary, or <code>survival::Surv(time, status)</code></td></tr>' +
           '<tr><td><code>learner_base</code></td><td>Base learner; default <code>regr.ranger</code>. <strong>Binary outcomes need classif.*</strong> (with <code>predict_type = "prob"</code> set); survival uses <code>"coxph"</code> / <code>"ranger"</code></td></tr>' +
-          '<tr><td><code>...</code></td><td>Everything else passes straight through to <code>metalearner()</code> (<code>t0</code>, <code>weighting</code>, <code>learner_tau</code>, ...)</td></tr>' +
+          '<tr><td><code>...</code></td><td>Everything else passes straight through to <code>metalearner()</code> (<code>t0</code>, <code>learner_ps</code>, <code>learner_tau</code>, ...)</td></tr>' +
           '</tbody></table></div></div>'
       },
       {
@@ -1075,7 +1072,7 @@ window.SITE_PAGES.apidemoobs = {
           '<tr><td><code>A</code></td><td>处理指示（0/1 整数）</td></tr>' +
           '<tr><td><code>Y</code></td><td>连续数值（numeric）</td></tr>' +
           '<tr><td><code>ate</code></td><td>真实平均处理效应（可作对账标尾）</td></tr>' +
-          '<tr><td><code>tau</code></td><td>真实 CATE（可作对账标尾）</td></tr><tr><td><code>ps_true</code></td><td>生成数据旰2用的<strong>真实倾向得分</strong>，可当“外部真实权重”验证校正效果</td></tr>' +
+          '<tr><td><code>tau</code></td><td>真实 CATE（可作对账标尾）</td></tr><tr><td><code>ps_true</code></td><td>生成数据时用的<strong>真实倾向得分</strong>；封装成 <code>function(newX)</code> 喂给 <code>learner_ps</code>，可核查「用真倾向得分时的估计上限」</td></tr>' +
           '</tbody></table></div>' +
           '<p><code>n</code> 是样本量，<code>seed</code> 固定随机流；' +
           '不传 <code>seed</code> 时每次生成的数据不同，' +
@@ -1096,7 +1093,7 @@ window.SITE_PAGES.apidemoobs = {
         id: "note",
         heading: "注意事项",
         body:
-          '<p><strong>混杂全部来自已测量协变变</strong>，因此 IPTW 等校正才能完全生效。现实研究里若有未测量混杂，任何方法都救不回来。</p>'
+          '<p><strong>混杂全部来自已测量协变变</strong>，因此把混杂因子放进 <code>X</code> 做条件化即可完全校正。现实研究里若有未测量混杂，任何方法都救不回来。</p>'
       }
     ]
   },
@@ -1119,7 +1116,7 @@ window.SITE_PAGES.apidemoobs = {
           '<tr><td><code>A</code></td><td>Treatment indicator (0/1 integer)</td></tr>' +
           '<tr><td><code>Y</code></td><td>continuous (numeric)</td></tr>' +
           '<tr><td><code>ate</code></td><td>True average treatment effect (reconciliation anchor)</td></tr>' +
-          '<tr><td><code>tau</code></td><td>True CATE (reconciliation anchor)</td></tr><tr><td><code>ps_true</code></td><td>The <strong>true propensity score</strong> used to generate the data; usable as an external true weight to verify that correction works</td></tr>' +
+          '<tr><td><code>tau</code></td><td>True CATE (reconciliation anchor)</td></tr><tr><td><code>ps_true</code></td><td>The <strong>true propensity score</strong> used to generate the data; wrap it as <code>function(newX)</code> and pass it to <code>learner_ps</code> to check the ceiling you would reach with the true score</td></tr>' +
           '</tbody></table></div>' +
           '<p><code>n</code> is the sample size and <code>seed</code> fixes the random stream; ' +
           'without a seed each call differs, but the true <code>ate</code> / <code>tau</code> are ' +
@@ -1140,7 +1137,7 @@ window.SITE_PAGES.apidemoobs = {
         id: "note",
         heading: "Caveats",
         body:
-          '<p><strong>All confounding comes from measured covariates</strong>, which is why IPTW-style correction works perfectly here. In real studies, unmeasured confounding cannot be fixed by any method.</p>'
+          '<p><strong>All confounding comes from measured covariates</strong>, which is why conditioning on them (placing them in <code>X</code>) works perfectly here. In real studies, unmeasured confounding cannot be fixed by any method.</p>'
       }
     ]
   }
@@ -1166,7 +1163,7 @@ window.SITE_PAGES.apidemoobsbinary = {
           '<tr><td><code>A</code></td><td>处理指示（0/1 整数）</td></tr>' +
           '<tr><td><code>Y</code></td><td>0/1 二分类（numeric）</td></tr>' +
           '<tr><td><code>ate</code></td><td>真实平均处理效应（可作对账标尾）</td></tr>' +
-          '<tr><td><code>tau</code></td><td>真实 CATE（可作对账标尾）</td></tr><tr><td><code>ps_true</code></td><td>生成数据旰2用的<strong>真实倾向得分</strong>，可当“外部真实权重”验证校正效果</td></tr>' +
+          '<tr><td><code>tau</code></td><td>真实 CATE（可作对账标尾）</td></tr><tr><td><code>ps_true</code></td><td>生成数据时用的<strong>真实倾向得分</strong>；封装成 <code>function(newX)</code> 喂给 <code>learner_ps</code>，可核查「用真倾向得分时的估计上限」</td></tr>' +
           '</tbody></table></div>' +
           '<p><code>n</code> 是样本量，<code>seed</code> 固定随机流；' +
           '不传 <code>seed</code> 时每次生成的数据不同，' +
@@ -1210,7 +1207,7 @@ window.SITE_PAGES.apidemoobsbinary = {
           '<tr><td><code>A</code></td><td>Treatment indicator (0/1 integer)</td></tr>' +
           '<tr><td><code>Y</code></td><td>0/1 binary (numeric)</td></tr>' +
           '<tr><td><code>ate</code></td><td>True average treatment effect (reconciliation anchor)</td></tr>' +
-          '<tr><td><code>tau</code></td><td>True CATE (reconciliation anchor)</td></tr><tr><td><code>ps_true</code></td><td>The <strong>true propensity score</strong> used to generate the data; usable as an external true weight to verify that correction works</td></tr>' +
+          '<tr><td><code>tau</code></td><td>True CATE (reconciliation anchor)</td></tr><tr><td><code>ps_true</code></td><td>The <strong>true propensity score</strong> used to generate the data; wrap it as <code>function(newX)</code> and pass it to <code>learner_ps</code> to check the ceiling you would reach with the true score</td></tr>' +
           '</tbody></table></div>' +
           '<p><code>n</code> is the sample size and <code>seed</code> fixes the random stream; ' +
           'without a seed each call differs, but the true <code>ate</code> / <code>tau</code> are ' +
@@ -1250,7 +1247,7 @@ window.SITE_PAGES.apidemoobssurv = {
           '<div class="fn">' +
           '<div class="fn-name">mlr3HTE_demo_obs_surv()<span class="badge">demo data</span></div>' +
           '<div class="fn-sig">mlr3HTE_demo_obs_surv()(n = 2000, seed = NULL)</div>' +
-          '<p>最复杂的一种：既有混杂（要 IPTW），又有删失（要 IPCW），两层权重相乘。</p>' +
+          '<p>最复杂的一种：既有混杂（混杂因子须进 <code>X</code>），又有删矢（要 IPCW）。</p>' +
           '<div class="table-wrap"><table>' +
           '<thead><tr><th>字段</th><th>内容</th></tr></thead><tbody>' +
           '<tr><td><code>X</code></td><td>协变变 data.frame：cols = <code>age, lac, tumor, sex</code></td></tr>' +
@@ -1294,7 +1291,7 @@ window.SITE_PAGES.apidemoobssurv = {
           '<div class="fn">' +
           '<div class="fn-name">mlr3HTE_demo_obs_surv()<span class="badge">demo data</span></div>' +
           '<div class="fn-sig">mlr3HTE_demo_obs_surv()(n = 2000, seed = NULL)</div>' +
-          '<p>The hardest of the six: confounding (needs IPTW) plus censoring (needs IPCW), with the two weight layers multiplied.</p>' +
+          '<p>The hardest of the six: confounding (confounders must go into <code>X</code>) plus censoring (handled by IPCW).</p>' +
           '<div class="table-wrap"><table>' +
           '<thead><tr><th>Field</th><th>Contents</th></tr></thead><tbody>' +
           '<tr><td><code>X</code></td><td>Covariate data.frame: cols = <code>age, lac, tumor, sex</code></td></tr>' +
@@ -1341,7 +1338,7 @@ window.SITE_PAGES.apidemosurv = {
           '<div class="fn">' +
           '<div class="fn-name">mlr3HTE_demo_surv()<span class="badge">demo data</span></div>' +
           '<div class="fn-sig">mlr3HTE_demo_surv()(n = 2000, seed = NULL)</div>' +
-          '<p>处理随机化，但结局是生存数据，删失约 30%。这时只需要 IPCW 校正，不需要 IPTW。</p>' +
+          '<p>处理随机化，但结局是生存数据，删失约 30%。这时只有删失需要处理（IPCW），没有混杂。</p>' +
           '<div class="table-wrap"><table>' +
           '<thead><tr><th>字段</th><th>内容</th></tr></thead><tbody>' +
           '<tr><td><code>X</code></td><td>协变变 data.frame：cols = <code>age, lac, tumor, sex</code></td></tr>' +
@@ -1385,7 +1382,7 @@ window.SITE_PAGES.apidemosurv = {
           '<div class="fn">' +
           '<div class="fn-name">mlr3HTE_demo_surv()<span class="badge">demo data</span></div>' +
           '<div class="fn-sig">mlr3HTE_demo_surv()(n = 2000, seed = NULL)</div>' +
-          '<p>Treatment is randomized, but the outcome is survival data with about 30% censoring. Only IPCW correction is needed here, not IPTW.</p>' +
+          '<p>Treatment is randomized, but the outcome is survival data with about 30% censoring. Only censoring needs handling here (IPCW); there is no confounding.</p>' +
           '<div class="table-wrap"><table>' +
           '<thead><tr><th>Field</th><th>Contents</th></tr></thead><tbody>' +
           '<tr><td><code>X</code></td><td>Covariate data.frame: cols = <code>age, lac, tumor, sex</code></td></tr>' +
@@ -1456,7 +1453,7 @@ window.SITE_PAGES.apishortcuts = {
           '<li><a href="#/apir"><span class="art-num">R</span><span class="art-body"><strong>r_learner()</strong><em>Residualise then regress; efficient, but the second stage has no scale constraint so the ATE can be badly off.</em></span></a></li>' +
           '<li><a href="#/apidr"><span class="art-num">DR</span><span class="art-body"><strong>dr_learner()</strong><em>Doubly robust pseudo-outcomes: correct if either the outcome or the propensity model is right.</em></span></a></li>' +
           '</ul>' +
-          '<p>To predict on new data, or to change the weighting / engine settings, use <a href="#/apimetalearner">metalearner()</a>.</p>'
+          '<p>To predict on new data, or to change the learner / engine settings, use <a href="#/apimetalearner">metalearner()</a>.</p>'
       }
     ]
   }
@@ -2483,7 +2480,7 @@ window.SITE_PAGES.apidag = {
           '<figure class="fig"><img src="assets/img/dag/dag_rct_binary.png" alt="RCT 二分类结局的 DAG"><figcaption>RCT × 二分类结局：因果结构完全不变，只是效应尺度换成风险差。</figcaption></figure>' +
           '<figure class="fig"><img src="assets/img/dag/dag_obs_binary.png" alt="观察性二分类结局的 DAG"><figcaption>观察性 × 二分类结局：后门 <code>X → e → A</code> 照旧要校正，结局换成 0/1。</figcaption></figure>' +
           '<figure class="fig"><img src="assets/img/dag/dag_rct_survival.png" alt="RCT 生存结局的 DAG"><figcaption>RCT × 生存结局：结构不变；实际分析还要处理右删失（IPCW），删失节点未画出。</figcaption></figure>' +
-          '<figure class="fig"><img src="assets/img/dag/dag_obs_survival.png" alt="观察性生存结局的 DAG"><figcaption>观察性 × 生存结局：混杂与删失并存，须 IPTW 与 IPCW 同时使用。</figcaption></figure>' +
+          '<figure class="fig"><img src="assets/img/dag/dag_obs_survival.png" alt="观察性生存结局的 DAG"><figcaption>观察性 × 生存结局：混杂靠把混杂因子放进 X 条件化，删矢由引擎自动做 IPCW。</figcaption></figure>' +
           '</div>'
       }
     ]
@@ -2524,7 +2521,7 @@ window.SITE_PAGES.apidag = {
           '<figure class="fig"><img src="assets/img/dag/dag_rct_binary.png" alt="DAG of the binary-outcome RCT"><figcaption>RCT × binary: the causal structure is unchanged; only the effect scale becomes a risk difference.</figcaption></figure>' +
           '<figure class="fig"><img src="assets/img/dag/dag_obs_binary.png" alt="DAG of the binary-outcome observational design"><figcaption>Observational × binary: the <code>X → e → A</code> back door still needs adjustment; Y is just 0/1.</figcaption></figure>' +
           '<figure class="fig"><img src="assets/img/dag/dag_rct_survival.png" alt="DAG of the survival-outcome RCT"><figcaption>RCT × survival: structure unchanged; the analysis additionally handles right-censoring via IPCW (the censoring node is not drawn).</figcaption></figure>' +
-          '<figure class="fig"><img src="assets/img/dag/dag_obs_survival.png" alt="DAG of the survival-outcome observational design"><figcaption>Observational × survival: confounding and censoring coexist, so IPTW and IPCW are both required.</figcaption></figure>' +
+          '<figure class="fig"><img src="assets/img/dag/dag_obs_survival.png" alt="DAG of the survival-outcome observational design"><figcaption>Observational × survival: confounding is handled by putting the confounders in X, and censoring IPCW is applied automatically by the engine.</figcaption></figure>' +
           '</div>'
       }
     ]

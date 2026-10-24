@@ -5,7 +5,7 @@
 #       与默认的原生引擎（engine = "native"）同题对比，讲清两者的能力边界。
 # 输入：无（数据由演示函数现场生成）
 # 输出：DAG、真值卡、两套引擎 × 四种 metalearner × 三种基学习器的对账表、
-#       观察性场景（外部真实 PS 权重 / IPTW）、估计-vs-真实散点图
+#       观察性场景（混杂全进 X 条件化）、估计-vs-真实散点图
 # 依赖：mlr3, mlr3learners, mlr3HTE, survival, dplyr, tidyr, purrr, ggplot2, cli
 #       survlearners（可选，GitHub-only；未装则本脚本的 survlearners 部分
 #       会给出明确安装提示，native 部分不受影响）
@@ -66,7 +66,7 @@ tribble(
   "metalearner 覆盖", "S/T/X/R/DR 五族齐全",     "S/T/X/R（没有 DR；另有一个 M）",
   "效应尺度",          "S(t0) 差 + RMST 差",     "只有 S(t0) 差",
   "基学习器",          '"coxph" / "ranger" + 任意 mlr3 learner', '"coxph" / "grf" / "lasso" 三种固定',
-  "删失处理",          "IPTW × IPCW（本包引擎）", "包内 IPCW（cen.fit 参数）",
+  "删失处理",          "IPCW 加到结局模型（本包引擎，自动）", "包内 IPCW（cen.fit 参数）",
   "交叉拟合",          "cross_fitting = TRUE（R/DR）", "R 族内部自带 K 折",
   "依赖",              "零额外（survival + ranger）", "需装 GitHub 包 survlearners"
 ) |> print()
@@ -179,18 +179,18 @@ if (has_sl) {
   print(last_plot())
 }
 
-# 6 观察性数据：外部真实 PS 权重 ----
-# survlearners 的 X/R 族按个体倾向得分 W.hat 做校正。weighting = "external" 时，
-# mlr3HTE 按教程约定（w = 1/PS 或 1/(1-PS)）把权重反解成 W.hat 喂给它。
+# 6 观察性数据：把混杂变量放进 X 条件化 ----
+# survlearners 的 X/R 族内部按个体倾向得分 W.hat 做校正——这是它算法定义的一部分
+# （与 v0.40 移除的 IPTW 加权选项无关），W.hat 由它自带的 PS 模型估计。
+# 本包要做的只是把全部混杂变量放进 X，让后门路径被条件化阻断。
 if (has_sl) {
   dobs <- mlr3HTE_demo_obs_surv(n = n_used, t0 = t0, seed = 1206)
-  w <- ifelse(dobs$A == 1, 1 / dobs$ps_true, 1 / (1 - dobs$ps_true))
 
   obs_res <- tibble(tp = c("X", "R")) |>
     mutate(
       fit = map(tp, function(tp) {
         metalearner(tp, dobs$X, dobs$A, dobs$Y, learner_base = "grf", t0 = t0,
-                    weighting = "external", weights = w, engine = "survlearners")
+                    engine = "survlearners")
       })
     ) |>
     mutate(
@@ -204,18 +204,18 @@ if (has_sl) {
   km <- survfit(survival::Surv(dobs$Y[, 1], dobs$Y[, 2]) ~ dobs$A)
   s_at <- summary(km, times = t0)$surv
   tibble(
-    方法 = c("未调整 KM 差", "survlearners X-grf（真实 PS 权重）",
-             "survlearners R-grf（真实 PS 权重）"),
+    方法 = c("未调整 KM 差", "survlearners X-grf", "survlearners R-grf"),
     ATE  = round(c(s_at[2] - s_at[1], obs_res$ATE[1], obs_res$ATE[2]), 3)
   ) |>
     mutate(真实ATE = round(dobs$ate, 3), 偏差 = round(ATE - dobs$ate, 3)) |>
     print()
 
-  # iptw 路径：W.hat 改由 mlr3HTE 自训的 PS 模型提供（默认 classif.log_reg）
-  fit_iptw <- metalearner("R", dobs$X, dobs$A, dobs$Y, learner_base = "grf",
-                          t0 = t0, weighting = "iptw", engine = "survlearners")
-  cli::cli_alert_info(
-    "iptw 路径（W.hat 由 mlr3HTE 自训 PS 提供）：ATE = {round(fit_iptw$ate, 3)}，真实 = {round(dobs$ate, 3)}"
+  # 反面对照：漏掉一个混杂因子。变量没选对时，引擎再强也纠不回来。
+  X_miss <- dobs$X |> select(-lac)
+  fit_miss <- metalearner("R", X_miss, dobs$A, dobs$Y, learner_base = "grf",
+                          t0 = t0, engine = "survlearners")
+  cli::cli_alert_warning(
+    "漏掉 lac 后 survlearners R-grf：ATE = {round(fit_miss$ate, 3)}，真实 = {round(dobs$ate, 3)}——变量没选对，引擎再强也纠不回来"
   )
 }
 
@@ -223,7 +223,7 @@ if (has_sl) {
 if (has_sl) {
   cli::cli_alert_info("复现性：grf 族在引擎内固定 seed = 1，两次运行逐位相同")
   cli::cli_alert_warning("lasso 族内部用 glmnet 交叉验证选 lambda，折序随机；survlearners 未暴露 foldid，两次运行有 ~0.001 量级抖动")
-  cli::cli_alert_info("边界：DR 与 RMST 请用 engine = \"native\"；X 无 coxph 版；S-grf/S-lasso 不接受外部权重（只有 S-coxph 接受）")
+  cli::cli_alert_info("边界：DR 与 RMST 请用 engine = \"native\"；X 无 coxph 版；survlearners 的 S-grf/S-lasso 分支不挂 IPCW 权重（只有 S-coxph 挂）")
 }
 
 # 99 收尾 ----

@@ -41,7 +41,8 @@ window.SITE_PAGES.tutorial = {
           '800 余行引擎代码因此覆盖 3 类结局 × 2 种数据 × 5 种 learner 共 <strong>30 种组合</strong>。</p>' +
           '<p>数据来源分成两档。随机化试验里处理与协变量独立，粗差分就是无偏估计，' +
           '重点在于各 learner 能抓到多少异质性；观察性研究存在混杂后门路径，' +
-          '必须先做 IPTW 或外部权重校正，否则再好的 learner 也只是在拟合偏倚。</p>' +
+          '必须把混杂因子交给 learner 处理（S/T/X 放进 <code>X</code> 条件化、R 残差化、DR 双稳健），' +
+          '否则再好的 learner 也只是在拟合偏倚。</p>' +
           '<p>下面七篇教程按上手方式组织，每篇一张独立网页。前六篇用自带真值的模拟数据逐人对账：' +
           '真实 tau 只有模拟数据才拿得到，所以对账口径统一为 <strong>ATE 偏差 + CATE 相关 + RMSE + 估计 SD</strong>——' +
           '仅报告 ATE 会遗漏「总体均值正确而个体效应全错」的情形。第七篇换成现实研究的形态：没有真值，' +
@@ -56,8 +57,8 @@ window.SITE_PAGES.tutorial = {
           '<ul class="article-list">' +
           '<li><a href="#/tutorialbasics"><span class="art-num">0</span><span class="art-body"><strong>数据生成机制与 DAG</strong><em>六种设计共用一套模拟数据，每个场景都带真值 tau / ate，所以能逐人对账。先看因果结构。</em></span></a></li>' +
           '<li><a href="#/tutorialrct"><span class="art-num">1</span><span class="art-body"><strong>RCT 设计下的分析</strong><em>随机化下 A 与 X 独立，粗差分即无偏；重点看五种 meta-learner 各能抓到多少异质性。</em></span></a></li>' +
-          '<li><a href="#/tutorialobs"><span class="art-num">2</span><span class="art-body"><strong>观察性研究分析</strong><em>混杂后门 X → e → A 让粗差分开局就偏；IPTW 与外部真实 PS 权重把偏差压回 0.05 以内。</em></span></a></li>' +
-          '<li><a href="#/tutorialsurv"><span class="art-num">3</span><span class="art-body"><strong>生存结局分析</strong><em>效应是时间点依赖的：报告必须写清 t0，删失用 IPCW，观察性再叠一层 IPTW。</em></span></a></li>' +
+          '<li><a href="#/tutorialobs"><span class="art-num">2</span><span class="art-body"><strong>观察性研究分析</strong><em>混杂后门 X → e → A 让粗差分开局就偏；把混杂因子放进 X 做条件化，五族把偏差压回 0.14 以内。</em></span></a></li>' +
+          '<li><a href="#/tutorialsurv"><span class="art-num">3</span><span class="art-body"><strong>生存结局分析</strong><em>效应是时间点依赖的：报告必须写清 t0，删矢用 IPCW 处理。</em></span></a></li>' +
           '<li><a href="#/tutoriallearners"><span class="art-num">4</span><span class="art-body"><strong>换不同学习器</strong><em>五种 meta-learner 只规定估计流程，实际拟合由基学习器完成；更换算法仅需改动一个参数，并可按处理组或估计阶段分别指定。</em></span></a></li>' +
           '<li><a href="#/tutorialmetrics"><span class="art-num">5</span><span class="art-body"><strong>模型评价指标</strong><em>Qini / c-for-benefit / TOC 回答的是「排序能力」，不是「估得准不准」，两者要分开看。</em></span></a></li>' +
           '<li><a href="#/tutorialbenchmark"><span class="art-num">6</span><span class="art-body"><strong>RCT 基准测试</strong><em>没有真实 tau 的现实 RCT 数据，怎么比 learner？用 Qini / TOC / c-for-benefit，配合交叉拟合。</em></span></a></li>' +
@@ -93,11 +94,11 @@ window.SITE_PAGES.tutorial = {
           '<tbody>' +
           '<tr><td><code>00_数据生成机制与DAG.R</code></td><td><strong>先跑这个</strong>：DGP 逐步展开、DAG、真值分层表</td></tr>' +
           '<tr><td><code>01_连续结局_随机化RCT.R</code></td><td>连续 + RCT，五种 learner 对账</td></tr>' +
-          '<tr><td><code>02_连续结局_观察性研究.R</code></td><td>连续 + 观察性，IPTW vs 未调整</td></tr>' +
+          '<tr><td><code>02_连续结局_观察性研究.R</code></td><td>连续 + 观察性，混杂进 X 条件化 vs 漏混杂</td></tr>' +
           '<tr><td><code>03_二分类结局_随机化RCT.R</code></td><td>二分类 + RCT，风险差尺度</td></tr>' +
           '<tr><td><code>04_二分类结局_观察性研究.R</code></td><td>二分类 + 观察性</td></tr>' +
           '<tr><td><code>05_生存结局_随机化RCT.R</code></td><td>生存 + RCT，t0 生存概率差</td></tr>' +
-          '<tr><td><code>06_生存结局_观察性研究.R</code></td><td>生存 + 观察性，IPTW × IPCW</td></tr>' +
+          '<tr><td><code>06_生存结局_观察性研究.R</code></td><td>生存 + 观察性，混杂条件化 + IPCW</td></tr>' +
           '<tr><td><code>07_五种metalearner横向对比.R</code></td><td>三种结局 × 五种 learner 对比表</td></tr>' +
           '<tr><td><code>08_mlr3工作流集成.R</code></td><td><code>ml_task</code> + <code>resample</code> + <code>benchmark</code></td></tr>' +
           '<tr><td><code>09_生存结局_survlearners引擎.R</code></td><td>生存第二套引擎 <code>engine="survlearners"</code>，与原生引擎同题对比</td></tr>' +
@@ -105,7 +106,76 @@ window.SITE_PAGES.tutorial = {
           '<tr><td><code>11_评价指标真值对账.R</code></td><td>用已知真 <code>tau</code> 当标尺：把误差拆成<strong>排序损失</strong>与<strong>估计噪声</strong>，并给出 c-for-benefit 的闭式上界</td></tr>' +
           '<tr><td><code>12_三类结局评价指标.R</code></td><td>三个指标分别在<strong>连续 / 二分类 / 生存</strong>结局上计算：生存结局需 IPCW 校正，并演示「先拟合后切分」所导致的泄漏程度</td></tr>' +
           '<tr><td><code>13_换基学习器_基准对比.R</code></td><td><strong>用 mlr3 体系的核心收益</strong>：把基学习器从随机森林一行换成 XGBoost / GLMnet / CART / 线性回归，并用 <code>benchmark()</code> 横向比</td></tr>' +
+          '<tr><td><code>14_RCT基准测试_Qini指标.R</code></td><td>把三个判别力指标搬到 RCT 场景，附随机排序基线</td></tr>' +
+          '<tr><td><code>15_CATE模型可解释性_DALEX与SHAP.R</code></td><td>以 DR 伪结局为响应变量做置换重要性 / PDP / SHAP</td></tr>' +
+          '<tr><td><code>16_基准模拟数据网格.R</code></td><td>30 份固定基准数据的用法、混杂强度量化与线性/非线性 HTE 对照</td></tr>' +
+          '<tr><td><code>17_混杂强度扫描.R</code></td><td><strong>v0.40 的证据页</strong>：5 档混杂强度 × 五族 × 10 次重复，报告 CATE 相关与 ATE 偏差</td></tr>' +
           '</tbody></table></div>'
+      },
+      {
+        id: "conf-sweep",
+        heading: "混杂强度扫描：去掉加权选项后，用什么证明还能去混杂",
+        body:
+          '<p>v0.40 移除了 <code>weighting</code> / <code>weights</code> / <code>stabilize</code>。' +
+          '移除一个选项容易，难的是回答「那还怎么校正混杂」。脚本 ' +
+          '<code>17_混杂强度扫描.R</code> 就是为这个问题写的：把 ' +
+          '<code>mlr3HTE_demo_obs()</code> 的 <code>strength</code> 参数从 0 扫到 2，' +
+          '每档重复 10 次、n = 2000、70/30 划分，R/DR 开交叉拟合，' +
+          '只看两件事——<strong>ATE 偏没偏</strong>、<strong>CATE 相关掉没掉</strong>。</p>' +
+          '<figure class="fig"><img src="assets/img/bench/confounding_strength.png" ' +
+          'alt="混杂强度扫描：五族在 5 档强度下的 ATE 偏差与 CATE 相关">' +
+          '<figcaption>图 17 · 左：ATE 偏差随混杂强度的变化；右：估计 CATE 与真实 CATE 的留出集相关</figcaption></figure>' +
+          '<p><strong>第一栏是未调整差分</strong>——它没有经过任何校正，' +
+          '所以这一栏就是「不校正的代价」：从 RCT 的 +0.008 一路涨到 +1.048，' +
+          '基本是线性的。后面五栏是把全部混杂变量放进 X 之后的结果。</p>' +
+          '<div class="table-wrap"><table>' +
+          '<thead><tr><th>强度</th><th>未调整</th><th>S</th><th>T</th><th>X</th>' +
+          '<th>R</th><th>DR</th></tr></thead>' +
+          '<tbody>' +
+          '<tr><td>0（RCT）</td><td>+0.008</td><td>−0.037</td><td>+0.007</td>' +
+          '<td>+0.009</td><td>+0.005</td><td>+0.006</td></tr>' +
+          '<tr><td>0.5</td><td>+0.392</td><td>+0.010</td><td>+0.039</td>' +
+          '<td>+0.033</td><td>+0.044</td><td>+0.006</td></tr>' +
+          '<tr><td>1.0</td><td>+0.709</td><td>+0.061</td><td>+0.067</td>' +
+          '<td>+0.043</td><td>+0.020</td><td>−0.011</td></tr>' +
+          '<tr><td>1.5</td><td>+0.919</td><td>+0.100</td><td>+0.099</td>' +
+          '<td>+0.052</td><td>+0.062</td><td>−0.057</td></tr>' +
+          '<tr><td>2.0</td><td>+1.048</td><td>+0.137</td><td>+0.134</td>' +
+          '<td>+0.060</td><td>+0.040</td><td>−0.045</td></tr>' +
+          '</tbody></table></div>' +
+          '<p>混杂全部放进 X 时，<strong>五族的 ATE 偏差始终不超过 0.137</strong>，' +
+          '而不校正的偏差已经到了 1.048。这就是「条件化能去混杂」的直接证据，' +
+          '而且不需要任何用户可切换的加权开关。</p>' +
+          '<div class="table-wrap"><table>' +
+          '<thead><tr><th>强度</th><th>S</th><th>T</th><th>X</th><th>R</th>' +
+          '<th>DR</th></tr></thead>' +
+          '<tbody>' +
+          '<tr><td>0（RCT）</td><td>0.910</td><td>0.893</td><td>0.955</td>' +
+          '<td>0.867</td><td>0.912</td></tr>' +
+          '<tr><td>0.5</td><td>0.909</td><td>0.895</td><td>0.954</td>' +
+          '<td>0.850</td><td>0.909</td></tr>' +
+          '<tr><td>1.0</td><td>0.899</td><td>0.891</td><td>0.942</td>' +
+          '<td>0.797</td><td>0.871</td></tr>' +
+          '<tr><td>1.5</td><td>0.897</td><td>0.886</td><td>0.943</td>' +
+          '<td>0.661</td><td>0.748</td></tr>' +
+          '<tr><td>2.0</td><td>0.893</td><td>0.883</td><td>0.938</td>' +
+          '<td>0.631</td><td>0.782</td></tr>' +
+          '</tbody></table></div>' +
+          '<p>CATE 相关讲的是另一个故事。S / T / X 的相关几乎是一条平线' +
+          '（X 始终在 0.94 附近）——它们只做条件化，估计量的分母里没有 ' +
+          '<code>1/(A-e)</code> 这种会爆的项。<strong>R 与 DR 则在高强度下明显退化</strong>：' +
+          'R 从 0.867 掉到 0.631，DR 从 0.912 掉到 0.748。原因很直白——强度 2 时倾向得分的' +
+          '取值范围是 [0.001, 0.994]，<code>A - e</code> 会接近 ±1，' +
+          'Robinson 权重 <code>(A-e)^2</code> 与 DR 伪结果里的 <code>1/(A-e)</code> ' +
+          '都被放大成噪声放大器。</p>' +
+          '<div class="callout warn"><div class="callout-title">诚实的结论</div>' +
+          '<p>这不是 bug，是估计量的性质。<strong>倾向得分越极端，逆概率类的估计量方差越大</strong>，' +
+          '而条件化类的 S/T/X 不受这条规律约束。所以实践中的建议是：' +
+          '要稳健的逐人排序，S/T/X 足够；要 ATE 的无偏性且混杂不极端，R/DR 更好；' +
+          '一旦倾向得分出现接近 0 或 1 的尾部，先看权重诊断再决定信谁。</p></div>' +
+          '<p>数据与图形由 <code>tutorial/code/17_混杂强度扫描.R</code> 生成，' +
+          '原始结果在 <code>tutorial/figures/17_confounding_strength.csv</code>，' +
+          '可自行复算。</p>'
       },
       {
         id: "environment",
@@ -144,7 +214,8 @@ window.SITE_PAGES.tutorial = {
           '<p>The data side has two regimes. In a randomized trial, treatment is independent of the ' +
           'covariates, so the crude difference is already unbiased and the question is how much ' +
           'heterogeneity each learner can recover. In an observational study a confounding ' +
-          'back-door path is present, so IPTW or externally supplied weights must be applied first; ' +
+          'back-door path is present, so the confounders must be handed to the learner ' +
+          '(S/T/X condition on them via <code>X</code>, R residualises, DR is doubly robust); ' +
           'otherwise even the best learner is only fitting the bias.</p>' +
           '<p>The seven articles below are organised by how you approach the package, one page each. ' +
           'The first six use simulated data with known truth, so the reconciliation protocol is fixed: ' +
@@ -163,8 +234,8 @@ window.SITE_PAGES.tutorial = {
           '<ul class="article-list">' +
           '<li><a href="#/tutorialbasics"><span class="art-num">0</span><span class="art-body"><strong>Data-generating process & DAGs</strong><em>All six designs share one simulated dataset carrying the true tau / ate, which is what makes unit-by-unit reconciliation possible.</em></span></a></li>' +
           '<li><a href="#/tutorialrct"><span class="art-num">1</span><span class="art-body"><strong>Analysis under RCT design</strong><em>Under randomization A is independent of X, so the naive difference is already unbiased; the question is how much heterogeneity each meta-learner captures.</em></span></a></li>' +
-          '<li><a href="#/tutorialobs"><span class="art-num">2</span><span class="art-body"><strong>Observational studies</strong><em>The back-door X → e → A biases the naive difference from the start; IPTW and external true-PS weights pull it back within 0.05.</em></span></a></li>' +
-          '<li><a href="#/tutorialsurv"><span class="art-num">3</span><span class="art-body"><strong>Survival outcomes</strong><em>Effects are time-point dependent: always state t0, correct censoring with IPCW, and multiply an IPTW layer on top for observational data.</em></span></a></li>' +
+          '<li><a href="#/tutorialobs"><span class="art-num">2</span><span class="art-body"><strong>Observational studies</strong><em>The back-door X → e → A biases the naive difference from the start; placing the confounders in X keeps every family\'s bias within 0.14.</em></span></a></li>' +
+          '<li><a href="#/tutorialsurv"><span class="art-num">3</span><span class="art-body"><strong>Survival outcomes</strong><em>Effects are time-point dependent: always state t0, and correct censoring with IPCW.</em></span></a></li>' +
           '<li><a href="#/tutoriallearners"><span class="art-num">4</span><span class="art-body"><strong>Swapping the base learner</strong><em>The five meta-learners are recipes; the real work is done by the base learner. Swap it in one line, per group or per stage if you like.</em></span></a></li>' +
           '<li><a href="#/tutorialmetrics"><span class="art-num">5</span><span class="art-body"><strong>Model evaluation metrics</strong><em>Qini / c-for-benefit / TOC answer "how well does it rank" — not "is the estimate unbiased". Keep the two questions apart.</em></span></a></li>' +
           '<li><a href="#/tutorialbenchmark"><span class="art-num">6</span><span class="art-body"><strong>RCT benchmark</strong><em>Real RCT data has no true tau — how do you compare learners? Qini / TOC / c-for-benefit with cross-fitting.</em></span></a></li>' +
@@ -202,11 +273,11 @@ window.SITE_PAGES.tutorial = {
           '<tbody>' +
           '<tr><td><code>00_数据生成机制与DAG.R</code></td><td><strong>Run this first</strong>: the DGP step by step, DAGs, truth tables</td></tr>' +
           '<tr><td><code>01_连续结局_随机化RCT.R</code></td><td>Continuous + RCT, all five learners</td></tr>' +
-          '<tr><td><code>02_连续结局_观察性研究.R</code></td><td>Continuous + observational, IPTW vs unadjusted</td></tr>' +
+          '<tr><td><code>02_连续结局_观察性研究.R</code></td><td>Continuous + observational, conditioning on confounders vs leaving them out</td></tr>' +
           '<tr><td><code>03_二分类结局_随机化RCT.R</code></td><td>Binary + RCT, risk-difference scale</td></tr>' +
           '<tr><td><code>04_二分类结局_观察性研究.R</code></td><td>Binary + observational</td></tr>' +
           '<tr><td><code>05_生存结局_随机化RCT.R</code></td><td>Survival + RCT, survival difference at t0</td></tr>' +
-          '<tr><td><code>06_生存结局_观察性研究.R</code></td><td>Survival + observational, IPTW × IPCW</td></tr>' +
+          '<tr><td><code>06_生存结局_观察性研究.R</code></td><td>Survival + observational, conditioning + IPCW</td></tr>' +
           '<tr><td><code>07_五种metalearner横向对比.R</code></td><td>3 outcomes × 5 learners comparison tables</td></tr>' +
           '<tr><td><code>08_mlr3工作流集成.R</code></td><td><code>ml_task</code> + <code>resample</code> + <code>benchmark</code></td></tr>' +
           '<tr><td><code>09_生存结局_survlearners引擎.R</code></td><td>The second survival engine <code>engine="survlearners"</code>, head-to-head with native</td></tr>' +
@@ -214,7 +285,77 @@ window.SITE_PAGES.tutorial = {
           '<tr><td><code>11_评价指标真值对账.R</code></td><td>Known <code>tau</code> as the yardstick: split the error into <strong>ranking loss</strong> and <strong>estimation noise</strong>, plus the closed-form c-for-benefit ceiling</td></tr>' +
           '<tr><td><code>12_三类结局评价指标.R</code></td><td>All three metrics on <strong>continuous / binary / survival</strong>: survival needs IPCW, plus a demonstration of how badly "fit first, split later" leaks</td></tr>' +
           '<tr><td><code>13_换基学习器_基准对比.R</code></td><td><strong>The core payoff of the mlr3 system</strong>: swap the base learner from random forest to XGBoost / GLMnet / CART / linear in one line, and compare them with <code>benchmark()</code></td></tr>' +
+          '<tr><td><code>14_RCT基准测试_Qini指标.R</code></td><td>The three discrimination metrics moved onto an RCT setting, with a random-ordering baseline</td></tr>' +
+          '<tr><td><code>15_CATE模型可解释性_DALEX与SHAP.R</code></td><td>Permutation importance / PDP / SHAP with the DR pseudo-outcome as the response</td></tr>' +
+          '<tr><td><code>16_基准模拟数据网格.R</code></td><td>How to use the 30 fixed benchmark datasets, quantified confounding strength, and a linear / nonlinear HTE contrast</td></tr>' +
+          '<tr><td><code>17_混杂强度扫描.R</code></td><td><strong>The v0.40 evidence page</strong>: 5 confounding strengths × 5 families × 10 repeats, reporting CATE correlation and ATE bias</td></tr>' +
           '</tbody></table></div>'
+      },
+      {
+        id: "conf-sweep",
+        heading: "Confounding-strength sweep: with the weighting option gone, what proves deconfounding still works",
+        body:
+          '<p>v0.40 removed <code>weighting</code> / <code>weights</code> / <code>stabilize</code>. ' +
+          'Dropping an option is easy; the hard part is answering "then how do we correct confounding?". ' +
+          'Script <code>17_混杂强度扫描.R</code> was written for exactly that: sweep the ' +
+          '<code>strength</code> argument of <code>mlr3HTE_demo_obs()</code> from 0 to 2, ' +
+          '10 repeats per level, n = 2000, 70/30 split, R/DR cross-fitted, and watch two things — ' +
+          '<strong>is the ATE biased</strong> and <strong>does the CATE correlation hold up</strong>.</p>' +
+          '<figure class="fig"><img src="assets/img/bench/confounding_strength.png" ' +
+          'alt="Confounding-strength sweep: ATE bias and CATE correlation for five families across five strengths">' +
+          '<figcaption>Figure 17 · Left: ATE bias against confounding strength. Right: held-out correlation between estimated and true CATE</figcaption></figure>' +
+          '<p><strong>The first column is the unadjusted difference</strong> — no correction of any kind, ' +
+          'so it is the "cost of doing nothing": it climbs from +0.008 under RCT to +1.048, essentially linearly. ' +
+          'The five columns after it place every confounder in X.</p>' +
+          '<div class="table-wrap"><table>' +
+          '<thead><tr><th>Strength</th><th>Unadjusted</th><th>S</th><th>T</th><th>X</th>' +
+          '<th>R</th><th>DR</th></tr></thead>' +
+          '<tbody>' +
+          '<tr><td>0 (RCT)</td><td>+0.008</td><td>−0.037</td><td>+0.007</td>' +
+          '<td>+0.009</td><td>+0.005</td><td>+0.006</td></tr>' +
+          '<tr><td>0.5</td><td>+0.392</td><td>+0.010</td><td>+0.039</td>' +
+          '<td>+0.033</td><td>+0.044</td><td>+0.006</td></tr>' +
+          '<tr><td>1.0</td><td>+0.709</td><td>+0.061</td><td>+0.067</td>' +
+          '<td>+0.043</td><td>+0.020</td><td>−0.011</td></tr>' +
+          '<tr><td>1.5</td><td>+0.919</td><td>+0.100</td><td>+0.099</td>' +
+          '<td>+0.052</td><td>+0.062</td><td>−0.057</td></tr>' +
+          '<tr><td>2.0</td><td>+1.048</td><td>+0.137</td><td>+0.134</td>' +
+          '<td>+0.060</td><td>+0.040</td><td>−0.045</td></tr>' +
+          '</tbody></table></div>' +
+          '<p>With all confounders placed in X, <strong>no family\'s ATE bias ever exceeds 0.137</strong>, ' +
+          'while the uncorrected bias has already reached 1.048. That is the direct evidence that conditioning ' +
+          'deconfounds — and it needs no user-switchable weighting option.</p>' +
+          '<div class="table-wrap"><table>' +
+          '<thead><tr><th>Strength</th><th>S</th><th>T</th><th>X</th><th>R</th>' +
+          '<th>DR</th></tr></thead>' +
+          '<tbody>' +
+          '<tr><td>0 (RCT)</td><td>0.910</td><td>0.893</td><td>0.955</td>' +
+          '<td>0.867</td><td>0.912</td></tr>' +
+          '<tr><td>0.5</td><td>0.909</td><td>0.895</td><td>0.954</td>' +
+          '<td>0.850</td><td>0.909</td></tr>' +
+          '<tr><td>1.0</td><td>0.899</td><td>0.891</td><td>0.942</td>' +
+          '<td>0.797</td><td>0.871</td></tr>' +
+          '<tr><td>1.5</td><td>0.897</td><td>0.886</td><td>0.943</td>' +
+          '<td>0.661</td><td>0.748</td></tr>' +
+          '<tr><td>2.0</td><td>0.893</td><td>0.883</td><td>0.938</td>' +
+          '<td>0.631</td><td>0.782</td></tr>' +
+          '</tbody></table></div>' +
+          '<p>CATE correlation tells a different story. S / T / X are almost a flat line ' +
+          '(X never leaves the neighbourhood of 0.94) — they only condition, and their estimators ' +
+          'contain no term like <code>1/(A-e)</code> that can blow up. <strong>R and DR visibly degrade ' +
+          'at high strength</strong>: R falls from 0.867 to 0.631, DR from 0.912 to 0.748. The reason is plain — ' +
+          'at strength 2 the propensity score ranges over [0.001, 0.994], so <code>A - e</code> approaches ±1, ' +
+          'and both the Robinson weight <code>(A-e)^2</code> and the <code>1/(A-e)</code> inside the DR ' +
+          'pseudo-outcome turn into noise amplifiers.</p>' +
+          '<div class="callout warn"><div class="callout-title">The honest conclusion</div>' +
+          '<p>This is not a bug, it is a property of the estimators. <strong>The more extreme the propensity ' +
+          'score, the larger the variance of inverse-probability-style estimators</strong>, while ' +
+          'conditioning-based S/T/X are not bound by that rule. The practical advice: for robust per-person ' +
+          'ranking, S/T/X suffice; for an unbiased ATE under mild confounding, R/DR are better; ' +
+          'and once the propensity score develops tails near 0 or 1, inspect the weight diagnostics before ' +
+          'deciding whom to trust.</p></div>' +
+          '<p>Data and figure are produced by <code>tutorial/code/17_混杂强度扫描.R</code>; ' +
+          'the raw results live in <code>tutorial/figures/17_confounding_strength.csv</code> and can be recomputed.</p>'
       },
       {
         id: "environment",
@@ -690,27 +831,32 @@ window.SITE_PAGES.tutorialrct = {
 window.SITE_PAGES.tutorialobs = {
   zh: {
     title: "2 · 观察性研究分析",
-    lede: "混杂后门让粗差分开局就偏；IPTW 与外部真实 PS 权重把它压回 0.05 以内——前提是混杂全部已测量。",
+    lede: "混杂后门让粗差分开局就偏；把混杂变量放进 X 做条件化，五族把偏差压回 0.08 以内——前提是混杂全部已测量。",
     sections: [
       {
         id: "fw-obs",
         heading: "本篇速览",
         body:
           '<p>观察性研究里 <code>X → e → A</code> 形成混杂后门路径，粗差分开局就偏' +
-          '（连续 +0.689、二分类 +0.125、生存 −0.072）。本框架演示 IPTW 与外部真实 PS 权重' +
-          '如何把偏差压回去——前提是混杂全部已测量。</p>' +
+          '（连续 +0.689、二分类 +0.125、生存 −0.072）。v0.40 起本框架不再提供 IPTW 加权选项，' +
+          '去混杂的主路径是<strong>把混杂变量放进 X 条件化</strong>：S/T/X 靠结局模型 ' +
+          '<code>E[Y|A,X]</code>，R 靠残差化，DR 两者都做。</p>' +
           '<div class="table-wrap"><table>' +
           '<thead><tr><th>场景</th><th>脚本</th><th>关键结论</th></tr></thead><tbody>' +
           '<tr><td><a href="#/tutorialobs/s2">场景 2 · 连续 × 观察性</a></td>' +
           '<td><code>02_连续结局_观察性研究.R</code></td>' +
-          '<td>未调整 <strong>+0.689</strong> → 加权后 ATE 偏差 ≤ 0.04；X-learner 的 CATE 相关 <strong>0.951</strong>、RMSE 0.327（真实 ATE 1.049）</td></tr>' +
+          '<td>未调整 <strong>+0.689</strong> → 混杂全进 X 后五族 |偏差| ≤ 0.073；X-learner 的 CATE 相关 <strong>0.954</strong>、RMSE 0.320（真实 ATE 1.049）</td></tr>' +
           '<tr><td><a href="#/tutorialobs/s4">场景 4 · 二分类 × 观察性</a></td>' +
           '<td><code>04_二分类结局_观察性研究.R</code></td>' +
-          '<td>未调整风险差 <strong>+0.125</strong> → IPTW + X 偏差 −0.002；CATE 相关 <strong>0.742</strong>、RMSE 0.110（真实 0.131）</td></tr>' +
+          '<td>未调整风险差 <strong>+0.125</strong> → 混杂全进 X 后五族 |偏差| ≤ 0.014；X-learner 偏差 +0.006、相关 <strong>0.758</strong>、RMSE 0.110（真实 0.131）</td></tr>' +
           '</tbody></table></div>' +
-          '<div class="callout warn"><div class="callout-title">前提</div>' +
-          '<p>本数据的混杂全部来自<strong>已测量</strong>协变量，所以校正能奏效。' +
-          '真实研究里若有未测量混杂，任何权重都救不回来。</p></div>'
+          '<div class="callout warn"><div class="callout-title">两个前提</div>' +
+          '<p>（一）本数据的混杂全部来自<strong>已测量</strong>协变量，所以条件化能奏效；' +
+          '真实研究里若有未测量混杂，任何方法都救不回来。（二）R/DR 必须开 ' +
+          '<code>cross_fitting = TRUE</code>，否则 tau 被高弹性学习器衰减——实测 R-learner ' +
+          '的 ATE 从 0.976 掉到 0.432。</p></div>' +
+          '<p>更系统的证据见<a href="#/tutorial/conf-sweep">教程 17 · 混杂强度扫描</a>：' +
+          '5 档强度下未调整偏差从 +0.01 涨到 +1.05，五族始终在 0.14 以内。</p>'
 
       },
       {
@@ -722,46 +868,68 @@ window.SITE_PAGES.tutorialobs = {
           '<figcaption>图 2 · 场景 2 因果图：红色路径 <code>X → e → A</code> 使 ' +
           '<code>X</code> 成为共同原因，粗差分有偏</figcaption></figure>' +
           '<pre><code class="language-r">d &lt;- mlr3HTE_demo_obs(n = 4000, seed = 1204)   # 含混杂\n\n' +
-          'naive &lt;- mean(d$Y[d$A == 1]) - mean(d$Y[d$A == 0])     # 有偏\n' +
-          'fit   &lt;- metalearner("X", d$X, d$A, d$Y, weighting = "iptw")\n\n' +
-          '# 用真实 PS 走外部权重\n' +
-          'w &lt;- ifelse(d$A == 1, d$ps_true, 1 - d$ps_true)\n' +
-          'metalearner("DR", d$X, d$A, d$Y, weighting = "external", weights = w)</code></pre>' +
+          'naive &lt;- mean(d$Y[d$A == 1]) - mean(d$Y[d$A == 0])     # 有偏\n\n' +
+          '# 去混杂的主路径：把混杂变量放进 X，让结局模型条件化\n' +
+          'fit &lt;- metalearner("X", d$X, d$A, d$Y,\n' +
+          '                   learner_base = lrn("regr.ranger", num.trees = 300, seed = 1),\n' +
+          '                   cross_fitting = FALSE)\n\n' +
+          '# R / DR 自带倾向得分，且必须开交叉拟合\n' +
+          'fit &lt;- metalearner("DR", d$X, d$A, d$Y, cross_fitting = TRUE)</code></pre>' +
           '<div class="callout danger"><div class="callout-title">混杂结构</div>' +
           '<p>病情越重（<code>z1</code> 高）越容易接受处理，而病情本身又影响结局。' +
-          '所以粗差分会同时混进病情的影响。实测两组基线：对照组 lac 均值 2.15，处理组 3.03。</p></div>' +
+          '所以粗差分会同时混进病情的影响。实测两组基线：对照组 lac 均值 2.15、tumor 4.76，' +
+          '处理组 lac 3.03、tumor 5.46。</p></div>' +
           '<div class="table-wrap"><table>' +
-          '<thead><tr><th>方法</th><th>估计</th><th>偏差</th><th>与真相关</th>' +
+          '<thead><tr><th>Learner</th><th>估计</th><th>偏差</th><th>与真相关</th>' +
           '<th>RMSE</th><th>估计 SD</th></tr></thead>' +
           '<tbody>' +
           '<tr><td>未调整差分</td><td>1.738</td><td><strong>+0.689</strong></td>' +
           '<td>—</td><td>—</td><td>—</td></tr>' +
-          '<tr><td>IPTW + X</td><td>1.007</td><td>−0.043</td>' +
-          '<td>0.950</td><td>0.333</td><td>0.930</td></tr>' +
-          '<tr><td>IPTW（稳定化）+ X</td><td>1.011</td><td>−0.038</td>' +
-          '<td>0.951</td><td>0.327</td><td>0.940</td></tr>' +
-          '<tr><td>真实 PS 外部权重 + DR</td><td>1.086</td><td>+0.037</td>' +
-          '<td>0.849</td><td>0.581</td><td>1.070</td></tr>' +
+          '<tr><td>S</td><td>1.060</td><td>+0.011</td>' +
+          '<td>0.875</td><td>0.507</td><td>0.972</td></tr>' +
+          '<tr><td>T</td><td>1.029</td><td>−0.020</td>' +
+          '<td>0.821</td><td>0.666</td><td>1.153</td></tr>' +
+          '<tr><td><strong>X</strong></td><td><strong>1.005</strong></td><td><strong>−0.044</strong></td>' +
+          '<td><strong>0.954</strong></td><td><strong>0.320</strong></td><td>0.937</td></tr>' +
+          '<tr><td>R</td><td>0.976</td><td>−0.073</td>' +
+          '<td>0.736</td><td>0.853</td><td>1.241</td></tr>' +
+          '<tr><td>DR</td><td>0.996</td><td>−0.053</td>' +
+          '<td>0.858</td><td>0.586</td><td>1.126</td></tr>' +
           '</tbody></table></div>' +
-          '<p>真实 ATE = <strong>1.049</strong>，真实 CATE 的 SD = <strong>1.04</strong>。' +
-          '加权把 +0.69 的偏差压到 0.04 以内；注意最后一行的<strong>估计 SD 1.07 超过真值 1.04</strong>，' +
-          '说明它的 ATE 虽接近，逐人尺度已经放大——这正是「ATE 对不代表 CATE 对」的实例。</p>' +
+          '<p>真实 ATE = <strong>1.049</strong>，真实 CATE 的 SD = <strong>1.039</strong>。' +
+          '把混杂全放进 X 之后，五种 learner 的 ATE 偏差全部落在 0.073 以内，' +
+          '而未调整差值的偏差是 0.689——差了一个数量级。</p>' +
+          '<p>但 ATE 对不代表 CATE 对：<strong>与真相关从 0.736（R）到 0.954（X）差得很远</strong>，' +
+          'RMSE 从 0.320 到 0.853。X 的估计 SD 0.937 最接近真实 SD 1.039；' +
+          'R 的估计 SD 1.241 明显放大，T 的 1.153 同样偏大。' +
+          '选哪个 learner 取决于你要平均效应还是逐人效应。</p>' +
+          '<h3>反面对照：漏掉一个混杂因子</h3>' +
+          '<p>把 <code>lac</code>（病情）从 X 里拿掉，处理分配仍然依赖它，后门路径 ' +
+          '<code>A ← e ← lac → Y</code> 重新打开：</p>' +
           '<div class="table-wrap"><table>' +
-          '<thead><tr><th>Learner</th><th>IPTW ATE</th><th>偏差</th><th>与真相关</th>' +
-          '<th>RMSE</th><th>估计 SD</th></tr></thead>' +
+          '<thead><tr><th>Learner</th><th>混杂全进 X</th><th>漏掉 lac</th>' +
+          '<th>漏 lac 的偏差</th></tr></thead>' +
           '<tbody>' +
-          '<tr><td>S</td><td>0.943</td><td>−0.106</td><td>0.864</td><td>0.542</td><td>0.989</td></tr>' +
-          '<tr><td>T</td><td>1.000</td><td>−0.048</td><td>0.793</td><td>0.719</td><td>1.160</td></tr>' +
-          '<tr><td><strong>X</strong></td><td>1.000</td><td>−0.046</td>' +
-          '<td><strong>0.951</strong></td><td><strong>0.327</strong></td><td>0.943</td></tr>' +
-          '<tr><td>R</td><td>0.468</td><td>−0.582</td><td>0.642</td><td>0.987</td><td>0.634</td></tr>' +
-          '<tr><td>DR</td><td>0.931</td><td>−0.119</td><td>0.854</td><td>0.613</td><td>1.150</td></tr>' +
+          '<tr><td>S</td><td>1.060</td><td>1.703</td><td>+0.654</td></tr>' +
+          '<tr><td>T</td><td>1.029</td><td>1.724</td><td>+0.674</td></tr>' +
+          '<tr><td>X</td><td>1.005</td><td>1.704</td><td>+0.655</td></tr>' +
+          '<tr><td>R</td><td>0.976</td><td>1.720</td><td>+0.671</td></tr>' +
+          '<tr><td>DR</td><td>0.996</td><td>1.710</td><td>+0.661</td></tr>' +
           '</tbody></table></div>' +
-          '<p>权重校正的是<strong>混杂</strong>，不是某个 learner 的拟合能力：' +
-          '五种 learner 的 ATE 都回到真值附近，但 CATE 相关从 0.642（R）到 0.951（X）差得很远。' +
-          '真实 SD = 1.04；R 的估计 SD 只有 0.634，典型的「压平」。</p>' +
+          '<p>五族一起偏回 +0.65 量级，与未调整的 +0.689 几乎重合。' +
+          '<strong>变量没选对时，换 learner、换更高级的方法都救不回来</strong>——这是设计层面的问题。</p>' +
+          '<h3>R/DR 必须开交叉拟合</h3>' +
+          '<p>R-learner 的 tau 回归以残差 <code>Y − mu</code> 为伪结局。mu 若在同一批数据上估，' +
+          '高弹性学习器（ranger 默认 <code>min.node.size = 5</code>）会过拟合、把残差压向 0，' +
+          'tau 整体被砍掉一截：</p>' +
+          '<div class="table-wrap"><table>' +
+          '<thead><tr><th>情形</th><th>估计</th><th>偏差</th></tr></thead>' +
+          '<tbody>' +
+          '<tr><td>R，不开交叉拟合</td><td>0.432</td><td><strong>−0.617</strong></td></tr>' +
+          '<tr><td>R，开交叉拟合</td><td>0.976</td><td>−0.073</td></tr>' +
+          '</tbody></table></div>' +
           '<div class="callout warn"><div class="callout-title">提醒</div>' +
-          '<p>本数据的混杂全部来自<strong>已测量</strong>协变量，所以校正能奏效。' +
+          '<p>本数据的混杂全部来自<strong>已测量</strong>协变量，所以条件化能奏效。' +
           '真实研究里若有未测量混杂，任何方法都救不回来。</p></div>'
       },
       {
@@ -775,30 +943,36 @@ window.SITE_PAGES.tutorialobs = {
           '<pre><code class="language-r">d &lt;- mlr3HTE_demo_obs_binary(n = 4000, seed = 1205)\n\n' +
           'naive &lt;- mean(d$Y[d$A == 1]) - mean(d$Y[d$A == 0])\n' +
           'fit &lt;- metalearner("X", d$X, d$A, d$Y,\n' +
-          '                   learner_base = lrn("classif.ranger", num.trees = 300, seed = 1),\n' +
-          '                   weighting = "iptw")</code></pre>' +
+          '                   learner_base = lrn("classif.ranger", num.trees = 300, seed = 1))</code></pre>' +
           '<div class="table-wrap"><table>' +
           '<thead><tr><th>方法</th><th>估计</th><th>真实 ATE</th><th>偏差</th></tr></thead>' +
           '<tbody>' +
           '<tr><td>未调整风险差</td><td>0.256</td><td>0.131</td><td><strong>+0.125</strong></td></tr>' +
-          '<tr><td>IPTW + X</td><td>0.146</td><td>0.131</td><td>+0.015</td></tr>' +
-          '<tr><td>真实 PS 外部权重 + DR</td><td>0.163</td><td>0.131</td><td>+0.033</td></tr>' +
+          '<tr><td>混杂全进 X · S</td><td>0.145</td><td>0.131</td><td>+0.014</td></tr>' +
+          '<tr><td>混杂全进 X · T</td><td>0.141</td><td>0.131</td><td>+0.010</td></tr>' +
+          '<tr><td><strong>混杂全进 X · X</strong></td><td><strong>0.137</strong></td><td>0.131</td><td><strong>+0.006</strong></td></tr>' +
+          '<tr><td>混杂全进 X · R</td><td>0.142</td><td>0.131</td><td>+0.011</td></tr>' +
+          '<tr><td>混杂全进 X · DR</td><td>0.137</td><td>0.131</td><td>+0.006</td></tr>' +
+          '<tr><td>漏掉 lac · X</td><td>0.246</td><td>0.131</td><td>+0.115</td></tr>' +
           '</tbody></table></div>' +
-          '<p>五种 learner 在 IPTW 下的表现：</p>' +
+          '<p>五种 learner 在「混杂全进 X」下的逐人表现：</p>' +
           '<div class="table-wrap"><table>' +
-          '<thead><tr><th>Learner</th><th>IPTW ATE</th><th>偏差</th><th>与真相关</th>' +
+          '<thead><tr><th>Learner</th><th>估计</th><th>偏差</th><th>与真相关</th>' +
           '<th>RMSE</th><th>估计 SD</th></tr></thead>' +
           '<tbody>' +
-          '<tr><td>S</td><td>0.144</td><td>+0.013</td><td>0.552</td><td>0.188</td><td>0.225</td></tr>' +
-          '<tr><td>T</td><td>0.117</td><td>−0.014</td><td>0.444</td><td>0.257</td><td>0.286</td></tr>' +
-          '<tr><td><strong>X</strong></td><td>0.129</td><td><strong>−0.002</strong></td>' +
-          '<td><strong>0.742</strong></td><td><strong>0.110</strong></td><td>0.164</td></tr>' +
-          '<tr><td>R</td><td>0.109</td><td>−0.022</td><td>0.423</td><td>0.206</td><td>0.223</td></tr>' +
-          '<tr><td>DR</td><td>0.132</td><td>+0.001</td><td>0.426</td><td>0.271</td><td>0.300</td></tr>' +
+          '<tr><td>S</td><td>0.145</td><td>+0.014</td><td>0.582</td><td>0.163</td><td>0.198</td></tr>' +
+          '<tr><td>T</td><td>0.141</td><td>+0.010</td><td>0.489</td><td>0.224</td><td>0.257</td></tr>' +
+          '<tr><td><strong>X</strong></td><td><strong>0.137</strong></td><td><strong>+0.006</strong></td>' +
+          '<td><strong>0.758</strong></td><td><strong>0.110</strong></td><td>0.169</td></tr>' +
+          '<tr><td>R</td><td>0.142</td><td>+0.011</td><td>0.383</td><td>0.354</td><td>0.383</td></tr>' +
+          '<tr><td>DR</td><td>0.137</td><td>+0.006</td><td>0.489</td><td>0.241</td><td>0.277</td></tr>' +
           '</tbody></table></div>' +
           '<p>真实 CATE 的 SD = <strong>0.132</strong>。二分类的 CATE 落在风险差尺度上，' +
           '所以 RMSE 的量纲和连续结局不可直接比，只能在同一张表内横向看：' +
-          'X 的 RMSE 0.110 不到其他 learner 的一半，估计 SD 0.164 也最接近真值。</p>'
+          'X 的 RMSE 0.110 不到其他 learner 的一半，估计 SD 0.169 也最接近真值；' +
+          'R 与 DR 的估计 SD 0.383 / 0.277 接近真值的三倍与两倍，是被方差放大的典型。</p>' +
+          '<p>漏掉 <code>lac</code> 之后，五族的偏差从 ≤ 0.014 一起涨到 +0.094 ~ +0.118，' +
+          '回到未调整的 +0.125 附近——又一次印证「变量选对」比「方法选高级」重要。</p>'
       },
       {
         id: "next",
@@ -814,27 +988,32 @@ window.SITE_PAGES.tutorialobs = {
   },
   en: {
     title: "2 · Observational studies",
-    lede: "The confounding back-door biases the naive difference from the start; IPTW and external true-PS weights pull it back within 0.05 — provided all confounding is measured.",
+    lede: "The confounding back-door biases the naive difference from the start; putting the confounders in X keeps every family's bias within 0.08 — provided all confounding is measured.",
     sections: [
       {
         id: "fw-obs",
         heading: "At a glance",
         body:
           '<p>In observational data <code>X → e → A</code> opens a confounding back-door, so the naive ' +
-          'difference starts biased (continuous +0.689, binary +0.125, survival −0.072). This framework shows ' +
-          'how IPTW and external true-PS weighting pull the bias back — provided all confounding is measured.</p>' +
+          'difference starts biased (continuous +0.689, binary +0.125, survival −0.072). Since v0.40 the framework ' +
+          'offers no IPTW weighting option; the main route to deconfounding is <strong>putting the confounders ' +
+          'in X</strong>: S/T/X condition through the outcome model <code>E[Y|A,X]</code>, R residualises, DR does both.</p>' +
           '<div class="table-wrap"><table>' +
           '<thead><tr><th>Scenario</th><th>Script</th><th>Key result</th></tr></thead><tbody>' +
           '<tr><td><a href="#/tutorialobs/s2">Scenario 2 · Continuous × observational</a></td>' +
           '<td><code>02_连续结局_观察性研究.R</code></td>' +
-          '<td>Naive <strong>+0.689</strong> → ATE bias ≤ 0.04 after weighting; the X-learner reaches CATE correlation <strong>0.951</strong> with RMSE 0.327 (true ATE 1.049)</td></tr>' +
+          '<td>Naive <strong>+0.689</strong> → with all confounders in X every family stays within |bias| ≤ 0.073; the X-learner reaches CATE correlation <strong>0.954</strong> with RMSE 0.320 (true ATE 1.049)</td></tr>' +
           '<tr><td><a href="#/tutorialobs/s4">Scenario 4 · Binary × observational</a></td>' +
           '<td><code>04_二分类结局_观察性研究.R</code></td>' +
-          '<td>Naive risk difference <strong>+0.125</strong> → IPTW + X bias −0.002; CATE correlation <strong>0.742</strong> with RMSE 0.110 (true 0.131)</td></tr>' +
+          '<td>Naive risk difference <strong>+0.125</strong> → with all confounders in X every family stays within |bias| ≤ 0.014; the X-learner has bias +0.006, correlation <strong>0.758</strong> and RMSE 0.110 (true 0.131)</td></tr>' +
           '</tbody></table></div>' +
-          '<div class="callout warn"><div class="callout-title">Caveat</div>' +
-          '<p>All confounding here comes from <strong>measured</strong> covariates, which is why adjustment works. ' +
-          'With unmeasured confounding in a real study, no weighting scheme rescues you.</p></div>'
+          '<div class="callout warn"><div class="callout-title">Two caveats</div>' +
+          '<p>(i) All confounding here comes from <strong>measured</strong> covariates, which is why conditioning works. ' +
+          'With unmeasured confounding in a real study, no method rescues you. ' +
+          '(ii) R/DR need <code>cross_fitting = TRUE</code>, otherwise tau is attenuated by flexible learners — ' +
+          'measured: the R-learner\'s ATE drops from 0.976 to 0.432.</p></div>' +
+          '<p>For systematic evidence see <a href="#/tutorial/conf-sweep">tutorial 17 · confounding-strength sweep</a>: ' +
+          'across 5 strengths the unadjusted bias grows from +0.01 to +1.05 while all five families stay within 0.14.</p>'
 
       },
       {
@@ -846,50 +1025,69 @@ window.SITE_PAGES.tutorialobs = {
           '<figcaption>Figure 2 · Scenario 2 DAG: the red path <code>X → e → A</code> makes ' +
           '<code>X</code> a common cause; crude differences are biased</figcaption></figure>' +
           '<pre><code class="language-r">d &lt;- mlr3HTE_demo_obs(n = 4000, seed = 1204)   # confounded\n\n' +
-          'naive &lt;- mean(d$Y[d$A == 1]) - mean(d$Y[d$A == 0])     # biased\n' +
-          'fit   &lt;- metalearner("X", d$X, d$A, d$Y, weighting = "iptw")\n\n' +
-          '# External weights from the true PS\n' +
-          'w &lt;- ifelse(d$A == 1, d$ps_true, 1 - d$ps_true)\n' +
-          'metalearner("DR", d$X, d$A, d$Y, weighting = "external", weights = w)</code></pre>' +
+          'naive &lt;- mean(d$Y[d$A == 1]) - mean(d$Y[d$A == 0])     # biased\n\n' +
+          '# Main route: put the confounders in X and condition\n' +
+          'fit &lt;- metalearner("X", d$X, d$A, d$Y,\n' +
+          '                   learner_base = lrn("regr.ranger", num.trees = 300, seed = 1))\n\n' +
+          '# R / DR carry their own propensity score and must cross-fit\n' +
+          'fit &lt;- metalearner("DR", d$X, d$A, d$Y, cross_fitting = TRUE)</code></pre>' +
           '<div class="callout danger"><div class="callout-title">Confounding structure</div>' +
           '<p>Sicker patients (higher <code>z1</code>) are more likely to be treated, and severity ' +
           'also affects the outcome — so the crude difference picks up severity as well. ' +
-          'Observed baseline: mean lac 2.15 in controls vs 3.03 in treated.</p></div>' +
+          'Observed baseline: mean lac 2.15 / tumor 4.76 in controls vs 3.03 / 5.46 in treated.</p></div>' +
           '<div class="table-wrap"><table>' +
-          '<thead><tr><th>Method</th><th>Estimate</th><th>Bias</th><th>Corr. with truth</th>' +
+          '<thead><tr><th>Learner</th><th>Estimate</th><th>Bias</th><th>Corr. with truth</th>' +
           '<th>RMSE</th><th>Est. SD</th></tr></thead>' +
           '<tbody>' +
           '<tr><td>Unadjusted difference</td><td>1.738</td><td><strong>+0.689</strong></td>' +
           '<td>—</td><td>—</td><td>—</td></tr>' +
-          '<tr><td>IPTW + X</td><td>1.007</td><td>−0.043</td>' +
-          '<td>0.950</td><td>0.333</td><td>0.930</td></tr>' +
-          '<tr><td>Stabilised IPTW + X</td><td>1.011</td><td>−0.038</td>' +
-          '<td>0.951</td><td>0.327</td><td>0.940</td></tr>' +
-          '<tr><td>True-PS external weights + DR</td><td>1.086</td><td>+0.037</td>' +
-          '<td>0.849</td><td>0.581</td><td>1.070</td></tr>' +
+          '<tr><td>S</td><td>1.060</td><td>+0.011</td>' +
+          '<td>0.875</td><td>0.507</td><td>0.972</td></tr>' +
+          '<tr><td>T</td><td>1.029</td><td>−0.020</td>' +
+          '<td>0.821</td><td>0.666</td><td>1.153</td></tr>' +
+          '<tr><td><strong>X</strong></td><td><strong>1.005</strong></td><td><strong>−0.044</strong></td>' +
+          '<td><strong>0.954</strong></td><td><strong>0.320</strong></td><td>0.937</td></tr>' +
+          '<tr><td>R</td><td>0.976</td><td>−0.073</td>' +
+          '<td>0.736</td><td>0.853</td><td>1.241</td></tr>' +
+          '<tr><td>DR</td><td>0.996</td><td>−0.053</td>' +
+          '<td>0.858</td><td>0.586</td><td>1.126</td></tr>' +
           '</tbody></table></div>' +
-          '<p>True ATE = <strong>1.049</strong>; true CATE SD = <strong>1.04</strong>. ' +
-          'Weighting pulls the +0.69 bias back within 0.04. Note the last row: its ' +
-          '<strong>estimated SD of 1.07 exceeds the truth of 1.04</strong> — the average is close, ' +
-          'but the per-person scale has blown up. That is exactly "a right ATE does not mean a right CATE".</p>' +
+          '<p>True ATE = <strong>1.049</strong>; true CATE SD = <strong>1.039</strong>. ' +
+          'With all confounders placed in X, every family\'s ATE bias stays within 0.073, ' +
+          'against 0.689 for the unadjusted difference — an order of magnitude apart.</p>' +
+          '<p>But a right ATE does not mean a right CATE: <strong>correlation with truth ranges from 0.736 (R) ' +
+          'to 0.954 (X)</strong>, and RMSE from 0.320 to 0.853. X\'s estimated SD of 0.937 sits closest to the ' +
+          'true 1.039; R\'s 1.241 and T\'s 1.153 are visibly inflated. Which learner you want depends on whether ' +
+          'you need the average effect or the per-person one.</p>' +
+          '<h3>Negative control: drop one confounder</h3>' +
+          '<p>Remove <code>lac</code> (severity) from X while treatment still depends on it, and the back-door ' +
+          'path <code>A ← e ← lac → Y</code> reopens:</p>' +
           '<div class="table-wrap"><table>' +
-          '<thead><tr><th>Learner</th><th>IPTW ATE</th><th>Bias</th><th>Corr. with truth</th>' +
-          '<th>RMSE</th><th>Est. SD</th></tr></thead>' +
+          '<thead><tr><th>Learner</th><th>All confounders in X</th><th>Drop lac</th>' +
+          '<th>Bias after dropping lac</th></tr></thead>' +
           '<tbody>' +
-          '<tr><td>S</td><td>0.943</td><td>−0.106</td><td>0.864</td><td>0.542</td><td>0.989</td></tr>' +
-          '<tr><td>T</td><td>1.000</td><td>−0.048</td><td>0.793</td><td>0.719</td><td>1.160</td></tr>' +
-          '<tr><td><strong>X</strong></td><td>1.000</td><td>−0.046</td>' +
-          '<td><strong>0.951</strong></td><td><strong>0.327</strong></td><td>0.943</td></tr>' +
-          '<tr><td>R</td><td>0.468</td><td>−0.582</td><td>0.642</td><td>0.987</td><td>0.634</td></tr>' +
-          '<tr><td>DR</td><td>0.931</td><td>−0.119</td><td>0.854</td><td>0.613</td><td>1.150</td></tr>' +
+          '<tr><td>S</td><td>1.060</td><td>1.703</td><td>+0.654</td></tr>' +
+          '<tr><td>T</td><td>1.029</td><td>1.724</td><td>+0.674</td></tr>' +
+          '<tr><td>X</td><td>1.005</td><td>1.704</td><td>+0.655</td></tr>' +
+          '<tr><td>R</td><td>0.976</td><td>1.720</td><td>+0.671</td></tr>' +
+          '<tr><td>DR</td><td>0.996</td><td>1.710</td><td>+0.661</td></tr>' +
           '</tbody></table></div>' +
-          '<p>Weights correct <strong>confounding</strong>, not a learner\'s fitting ability: all five ' +
-          'learners land near the true ATE, yet CATE correlation ranges from 0.642 (R) to 0.951 (X). ' +
-          'True SD = 1.04; R\'s estimated SD of 0.634 is a textbook case of flattening.</p>' +
-          '<p>True ATE = <strong>1.049</strong>. Weighting shrinks a +0.69 bias to under 0.04.</p>' +
+          '<p>All five slide back to roughly +0.65, almost exactly the unadjusted +0.689. ' +
+          '<strong>When the variables are wrong, no learner and no fancier method saves you</strong> — ' +
+          'that is a design-level problem.</p>' +
+          '<h3>R/DR must cross-fit</h3>' +
+          '<p>The R-learner regresses on the residual <code>Y − mu</code>. If mu is estimated on the same data, ' +
+          'a flexible learner (ranger\'s default <code>min.node.size = 5</code>) overfits and squeezes the residual ' +
+          'toward zero, chopping tau off wholesale:</p>' +
+          '<div class="table-wrap"><table>' +
+          '<thead><tr><th>Setting</th><th>Estimate</th><th>Bias</th></tr></thead>' +
+          '<tbody>' +
+          '<tr><td>R, no cross-fitting</td><td>0.432</td><td><strong>−0.617</strong></td></tr>' +
+          '<tr><td>R, cross-fitted</td><td>0.976</td><td>−0.073</td></tr>' +
+          '</tbody></table></div>' +
           '<div class="callout warn"><div class="callout-title">Caveat</div>' +
-          '<p>All confounding here comes from <strong>measured</strong> covariates, so correction ' +
-          'works. With unmeasured confounding in a real study, no method can save you.</p></div>'
+          '<p>All confounding here comes from <strong>measured</strong> covariates, so conditioning works. ' +
+          'With unmeasured confounding in a real study, no method can save you.</p></div>'
       },
       {
         id: "s4",
@@ -902,31 +1100,38 @@ window.SITE_PAGES.tutorialobs = {
           '<pre><code class="language-r">d &lt;- mlr3HTE_demo_obs_binary(n = 4000, seed = 1205)\n\n' +
           'naive &lt;- mean(d$Y[d$A == 1]) - mean(d$Y[d$A == 0])\n' +
           'fit &lt;- metalearner("X", d$X, d$A, d$Y,\n' +
-          '                   learner_base = lrn("classif.ranger", num.trees = 300, seed = 1),\n' +
-          '                   weighting = "iptw")</code></pre>' +
+          '                   learner_base = lrn("classif.ranger", num.trees = 300, seed = 1))</code></pre>' +
           '<div class="table-wrap"><table>' +
           '<thead><tr><th>Method</th><th>Estimate</th><th>True ATE</th><th>Bias</th></tr></thead>' +
           '<tbody>' +
           '<tr><td>Unadjusted risk difference</td><td>0.256</td><td>0.131</td><td><strong>+0.125</strong></td></tr>' +
-          '<tr><td>IPTW + X</td><td>0.146</td><td>0.131</td><td>+0.015</td></tr>' +
-          '<tr><td>True-PS external weights + DR</td><td>0.163</td><td>0.131</td><td>+0.033</td></tr>' +
+          '<tr><td>All confounders in X · S</td><td>0.145</td><td>0.131</td><td>+0.014</td></tr>' +
+          '<tr><td>All confounders in X · T</td><td>0.141</td><td>0.131</td><td>+0.010</td></tr>' +
+          '<tr><td><strong>All confounders in X · X</strong></td><td><strong>0.137</strong></td><td>0.131</td><td><strong>+0.006</strong></td></tr>' +
+          '<tr><td>All confounders in X · R</td><td>0.142</td><td>0.131</td><td>+0.011</td></tr>' +
+          '<tr><td>All confounders in X · DR</td><td>0.137</td><td>0.131</td><td>+0.006</td></tr>' +
+          '<tr><td>Drop lac · X</td><td>0.246</td><td>0.131</td><td>+0.115</td></tr>' +
           '</tbody></table></div>' +
-          '<p>All five learners under IPTW:</p>' +
+          '<p>All five learners with every confounder in X, per person:</p>' +
           '<div class="table-wrap"><table>' +
-          '<thead><tr><th>Learner</th><th>IPTW ATE</th><th>Bias</th><th>Corr. with truth</th>' +
+          '<thead><tr><th>Learner</th><th>Estimate</th><th>Bias</th><th>Corr. with truth</th>' +
           '<th>RMSE</th><th>Est. SD</th></tr></thead>' +
           '<tbody>' +
-          '<tr><td>S</td><td>0.144</td><td>+0.013</td><td>0.552</td><td>0.188</td><td>0.225</td></tr>' +
-          '<tr><td>T</td><td>0.117</td><td>−0.014</td><td>0.444</td><td>0.257</td><td>0.286</td></tr>' +
-          '<tr><td><strong>X</strong></td><td>0.129</td><td><strong>−0.002</strong></td>' +
-          '<td><strong>0.742</strong></td><td><strong>0.110</strong></td><td>0.164</td></tr>' +
-          '<tr><td>R</td><td>0.109</td><td>−0.022</td><td>0.423</td><td>0.206</td><td>0.223</td></tr>' +
-          '<tr><td>DR</td><td>0.132</td><td>+0.001</td><td>0.426</td><td>0.271</td><td>0.300</td></tr>' +
+          '<tr><td>S</td><td>0.145</td><td>+0.014</td><td>0.582</td><td>0.163</td><td>0.198</td></tr>' +
+          '<tr><td>T</td><td>0.141</td><td>+0.010</td><td>0.489</td><td>0.224</td><td>0.257</td></tr>' +
+          '<tr><td><strong>X</strong></td><td><strong>0.137</strong></td><td><strong>+0.006</strong></td>' +
+          '<td><strong>0.758</strong></td><td><strong>0.110</strong></td><td>0.169</td></tr>' +
+          '<tr><td>R</td><td>0.142</td><td>+0.011</td><td>0.383</td><td>0.354</td><td>0.383</td></tr>' +
+          '<tr><td>DR</td><td>0.137</td><td>+0.006</td><td>0.489</td><td>0.241</td><td>0.277</td></tr>' +
           '</tbody></table></div>' +
           '<p>True CATE SD = <strong>0.132</strong>. Because the binary CATE lives on the risk-difference ' +
           'scale, its RMSE is not comparable in magnitude with the continuous scenario — compare rows ' +
           'within the table only: X\'s RMSE of 0.110 is less than half of every other learner\'s, and ' +
-          'its estimated SD of 0.164 is closest to the truth.</p>'
+          'its estimated SD of 0.169 is closest to the truth, while R\'s 0.383 and DR\'s 0.277 are ' +
+          'roughly three and two times the truth — textbook variance inflation.</p>' +
+          '<p>Dropping <code>lac</code> pushes every family\'s bias from ≤ 0.014 up to +0.094 ~ +0.118, ' +
+          'back near the unadjusted +0.125 — the same lesson: getting the variables right matters more ' +
+          'than getting the method fancy.</p>'
       },
       {
         id: "next",
@@ -945,15 +1150,15 @@ window.SITE_PAGES.tutorialobs = {
 window.SITE_PAGES.tutorialsurv = {
   zh: {
     title: "3 · 生存结局分析",
-    lede: "效应是时间点依赖的：必须写清 t0，删失用 IPCW 校正，观察性还要再叠一层 IPTW。",
+    lede: "效应是时间点依赖的：必须写清 t0，删矢由引擎自动做 IPCW；观察性把混杂放进 X 条件化。",
     sections: [
       {
         id: "fw-surv",
         heading: "本篇速览",
         body:
           '<p>生存结局的效应是<strong>时间点依赖</strong>的：报告必须写清 <code>t0</code>，' +
-          'CATE = S(t0) 差（默认 t0 = 事件时间中位数）。删失要用 IPCW 校正，' +
-          '观察性下还要再叠一层 IPTW（两层权重相乘）。</p>' +
+          'CATE = S(t0) 差（默认 t0 = 事件时间中位数）。删矢由引擎按估计量定义自动做 IPCW，' +
+          '观察性场景的去混杂与连续/二分类完全一致——把混杂变量放进 <code>X</code> 条件化。</p>' +
           '<div class="table-wrap"><table>' +
           '<thead><tr><th>场景</th><th>脚本</th><th>关键结论</th></tr></thead><tbody>' +
           '<tr><td><a href="#/tutorialsurv/s5">场景 5 · 生存 × RCT</a></td>' +
@@ -961,7 +1166,7 @@ window.SITE_PAGES.tutorialsurv = {
           '<td>T-learner + Cox：CATE 与真 <em>τ</em> 相关 <strong>0.993</strong></td></tr>' +
           '<tr><td><a href="#/tutorialsurv/s6">场景 6 · 生存 × 观察性</a></td>' +
           '<td><code>06_生存结局_观察性研究.R</code></td>' +
-          '<td>IPTW × IPCW 两层权重；T-learner 的 CATE 相关 <strong>0.967</strong>、RMSE 0.042，而外部权重 + DR 的 ATE 只偏 +0.007 但相关仅 0.123——<strong>只看 ATE 会看错</strong></td></tr>' +
+          '<td>混杂全进 X 后五族 |偏差| ≤ 0.029，T-learner 相关 <strong>0.968</strong>、RMSE 0.042；而 DR 的 ATE 只偏 +0.002 但相关仅 0.170——<strong>只看 ATE 会看错</strong></td></tr>' +
           '<tr><td><a href="#/tutorialsurv/sl-engine">第二套引擎 survlearners</a></td>' +
           '<td><code>09_生存结局_survlearners引擎.R</code></td>' +
           '<td>同一道题两种引擎，结果可对账</td></tr>' +
@@ -1007,23 +1212,29 @@ window.SITE_PAGES.tutorialsurv = {
         body:
           '<figure class="fig"><img src="assets/img/dag/dag_obs_survival.png" ' +
           'alt="场景 6 的 DAG：观察性生存结局">' +
-          '<figcaption>图 6 · 场景 6 因果图：混杂（红）之外还有删失，' +
-          'IPTW × IPCW 两层权重相乘</figcaption></figure>' +
+          '<figcaption>图 6 · 场景 6 因果图：混杂（红）之外还有删矢，' +
+          '删矢由引擎自动用 IPCW 处理</figcaption></figure>' +
           '<pre><code class="language-r">d &lt;- mlr3HTE_demo_obs_surv(n = 4000, t0 = 2, seed = 1206)\n\n' +
           '# 未调整：分两组做 Kaplan-Meier，再取 t0 处差值\n' +
           'km    &lt;- survfit(Surv(d$Y[,1], d$Y[,2]) ~ d$A)\n' +
           's_at  &lt;- summary(km, times = 2)$surv\n' +
           'naive &lt;- s_at[2] - s_at[1]\n\n' +
-          '# IPTW（混杂）× IPCW（删失）\n' +
-          'fit &lt;- metalearner("X", d$X, d$A, d$Y, learner_base = "coxph",\n' +
-          '                   weighting = "iptw", t0 = 2)</code></pre>' +
-          '<div class="callout"><div class="callout-title">两层权重是相乘的</div>' +
+          '# 混杂全进 X 条件化；删矢 IPCW 由引擎自动算\n' +
+          'fit &lt;- metalearner("X", d$X, d$A, d$Y, learner_base = "coxph", t0 = 2)</code></pre>' +
+          '<div class="callout"><div class="callout-title">v0.40 起生存分支只剩删矢 IPCW</div>' +
+          '<p>早年版本在这里叠过两层权重（混杂 IPTW × 删矢 IPCW）。v0.40 移除了 IPTW 选项，' +
+          '与经典 meta-learner 文献保持一致；<strong>删矢 IPCW 保留</strong>，因为它是' +
+          '生存估计量处理信息删矢的组成部分，不是用户可切换的校正开关。' +
+          '引擎内部涉及三类「权重」，都可从教程脚本 06 第 5 节打印出来：</p>' +
           '<div class="table-wrap"><table>' +
-          '<thead><tr><th>权重</th><th>最小值</th><th>中位数</th><th>最大值</th></tr></thead>' +
+          '<thead><tr><th>量</th><th>最小值</th><th>中位数</th><th>最大值</th></tr></thead>' +
           '<tbody>' +
-          '<tr><td>IPTW（混杂）</td><td>1.02</td><td>1.66</td><td>16.73</td></tr>' +
-          '<tr><td>IPCW（删失）</td><td>0.10</td><td>0.85</td><td>1.00</td></tr>' +
-          '<tr><td>相乘后</td><td>0.14</td><td>1.37</td><td>12.28</td></tr>' +
+          '<tr><td><code>e(X)</code> 倾向得分（R/DR 与 survlearners 的 X/R 用）</td>' +
+          '<td>0.023</td><td>0.372</td><td>0.942</td></tr>' +
+          '<tr><td><code>(A-e)^2</code> R-learner 结构权重</td>' +
+          '<td>0.001</td><td>0.159</td><td>0.884</td></tr>' +
+          '<tr><td>IPCW（删矢，自动）</td>' +
+          '<td>0.096</td><td>0.846</td><td>1.000</td></tr>' +
           '</tbody></table></div></div>' +
           '<div class="table-wrap"><table>' +
           '<thead><tr><th>方法</th><th>估计</th><th>真实 ATE</th><th>偏差</th>' +
@@ -1031,27 +1242,37 @@ window.SITE_PAGES.tutorialsurv = {
           '<tbody>' +
           '<tr><td>未调整 KM 差</td><td>0.079</td><td>0.152</td><td><strong>−0.072</strong></td>' +
           '<td>—</td><td>—</td></tr>' +
-          '<tr><td>IPTW + X</td><td>0.125</td><td>0.152</td><td>−0.027</td>' +
-          '<td>0.822</td><td>0.090</td></tr>' +
-          '<tr><td>真实 PS 外部权重 + DR</td><td>0.159</td><td>0.152</td><td>+0.007</td>' +
-          '<td>0.123</td><td>0.563</td></tr>' +
+          '<tr><td>混杂全进 X · S</td><td>0.151</td><td>0.152</td><td>−0.001</td>' +
+          '<td>0.095</td><td>0.150</td></tr>' +
+          '<tr><td><strong>混杂全进 X · T</strong></td><td><strong>0.140</strong></td><td>0.152</td>' +
+          '<td>−0.011</td><td><strong>0.968</strong></td><td><strong>0.042</strong></td></tr>' +
+          '<tr><td>混杂全进 X · X</td><td>0.123</td><td>0.152</td><td>−0.029</td>' +
+          '<td>0.824</td><td>0.090</td></tr>' +
+          '<tr><td>混杂全进 X · R</td><td>0.134</td><td>0.152</td><td>−0.017</td>' +
+          '<td>0.260</td><td>0.333</td></tr>' +
+          '<tr><td>混杂全进 X · DR</td><td>0.153</td><td>0.152</td><td>+0.002</td>' +
+          '<td>0.170</td><td>0.332</td></tr>' +
           '</tbody></table></div>' +
           '<div class="table-wrap"><table>' +
-          '<thead><tr><th>Learner</th><th>IPTW ATE</th><th>偏差</th><th>与真相关</th>' +
+          '<thead><tr><th>Learner</th><th>估计</th><th>偏差</th><th>与真相关</th>' +
           '<th>RMSE</th><th>估计 SD</th></tr></thead>' +
           '<tbody>' +
-          '<tr><td>S</td><td>0.138</td><td>−0.013</td><td>0.033</td><td>0.151</td><td>0.011</td></tr>' +
-          '<tr><td><strong>T</strong></td><td>0.142</td><td>−0.010</td>' +
-          '<td><strong>0.967</strong></td><td><strong>0.042</strong></td><td>0.131</td></tr>' +
-          '<tr><td>X</td><td>0.125</td><td>−0.027</td><td>0.822</td><td>0.090</td><td>0.131</td></tr>' +
-          '<tr><td>R</td><td>0.118</td><td>−0.033</td><td>0.165</td><td>0.331</td><td>0.319</td></tr>' +
-          '<tr><td>DR</td><td>0.025</td><td>−0.127</td><td>0.123</td><td>0.563</td><td>0.546</td></tr>' +
+          '<tr><td>S</td><td>0.151</td><td>−0.001</td><td>0.095</td><td>0.150</td><td>0.012</td></tr>' +
+          '<tr><td><strong>T</strong></td><td><strong>0.140</strong></td><td>−0.011</td>' +
+          '<td><strong>0.968</strong></td><td><strong>0.042</strong></td><td>0.133</td></tr>' +
+          '<tr><td>X</td><td>0.123</td><td>−0.029</td><td>0.824</td><td>0.090</td><td>0.133</td></tr>' +
+          '<tr><td>R</td><td>0.134</td><td>−0.017</td><td>0.260</td><td>0.333</td><td>0.339</td></tr>' +
+          '<tr><td>DR</td><td>0.153</td><td>+0.002</td><td>0.170</td><td>0.332</td><td>0.322</td></tr>' +
           '</tbody></table></div>' +
           '<p>真实 CATE 的 SD = <strong>0.150</strong>。两种「平均看起来都不错」的方法，' +
-          'CATE 表现天差地别：IPTW + X 相关 0.822、RMSE 0.090；' +
-          '而外部权重 + DR 的 ATE 只偏 +0.007，相关却只有 0.123、RMSE 0.563，' +
-          '估计 SD 0.546 是真值的 3.6 倍——<strong>只看 ATE 会把它误判为好方法</strong>。' +
-          'S-learner 的估计 SD 仅 0.011，异质性被完全压平。</p>'
+          'CATE 表现天差地别：T 相关 0.968、RMSE 0.042；' +
+          '而 DR 的 ATE 只偏 +0.002，相关却只有 0.170、RMSE 0.332，' +
+          '估计 SD 0.322 是真值的 2.1 倍——<strong>只看 ATE 会把它误判为好方法</strong>。' +
+          'S-learner 的估计 SD 仅 0.012，异质性被完全压平（与场景 5 同一个 Cox 结构原因）。</p>' +
+          '<h3>漏掉一个混杂因子</h3>' +
+          '<p>把 <code>lac</code> 从 X 里拿掉，五族的偏差从 ≤ 0.029 扩大到 −0.030 ~ −0.068：' +
+          'T 从 0.140 掉到 0.121，DR 从 0.153 掉到 0.084，' +
+          '又一次回到未调整的 0.079 附近。<strong>变量没选对时，引擎再强也纠不回来。</strong></p>'
       },
       {
         id: "curve",
@@ -1097,7 +1318,7 @@ window.SITE_PAGES.tutorialsurv = {
           '<tr><td>效应尺度</td><td>S(t0) 差 + RMST 差</td><td>只有 S(t0) 差</td></tr>' +
           '<tr><td>基学习器</td><td><code>"coxph"</code>/<code>"ranger"</code> + 任意 mlr3 learner</td>' +
           '<td><code>"coxph"</code>/<code>"grf"</code>/<code>"lasso"</code>（<code>"ranger"</code> 是 grf 的别名）</td></tr>' +
-          '<tr><td>删失 / 交叉拟合</td><td>IPTW × IPCW；<code>cross_fitting=TRUE</code></td>' +
+          '<tr><td>删失 / 交叉拟合</td><td>IPCW 加到结局模型（自动）；R/DR 用 <code>cross_fitting=TRUE</code></td>' +
           '<td>包内 IPCW；R 族内部自带 K 折交叉拟合</td></tr>' +
           '</tbody></table></div>' +
 
@@ -1143,15 +1364,16 @@ window.SITE_PAGES.tutorialsurv = {
   },
   en: {
     title: "3 · Survival outcomes",
-    lede: "Effects are time-point dependent: state t0, correct censoring with IPCW, and multiply an IPTW layer on top for observational data.",
+    lede: "Effects are time-point dependent: state t0, and let the engine correct censoring with IPCW; for observational data put the confounders in X.",
     sections: [
       {
         id: "fw-surv",
         heading: "At a glance",
         body:
           '<p>The survival effect is <strong>time-point dependent</strong>: you must state <code>t0</code>, and ' +
-          'CATE = S(t0) difference (default t0 = median event time). Censoring is corrected with IPCW; under ' +
-          'observationality a second IPTW layer is multiplied on top.</p>' +
+          'CATE = S(t0) difference (default t0 = median event time). Censoring is corrected by the engine ' +
+          'with IPCW; the observational case deconfounds exactly like the continuous / binary scenarios — ' +
+          'put the confounders in <code>X</code>.</p>' +
           '<div class="table-wrap"><table>' +
           '<thead><tr><th>Scenario</th><th>Script</th><th>Key result</th></tr></thead><tbody>' +
           '<tr><td><a href="#/tutorialsurv/s5">Scenario 5 · Survival × RCT</a></td>' +
@@ -1159,7 +1381,7 @@ window.SITE_PAGES.tutorialsurv = {
           '<td>T-learner + Cox: CATE vs true <em>τ</em> correlation <strong>0.993</strong></td></tr>' +
           '<tr><td><a href="#/tutorialsurv/s6">Scenario 6 · Survival × observational</a></td>' +
           '<td><code>06_生存结局_观察性研究.R</code></td>' +
-          '<td>IPTW × IPCW two-layer weights; the T-learner reaches CATE correlation <strong>0.967</strong> with RMSE 0.042, while external weights + DR has an ATE bias of only +0.007 but correlation 0.123 — <strong>ATE alone would mislead you</strong></td></tr>' +
+          '<td>With all confounders in X every family stays within |bias| ≤ 0.029; the T-learner reaches correlation <strong>0.968</strong> with RMSE 0.042, while DR has an ATE bias of only +0.002 but correlation 0.170 — <strong>ATE alone would mislead you</strong></td></tr>' +
           '<tr><td><a href="#/tutorialsurv/sl-engine">Second engine: survlearners</a></td>' +
           '<td><code>09_生存结局_survlearners引擎.R</code></td>' +
           '<td>Same question, two engines — results can be reconciled</td></tr>' +
@@ -1208,22 +1430,29 @@ window.SITE_PAGES.tutorialsurv = {
           '<figure class="fig"><img src="assets/img/dag/dag_obs_survival.png" ' +
           'alt="Scenario 6 DAG: observational survival outcome">' +
           '<figcaption>Figure 6 · Scenario 6 DAG: on top of confounding (red) there is ' +
-          'censoring, so IPTW × IPCW layers are multiplied</figcaption></figure>' +
+          'censoring, which the engine handles with IPCW</figcaption></figure>' +
           '<pre><code class="language-r">d &lt;- mlr3HTE_demo_obs_surv(n = 4000, t0 = 2, seed = 1206)\n\n' +
           '# Unadjusted: separate Kaplan-Meier per arm, take the difference at t0\n' +
           'km    &lt;- survfit(Surv(d$Y[,1], d$Y[,2]) ~ d$A)\n' +
           's_at  &lt;- summary(km, times = 2)$surv\n' +
           'naive &lt;- s_at[2] - s_at[1]\n\n' +
-          '# IPTW (confounding) × IPCW (censoring)\n' +
-          'fit &lt;- metalearner("X", d$X, d$A, d$Y, learner_base = "coxph",\n' +
-          '                   weighting = "iptw", t0 = 2)</code></pre>' +
-          '<div class="callout"><div class="callout-title">Two layers of weights are multiplied</div>' +
+          '# Condition on the confounders; censoring IPCW is automatic\n' +
+          'fit &lt;- metalearner("X", d$X, d$A, d$Y, learner_base = "coxph", t0 = 2)</code></pre>' +
+          '<div class="callout"><div class="callout-title">Since v0.40 the survival branch only has censoring IPCW</div>' +
+          '<p>Early versions multiplied two weight layers here (confounding IPTW × censoring IPCW). ' +
+          'v0.40 removed the IPTW option to stay aligned with the classic meta-learner literature; ' +
+          '<strong>the censoring IPCW stays</strong>, because handling information censoring is part of ' +
+          'the survival estimator, not a user-switchable correction. Three kinds of quantity are ' +
+          'involved inside the engine, all printed by section 5 of tutorial script 06:</p>' +
           '<div class="table-wrap"><table>' +
-          '<thead><tr><th>Weights</th><th>Min</th><th>Median</th><th>Max</th></tr></thead>' +
+          '<thead><tr><th>Quantity</th><th>Min</th><th>Median</th><th>Max</th></tr></thead>' +
           '<tbody>' +
-          '<tr><td>IPTW (confounding)</td><td>1.02</td><td>1.66</td><td>16.73</td></tr>' +
-          '<tr><td>IPCW (censoring)</td><td>0.10</td><td>0.85</td><td>1.00</td></tr>' +
-          '<tr><td>Multiplied</td><td>0.14</td><td>1.37</td><td>12.28</td></tr>' +
+          '<tr><td><code>e(X)</code> propensity score (used by R/DR and survlearners\' X/R)</td>' +
+          '<td>0.023</td><td>0.372</td><td>0.942</td></tr>' +
+          '<tr><td><code>(A-e)^2</code> R-learner structural weight</td>' +
+          '<td>0.001</td><td>0.159</td><td>0.884</td></tr>' +
+          '<tr><td>IPCW (censoring, automatic)</td>' +
+          '<td>0.096</td><td>0.846</td><td>1.000</td></tr>' +
           '</tbody></table></div></div>' +
           '<div class="table-wrap"><table>' +
           '<thead><tr><th>Method</th><th>Estimate</th><th>True ATE</th><th>Bias</th>' +
@@ -1231,27 +1460,37 @@ window.SITE_PAGES.tutorialsurv = {
           '<tbody>' +
           '<tr><td>Unadjusted KM difference</td><td>0.079</td><td>0.152</td><td><strong>−0.072</strong></td>' +
           '<td>—</td><td>—</td></tr>' +
-          '<tr><td>IPTW + X</td><td>0.125</td><td>0.152</td><td>−0.027</td>' +
-          '<td>0.822</td><td>0.090</td></tr>' +
-          '<tr><td>True-PS external weights + DR</td><td>0.159</td><td>0.152</td><td>+0.007</td>' +
-          '<td>0.123</td><td>0.563</td></tr>' +
+          '<tr><td>All confounders in X · S</td><td>0.151</td><td>0.152</td><td>−0.001</td>' +
+          '<td>0.095</td><td>0.150</td></tr>' +
+          '<tr><td><strong>All confounders in X · T</strong></td><td><strong>0.140</strong></td><td>0.152</td>' +
+          '<td>−0.011</td><td><strong>0.968</strong></td><td><strong>0.042</strong></td></tr>' +
+          '<tr><td>All confounders in X · X</td><td>0.123</td><td>0.152</td><td>−0.029</td>' +
+          '<td>0.824</td><td>0.090</td></tr>' +
+          '<tr><td>All confounders in X · R</td><td>0.134</td><td>0.152</td><td>−0.017</td>' +
+          '<td>0.260</td><td>0.333</td></tr>' +
+          '<tr><td>All confounders in X · DR</td><td>0.153</td><td>0.152</td><td>+0.002</td>' +
+          '<td>0.170</td><td>0.332</td></tr>' +
           '</tbody></table></div>' +
           '<div class="table-wrap"><table>' +
-          '<thead><tr><th>Learner</th><th>IPTW ATE</th><th>Bias</th><th>Corr. with truth</th>' +
+          '<thead><tr><th>Learner</th><th>Estimate</th><th>Bias</th><th>Corr. with truth</th>' +
           '<th>RMSE</th><th>Est. SD</th></tr></thead>' +
           '<tbody>' +
-          '<tr><td>S</td><td>0.138</td><td>−0.013</td><td>0.033</td><td>0.151</td><td>0.011</td></tr>' +
-          '<tr><td><strong>T</strong></td><td>0.142</td><td>−0.010</td>' +
-          '<td><strong>0.967</strong></td><td><strong>0.042</strong></td><td>0.131</td></tr>' +
-          '<tr><td>X</td><td>0.125</td><td>−0.027</td><td>0.822</td><td>0.090</td><td>0.131</td></tr>' +
-          '<tr><td>R</td><td>0.118</td><td>−0.033</td><td>0.165</td><td>0.331</td><td>0.319</td></tr>' +
-          '<tr><td>DR</td><td>0.025</td><td>−0.127</td><td>0.123</td><td>0.563</td><td>0.546</td></tr>' +
+          '<tr><td>S</td><td>0.151</td><td>−0.001</td><td>0.095</td><td>0.150</td><td>0.012</td></tr>' +
+          '<tr><td><strong>T</strong></td><td><strong>0.140</strong></td><td>−0.011</td>' +
+          '<td><strong>0.968</strong></td><td><strong>0.042</strong></td><td>0.133</td></tr>' +
+          '<tr><td>X</td><td>0.123</td><td>−0.029</td><td>0.824</td><td>0.090</td><td>0.133</td></tr>' +
+          '<tr><td>R</td><td>0.134</td><td>−0.017</td><td>0.260</td><td>0.333</td><td>0.339</td></tr>' +
+          '<tr><td>DR</td><td>0.153</td><td>+0.002</td><td>0.170</td><td>0.332</td><td>0.322</td></tr>' +
           '</tbody></table></div>' +
           '<p>True CATE SD = <strong>0.150</strong>. Two methods that both "look fine on average" differ ' +
-          'wildly on CATE: IPTW + X has correlation 0.822 and RMSE 0.090, while external weights + DR ' +
-          'has an ATE bias of only +0.007 yet correlation 0.123 and RMSE 0.563, with an estimated SD ' +
-          'of 0.546 — 3.6x the truth. <strong>Judging on ATE alone would call it a good method.</strong> ' +
-          'The S-learner\'s estimated SD of 0.011 shows heterogeneity fully flattened.</p>'
+          'wildly on CATE: T has correlation 0.968 and RMSE 0.042, while DR has an ATE bias of only ' +
+          '+0.002 yet correlation 0.170 and RMSE 0.332, with an estimated SD of 0.322 — 2.1x the truth. ' +
+          '<strong>Judging on ATE alone would call it a good method.</strong> ' +
+          'The S-learner\'s estimated SD of 0.012 shows heterogeneity fully flattened (same Cox structure as in scenario 5).</p>' +
+          '<h3>Drop one confounder</h3>' +
+          '<p>Remove <code>lac</code> from X and every family\'s bias widens from ≤ 0.029 to −0.030 ~ −0.068: ' +
+          'T falls from 0.140 to 0.121, DR from 0.153 to 0.084, back near the unadjusted 0.079. ' +
+          '<strong>When the variables are wrong, no engine can rescue you.</strong></p>'
       },
       {
         id: "curve",
@@ -1302,7 +1541,7 @@ window.SITE_PAGES.tutorialsurv = {
           '<tr><td>Effect scale</td><td>S(t0) difference + RMST difference</td><td>S(t0) difference only</td></tr>' +
           '<tr><td>Base learners</td><td><code>"coxph"</code>/<code>"ranger"</code> + any mlr3 learner</td>' +
           '<td><code>"coxph"</code>/<code>"grf"</code>/<code>"lasso"</code> (<code>"ranger"</code> aliases grf)</td></tr>' +
-          '<tr><td>Censoring / cross-fitting</td><td>IPTW × IPCW; <code>cross_fitting=TRUE</code></td>' +
+          '<tr><td>Censoring / cross-fitting</td><td>IPCW added to the outcome model (automatic); R/DR use <code>cross_fitting=TRUE</code></td>' +
           '<td>built-in IPCW; R family cross-fits internally</td></tr>' +
           '</tbody></table></div>' +
 
@@ -1779,7 +2018,7 @@ window.SITE_PAGES.tutorialmetrics = {
           '<div class="callout ok"><div class="callout-title">判别力 ≠ 无偏性</div>' +
           '<p>这三个指标衡量的是<strong>排序质量</strong>，不是<strong>效应估计的无偏性</strong>。' +
           '一个模型可以把 CATE 整体放大 10 倍，Qini / c-for-benefit 完全不变，但 ATE 会错 10 倍。' +
-          '所以两者要分开报：ATE 的无偏性靠 IPTW / DR 与真值对账（前六格），' +
+          '所以两者要分开报：ATE 的无偏性靠混杂进 X 条件化 / DR 与真值对账（前六格），' +
           '判别力靠这三个指标（本格）。</p></div>' +
 
           '<h3>文献出处</h3>' +
@@ -2104,7 +2343,8 @@ window.SITE_PAGES.tutorialmetrics = {
           '<p>These three metrics measure <strong>ranking quality</strong>, not ' +
           '<strong>unbiased effect estimation</strong>. Inflate every CATE by 10× and the Qini / ' +
           'c-for-benefit values do not move at all, while the ATE is off by 10×. Report the two ' +
-          'separately: unbiasedness of the ATE comes from IPTW / DR and truth reconciliation ' +
+          'separately: unbiasedness of the ATE comes from conditioning on the confounders / DR and ' +
+          'truth reconciliation ' +
           '(the six cells above), discrimination comes from these three metrics (this cell).</p></div>' +
 
           '<h3>References</h3>' +

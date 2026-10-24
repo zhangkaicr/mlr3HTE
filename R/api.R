@@ -30,10 +30,17 @@
 #' @param learner_tau 效应阶段回归学习器；默认沿用回归型 learner_base，否则
 #'   regr.ranger（min.node.size = 50）。X-Learner 的两个效应回归可分别指定：
 #'   \code{list(tau1 = ..., tau0 = ...)}；其余 learner 传单个 learner 即可。
-#' @param learner_ps 倾向得分学习器（IPTW 时用，默认 classif.log_reg）
-#' @param weighting "none"（RCT）/ "iptw" / "external"
-#' @param weights 当 weighting = "external" 时的权重向量
-#' @param stabilize IPTW 是否使用稳定化权重
+#' @param learner_ps 倾向得分。仅 X / R / DR 使用，S / T 忽略（它们是纯结局回归，
+#'   去混杂靠把混杂因子放进 \code{X} 条件化）。三种形态：
+#'   \describe{
+#'     \item{mlr3 分类学习器}{内部拟合，观察性数据的默认做法；不指定时用
+#'       \code{classif.log_reg}}
+#'     \item{标量}{常数倾向得分，用于 RCT 已知随机化概率（如 \code{0.5}），
+#'       也免掉拟计入的噪声}
+#'     \item{函数}{用户自建的 \code{function(newX)}，例如用别的包估好后封起来}
+#'   }
+#'   注意 X-learner 的 \code{g(x)} 融合、R 的 Robinson 中心化、DR 的 AIPW 伪结果
+#'   都把 \code{e(x)} 当作算法定义的必需输入——它们**不是**可开关的去混杂加权。
 #' @param t0 生存结局的效应评估时点，默认取事件时间中位数
 #' @param outcome 结局类型 "auto"/"continuous"/"binary"/"survival"
 #' @param effect 生存结局的效应度量："survdiff"（t0 时点生存概率差，默认）
@@ -60,27 +67,51 @@
 #' （各阶段共用），也可传按角色命名的 list（见对应参数）让每组 / 每阶段用不同算法。
 #' 例如 T-Learner 可用 \code{list(treated = lrn("regr.lm"), control = lrn("regr.ranger"))}
 #' 让两组用不同模型；X-Learner 还能用 \code{list(tau1 = ..., tau0 = ...)} 分开两个效应回归。
+#'
+#' @section 观察性数据与「加权」的设计边界:
+#' 本包**不提供** \code{weighting} / \code{weights} / \code{stabilize} 参数（v0.40 起移除）。
+#' 理由是：经典 metalearner 文献（Künzel et al. 2019 PNAS 的 X-learner，以及 CausalML 的
+#' BaseS / BaseT / BaseX）从不给 S/T/X 的结局模型套逆概率权重。各 learner 处理混杂的
+#' 方式各不相同，且都写在各自的定义里：
+#' \describe{
+#'   \item{S / T / X}{靠**把混杂因子放进 \code{X}**、由结局模型条件化。
+#'     漏掉混杂因子时偏倚与朴素估计相同——加任何权重都救不回来}
+#'   \item{R}{Robinson 残差化：结局与处理都对 \code{X} 取残差后回归}
+#'   \item{DR}{AIPW 双重稳健伪结果：只要 \code{(m1, m0)} 或 \code{e(x)} 之一设定正确
+#'     就一致，是观察性数据下最稳健的选择}
+#' }
+#' 一个只会重估结局模型的「单稳健」加权既不是文献做法，也无法单独去混杂，
+#' 因此不再保留。生存结局另有**删矢 IPCW**（\code{effect = "survdiff"} 时乘在个体结局
+#' \code{I(T > t0)} 上），那是估计量对删矢的标准处理，不是用户可开关的选项。
+#'
 #' @return 含 \code{$predict(newX)}、\code{$ate}、\code{$cate_train} 与 \code{$models}
 #'   （每阶段训练好的 mlr3 模型，见 \code{@@details}）的拟合对象
 #' @seealso \code{\link{s_learner}}, \code{\link{ml_task}}
 #' @export
 #' @examples
+#' # RCT：默认即可，无需任何加权
 #' d <- mlr3HTE_demo_data(n = 500, seed = 1)
 #' fit <- metalearner("T", d$X, d$A, d$Y, learner_base = mlr3::lrn("regr.lm"))
 #' cor(fit$cate_train, d$tau)
+#'
+#' # 观察性数据：DR-Learner 默认内部拟合倾向得分，双重稳健
+#' dobs <- mlr3HTE_demo_obs(n = 800, seed = 1)
+#' fit_obs <- metalearner("DR", dobs$X, dobs$A, dobs$Y)
+#' fit_obs$ate                     # 对比 dobs$ate（真实 ATE）
+#'
+#' # RCT 已知随机化概率 0.5 时，可直接把常数倾向得分传给 X/R/DR
+#' fit_rct <- metalearner("X", d$X, d$A, d$Y, learner_ps = 0.5)
 metalearner <- function(type, X, A, Y,
                         learner_base = mlr3::lrn("regr.ranger"),
                         learner_tau = NULL,
                         learner_ps = NULL,
-                        weighting = "none", weights = NULL,
-                        stabilize = FALSE, t0 = NULL, outcome = "auto",
+                        t0 = NULL, outcome = "auto",
                         effect = "survdiff",
                         cross_fitting = FALSE, n_folds = 5L,
                         engine = "native") {
   ml_fit(type = type, X = X, A = A, Y = Y,
          learner_base = learner_base, learner_tau = learner_tau,
-         learner_ps = learner_ps, weighting = weighting, weights = weights,
-         stabilize = stabilize, t0 = t0, outcome = outcome, effect = effect,
+         learner_ps = learner_ps, t0 = t0, outcome = outcome, effect = effect,
          cross_fitting = cross_fitting, n_folds = n_folds, engine = engine)
 }
 
@@ -151,7 +182,7 @@ cate_ci <- function(type, X, A, Y, B = 100L, level = 0.95, seed = NULL,
 #' @param A 处理指示（0/1，或逻辑）
 #' @param Y 结局：连续（数值）/ 二分类（0-1 或两水平因子）/ 生存（Surv 对象）
 #' @param learner_base 结局模型基学习器，默认 \code{regr.ranger}
-#' @param ... 其他传给 \code{\link{metalearner}} 的参数（\code{weighting}、\code{t0}、
+#' @param ... 其他传给 \code{\link{metalearner}} 的参数（\code{t0}、
 #'   \code{effect}、\code{cross_fitting} 等）
 #' @return 训练集上逐样本的 CATE 数值向量
 #' @seealso \code{\link{metalearner}}
@@ -375,18 +406,22 @@ mlr3HTE_demo_surv <- function(n = 4000, treat_frac = 0.5, t0 = 2, seed = 1203) {
 
 # 4 观察性数据（连续结局 + 混杂）-----------------------------------------------
 # 处理概率依赖协变量（confounding by indication）：病情越重越容易接受处理，
-# 因此未调整的差分会偏离真实 ATE，需要 IPTW / DR 等校正。
+# 因此未调整的差分会偏离真实 ATE。强度由 strength 控制：0 = 与 RCT 等价
+# （处理与协变量独立），越大混杂越强。
 #' 演示数据：连续结局 + 观察性（混杂）
 #'
 #' @description 生成连续结局的**观察性**演示数据，处理概率依赖协变量（病情越重越易
-#'   接受治疗 = confounding by indication）。未调整的差分会偏离真实 ATE，需用
-#'   \code{weighting = "iptw"} / \code{"external"} 或 DR-Learner 校正。同时返回真实
-#'   倾向得分 \code{ps_true} 供加权对比。
+#'   接受治疗 = confounding by indication），未调整的差分会偏离真实 ATE。
+#'   观察性数据下去混杂的正道：S/T/X 把混杂因子放进 \code{X} 由结局模型条件化，
+#'   R-Learner 走 Robinson 残差化，DR-Learner 走 AIPW 双重稳健（最稳健）。
+#'   同时返回真实倾向得分 \code{ps_true} 供核查。
 #' @param n 样本量，默认 4000
+#' @param strength 混杂强度，默认 1。\code{0} 时处理概率与协变量无关（等价 RCT），
+#'   数值越大混杂越强；用于扫描「不同强度混杂下的估计表现」
 #' @param seed 随机种子
 #' @return list：X、A、Y、tau（真实 CATE）、ate（真实 ATE）、ps_true（真实倾向得分）
 #' @export
-mlr3HTE_demo_obs <- function(n = 4000, seed = 1204) {
+mlr3HTE_demo_obs <- function(n = 4000, strength = 1, seed = 1204) {
   set.seed(seed)
   age   <- rnorm(n, 60, 12)
   lac   <- rnorm(n, 2.5, 1.2)
@@ -396,7 +431,7 @@ mlr3HTE_demo_obs <- function(n = 4000, seed = 1204) {
   z2 <- scale(tumor)[, 1]
   tau <- 1.0 + 0.8 * z1 - 0.5 * z2 + 0.6 * (z1 > 1 & z2 < 0)
   mu  <- 6 + 0.4 * z1 + 0.5 * z2 - 0.02 * (age - 60) + 0.3 * sex
-  e <- plogis(-0.5 + 0.8 * z1 + 0.4 * z2)          # 处理概率随病情上升
+  e <- plogis(-0.5 + strength * (0.8 * z1 + 0.4 * z2))   # 处理概率随病情上升
   A <- rbinom(n, 1, e)
   Y <- mu + A * tau + rnorm(n, 0, 1)
   list(X = data.frame(age = age, lac = lac, tumor = tumor, sex = sex),
@@ -412,10 +447,11 @@ mlr3HTE_demo_obs <- function(n = 4000, seed = 1204) {
 #' @description 与 \code{\link{mlr3HTE_demo_obs}} 同一套混杂结构（病情越重越易接受
 #'   处理），结局换成二分类。风险差尺度的真实 CATE 随数据返回，另含 \code{ps_true}。
 #' @param n 样本量，默认 4000
+#' @param strength 混杂强度，默认 1；\code{0} 时等价 RCT
 #' @param seed 随机种子
 #' @return list：X、A、Y、tau（风险差尺度的真实 CATE）、ate（真实 ATE）、ps_true
 #' @export
-mlr3HTE_demo_obs_binary <- function(n = 4000, seed = 1205) {
+mlr3HTE_demo_obs_binary <- function(n = 4000, strength = 1, seed = 1205) {
   set.seed(seed)
   age   <- rnorm(n, 60, 12)
   lac   <- rnorm(n, 2.5, 1.2)
@@ -427,7 +463,7 @@ mlr3HTE_demo_obs_binary <- function(n = 4000, seed = 1205) {
   tau_logit <- 0.6 + 0.5 * z1 - 0.4 * z2
   p1 <- plogis(qlogis(p0) + tau_logit)
   tau <- p1 - p0                                   # 风险差尺度的真实 CATE
-  e <- plogis(-0.5 + 0.8 * z1 + 0.4 * z2)          # 处理概率随病情上升
+  e <- plogis(-0.5 + strength * (0.8 * z1 + 0.4 * z2))  # 处理概率随病情上升
   A <- rbinom(n, 1, e)
   Y <- rbinom(n, 1, ifelse(A == 1L, p1, p0))
   list(X = data.frame(age = age, lac = lac, tumor = tumor, sex = sex),
@@ -442,11 +478,12 @@ mlr3HTE_demo_obs_binary <- function(n = 4000, seed = 1205) {
 #'   默认效应度量 = t0 时点生存概率差；另返回 RMST 版真实效应与 \code{ps_true}。
 #' @param n 样本量，默认 4000
 #' @param t0 效应评估时点，默认 2
+#' @param strength 混杂强度，默认 1；\code{0} 时等价 RCT
 #' @param seed 随机种子
 #' @return list：X、A、Y（Surv 对象）、tau（生存概率差尺度的真实 CATE）、ate、t0、
 #'   ps_true、tau_rmst、ate_rmst
 #' @export
-mlr3HTE_demo_obs_surv <- function(n = 4000, t0 = 2, seed = 1206) {
+mlr3HTE_demo_obs_surv <- function(n = 4000, t0 = 2, strength = 1, seed = 1206) {
   set.seed(seed)
   age   <- rnorm(n, 60, 12)
   lac   <- rnorm(n, 2.5, 1.2)
@@ -456,7 +493,7 @@ mlr3HTE_demo_obs_surv <- function(n = 4000, t0 = 2, seed = 1206) {
   z2 <- scale(tumor)[, 1]
   tau <- 0.5 + 0.4 * z1 - 0.3 * z2                  # 对数风险尺度的异质性效应
   base_rate <- exp(-1.0 + 0.3 * z1 + 0.2 * z2 + 0.1 * (age - 60) / 12 + 0.15 * sex)
-  e <- plogis(-0.5 + 0.8 * z1 + 0.4 * z2)
+  e <- plogis(-0.5 + strength * (0.8 * z1 + 0.4 * z2))
   A <- rbinom(n, 1, e)
   rate <- base_rate * exp(-A * tau)
   T <- stats::rexp(n, rate = rate)

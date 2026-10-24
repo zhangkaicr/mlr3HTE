@@ -18,7 +18,7 @@ test_that("S/T/R 三族 × 三种基学习器都能跑通且数值合理", {
       fit <- metalearner(tp, d$X, d$A, d$Y, learner_base = k,
                          t0 = 2, engine = "survlearners")
       # 返回契约与原生引擎一致
-      expect_named(fit, c("type", "outcome", "weighting", "effect", "engine",
+      expect_named(fit, c("type", "outcome", "effect", "engine",
                           "cross_fitting", "t0", "models", "predict",
                           "cate_train", "ate"))
       expect_identical(fit$engine, "survlearners")
@@ -61,22 +61,21 @@ test_that("ranger 是 grf 的别名（换引擎不必改字符串）", {
   expect_equal(f1$ate, f2$ate)
 })
 
-test_that("观察性数据：外部真实 PS 权重经反解喂给 W.hat", {
+test_that("观察性数据：真实倾向得分经 function 喂给 W.hat", {
   d <- mlr3HTE_demo_obs_surv(n = 500L, t0 = 2, seed = 1206)
-  w <- ifelse(d$A == 1, 1 / d$ps_true, 1 / (1 - d$ps_true))
   for (tp in c("X", "R")) {
     fit <- metalearner(tp, d$X, d$A, d$Y, learner_base = "grf", t0 = 2,
-                       weighting = "external", weights = w,
+                       learner_ps = function(nx) d$ps_true,
                        engine = "survlearners")
     expect_lt(abs(fit$ate - d$ate), 0.1)
     expect_gt(cor(fit$cate_train, d$tau), 0.4)
   }
 })
 
-test_that("观察性数据：iptw 路径用 mlr3HTE 自训 PS 作为 W.hat", {
+test_that("观察性数据：默认自拟 PS 作为 W.hat", {
   d <- mlr3HTE_demo_obs_surv(n = 500L, t0 = 2, seed = 1206)
   fit <- metalearner("R", d$X, d$A, d$Y, learner_base = "grf", t0 = 2,
-                     weighting = "iptw", engine = "survlearners")
+                     engine = "survlearners")
   expect_lt(abs(fit$ate - d$ate), 0.15)
 })
 

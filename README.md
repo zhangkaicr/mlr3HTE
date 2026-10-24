@@ -24,7 +24,7 @@ S- / T- / X- / R- / DR-learner 做成了正规可安装的 mlr3 学习器。
 | 维度 | 支持 |
 |---|---|
 | 结局类型 | 连续（均值差）、二分类（风险差）、生存（t0 时点生存概率差） |
-| 数据类型 | 随机化试验（RCT）、观察性数据（IPTW 或外部权重） |
+| 数据类型 | 随机化试验（RCT）、观察性数据（混杂进 X 条件化，或 R / DR） |
 | metalearner | S、T、X、R、DR 五种 |
 | 接口 | 函数式 API + mlr3 R6 Learner（可进 `resample` / `benchmark` / `tune`） |
 
@@ -148,15 +148,24 @@ fit <- metalearner("X", ds$X, ds$A, ds$Y, learner_base = "grf",
 ```r
 do <- mlr3HTE_demo_obs(n = 4000)
 
-# 方式一：内部训倾向得分做 IPTW
+# 去混杂的主路径：把全部混杂变量放进 X，让结局模型条件化
+# （S/T/X 靠 E[Y|A,X]，R 靠残差化，DR 两者都做）
 fit <- metalearner("X", do$X, do$A, do$Y,
                    learner_base = lrn("regr.ranger"),
-                   weighting = "iptw", stabilize = TRUE)
+                   cross_fitting = FALSE)
 
-# 方式二：用自己算好的权重
-fit <- metalearner("DR", do$X, do$A, do$Y, weighting = "external",
-                   weights = my_weights)
+# R / DR 自带倾向得分 e(X)，且必须开交叉拟合，否则 tau 被衰减
+fit <- metalearner("DR", do$X, do$A, do$Y, cross_fitting = TRUE)
+
+# RCT 里倾向得分是常数 0.5，可以直接告诉引擎
+fit <- metalearner("DR", do$X, do$A, do$Y, learner_ps = 0.5)
 ```
+
+> **v0.40 起没有 IPTW 加权选项。** Künzel et al. 2019 *PNAS* 与 CausalML 的
+> BaseS/BaseT/BaseX 都不给结局模型套 IPTW；本包早期提供的 `weighting = "iptw"` /
+> `"external"` / `stabilize` 本质是「加权结局回归」，属单稳健，已整体移除。
+> 保留的两类权重都是估计量/算法定义的组成部分，不是可选开关：
+> R-learner 的 Robinson 权重 `(A-e)^2`、生存分支的删矢 IPCW。
 
 ### 2.5 便捷封装
 
@@ -207,13 +216,11 @@ benchmark(benchmark_grid(task,
 |---|---|
 | `learner_base` | 结局模型基学习器，类型须与结局匹配 |
 | `learner_tau` | 效应阶段回归学习器；`NULL` 时用引擎的正则化默认值 |
-| `learner_ps` | 倾向得分学习器（IPTW 时用，默认 `classif.log_reg`） |
+| `learner_ps` | 倾向得分：mlr3 分类学习器 / 常数标量（如 RCT 的 `0.5`）/ `function(newX)` |
 | `treatment_col` | 处理列名，默认 `"A"` |
 | `t0` | 生存效应时点 |
-| `stabilize` | IPTW 是否用稳定化权重 |
 
-**可调参数**（`param_set`，可用于 `tune()`）：`metalearner`（S/T/X/R/DR）、
-`weighting`（none/iptw/external）。
+**可调参数**（`param_set`，可用于 `tune()`）：`metalearner`（S/T/X/R/DR）。
 
 ---
 
@@ -297,11 +304,11 @@ Rscript tutorial/code/01_连续结局_随机化RCT.R
 | 脚本 | 内容 |
 |---|---|
 | `01_连续结局_随机化RCT.R` | 连续 + RCT，五种 learner 对账 |
-| `02_连续结局_观察性研究.R` | 连续 + 观察性，IPTW vs 未调整 |
+| `02_连续结局_观察性研究.R` | 连续 + 观察性，混杂全进 X vs 漏掉混杂因子 |
 | `03_二分类结局_随机化RCT.R` | 二分类 + RCT，风险差尺度 |
-| `04_二分类结局_观察性研究.R` | 二分类 + 观察性 |
+| `04_二分类结局_观察性研究.R` | 二分类 + 观察性，混杂全进 X vs 漏掉混杂因子 |
 | `05_生存结局_随机化RCT.R` | 生存 + RCT，t0 生存概率差 |
-| `06_生存结局_观察性研究.R` | 生存 + 观察性，IPTW × IPCW |
+| `06_生存结局_观察性研究.R` | 生存 + 观察性，条件化 + 引擎内部三类权重 |
 | `07_五种metalearner横向对比.R` | 三种结局 × 五种 learner 对比表 |
 | `08_mlr3工作流集成.R` | `ml_task` + `resample` + `benchmark` |
 | `09_生存结局_survlearners引擎.R` | 生存第二套引擎 `engine = "survlearners"`，与原生引擎同题对比 |

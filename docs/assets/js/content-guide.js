@@ -9,7 +9,7 @@ window.SITE_PAGES.guide = {
   /* ---------------- 中文 ---------------- */
   zh: {
     title: "架构与快速开始",
-    lede: "先建立统一的心智模型：结局模型抽象 → 五种 learner 的公式 → 权重的三种模式 → 删失的两层处理。",
+    lede: "先建立统一的心智模型：结局模型抽象 → 五种 learner 的公式 → 倾向得分与去混杂 → 删矢的两层处理。",
     sections: [
 
       {
@@ -110,36 +110,56 @@ window.SITE_PAGES.guide = {
       },
 
       {
-        id: "weighting",
-        heading: "4. 权重的三种模式",
+        id: "confounding",
+        heading: "4. 倾向得分与去混杂",
         body:
-          '<pre><code class="language-r"># RCT：不加权\n' +
-          'metalearner("T", X, A, Y, weighting = "none")\n\n' +
-          '# 观察性：内部训 PS 模型做 IPTW\n' +
-          'metalearner("X", X, A, Y, weighting = "iptw", stabilize = TRUE)\n\n' +
-          '# 观察性：用外部算好的权重\n' +
-          'w &lt;- ifelse(A == 1, ps, 1 - ps)\n' +
-          'metalearner("DR", X, A, Y, weighting = "external", weights = w)</code></pre>' +
+          '<p>v0.40 起移除了 <code>weighting</code> / <code>weights</code> / <code>stabilize</code>。' +
+          '理由是经典 metalearner 文献（Künzel et al. 2019 PNAS 的 X-learner、CausalML 的 ' +
+          'BaseS / BaseT / BaseX）<strong>从不给 S/T/X 的结局模型套逆概率权重</strong>；' +
+          '而一个只会重估结局模型的「单稳健」加权既不是文献做法，也无法单独去混杂' +
+          '（漏掉混杂因子时偏倚与朴素估计相同）。</p>' +
+          '<div class="table-wrap"><table>' +
+          '<thead><tr><th>Learner</th><th>倾向得分用在哪</th><th>去混杂靠什么</th></tr></thead>' +
+          '<tbody>' +
+          '<tr><td>S / T</td><td>不使用</td><td>把混杂因子放进 <code>X</code>，由结局模型条件化</td></tr>' +
+          '<tr><td>X</td><td>第三步 <code>g(x) = e(x)</code> 融合权重</td><td>同上（<code>m1</code> / <code>m0</code> 条件化）</td></tr>' +
+          '<tr><td>R</td><td>Robinson 中心化 <code>A − e(x)</code></td><td>残差化本身</td></tr>' +
+          '<tr><td>DR</td><td>AIPW 伪结果的分母</td><td>双重稳健：结局模型或倾向得分其一正确即一致</td></tr>' +
+          '</tbody></table></div>' +
+          '<pre><code class="language-r"># 观察性：DR 默认内部拟合倾向得分（classif.log_reg），双重稳健\n' +
+          'fit &lt;- metalearner("DR", d$X, d$A, d$Y, cross_fitting = TRUE)\n\n' +
+          '# RCT 已知随机化概率 0.5：直接给常数，免掉拟计入的噪声\n' +
+          'fit &lt;- metalearner("X", d$X, d$A, d$Y, learner_ps = 0.5)\n\n' +
+          '# 自己算好的倾向得分，封成函数传进来\n' +
+          'fit &lt;- metalearner("R", d$X, d$A, d$Y,\n' +
+          '                learner_ps = function(nx) predict(my_ps_model, newdata = nx))</code></pre>' +
           '<div class="callout warn">' +
-          '<div class="callout-title">权重复现要设种子</div>' +
-          '<p>mlr3 1.8 的 Task / Learner 没有 case weights API，包内权重统一走<strong>重要性重采样</strong>，' +
-          '会引入蒙特卡洛噪声。需要复现结果时请在调用前 <code>set.seed()</code>。</p>' +
+          '<div class="callout-title">X-learner 的 g(x) 不是去混杂工具</div>' +
+          '<p>它只在两组样本悬殊时给样本少的那侧插补更高权重以稳定融合，' +
+          '前提是 <code>m1</code> / <code>m0</code> 已经通过条件化无偏。' +
+          '「用了倾向得分」≠「处理了混杂」。</p>' +
+          '</div>' +
+          '<div class="callout">' +
+          '<div class="callout-title">量化证据</div>' +
+          '<p>见<a href="#/tutorial">场景教程 · 混杂强度扫描</a>：混杂强度从 0（RCT）加到 2 时，' +
+          '未调整差值的偏差从 +0.01 涨到 +1.05，而五族的 CATE 相关基本是一条平线。</p>' +
           '</div>'
       },
 
       {
         id: "censoring",
-        heading: "5. 生存结局的删失：两层分工",
+        heading: "5. 生存结局的删矢：两层分工",
         body:
           '<div class="table-wrap"><table>' +
-          '<thead><tr><th>Learner</th><th>删失怎么处理</th></tr></thead>' +
+          '<thead><tr><th>Learner</th><th>删矢怎么处理</th></tr></thead>' +
           '<tbody>' +
-          '<tr><td>S / T</td><td>结局模型本身就是生存模型（Cox 偏似然），删失已在似然里正确处理，<strong>不需要额外权重</strong></td></tr>' +
-          '<tr><td>X / R / DR</td><td>需要个体尺度结局，取 <code>I(T &gt; t0)</code>，此时乘上<strong>删失 IPCW 权重</strong> <code>1 / G(Tᵢ⁻)</code></td></tr>' +
+          '<tr><td>S / T</td><td>结局模型本身就是生存模型（Cox 偏似然），删矢已在似然里正确处理，<strong>不需要额外权重</strong></td></tr>' +
+          '<tr><td>X / R / DR</td><td>需要个体尺度结局，取 <code>I(T &gt; t0)</code>，此时乘上<strong>删矢 IPCW</strong> <code>1 / G(Tᵢ⁻)</code></td></tr>' +
           '</tbody></table></div>' +
-          '<p><code>G</code> 由对删失指示 <code>(1 - status)</code> 拟合的 Cox 模型得到，' +
-          '权重截断在 <code>[0.01, 1]</code> 防止极端值搅坏估计。观察性数据时，' +
-          '<strong>混杂 IPTW 与删失 IPCW 是相乘的</strong>。</p>' +
+          '<p><code>G</code> 由对删矢指示 <code>(1 - status)</code> 拟合的 Cox 模型得到，' +
+          '权重截断在 <code>[0.01, 1]</code> 防止极端值搅坏估计。' +
+          '这是估计量对删矢的标准处理（Hernán 体系），<strong>不是</strong>用户可开关的加权选项；' +
+          '<code>effect = "rmst"</code> 时个体结局本身已含 IPCW，不再额外乘。</p>' +
           '<pre><code class="language-r">d &lt;- mlr3HTE_demo_surv(n = 4000, t0 = 2)\n' +
           'fit &lt;- metalearner("T", d$X, d$A, d$Y, learner_base = "coxph", t0 = 2)\n' +
           'fit$ate   # 平均 S₁(2) - S₀(2)\n\n' +
@@ -184,7 +204,7 @@ window.SITE_PAGES.guide = {
   en: {
     title: "Architecture & Quickstart",
     lede: "Build one mental model: outcome-model abstraction → the five learner formulas → " +
-          "three weighting modes → two layers of censoring handling.",
+          "propensity scores and deconfounding → two layers of censoring handling.",
     sections: [
 
       {
@@ -289,21 +309,41 @@ window.SITE_PAGES.guide = {
       },
 
       {
-        id: "weighting",
-        heading: "4. Three weighting modes",
+        id: "confounding",
+        heading: "4. Propensity scores and deconfounding",
         body:
-          '<pre><code class="language-r"># RCT: no weighting\n' +
-          'metalearner("T", X, A, Y, weighting = "none")\n\n' +
-          '# Observational: fit a PS model internally and use IPTW\n' +
-          'metalearner("X", X, A, Y, weighting = "iptw", stabilize = TRUE)\n\n' +
-          '# Observational: supply externally computed weights\n' +
-          'w &lt;- ifelse(A == 1, ps, 1 - ps)\n' +
-          'metalearner("DR", X, A, Y, weighting = "external", weights = w)</code></pre>' +
+          '<p>v0.40 removed <code>weighting</code> / <code>weights</code> / <code>stabilize</code>. ' +
+          'The reason: the classic meta-learner literature (Künzel et al. 2019 PNAS; CausalML ' +
+          'BaseS / BaseT / BaseX) <strong>never applies inverse-probability weights to the S/T/X ' +
+          'outcome models</strong>, and a "singly robust" weighting that only re-fits the outcome ' +
+          'model is neither standard practice nor able to deconfound on its own (leave a confounder ' +
+          'out and the bias equals the naive estimate).</p>' +
+          '<div class="table-wrap"><table>' +
+          '<thead><tr><th>Learner</th><th>Where the propensity score is used</th><th>What deconfounds</th></tr></thead>' +
+          '<tbody>' +
+          '<tr><td>S / T</td><td>Not used</td><td>Place the confounders in <code>X</code> and let the outcome model condition on them</td></tr>' +
+          '<tr><td>X</td><td>The third-stage <code>g(x) = e(x)</code> combination weight</td><td>Same (conditioning inside <code>m1</code> / <code>m0</code>)</td></tr>' +
+          '<tr><td>R</td><td>Robinson centring <code>A − e(x)</code></td><td>The residualisation itself</td></tr>' +
+          '<tr><td>DR</td><td>The denominator of the AIPW pseudo-outcome</td><td>Double robustness: consistent if either the outcome models or the propensity score is right</td></tr>' +
+          '</tbody></table></div>' +
+          '<pre><code class="language-r"># Observational: DR fits the propensity score internally (classif.log_reg)\n' +
+          'fit &lt;- metalearner("DR", d$X, d$A, d$Y, cross_fitting = TRUE)\n\n' +
+          '# RCT with a known randomisation probability of 0.5: pass the constant\n' +
+          'fit &lt;- metalearner("X", d$X, d$A, d$Y, learner_ps = 0.5)\n\n' +
+          '# Your own propensity score, wrapped in a function\n' +
+          'fit &lt;- metalearner("R", d$X, d$A, d$Y,\n' +
+          '                learner_ps = function(nx) predict(my_ps_model, newdata = nx))</code></pre>' +
           '<div class="callout warn">' +
-          '<div class="callout-title">Set a seed for reproducible weights</div>' +
-          '<p>mlr3 1.8 has no case-weights API on Task / Learner, so weights are applied via ' +
-          '<strong>importance resampling</strong>, which injects Monte-Carlo noise. Call ' +
-          '<code>set.seed()</code> before fitting if you need reproducibility.</p>' +
+          '<div class="callout-title">The X-learner\'s g(x) is not a deconfounding tool</div>' +
+          '<p>It only gives the imputation from the smaller arm a higher weight when the arms are ' +
+          'unbalanced, on the premise that <code>m1</code> / <code>m0</code> are already unbiased ' +
+          'through conditioning. "Uses a propensity score" ≠ "handles confounding".</p>' +
+          '</div>' +
+          '<div class="callout">' +
+          '<div class="callout-title">Quantitative evidence</div>' +
+          '<p>See the <a href="#/tutorial">confounding-strength sweep</a>: as the strength goes ' +
+          'from 0 (RCT) to 2, the naive difference\'s bias climbs from +0.01 to +1.05 while the ' +
+          'CATE correlation of all five learners stays essentially flat.</p>' +
           '</div>'
       },
 
@@ -315,12 +355,14 @@ window.SITE_PAGES.guide = {
           '<thead><tr><th>Learner</th><th>How censoring is handled</th></tr></thead>' +
           '<tbody>' +
           '<tr><td>S / T</td><td>The outcome model <em>is</em> a survival model (Cox partial likelihood), so censoring is already handled inside the likelihood — <strong>no extra weights needed</strong></td></tr>' +
-          '<tr><td>X / R / DR</td><td>They need an individual-level outcome, so <code>I(T &gt; t0)</code> is used and multiplied by <strong>censoring IPCW weights</strong> <code>1 / G(Tᵢ⁻)</code></td></tr>' +
+          '<tr><td>X / R / DR</td><td>They need an individual-level outcome, so <code>I(T &gt; t0)</code> is used and multiplied by <strong>censoring IPCW</strong> <code>1 / G(Tᵢ⁻)</code></td></tr>' +
           '</tbody></table></div>' +
           '<p><code>G</code> comes from a Cox model fitted to the censoring indicator ' +
           '<code>(1 - status)</code>; weights are clipped to <code>[0.01, 1]</code> to keep extreme ' +
-          'values from wrecking the estimate. With observational data, <strong>confounding IPTW and ' +
-          'censoring IPCW are multiplied</strong>.</p>' +
+          'values from wrecking the estimate. This is the standard treatment of censoring in the ' +
+          'estimator (Hernán\'s framework), <strong>not</strong> a user-switchable weighting option; ' +
+          'with <code>effect = "rmst"</code> the individual outcome already contains IPCW and ' +
+          'nothing extra is multiplied.</p>' +
           '<pre><code class="language-r">d &lt;- mlr3HTE_demo_surv(n = 4000, t0 = 2)\n' +
           'fit &lt;- metalearner("T", d$X, d$A, d$Y, learner_base = "coxph", t0 = 2)\n' +
           'fit$ate   # mean S₁(2) - S₀(2)\n\n' +

@@ -89,24 +89,64 @@ test_that("生存结局：t0 缺省时取事件时间中位数", {
   expect_equal(fit$t0, stats::median(d$Y[, 1][d$Y[, 2] == 1]))
 })
 
-# 5 观察性数据：IPTW 应显著降低偏差 --------------------------------------------
-test_that("观察性数据：IPTW 把偏差拉回来", {
+# 5 观察性数据：把混杂放进 X（条件化）应显著降低偏差 ----------------------------
+# v0.40 起移除了 IPTW 加权选项：S/T/X 去混杂靠把混杂因子放进 X 由结局模型
+# 条件化，这是经典文献（Künzel 2019 PNAS、CausalML BaseS/T/X）的做法。
+test_that("观察性数据：条件化 X 把偏差拉回来", {
   d <- mlr3HTE_demo_obs(n = 1200, seed = 105)
   naive <- mean(d$Y[d$A == 1]) - mean(d$Y[d$A == 0])
   lb <- mlr3::lrn("regr.ranger", num.trees = 100, seed = 1)
-  fit <- metalearner("X", d$X, d$A, d$Y, learner_base = lb, weighting = "iptw")
-  expect_equal(fit$weighting, "iptw")
-  # 未调整偏差应明显大于 IPTW 后的偏差
+  fit <- metalearner("X", d$X, d$A, d$Y, learner_base = lb)
+  # 未调整偏差应明显大于条件化后的偏差
   expect_true(abs(fit$ate - d$ate) < abs(naive - d$ate))
+  # 漏掉一个协变量后偏差应重新变大（证明起作用的确实是条件化）
+  d_drop <- d
+  d_drop$X <- d$X[, c("age", "sex"), drop = FALSE]
+  fit_drop <- metalearner("X", d_drop$X, d_drop$A, d_drop$Y, learner_base = lb)
+  expect_gt(abs(fit_drop$ate - d$ate), abs(fit$ate - d$ate))
 })
 
-# 6 外部权重路径 --------------------------------------------------------------
-test_that("外部权重：weighting='external' 可走通", {
+# 6 倾向得分的三种形态 --------------------------------------------------------
+# v0.40 起 learner_ps 是 X/R/DR 的算法输入（g(x) 融合 / Robinson 中心化 /
+# AIPW 伪结果），可传学习器、常数标量或 function(newX)。
+test_that("倾向得分：学习器 / 常数 / function 三种形态都走通", {
   d <- mlr3HTE_demo_obs(n = 800, seed = 106)
-  w <- ifelse(d$A == 1, d$ps_true, 1 - d$ps_true)
-  fit <- metalearner("DR", d$X, d$A, d$Y, weighting = "external", weights = w)
-  expect_equal(fit$weighting, "external")
-  expect_true(is.finite(fit$ate))
+  f_lrn <- metalearner("DR", d$X, d$A, d$Y,
+                       learner_ps = mlr3::lrn("classif.log_reg"))
+  f_con <- metalearner("DR", d$X, d$A, d$Y, learner_ps = 0.5)
+  f_fun <- metalearner("DR", d$X, d$A, d$Y,
+                       learner_ps = function(nx) d$ps_true)
+  for (f in list(f_lrn, f_con, f_fun)) {
+    expect_true(is.finite(f$ate))
+    expect_length(f$cate_train, nrow(d$X))
+  }
+  # 真实 e(x) 与自拟 log_reg 应当接近（二者都接近真实倾向得分）
+  expect_lt(abs(f_fun$ate - f_lrn$ate), 0.1)
+})
+
+test_that("R/DR 在观察性数据下默认即用倾向得分校正混杂", {
+  # v0.40 之前的 bug：weighting="none" 时 g_fn 退化为常数 mean(A)，
+  # 观察性数据下 DR 的伪结果用的是常数倾向得分，混杂静默未被校正。
+  d <- mlr3HTE_demo_obs(n = 1200, seed = 109)
+  naive <- mean(d$Y[d$A == 1]) - mean(d$Y[d$A == 0])
+  fit <- metalearner("DR", d$X, d$A, d$Y, cross_fitting = TRUE, n_folds = 5)
+  expect_true(abs(fit$ate - d$ate) < abs(naive - d$ate))
+  # 拟合对象不再暴露 $weighting（该参数已移除）
+  expect_null(fit$weighting)
+})
+
+test_that("learner_ps 传逐人数值向量时给出明确报错", {
+  d <- mlr3HTE_demo_data(n = 100, seed = 108)
+  expect_error(
+    metalearner("DR", d$X, d$A, d$Y, learner_ps = rep(0.5, nrow(d$X))),
+    "标量"
+  )
+})
+
+test_that("S/T 不使用倾向得分（learner_ps 被安全忽略）", {
+  d <- mlr3HTE_demo_data(n = 200, seed = 111)
+  f <- metalearner("S", d$X, d$A, d$Y, learner_ps = mlr3::lrn("classif.log_reg"))
+  expect_true(is.finite(f$ate))
 })
 
 # 7 输入校验 ------------------------------------------------------------------
@@ -120,12 +160,11 @@ test_that("结局类型与基学习器不匹配时报错", {
   )
 })
 
-test_that("external 权重缺失时报错", {
+test_that("外部权重参数已移除：旧调用直接报错", {
   d <- mlr3HTE_demo_data(n = 100, seed = 108)
-  expect_error(
-    metalearner("T", d$X, d$A, d$Y, weighting = "external"),
-    "weights"
-  )
+  expect_error(metalearner("T", d$X, d$A, d$Y, weighting = "iptw"), "weighting")
+  expect_error(metalearner("T", d$X, d$A, d$Y, weights = rep(1, 100)), "weights")
+  expect_error(metalearner("T", d$X, d$A, d$Y, stabilize = TRUE), "stabilize")
 })
 
 # 生存结局只接受原生基学习器名（不依赖 mlr3proba）------------------------------

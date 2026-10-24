@@ -76,10 +76,12 @@ window.SITE_PAGES.references = {
           '<li id="ref-robins2000">' +
             '<div class="ref-cite">Robins JM, Hernán MA, Brumback B. Marginal structural models and causal inference in epidemiology. <em>Epidemiology</em> 2000;11(5):550–560.</div>' +
             '<div class="ref-links"><a href="https://doi.org/10.1097/00001648-200009000-00011" target="_blank" rel="noopener">doi:10.1097/00001648-200009000-00011</a></div>' +
-            '<div class="ref-use"><strong>用途：</strong><code>weighting = "iptw"</code> 与稳定化权重' +
-            '（<code>stabilize</code>）的出处。观察性分支把 IPTW 与 metalearner 相接，' +
-            '权重构造即按此文。' +
-            '引用位置：<a href="#/tutorial">场景教程 · 观察性研究</a>。</div>' +
+            '<div class="ref-use"><strong>用途：</strong>逆概率加权与边际结构模型（MSM）的理论源头，' +
+            '也是本包<strong>不</strong>给 S/T/X 结局模型加权的原因——规范 IPTW 估的是' +
+            '<em>边际</em>效应（对 Y ~ A 做加权对照，不用结局模型），而条件效应（CATE）的' +
+            '标准工具是结局模型条件化或 AIPW。v0.40 起移除 <code>weighting</code> / ' +
+            '<code>weights</code> / <code>stabilize</code> 即据此。' +
+            '引用位置：<a href="#/guide">使用指南 · 倾向得分与去混杂</a>。</div>' +
           '</li>' +
           '</ol>'
       },
@@ -326,10 +328,13 @@ window.SITE_PAGES.references = {
           '<li id="ref-robins2000">' +
             '<div class="ref-cite">Robins JM, Hernán MA, Brumback B. Marginal structural models and causal inference in epidemiology. <em>Epidemiology</em> 2000;11(5):550–560.</div>' +
             '<div class="ref-links"><a href="https://doi.org/10.1097/00001648-200009000-00011" target="_blank" rel="noopener">doi:10.1097/00001648-200009000-00011</a></div>' +
-            '<div class="ref-use"><strong>Used for:</strong> <code>weighting = "iptw"</code> and ' +
-            'stabilised weights (<code>stabilize</code>). The observational branch wires IPTW into ' +
-            'the meta-learners following this paper. ' +
-            'Cited in: <a href="#/tutorial">Tutorial · observational studies</a>.</div>' +
+            '<div class="ref-use"><strong>Used for:</strong> the theoretical source of inverse-probability ' +
+            'weighting and marginal structural models, and the reason this package does <strong>not</strong> ' +
+            'reweight the S/T/X outcome models: canonical IPTW estimates a <em>marginal</em> effect ' +
+            '(a weighted contrast of Y on A, with no outcome model), whereas conditional effects ' +
+            '(CATE) are handled by outcome-model conditioning or AIPW. This is why ' +
+            '<code>weighting</code> / <code>weights</code> / <code>stabilize</code> were removed in v0.40. ' +
+            'Cited in: <a href="#/guide">Guide · propensity scores and deconfounding</a>.</div>' +
           '</li>' +
           '</ol>'
       },

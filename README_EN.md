@@ -24,7 +24,7 @@ It turns the S- / T- / X- / R- / DR-learners from Course Module 3 into properly 
 | Dimension | Supported |
 |---|---|
 | Outcome type | Continuous (mean difference), binary (risk difference), survival (survival-probability difference at t0) |
-| Data type | Randomized trial (RCT), observational data (IPTW or external weights) |
+| Data type | Randomized trial (RCT), observational data (confounders in X, or R / DR) |
 | metalearner | S, T, X, R, DR (five families) |
 | Interface | Functional API + mlr3 R6 Learner (plugs into `resample` / `benchmark` / `tune`) |
 
@@ -156,15 +156,25 @@ to use Cox for a T-learner, prefer the native engine.
 ```r
 do <- mlr3HTE_demo_obs(n = 4000)
 
-# Option 1: fit propensity score internally for IPTW
+# Main route: put every confounder in X and condition
+# (S/T/X through E[Y|A,X], R residualises, DR does both)
 fit <- metalearner("X", do$X, do$A, do$Y,
-                   learner_base = lrn("regr.ranger"),
-                   weighting = "iptw", stabilize = TRUE)
+                   learner_base = lrn("regr.ranger"))
 
-# Option 2: use your own pre-computed weights
-fit <- metalearner("DR", do$X, do$A, do$Y, weighting = "external",
-                   weights = my_weights)
+# R / DR carry their own propensity score and must cross-fit
+fit <- metalearner("DR", do$X, do$A, do$Y, cross_fitting = TRUE)
+
+# In an RCT the propensity score is the constant 0.5 - tell the engine so
+fit <- metalearner("DR", do$X, do$A, do$Y, learner_ps = 0.5)
 ```
+
+> **No IPTW weighting option since v0.40.** Kunzel et al. 2019 *PNAS* and CausalML's
+> BaseS/BaseT/BaseX never fit outcome models under IPTW; the `weighting = "iptw"` /
+> `"external"` / `stabilize` options this package once offered were a "weighted outcome
+> regression", i.e. singly robust, and have been removed entirely.
+> The two kinds of weight that remain are parts of the estimator / algorithm definition,
+> not switchable options: the R-learner's Robinson weight `(A-e)^2`, and the
+> censoring IPCW of the survival branch.
 
 ### 2.5 Convenience wrappers
 
@@ -215,13 +225,11 @@ lost when `resample()` splits into folds.
 |---|---|
 | `learner_base` | Outcome-model base learner; type must match the outcome |
 | `learner_tau` | Second-stage effect-regression learner; `NULL` uses the engine's regularized default |
-| `learner_ps` | Propensity-score learner (used for IPTW, default `classif.log_reg`) |
+| `learner_ps` | Propensity score: an mlr3 classification learner / a constant scalar (e.g. `0.5` for an RCT) / a `function(newX)` |
 | `treatment_col` | Treatment column name, default `"A"` |
 | `t0` | Survival effect time point |
-| `stabilize` | Whether IPTW uses stabilized weights |
 
-**Tunable params** (`param_set`, usable in `tune()`): `metalearner` (S/T/X/R/DR),
-`weighting` (none/iptw/external).
+**Tunable params** (`param_set`, usable in `tune()`): `metalearner` (S/T/X/R/DR).
 
 ---
 
@@ -302,11 +310,11 @@ Rscript tutorial/code/01_连续结局_随机化RCT.R
 | Script | Content |
 |---|---|
 | `01_连续结局_随机化RCT.R` | Continuous + RCT, five-learner reconciliation |
-| `02_连续结局_观察性研究.R` | Continuous + observational, IPTW vs unadjusted |
+| `02_连续结局_观察性研究.R` | Continuous + observational, all confounders in X vs dropping one |
 | `03_二分类结局_随机化RCT.R` | Binary + RCT, risk-difference scale |
 | `04_二分类结局_观察性研究.R` | Binary + observational |
 | `05_生存结局_随机化RCT.R` | Survival + RCT, t0 survival-probability difference |
-| `06_生存结局_观察性研究.R` | Survival + observational, IPTW × IPCW |
+| `06_生存结局_观察性研究.R` | Survival + observational, conditioning + the three internal weights |
 | `07_五种metalearner横向对比.R` | Three outcomes × five learners comparison table |
 | `08_mlr3工作流集成.R` | `ml_task` + `resample` + `benchmark` |
 | `09_生存结局_survlearners引擎.R` | Survival's second engine `engine = "survlearners"`, side-by-side with the native engine |

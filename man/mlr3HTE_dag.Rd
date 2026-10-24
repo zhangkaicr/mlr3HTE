@@ -27,7 +27,8 @@ mlr3HTE_dag(
 \item \code{design = "obs"}：处理概率 \code{e} 由协变量决定（病情越重越易接受
 治疗，confounding by indication），\code{X} 同时是 \code{A} 与结局 \code{Y}
 的共同原因，打开了一条后门路径 \code{A <- e <- X -> mu -> Y}，
-须用 IPTW / DR 等校正。
+必须调整 \code{X}：S/T/X 把 \code{X} 放进结局模型条件化，R 走 Robinson
+残差化，DR 走 AIPW 双重稳健。
 }
 两种设计里，\code{X} 都同时驱动真实 CATE（\code{tau}，效应修饰）与基线结局
 （\code{mu}，预后），这正是异质处理效应（HTE）存在的来源。

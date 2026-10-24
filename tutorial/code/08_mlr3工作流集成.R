@@ -124,9 +124,9 @@ l <- lrn("regr.metalearner")
 print(l$param_set)
 
 ## 6.2 字段（R6 public field，不是 param）----
-# learner_base / learner_tau / learner_ps / treatment_col / t0 / stabilize
+# learner_base / learner_tau / learner_ps / treatment_col / t0
 cli::cli_alert_info(
-  "可调字段：learner_base, learner_tau, learner_ps, treatment_col, t0, stabilize"
+  "可调字段：learner_base, learner_tau, learner_ps, treatment_col, t0"
 )
 
 ## 6.3 自定义处理列名 ----

@@ -129,7 +129,7 @@ tibble::tibble(
   指标 = c("未调整差 mean(Y|A=1)-mean(Y|A=0)", "真实 ATE", "未调整偏倚"),
   值 = round(c(naive4, d4$ate, naive4 - d4$ate), 4)
 ) |> print()
-cli::cli_alert_warning("未调整差明显偏离真实 ATE——这就是混杂，后续教程用 IPTW/DR 校正")
+cli::cli_alert_warning("未调整差明显偏离真实 ATE——这就是混杂，后续教程用「混杂进 X 条件化」/ DR 校正")
 
 ## 3.5 二分类结局 × 观察性（混杂）----
 # 同 3.4 的混杂结构（e 依赖 z1,z2），结局机制同 3.2。

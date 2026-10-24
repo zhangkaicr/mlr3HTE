@@ -1,9 +1,10 @@
 # =====================================================================
 # learner.R —— 参数化 mlr3 Learner 子类（"A learner"）
 #
-# 一个 Learner 包揽全部 metalearner 类型（S/T/X/R/DR）、加权方式
-# （none/iptw/external）与结局类型（连续/二分类/生存），可无缝接入
-# resample() / benchmark() / tune()。
+# 一个 Learner 包揽全部 metalearner 类型（S/T/X/R/DR）与结局类型
+# （连续/二分类/生存），可无缝接入 resample() / benchmark() / tune()。
+# 倾向得分只服务于 X/R/DR 的算法定义（g(x) 融合 / Robinson 中心化 /
+# AIPW 伪结果），不是可开关的加权——见 metalearner() 的设计边界说明。
 #
 # Task 的构造必须用 ml_task()：它把 X/A/Y 编码成 Task，并把结局类型、
 # 生存的状态列与 t0 写进 task$extra_args。该字段经实测在
@@ -35,8 +36,8 @@
 
 #' mlr3 参数化 Metalearner 学习器
 #'
-#' @description 一个 \code{\link[mlr3]{LearnerRegr}} 子类，把全部 metalearner 类型、
-#'   加权方式（none / iptw / external）与结局类型（连续 / 二分类 / 生存）封装进同一个
+#' @description 一个 \code{\link[mlr3]{LearnerRegr}} 子类，把全部 metalearner 类型
+#'   （S / T / X / R / DR）与结局类型（连续 / 二分类 / 生存）封装进同一个
 #'   \code{Learner}，可直接接入 \code{resample()} / \code{benchmark()} / \code{tune()}。
 #'   须知：构造 Task 必须用 \code{\link{ml_task}}（它会把结局类型、生存状态列与 t0 写进
 #'   \code{task$extra_args}，该字段在 resample 分折后仍保留）。
@@ -44,7 +45,6 @@
 #' @section 参数(param_set):
 #'   \describe{
 #'     \item{metalearner}{字符，S / T / X / R / DR，默认 "T"}
-#'     \item{weighting}{字符，none / iptw / external，默认 "none"}
 #'     \item{engine}{字符，native / survlearners，默认 "native"；
 #'       生存结局的第二套引擎（survlearners 包，只支持 S/T/X/R 与 S(t0) 差）}
 #'   }
@@ -53,11 +53,11 @@
 #'   （\code{list(treated=, control=)} 或 \code{list(m1=, m0=)}）让分组 / 阶段各自用不同算法。
 #' @field learner_tau 效应阶段回归学习器；NULL 时引擎用偏正则化的 ranger。
 #'   X-Learner 可传 \code{list(tau1=, tau0=)} 分别指定两个效应回归。
-#' @field learner_ps 倾向得分学习器（weighting = "iptw" 时）
+#' @field learner_ps 倾向得分，仅 X / R / DR 使用（S / T 忽略）：mlr3 分类学习器、
+#'   常数倾向得分标量，或 \code{function(newX)}；NULL 时引擎默认 \code{classif.log_reg}
 #' @field treatment_col 处理列名（可被 task$extra_args$ml_treatment_col 覆盖）
 #' @field status_col 生存事件指示列名（可被 ml_status_col 覆盖）
 #' @field t0 生存效应评估时点；NULL 时取 extra_args$ml_t0，再取事件中位数
-#' @field stabilize IPTW 是否使用稳定化权重
 #' @field engine 生存结局估计引擎：native（默认）/ survlearners
 #' @field model_id 真实拟合结果在登记处的 id
 #' @section 预测:
@@ -72,18 +72,16 @@ LearnerRegrMetalearner <- R6::R6Class("LearnerRegrMetalearner",
     # 以下作为字段暴露（paradox 的 p_uty 只能存函数/NULL，存不下 Learner 对象）
     learner_base  = NULL,      # 结局模型基学习器，类型须与结局匹配
     learner_tau   = NULL,      # 效应阶段回归学习器，NULL 时用引擎的正则化默认值
-    learner_ps    = NULL,      # 倾向得分学习器（IPTW 时用）
+    learner_ps    = NULL,      # 倾向得分（X/R/DR 用；S/T 忽略）
     treatment_col = "A",       # 处理列名（可被 task$extra_args$ml_treatment_col 覆盖）
     status_col    = ".status", # 生存事件指示列名（可被 ml_status_col 覆盖）
     t0            = NULL,      # 生存效应时点，NULL 时取 extra_args$ml_t0，再取事件中位数
-    stabilize     = FALSE,     # IPTW 是否用稳定化权重
     engine        = "native",  # 生存引擎：native（原生 coxph/ranger）/ survlearners
     model_id      = NULL,      # 真实拟合结果在登记处的 id
 
     initialize = function(id = "regr.metalearner") {
       param_set <- paradox::ParamSet$new(list(
         metalearner = paradox::p_fct(levels = c("S", "T", "X", "R", "DR"), default = "T"),
-        weighting   = paradox::p_fct(levels = c("none", "iptw", "external"), default = "none"),
         engine      = paradox::p_fct(levels = c("native", "survlearners"), default = "native")
       ))
       super$initialize(
@@ -101,7 +99,6 @@ LearnerRegrMetalearner <- R6::R6Class("LearnerRegrMetalearner",
       self$treatment_col <- "A"
       self$status_col    <- ".status"
       self$t0            <- NULL
-      self$stabilize     <- FALSE
       self$engine        <- "native"
       self$model_id      <- NULL
     }
@@ -145,8 +142,7 @@ LearnerRegrMetalearner <- R6::R6Class("LearnerRegrMetalearner",
       fit <- ml_fit(
         type = pv$metalearner, X = ctx$X, A = ctx$A, Y = ctx$Y,
         learner_base = lb, learner_tau = self$learner_tau,
-        learner_ps = self$learner_ps, weighting = pv$weighting,
-        weights = NULL, stabilize = self$stabilize,
+        learner_ps = self$learner_ps,
         t0 = ctx$t0, outcome = ctx$outcome,
         engine = if (is.null(pv$engine)) self$engine else pv$engine
       )

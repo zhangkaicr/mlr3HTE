@@ -54,8 +54,7 @@
 #' @param newX 求逐点 CATE 的协变量；默认用训练集 \code{X}。
 #'   曲线的 \code{ate} 始终是训练集人群上的 ATE，与 \code{newX} 无关。
 #' @param ... 其他传给 \code{\link{metalearner}} 的参数（\code{learner_tau}、
-#'   \code{learner_ps}、\code{weighting}、\code{weights}、\code{cross_fitting}、
-#'   \code{engine} 等）。
+#'   \code{learner_ps}、\code{cross_fitting}、\code{engine} 等）。
 #'
 #' @return 一个 data.frame，两列：\code{time} 与 \code{ate}；并带属性：
 #'   \itemize{

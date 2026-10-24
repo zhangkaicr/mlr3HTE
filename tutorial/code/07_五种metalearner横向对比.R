@@ -111,32 +111,32 @@ ggplot(plot_tab, aes(x = 方法, y = 结局类型, fill = 值)) +
   theme_minimal(base_size = 12) +
   theme(legend.position = "none")
 
-# 7 观察性：IPTW 下的横向对比（连续 + 二分类 + 生存）----
+# 7 观察性：混杂全进 X 下的横向对比（连续 + 二分类 + 生存）----
 ## 7.1 连续观察性 ----
 do_c <- mlr3HTE_demo_obs(n = 3000, seed = 1204)
 tab_oc <- bind_rows(lapply(types, function(tp)
   metalearner(tp, do_c$X, do_c$A, do_c$Y, learner_base = lb_c,
-              weighting = "iptw") |> score_row(do_c$tau))) |>
+              cross_fitting = tp %in% c("R", "DR")) |> score_row(do_c$tau))) |>
   mutate(方法 = types, 真实ATE = do_c$ate, .before = 1)
-cli::cli_h1("连续结局 × 观察性（IPTW；真实 ATE = {round(do_c$ate, 4)}）")
+cli::cli_h1("连续结局 × 观察性（混杂全进 X；真实 ATE = {round(do_c$ate, 4)}）")
 print(tab_oc |> mutate(across(c(平均CATE, 与真相关, 估计SD, RMSE), \(x) round(x, 4))))
 
 ## 7.2 二分类观察性 ----
 do_b <- mlr3HTE_demo_obs_binary(n = 3000, seed = 1205)
 tab_ob <- bind_rows(lapply(types, function(tp)
   metalearner(tp, do_b$X, do_b$A, do_b$Y, learner_base = lb_b,
-              weighting = "iptw") |> score_row(do_b$tau))) |>
+              cross_fitting = tp %in% c("R", "DR")) |> score_row(do_b$tau))) |>
   mutate(方法 = types, 真实ATE = do_b$ate, .before = 1)
-cli::cli_h1("二分类结局 × 观察性（IPTW；真实 ATE = {round(do_b$ate, 4)}）")
+cli::cli_h1("二分类结局 × 观察性（混杂全进 X；真实 ATE = {round(do_b$ate, 4)}）")
 print(tab_ob |> mutate(across(c(平均CATE, 与真相关, 估计SD, RMSE), \(x) round(x, 4))))
 
 ## 7.3 生存观察性 ----
 do_s <- mlr3HTE_demo_obs_surv(n = 3000, t0 = t0, seed = 1206)
 tab_os <- bind_rows(lapply(types, function(tp)
   metalearner(tp, do_s$X, do_s$A, do_s$Y, learner_base = "coxph",
-              weighting = "iptw", t0 = t0) |> score_row(do_s$tau))) |>
+              cross_fitting = tp %in% c("R", "DR"), t0 = t0) |> score_row(do_s$tau))) |>
   mutate(方法 = types, 真实ATE = do_s$ate, .before = 1)
-cli::cli_h1("生存结局 × 观察性（IPTW；真实 ATE = {round(do_s$ate, 4)}）")
+cli::cli_h1("生存结局 × 观察性（混杂全进 X；真实 ATE = {round(do_s$ate, 4)}）")
 print(tab_os |> mutate(across(c(平均CATE, 与真相关, 估计SD, RMSE), \(x) round(x, 4))))
 
 # 8 结论提示 ----

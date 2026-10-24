@@ -6,11 +6,9 @@ test_that("R / DR 支持 cross_fitting 且结果可复现", {
   d <- mlr3HTE_scenario("obs_lin_lin_sharedT", "continuous", n = 600, seed = 4)
   for (L in c("R", "DR")) {
     set.seed(1)
-    a <- metalearner(L, d$X, d$A, d$Y, weighting = "iptw",
-                     cross_fitting = TRUE, n_folds = 4)
+    a <- metalearner(L, d$X, d$A, d$Y, cross_fitting = TRUE, n_folds = 4)
     set.seed(1)
-    b <- metalearner(L, d$X, d$A, d$Y, weighting = "iptw",
-                     cross_fitting = TRUE, n_folds = 4)
+    b <- metalearner(L, d$X, d$A, d$Y, cross_fitting = TRUE, n_folds = 4)
     expect_true(isTRUE(a$cross_fitting))
     expect_equal(a$ate, b$ate, tolerance = 1e-8)
     expect_length(a$cate_train, nrow(d$X))
@@ -23,10 +21,9 @@ test_that("交叉拟合对 R-Learner 的 in-fold 过拟合有矫正作用", {
   # 表现为 ATE 被大幅低估。交叉拟合应把偏差拉回来。
   d <- mlr3HTE_scenario("obs_nonlin_nonlin_sharedT", "continuous", n = 1500, seed = 1)
   set.seed(1)
-  f_in  <- metalearner("R", d$X, d$A, d$Y, weighting = "iptw", cross_fitting = FALSE)
+  f_in  <- metalearner("R", d$X, d$A, d$Y, cross_fitting = FALSE)
   set.seed(1)
-  f_oof <- metalearner("R", d$X, d$A, d$Y, weighting = "iptw",
-                       cross_fitting = TRUE, n_folds = 5)
+  f_oof <- metalearner("R", d$X, d$A, d$Y, cross_fitting = TRUE, n_folds = 5)
   expect_gt(abs(f_in$ate - d$ate), abs(f_oof$ate - d$ate))
 })
 

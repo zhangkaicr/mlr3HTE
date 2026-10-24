@@ -10,7 +10,7 @@
 d <- mlr3HTE_demo_surv(n = 300, t0 = 2, seed = 103)
 
 test_that("单点曲线与 metalearner 在同一个 t 上完全一致", {
-  # coxph + weighting = "none" 无重采样，整条链路确定性，可以要求零误差
+  # coxph + 无重采样，整条链路确定性，可以要求零误差
   tb <- c(0.8, 1.6, 3.0)
   for (tt in tb) {
     one <- metalearner("T", d$X, d$A, d$Y, learner_base = "coxph", t0 = tt)

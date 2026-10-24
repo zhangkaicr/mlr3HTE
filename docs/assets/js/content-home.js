@@ -2,7 +2,7 @@
    content-home.js —— 导航定义 + 站点元信息 + 首页（中英双语）
    ===================================================================== */
 
-window.SITE_META = { version: "0.38", date: "2026-10-23" };
+window.SITE_META = { version: "0.40", date: "2026-10-24" };
 
 window.SITE_NAV = [
   { id: "home",      zh: "首页",           en: "Home"                    },
@@ -90,24 +90,30 @@ window.SITE_PAGES.home = {
           '<thead><tr><th></th><th>随机化试验（RCT）</th><th>观察性研究</th></tr></thead>' +
           '<tbody>' +
           '<tr><td><strong>连续</strong></td>' +
-          '<td><code>weighting="none"</code><br><code>learner_base = lrn("regr.ranger")</code><br>效应 = 均值差</td>' +
-          '<td><code>weighting="iptw"</code> 或 <code>"external"</code><br>效应 = 均值差</td></tr>' +
+          '<td><code>learner_base = lrn("regr.ranger")</code><br>效应 = 均值差</td>' +
+          '<td>同左；混杂因子须进 <code>X</code>，R/DR 另需 <code>learner_ps</code><br>效应 = 均值差</td></tr>' +
           '<tr><td><strong>二分类</strong></td>' +
-          '<td><code>weighting="none"</code><br><code>learner_base = lrn("classif.ranger")</code><br>效应 = 风险差</td>' +
-          '<td>同上，加 PS 加权<br>效应 = 风险差</td></tr>' +
+          '<td><code>learner_base = lrn("classif.ranger")</code><br>效应 = 风险差</td>' +
+          '<td>同左；混杂因子须进 <code>X</code><br>效应 = 风险差</td></tr>' +
           '<tr><td><strong>生存</strong></td>' +
-          '<td><code>weighting="none"</code><br><code>learner_base = "coxph"</code><br>效应 = t0 生存概率差</td>' +
-          '<td>同上，加 PS 加权 + 删失 IPCW</td></tr>' +
+          '<td><code>learner_base = "coxph"</code><br>效应 = t0 生存概率差</td>' +
+          '<td>同左，外加删失 IPCW<br>效应 = t0 生存概率差</td></tr>' +
           '</tbody></table></div>' +
-          '<p>RCT 与观察性的<strong>唯一区别</strong>就是 <code>weighting</code> 参数：</p>' +
+          '<p>RCT 与观察性<strong>不是</strong>靠一个开关区分的——去混杂的方式写在各 learner 的定义里：</p>' +
           '<ul>' +
-          '<li><code>"none"</code> — 不加权。RCT 下倾向得分退化为常数 <code>mean(A)</code>。</li>' +
-          '<li><code>"iptw"</code> — 内部训一个 PS 模型（默认 <code>classif.log_reg</code>）算逆概率权重。</li>' +
-          '<li><code>"external"</code> — 使用预先计算好的权重（稳定化权重、重叠权重等），仅套用而不重新估计。</li>' +
+          '<li><strong>S / T / X</strong> — 把混杂因子放进 <code>X</code>，由结局模型条件化。' +
+          '漏掉混杂因子时偏倚与朴素估计相同。</li>' +
+          '<li><strong>R</strong> — Robinson 残差化：结局与处理都对 <code>X</code> 取残差后回归。</li>' +
+          '<li><strong>DR</strong> — AIPW 双重稳健：只要结局模型或倾向得分之一设定正确就一致，' +
+          '观察性数据下最稳健。</li>' +
           '</ul>' +
+          '<p class="note">v0.40 起移除了 <code>weighting</code> / <code>weights</code> / ' +
+          '<code>stabilize</code>：经典 metalearner 文献（Künzel et al. 2019 PNAS、CausalML 的 ' +
+          'BaseS/BaseT/BaseX）从不给 S/T/X 的结局模型套逆概率权重；一个只会重估结局模型的' +
+          '「单稳健」加权既不是文献做法，也无法单独去混杂。</p>' +
           '<div class="callout warn">' +
           '<div class="callout-title">这是设计层面的区别</div>' +
-          '<p>观察性数据里如果存在<strong>未测量</strong>的混杂，任何加权或双重稳健都救不回来。' +
+          '<p>观察性数据里如果存在<strong>未测量</strong>的混杂，任何条件化、加权或双重稳健都救不回来。' +
           '代码技巧无法补救设计缺陷——需要先论证可交换性。</p>' +
           '</div>'
       },
@@ -170,7 +176,7 @@ window.SITE_PAGES.home = {
           '<thead><tr><th>能力</th><th>状态</th></tr></thead>' +
           '<tbody>' +
           '<tr><td>连续 / 二分类 / 生存三类结局 × 五种 learner</td><td>✅ 已实现并验证</td></tr>' +
-          '<tr><td>观察性数据：内部 IPTW / 外部权重</td><td>✅ 已实现并验证</td></tr>' +
+          '<tr><td>观察性数据：混杂因子进 X 条件化 + R/DR 倾向得分</td><td>✅ 已实现并验证</td></tr>' +
           '<tr><td>R6 Learner 接入 <code>resample</code> / <code>benchmark</code></td><td>✅ 已实现并验证</td></tr>' +
           '<tr><td>testthat 测试</td><td>✅ 119 个，全部通过</td></tr>' +
           '<tr><td>配套教程（6 格 × 可运行脚本）</td><td>✅ 主文档 + 8 个脚本</td></tr>' +
@@ -200,25 +206,33 @@ window.SITE_PAGES.home = {
           '<thead><tr><th></th><th>Randomized trial (RCT)</th><th>Observational study</th></tr></thead>' +
           '<tbody>' +
           '<tr><td><strong>Continuous</strong></td>' +
-          '<td><code>weighting="none"</code><br><code>learner_base = lrn("regr.ranger")</code><br>Effect = mean difference</td>' +
-          '<td><code>weighting="iptw"</code> or <code>"external"</code><br>Effect = mean difference</td></tr>' +
+          '<td><code>learner_base = lrn("regr.ranger")</code><br>Effect = mean difference</td>' +
+          '<td>Same; confounders must go into <code>X</code>; R/DR also need <code>learner_ps</code><br>Effect = mean difference</td></tr>' +
           '<tr><td><strong>Binary</strong></td>' +
-          '<td><code>weighting="none"</code><br><code>learner_base = lrn("classif.ranger")</code><br>Effect = risk difference</td>' +
-          '<td>Same, plus PS weighting<br>Effect = risk difference</td></tr>' +
+          '<td><code>learner_base = lrn("classif.ranger")</code><br>Effect = risk difference</td>' +
+          '<td>Same; confounders must go into <code>X</code><br>Effect = risk difference</td></tr>' +
           '<tr><td><strong>Survival</strong></td>' +
-          '<td><code>weighting="none"</code><br><code>learner_base = "coxph"</code><br>Effect = survival difference at t0</td>' +
-          '<td>Same, plus PS weighting and censoring IPCW</td></tr>' +
+          '<td><code>learner_base = "coxph"</code><br>Effect = survival difference at t0</td>' +
+          '<td>Same, plus censoring IPCW<br>Effect = survival difference at t0</td></tr>' +
           '</tbody></table></div>' +
-          '<p>The <strong>only</strong> difference between RCT and observational data is the ' +
-          '<code>weighting</code> argument:</p>' +
+          '<p>RCT and observational data are <strong>not</strong> told apart by a single switch — ' +
+          'each learner handles confounding in its own definition:</p>' +
           '<ul>' +
-          '<li><code>"none"</code> — no weighting; the propensity score degenerates to <code>mean(A)</code>.</li>' +
-          '<li><code>"iptw"</code> — fit a PS model internally (default <code>classif.log_reg</code>) and use inverse-probability weights.</li>' +
-          '<li><code>"external"</code> — supply your own weights (stabilized, overlap, …); they are applied as-is.</li>' +
+          '<li><strong>S / T / X</strong> — put the confounders into <code>X</code> and let the ' +
+          'outcome model condition on them. Leave one out and the bias equals the naive estimate.</li>' +
+          '<li><strong>R</strong> — Robinson residualisation: regress the residualised outcome on the ' +
+          'residualised treatment.</li>' +
+          '<li><strong>DR</strong> — AIPW doubly robust: consistent if either the outcome models or ' +
+          'the propensity score is correct; the most robust choice for observational data.</li>' +
           '</ul>' +
+          '<p class="note">v0.40 removed <code>weighting</code> / <code>weights</code> / ' +
+          '<code>stabilize</code>: the classic meta-learner literature (Künzel et al. 2019 PNAS; ' +
+          'CausalML BaseS/BaseT/BaseX) never applies inverse-probability weights to the S/T/X outcome ' +
+          'models, and a "singly robust" weighting that only re-fits the outcome model is neither ' +
+          'standard practice nor able to deconfound on its own.</p>' +
           '<div class="callout warn">' +
           '<div class="callout-title">This is a design-level difference</div>' +
-          '<p>If <strong>unmeasured</strong> confounding is present, no weighting and no double ' +
+          '<p>If <strong>unmeasured</strong> confounding is present, no conditioning, no weighting and no double ' +
           'robustness can save you. Code cannot fix a design flaw — exchangeability must be argued first.</p>' +
           '</div>'
       },
@@ -283,7 +297,7 @@ window.SITE_PAGES.home = {
           '<thead><tr><th>Capability</th><th>Status</th></tr></thead>' +
           '<tbody>' +
           '<tr><td>Continuous / binary / survival × 5 learners</td><td>✅ Implemented &amp; verified</td></tr>' +
-          '<tr><td>Observational data: internal IPTW / external weights</td><td>✅ Implemented &amp; verified</td></tr>' +
+          '<tr><td>Observational data: condition on confounders in X + R/DR propensity score</td><td>✅ Implemented &amp; verified</td></tr>' +
           '<tr><td>R6 Learner in <code>resample</code> / <code>benchmark</code></td><td>✅ Implemented &amp; verified</td></tr>' +
           '<tr><td>testthat suite</td><td>✅ 119 tests, all passing</td></tr>' +
           '<tr><td>Tutorial (6 cells × runnable scripts)</td><td>✅ Main doc + 8 scripts</td></tr>' +

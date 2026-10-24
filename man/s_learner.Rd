@@ -15,7 +15,7 @@ s_learner(X, A, Y, learner_base = mlr3::lrn("regr.ranger"), ...)
 
 \item{learner_base}{结局模型基学习器，默认 \code{regr.ranger}}
 
-\item{...}{其他传给 \code{\link{metalearner}} 的参数（\code{weighting}、\code{t0}、
+\item{...}{其他传给 \code{\link{metalearner}} 的参数（\code{t0}、
 \code{effect}、\code{cross_fitting} 等）}
 }
 \value{

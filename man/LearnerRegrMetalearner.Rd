@@ -7,8 +7,8 @@
 \code{R6Class} 对象；用 \code{mlr3::lrn("regr.metalearner")} 获取。
 }
 \description{
-一个 \code{\link[mlr3]{LearnerRegr}} 子类，把全部 metalearner 类型、
-加权方式（none / iptw / external）与结局类型（连续 / 二分类 / 生存）封装进同一个
+一个 \code{\link[mlr3]{LearnerRegr}} 子类，把全部 metalearner 类型
+（S / T / X / R / DR）与结局类型（连续 / 二分类 / 生存）封装进同一个
 \code{Learner}，可直接接入 \code{resample()} / \code{benchmark()} / \code{tune()}。
 须知：构造 Task 必须用 \code{\link{ml_task}}（它会把结局类型、生存状态列与 t0 写进
 \code{task$extra_args}，该字段在 resample 分折后仍保留）。
@@ -17,7 +17,6 @@
 
 \describe{
 \item{metalearner}{字符，S / T / X / R / DR，默认 "T"}
-\item{weighting}{字符，none / iptw / external，默认 "none"}
 \item{engine}{字符，native / survlearners，默认 "native"；
 生存结局的第二套引擎（survlearners 包，只支持 S/T/X/R 与 S(t0) 差）}
 }
@@ -44,15 +43,14 @@ survlearners 引擎下用 "coxph"/"grf"/"lasso"）。T / X Learner 可传命名 
     \item{\code{learner_tau}}{效应阶段回归学习器；NULL 时引擎用偏正则化的 ranger。
 X-Learner 可传 \code{list(tau1=, tau0=)} 分别指定两个效应回归。}
 
-    \item{\code{learner_ps}}{倾向得分学习器（weighting = "iptw" 时）}
+    \item{\code{learner_ps}}{倾向得分，仅 X / R / DR 使用（S / T 忽略）：mlr3 分类学习器、
+常数倾向得分标量，或 \code{function(newX)}；NULL 时引擎默认 \code{classif.log_reg}}
 
     \item{\code{treatment_col}}{处理列名（可被 task$extra_args$ml_treatment_col 覆盖）}
 
     \item{\code{status_col}}{生存事件指示列名（可被 ml_status_col 覆盖）}
 
     \item{\code{t0}}{生存效应评估时点；NULL 时取 extra_args$ml_t0，再取事件中位数}
-
-    \item{\code{stabilize}}{IPTW 是否使用稳定化权重}
 
     \item{\code{engine}}{生存结局估计引擎：native（默认）/ survlearners}
 

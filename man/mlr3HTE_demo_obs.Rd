@@ -4,10 +4,13 @@
 \alias{mlr3HTE_demo_obs}
 \title{演示数据：连续结局 + 观察性（混杂）}
 \usage{
-mlr3HTE_demo_obs(n = 4000, seed = 1204)
+mlr3HTE_demo_obs(n = 4000, strength = 1, seed = 1204)
 }
 \arguments{
 \item{n}{样本量，默认 4000}
+
+\item{strength}{混杂强度，默认 1。\code{0} 时处理概率与协变量无关（等价 RCT），
+数值越大混杂越强；用于扫描「不同强度混杂下的估计表现」}
 
 \item{seed}{随机种子}
 }
@@ -16,7 +19,8 @@ list：X、A、Y、tau（真实 CATE）、ate（真实 ATE）、ps_true（真实
 }
 \description{
 生成连续结局的\strong{观察性}演示数据，处理概率依赖协变量（病情越重越易
-接受治疗 = confounding by indication）。未调整的差分会偏离真实 ATE，需用
-\code{weighting = "iptw"} / \code{"external"} 或 DR-Learner 校正。同时返回真实
-倾向得分 \code{ps_true} 供加权对比。
+接受治疗 = confounding by indication），未调整的差分会偏离真实 ATE。
+观察性数据下去混杂的正道：S/T/X 把混杂因子放进 \code{X} 由结局模型条件化，
+R-Learner 走 Robinson 残差化，DR-Learner 走 AIPW 双重稳健（最稳健）。
+同时返回真实倾向得分 \code{ps_true} 供核查。
 }

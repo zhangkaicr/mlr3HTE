@@ -9,8 +9,46 @@ window.SITE_PAGES.changelog = {
   /* ---------------- 中文 ---------------- */
   zh: {
     title: "更新日志",
-    lede: "mlr3HTE 的版本历史与重要变更。当前版本 v0.38。",
+    lede: "mlr3HTE 的版本历史与重要变更。当前版本 v0.40。",
     sections: [
+
+      {
+        id: "v040",
+        heading: "v0.40 · 2026-10-24",
+        body:
+          '<div class="callout ok"><div class="callout-title">破坏性变更：移除 IPTW 加权选项（weighting / weights / stabilize）</div>' +
+          '<p>经典 meta-learner 文献（Künzel et al. 2019 <em>PNAS</em>）与 CausalML 的 BaseS/BaseT/BaseX ' +
+          '都<b>不</b>给结局模型套 IPTW。本包此前提供的 <code>weighting = "iptw"</code> / ' +
+          '<code>weighting = "external"</code> / <code>stabilize</code> 是额外扩展，本质是「加权结局回归」，' +
+          '属<strong>单稳健</strong>（要求倾向模型与结局模型同时正确），既不是经典 IPTW 估计量（后者是边际效应的加权对照、无结局模型），也不是双重稳健。' +
+          '本批次把它整体移除，回归与文献一致的行为。</p></div>' +
+          '<h3>1. 移除了什么，保留了什么</h3>' +
+          '<p><b>移除</b>：<code>metalearner()</code> 与 <code>ml_fit()</code> 的 <code>weighting</code>、' +
+          '<code>weights</code>、<code>stabilize</code> 三个参数，以及 R6 learner 的同名字段与 param_set 项；' +
+          '传入旧参数直接报错。<b>保留</b>两类「估计量/算法定义自带」的权重：</p>' +
+          '<ul>' +
+          '<li><strong>R-learner 的 Robinson 权重</strong> <code>(A-e)^2</code>：残差化估计量的组成部分，不是可选开关；</li>' +
+          '<li><strong>生存分支的删矢 IPCW</strong>：处理信息删矢，由 <code>.surv_ipcw()</code> 自动计算。</li>' +
+          '</ul>' +
+          '<h3>2. 去混杂的主路径改为「把混杂变量放进 X 条件化」</h3>' +
+          '<p>S/T/X 靠结局模型 <code>E[Y|A,X]</code> 条件化，R 靠残差化，DR 两者都做。' +
+          '模拟显示：混杂全进 X 时五族 ATE 偏差全部 ≤ 0.14；漏掉一个混杂因子，五族一起偏回未调整水平。</p>' +
+          '<h3>3. 新增 <code>learner_ps</code> 三形态，并修掉一个静默 bug</h3>' +
+          '<p>倾向得分现在支持三种传入方式：mlr3 分类学习器 / 常数标量（如 RCT 的 <code>0.5</code>）/ ' +
+          '<code>function(newX)</code>。此前 <code>g_fn</code> 只在 <code>weighting = "iptw"</code> 时才拟合真实倾向得分，' +
+          '否则退化为常数 <code>mean(A)</code>——观察性数据下默认跑 R/DR 时伪结果用的是常数倾向得分，混杂被静默放过。' +
+          '现已修复：R/DR 一律经 <code>.fit_ps()</code> 得到 e(X)，并对 (A-e) 分母做 1e-3 截断。</p>' +
+          '<h3>4. R/DR 未开交叉拟合时给出诚实警告</h3>' +
+          '<p>高弹性学习器（如 ranger 默认 <code>min.node.size = 5</code>）做 mu 会过拟合训练残差，' +
+          '把 tau 系统性衰减——实测 R-learner 的 ATE 从 0.976 掉到 0.432（真实 1.049）。' +
+          '现在 <code>cross_fitting = FALSE</code> 跑 R/DR 会直接警告，教程与模拟一律开交叉拟合。</p>' +
+          '<h3>5. 新增教程脚本 17：混杂强度扫描</h3>' +
+          '<p><code>tutorial/code/17_混杂强度扫描.R</code> 在 5 档混杂强度 × 五族 × 10 次重复下，' +
+          '报告估计 CATE 与真实 CATE 的相关，并画出 <code>tutorial/figures/17_confounding_strength.png</code>。' +
+          '结果：未调整偏差从 +0.01（RCT）线性涨到 +1.05；五族 |偏差| ≤ 0.14；CATE 相关在 RCT 与中低强度下稳定，' +
+          '在极端倾向得分（e ∈ [0.001, 0.994]）处 R/DR 因 <code>1/(A-e)</code> 放大而退化——这一点在教程里如实说明。</p>'
+
+      },
 
       {
         id: "v038",
@@ -570,8 +608,48 @@ window.SITE_PAGES.changelog = {
   /* ---------------- English ---------------- */
   en: {
     title: "Changelog",
-    lede: "Version history and notable changes for mlr3HTE. Current version: v0.38.",
+    lede: "Version history and notable changes for mlr3HTE. Current version: v0.40.",
     sections: [
+
+      {
+        id: "v040",
+        heading: "v0.40 · 2026-10-24",
+        body:
+          '<div class="callout ok"><div class="callout-title">Breaking: the IPTW weighting options (weighting / weights / stabilize) are gone</div>' +
+          '<p>The classic meta-learner literature (Künzel et al. 2019, <em>PNAS</em>) and CausalML\'s BaseS/BaseT/BaseX ' +
+          'do <b>not</b> fit outcome models under IPTW. What mlr3HTE previously offered as <code>weighting = "iptw"</code> / ' +
+          '<code>weighting = "external"</code> / <code>stabilize</code> was an extra extension — a "weighted outcome regression" that is ' +
+          '<strong>singly robust</strong> (it needs both the propensity and the outcome model correct). It is neither the classic IPTW estimator ' +
+          '(a weighted contrast of marginal means, with no outcome model) nor doubly robust. This batch removes it and restores the documented behaviour.</p></div>' +
+          '<h3>1. What was removed, what stays</h3>' +
+          '<p><b>Removed</b>: the <code>weighting</code>, <code>weights</code> and <code>stabilize</code> arguments of <code>metalearner()</code> ' +
+          'and <code>ml_fit()</code>, the same-named R6 fields and param_set entries; passing the old arguments now errors. ' +
+          '<b>Kept</b>: two kinds of weight that are part of the estimator / algorithm definition itself:</p>' +
+          '<ul>' +
+          '<li>the <strong>Robinson weight</strong> <code>(A-e)^2</code> of the R-learner — a component of the residualised estimator, not an option;</li>' +
+          '<li>the <strong>censoring IPCW</strong> of the survival branch — computed automatically by <code>.surv_ipcw()</code>.</li>' +
+          '</ul>' +
+          '<h3>2. The main route to deconfounding is now "put the confounders in X"</h3>' +
+          '<p>S/T/X condition through the outcome model <code>E[Y|A,X]</code>, R residualises, DR does both. ' +
+          'Simulation: with all confounders in X, every family\'s ATE bias stays ≤ 0.14; drop one confounder and all five slide back to the unadjusted level.</p>' +
+          '<h3>3. learner_ps now takes three forms, and a silent bug is fixed</h3>' +
+          '<p>The propensity score can be supplied as an mlr3 classification learner, a constant scalar (e.g. <code>0.5</code> for an RCT), ' +
+          'or a <code>function(newX)</code>. Previously <code>g_fn</code> only fitted a real propensity score when ' +
+          '<code>weighting = "iptw"</code>; otherwise it degenerated to the constant <code>mean(A)</code> — so on observational data the default ' +
+          'R/DR path built its pseudo-outcomes from a constant propensity score and confounding passed silently. ' +
+          'Fixed: R/DR now always go through <code>.fit_ps()</code>, with the (A-e) denominator truncated at 1e-3.</p>' +
+          '<h3>4. Honest warning when R/DR run without cross-fitting</h3>' +
+          '<p>Flexible learners (ranger\'s default <code>min.node.size = 5</code>) overfit in-sample residuals, attenuating tau systematically — ' +
+          'measured: the R-learner\'s ATE drops from 0.976 to 0.432 against a truth of 1.049. ' +
+          'Running R/DR with <code>cross_fitting = FALSE</code> now warns; tutorials and simulations always cross-fit.</p>' +
+          '<h3>5. New tutorial script 17: a confounding-strength sweep</h3>' +
+          '<p><code>tutorial/code/17_混杂强度扫描.R</code> reports the correlation between estimated and true CATE over 5 confounding strengths × ' +
+          '5 families × 10 repeats, and draws <code>tutorial/figures/17_confounding_strength.png</code>. ' +
+          'Findings: the unadjusted bias grows linearly from +0.01 (RCT) to +1.05; all five families stay within |bias| ≤ 0.14; ' +
+          'CATE correlation is stable under RCT and mild-to-moderate confounding, then degrades for R/DR at extreme propensities ' +
+          '(e ∈ [0.001, 0.994]) because <code>1/(A-e)</code> blows up — stated plainly in the tutorial.</p>'
+
+      },
 
       {
         id: "v038",
