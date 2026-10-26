@@ -13,9 +13,10 @@
 #     R-Learner  = Robinson 残差化：结局与处理都对 X 取残差后回归
 #     DR-Learner = 双重稳健伪结果（Kennedy 2020）后回归
 #
-# 关于「加权」的设计边界（v0.40 起，破坏性变更）：
+# 关于「加权」的设计边界（v0.40 起，v0.43 进一步收紧）：
 #   经典 metalearner 文献（Künzel et al. 2019 PNAS 的 X-learner，以及
-#   CausalML 的 BaseS / BaseT / BaseX）从不给 S/T/X 的结局模型套 IPTW。
+#   CausalML 的 BaseS / BaseT / BaseX / BaseR / BaseDR）的 τ 回归一律**不加权**
+#   （causalml 即 model_tau.fit(X, pseudo) 无 sample_weight）。
 #   去混杂在 S/T/X 里靠的是**把混杂因子放进 X、由结局模型条件化**；
 #   R-Learner 靠 Robinson 残差化，DR-Learner 靠 AIPW 伪结果——后两者
 #   通过 learner_ps 使用倾向得分，但那是算法定义的一部分，不是可开关的加权。
@@ -23,10 +24,16 @@
 #   一个只会重估结局模型的「单稳健」加权既不是文献做法，也无法单独去混杂
 #   （漏掉混杂因子时偏倚同朴素估计），留着只会误导使用者。
 #
-#   本引擎里唯一还存在的权重是**生存结局的删失 IPCW**：effect = "survdiff"
-#   的个体尺度结局 I(T > t0) 会被删矢污染，需乘 1/G(T-)（Hernán 体系）。
-#   它是估计量的组成部分而非用户选项，effect = "rmst" 时个体结局本身已含
-#   IPCW，不再额外乘。
+#   权重形式上的两处历史实现，均在 v0.43 移除：
+#     (a) R-Learner 曾把 (A-e)² 当作回归样本权重、经重要性重采样近似——
+#         它只是 R-loss 的代数等价重写（展开后平方相消），并非真实加权，
+#         移除后 R-Learner 改为直接无权重回归 (Y-m)/(A-e)；
+#     (b) DR-Learner 的 τ 回归曾把生存删失 IPCW 当作样本权重（同样经重采样）。
+#   剩余与「权重」相关、且算法上必需的只有：
+#     - 生存删失 IPCW 已**烤进伪结局内部**（survdiff 取 I(T>t0)/G，rmst 取 ξ），
+#       故 τ 回归全程无权重；S/T/X 的生存结局模型仍走 coxph/ranger 原生权重。
+#   实现层不再有任何「重要性重采样」，R/DR 复现无需为权重再 set.seed()
+#   （交叉拟合的折划分仍需 set.seed）。
 #
 # 约定：内部函数名一律以 . 开头；基学习器用 mlr3 Learner（生存分支可为
 # 原生名字符串，见 survival_base.R）；每次拟合前 clone(deep = TRUE)，
@@ -118,11 +125,14 @@
 
 # 4 分析尺度的结局数值（X/R/DR 的个体尺度结局）---------------------------------
 # 连续/二分类：就是 Y 本身（二分类取 0/1）
-# 生存：按 effect 取 —— "survdiff" 为 I(T > t0)，"rmst" 为 IPCW 修正的
-#       ξ = δ·min(X, τ)/Ĝ(X)（见 .surv_analysis_outcome）
-.analysis_outcome <- function(Y, outcome, t0, effect = "survdiff", X = NULL) {
+# 生存：按 effect 取 —— "survdiff" 为 I(T > t0)/G(T-)（删失 IPCW 已烤进伪结局，
+#       见 .surv_analysis_outcome），"rmst" 为 ξ = δ·min(X, τ)/Ĝ(X)（同样含 IPCW）
+# ipcw_bake 默认 TRUE：删失 IPCW 烤进伪结局（X/DR 适用）。R-Learner 例外需传 FALSE，
+# 退回原始指示 I(T > t0)，避免 Robinson 伪结局的 1/G × 1/(A-e) 双重倒数放大方差。
+.analysis_outcome <- function(Y, outcome, t0, effect = "survdiff", X = NULL,
+                             ipcw_bake = TRUE) {
   if (outcome == "survival") {
-    .surv_analysis_outcome(Y[, 1L], Y[, 2L], X, t0, effect)
+    .surv_analysis_outcome(Y[, 1L], Y[, 2L], X, t0, effect, ipcw_bake)
   } else if (is.factor(Y)) {
     as.integer(Y == levels(Y)[2L])
   } else {
@@ -135,34 +145,20 @@
   if (inherits(Y, "Surv")) Y[idx, , drop = FALSE] else Y[idx]
 }
 
-# 6 按权重做重要性重采样（mlr3 无 case weights 的通用替代）---------------------
-# 本引擎仅有的两处加权用途，都与「去混杂的可选加权」无关：
-#   (a) R-Learner 的 Robinson 权重 (A - e(X))^2 —— Nie & Wager 2021 估计量的
-#       定义本身，删掉它 R-learner 就不成立；
-#   (b) 生存结局的删矢 IPCW —— 走 .fit_surv 的原生 weights / case.weights，
-#       不经这里（见 .fit_outcome）。
-# 注意重采样会引入蒙特卡洛噪声，需要复现时请在调用前 set.seed()。
-.resample_by_weights <- function(X, y, weights) {
-  if (is.null(weights) || diff(range(weights)) <= 1e-12) {
-    return(list(X = X, y = y))
-  }
-  idx <- sample.int(length(y), size = length(y), replace = TRUE, prob = weights / sum(weights))
-  list(X = X[idx, , drop = FALSE], y = y[idx])
-}
-
-# 7 拟合一个回归基学习器 -------------------------------------------------------
-# weights 只服务于 R-Learner 的结构性 Robinson 权重（见第 6 节说明）；
-# 除此之外各 learner 的结局模型与效应回归一律不加权。
-.fit_regr <- function(X, y, learner_base, weights = NULL) {
+# 6 拟合一个回归基学习器（无权重）-------------------------------------------
+# 本包自 v0.43 起严格遵循各 metalearner 的原始公式：所有效应回归与目标
+# 结局模型一律**不加权**（与 causalml 的 model_tau.fit(X, pseudo) 无
+# sample_weight 一致）。R-Learner 的 (A-e)² 与生存删失 IPCW 都属于「伪结局
+# 内部构造」，不再以回归样本权重的形式出现，故引擎内不再有重要性重采样。
+.fit_regr <- function(X, y, learner_base) {
   l <- learner_base$clone(deep = TRUE)
-  rs <- .resample_by_weights(X, y, weights)
-  data <- data.frame(rs$X, y_response = rs$y, stringsAsFactors = FALSE)
+  data <- data.frame(X, y_response = y, stringsAsFactors = FALSE)
   task <- mlr3::as_task_regr(data, target = "y_response")
   l$train(task)
   l
 }
 
-# 8 拟合一个分类基学习器（二分类结局）------------------------------------------
+# 7 拟合一个分类基学习器（二分类结局）------------------------------------------
 # 注意：classif 学习器默认 predict_type = "response"，拿不到概率；
 # 必须在 $train() 之前把 predict_type 切成 "prob"（训练后再改会触发
 # check_prediction_data 的断言错误）。
@@ -176,7 +172,7 @@
   l
 }
 
-# 9 预测 ---------------------------------------------------------------------
+# 8 预测 ---------------------------------------------------------------------
 .pred_regr <- function(learner, newX) {
   as.numeric(learner$predict_newdata(as.data.frame(newX))$response)
 }
@@ -185,7 +181,7 @@
   as.numeric(learner$predict_newdata(as.data.frame(newX))$prob[, "yes"])
 }
 
-# 10 倾向得分：返回 g(newX) = P(A = 1 | X) --------------------------------------
+# 9 倾向得分：返回 g(newX) = P(A = 1 | X) --------------------------------------
 # learner_ps 三种形态，对应三种使用场景：
 #   - mlr3 分类学习器：内部拟合（观察性数据的默认做法，默认 classif.log_reg）
 #   - 标量：常数倾向得分，用于 RCT 已知随机化概率（如 0.5），
@@ -220,10 +216,11 @@
   }
 }
 
-# 11 结局模型：统一入口 --------------------------------------------------------
+# 10 结局模型：统一入口 --------------------------------------------------------
 # 返回 list(predict = function(newX) -> 结局尺度预测值, kind = ..., model = ...)
-# w_cens 只承载生存删失 IPCW（见文件头「关于加权的设计边界」）；
-# 连续 / 二分类与 effect = "rmst" 一律为 NULL。
+# w_cens 只承载生存删失 IPCW，走 coxph/ranger 原生权重（见文件头「关于加权的
+# 设计边界」）；连续 / 二分类与 effect = "rmst" 一律为 NULL。survdiff 的删失
+# IPCW 已烤进个体尺度伪结局（.analysis_outcome），故 τ 回归无需再加权。
 .fit_outcome <- function(X, Y, lb, w_cens, t0, outcome, effect) {
   kind <- .lb_kind(lb)
   .check_outcome_kind(outcome, kind)
@@ -242,7 +239,7 @@
   }
 }
 
-# 12 S-Learner：一个模型，处理当普通特征，两次反事实预测相减 -------------------
+# 11 S-Learner：一个模型，处理当普通特征，两次反事实预测相减 -------------------
 # 不使用倾向得分：去混杂靠把混杂因子放进 X，由这一个结局模型条件化。
 .fit_S <- function(X, A, Y, lb, lb_tau, learner_ps, w_cens, t0, outcome, effect) {
   m <- .fit_outcome(data.frame(X, a_trt = A), Y, lb, w_cens, t0, outcome, effect)
@@ -253,7 +250,7 @@
   list(models = list(m = m), predict = pred_fn)
 }
 
-# 13 T-Learner：两组各一个模型，相减 ------------------------------------------
+# 12 T-Learner：两组各一个模型，相减 ------------------------------------------
 # lb 可以是单个 learner（两组共用），或命名 list list(treated = ..., control = ...)
 # 让两组用不同算法（例如治疗组用随机森林、对照组用线性模型）。
 .fit_T <- function(X, A, Y, lb, lb_tau, learner_ps, w_cens, t0, outcome, effect) {
@@ -271,7 +268,7 @@
   list(models = list(m1 = m1, m0 = m0), predict = pred_fn)
 }
 
-# 14 X-Learner：两阶段插补 + 倾向得分加权融合 --------------------------------
+# 13 X-Learner：两阶段插补 + 倾向得分加权融合 --------------------------------
 # 插补的个体效应 D1 = Y1 - mu0(X1)，D0 = mu1(X0) - Y0，再分别回归出
 # tau1 / tau0，最后按 g(X) 加权融合（Künzel et al. 2019, PNAS）。
 # 这里的 g(X) = e(X) 是 X-learner 定义的一部分：两组样本悬殊时，
@@ -306,25 +303,28 @@
   list(models = list(m1 = m1, m0 = m0, tau1 = tau1, tau0 = tau0), predict = pred_fn)
 }
 
-# 15 R-Learner：残差对残差（Robinson 变换）------------------------------------
-# mu(X) = E[Y|X]（不含 A），处理对倾向得分取残差 A - e(X)，
-# 目标 (Y - mu)/(A - e)，以 (A - e)^2 为权重回归得 tau（Nie & Wager 2021）。
-# 倾向得分在这里是 Robinson 中心化的必需输入，不是可选的加权开关。
+# 14 R-Learner：残差对残差（Robinson 变换）------------------------------------
+# mu(X) = E[Y|X]（不含 A）；处理对倾向得分取残差 A - e(X)，
+# 再无权重回归 Robinson 伪结局 (Y - mu)/(A - e) 得 tau（Nie & Wager 2021）。
+# (A-e)² 只是 R-loss 的代数等价重写（展开相消），并非真实回归权重；
+# 倾向得分是 Robinson 中心化的必需输入，不是可开关的加权开关。
 .fit_R <- function(X, A, Y, lb, lb_tau, learner_ps, w_cens, t0, outcome, effect) {
   mu <- .fit_outcome(X, Y, lb, w_cens, t0, outcome, effect)
   mu_hat <- mu$predict(as.data.frame(X))
-  Yv <- .analysis_outcome(Y, outcome, t0, effect, X)
+  # R-Learner 的 Robinson 伪结局还要除以 (A-e)，与 survdiff 的 1/G 构成双重倒数，
+  # 会把方差放大到 τ 回归无法消化；故 R-Learner 的生存伪结局退回原始指示 I(T>t0)，
+  # 删失由 censoring-aware 的结局模型 mu 承担（生存 R-Learner 的标准做法）。
+  Yv <- .analysis_outcome(Y, outcome, t0, effect, X, ipcw_bake = FALSE)
   g_fn <- .fit_ps(X, A, learner_ps)
   e <- g_fn(as.data.frame(X))
   tildeA <- A - e
   target <- (Yv - mu_hat) / tildeA
-  wt <- if (is.null(w_cens)) tildeA^2 else w_cens * tildeA^2
-  tau <- .fit_regr(X, target, lb_tau, weights = wt)
+  tau <- .fit_regr(X, target, lb_tau)
   pred_fn <- function(newX) .pred_regr(tau, as.data.frame(newX))
   list(models = list(mu = mu, tau = tau), predict = pred_fn)
 }
 
-# 16 DR-Learner：双重稳健伪结果 ------------------------------------------------
+# 15 DR-Learner：双重稳健伪结果 ------------------------------------------------
 # psi = mu1 - mu0 + A(Y - mu1)/e - (1 - A)(Y - mu0)/(1 - e)，
 # 只要 (mu1, mu0) 或 e 之一正确，ATE 估计就一致（Kennedy 2020）。
 .fit_DR <- function(X, A, Y, lb, lb_tau, learner_ps, w_cens, t0, outcome, effect) {
@@ -341,12 +341,12 @@
   g_fn <- .fit_ps(X, A, learner_ps)
   e <- g_fn(as.data.frame(X))
   psi <- mu1 - mu0 + A * (Yv - mu1) / e - (1 - A) * (Yv - mu0) / (1 - e)
-  tau <- .fit_regr(X, psi, lb_tau, weights = w_cens)
+  tau <- .fit_regr(X, psi, lb_tau)
   pred_fn <- function(newX) .pred_regr(tau, as.data.frame(newX))
   list(models = list(m1 = m1, m0 = m0, tau = tau), predict = pred_fn)
 }
 
-# 17 交叉拟合（cross-fitting）-------------------------------------------------
+# 16 交叉拟合（cross-fitting）-------------------------------------------------
 # R/DR 的伪结果依赖干扰参数（R 的 mu；DR 的 m1 / m0 与倾向得分 e）。
 # 如果这些干扰参数是在同一批数据上拟合、又在同一批数据上取伪结果，
 # 过拟合会让伪结果带上系统性偏差，进而污染 tau。标准做法（Kennedy 2020）是：
@@ -365,7 +365,8 @@
 .fit_R_cf <- function(X, A, Y, lb, lb_tau, learner_ps, w_cens,
                       t0, outcome, effect, folds) {
   n <- nrow(X)
-  Yv <- .analysis_outcome(Y, outcome, t0, effect, X)
+  # R-Learner 交叉拟合：生存伪结局同样退回原始指示（见 .fit_R 的说明），避免 1/G×1/(A-e) 双倒数
+  Yv <- .analysis_outcome(Y, outcome, t0, effect, X, ipcw_bake = FALSE)
   target <- numeric(n)
   for (f in folds) {
     tr <- setdiff(seq_len(n), f)
@@ -378,8 +379,8 @@
   }
   g_all <- .fit_ps(X, A, learner_ps)
   tildeA <- A - g_all(X)
-  wt <- if (is.null(w_cens)) tildeA^2 else w_cens * tildeA^2
-  tau <- .fit_regr(X, target, lb_tau, weights = wt)
+  # 无权重回归 Robinson 伪结局（见 .fit_R：R-loss 的 (A-e)² 是代数等价项，不加权）
+  tau <- .fit_regr(X, target, lb_tau)
   pred_fn <- function(newX) .pred_regr(tau, as.data.frame(newX))
   list(models = list(tau = tau), predict = pred_fn)
 }
@@ -406,12 +407,13 @@
     psi[f] <- mu1 - mu0 + A[f] * (Yv[f] - mu1) / e -
               (1 - A[f]) * (Yv[f] - mu0) / (1 - e)
   }
-  tau <- .fit_regr(X, psi, lb_tau, weights = w_cens)
+  # 无权重回归 AIPW 伪结局（删失 IPCW 已烤进 survdiff / rmst 伪结局内部）
+  tau <- .fit_regr(X, psi, lb_tau)
   pred_fn <- function(newX) .pred_regr(tau, as.data.frame(newX))
   list(models = list(tau = tau), predict = pred_fn)
 }
 
-# 18 调度器：归一化输入 -> 组装倾向得分与删矢权重 -> 分派到五种 learner --------
+# 17 调度器：归一化输入 -> 组装倾向得分与删矢权重 -> 分派到五种 learner --------
 ml_fit <- function(type, X, A, Y, learner_base = NULL, learner_tau = NULL,
                    learner_ps = NULL,
                    t0 = NULL, outcome = "auto",

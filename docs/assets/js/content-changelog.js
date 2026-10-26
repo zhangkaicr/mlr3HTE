@@ -9,8 +9,35 @@ window.SITE_PAGES.changelog = {
   /* ---------------- 中文 ---------------- */
   zh: {
     title: "更新日志",
-    lede: "mlr3HTE 的版本历史与重要变更。当前版本 v0.42。",
+    lede: "mlr3HTE 的版本历史与重要变更。当前版本 v0.43。",
     sections: [
+
+      {
+        id: "v043",
+        heading: "v0.43 · 2026-10-26",
+        body:
+          '<div class="callout ok"><div class="callout-title">移除重要性重采样权重，严格回归各 meta-learner 的原始公式</div>' +
+          '<p>本批次按用户要求，把引擎里所有的「重要性重采样」（<code>.resample_by_weights</code>）彻底移除，' +
+          '五种 meta-learner 的 τ 回归与结局模型一律<strong>无权重</strong>，与 Künzel et al. 2019（X-learner）' +
+          '及 CausalML 的 BaseS/BaseT/BaseX/BaseR/BaseDR（<code>model_tau.fit(X, pseudo)</code> 无 <code>sample_weight</code>）一致。' +
+          '这同时消掉了重采样带来的 MC 噪声：R/DR 在不交叉拟合时变成种子可复现。</p></div>' +
+          '<h3>1. 三种「权重」的去留</h3>' +
+          '<ul>' +
+          '<li><strong>R-learner 的 (A-e)²</strong>：本质是 R-loss 展开后平方相消的代数等价项，并非真实回归权重；' +
+          'v0.40 曾把它当样本权重经重采样近似，现已移除——R-learner 改为直接无权重回归伪结局 <code>(Y-m)/(A-e)</code>。</li>' +
+          '<li><strong>生存删矢 IPCW</strong>：烤进伪结局内部（survdiff 取 <code>I(T&gt;t0)/G</code>，rmst 取 ξ），τ 回归全程无权重。</li>' +
+          '<li><strong>S/T/X 的生存结局模型</strong>：继续走 coxph/ranger 原生权重（偏似然/KM 已在似然里正确处理删失），不走重采样。</li>' +
+          '</ul>' +
+          '<h3>2. 修好一个被 v0.43 改动暴露的生存 R-learner 偏差</h3>' +
+          '<p>把 IPCW 烤进 survdiff 伪结局后，R-learner 的 Robinson 伪结局 <code>(Y-m)/(A-e)</code> 等于 ' +
+          '<code>1/G × 1/(A-e)</code> 双重倒数，把 <code>1/G</code> 的方差放大到无权重 τ 回归无法消化，' +
+          'RCT 演示数据上 ATE 从真值 0.15 漂到 0.38。修复：R-learner 的生存伪结局改回原始指示 <code>I(T&gt;t0)</code>，' +
+          '删失交由 censoring-aware 的 coxph/ranger 结局模型承担——这才是生存 R-learner 的标准做法，' +
+          '且 τ 回归全程无权重，契合「原始公式不加权」。X/DR 的伪结局结构能吃下 <code>1/G</code>，保持不变。</p>' +
+          '<h3>3. 校验</h3>' +
+          '<p><code>tests/testthat/test-engine.R</code> 五种 learner 在生存 RCT 演示数据上的 ATE 全部回到真值 0.2 容差内；' +
+          '全量 <code>testthat</code> 通过；<code>dev/_validate.js</code> 与 <code>_smoke_site.js</code> 全绿。</p>'
+      },
 
       {
         id: "v042",
@@ -664,8 +691,41 @@ window.SITE_PAGES.changelog = {
   /* ---------------- English ---------------- */
   en: {
     title: "Changelog",
-    lede: "Version history and notable changes for mlr3HTE. Current version: v0.41.",
+    lede: "Version history and notable changes for mlr3HTE. Current version: v0.43.",
     sections: [
+
+      {
+        id: "v043",
+        heading: "v0.43 · 2026-10-26",
+        body:
+          '<div class="callout ok"><div class="callout-title">Remove importance-resampling weights; strictly restore the original meta-learner formulas</div>' +
+          '<p>Per user request, all importance resampling (<code>.resample_by_weights</code>) is removed. ' +
+          'The τ regression and outcome models of all five meta-learners are now <strong>unweighted</strong>, ' +
+          'matching Künzel et al. 2019 (X-learner) and CausalML’s BaseS/BaseT/BaseX/BaseR/BaseDR ' +
+          '(<code>model_tau.fit(X, pseudo)</code> with no <code>sample_weight</code>). Removing resampling also ' +
+          'eliminates its MC noise: R/DR without cross-fitting is now seed-reproducible.</p></div>' +
+          '<h3>1. What happened to the three "weights"</h3>' +
+          '<ul>' +
+          '<li><strong>R-learner (A-e)²</strong>: an algebraic identity that cancels upon expanding the R-loss, ' +
+          'not a real regression weight. v0.40 approximated it via resampling; now gone — R-learner directly ' +
+          'regresses the pseudo-outcome <code>(Y-m)/(A-e)</code> without weights.</li>' +
+          '<li><strong>Survival censoring IPCW</strong>: baked into the pseudo-outcome (survdiff uses ' +
+          '<code>I(T&gt;t0)/G</code>, rmst uses ξ); the τ regression stays unweighted.</li>' +
+          '<li><strong>S/T/X survival outcome models</strong>: keep coxph/ranger native weights (partial ' +
+          'likelihood / KM already handle censoring); no resampling.</li>' +
+          '</ul>' +
+          '<h3>2. Fixed a survival R-learner bias exposed by the v0.43 change</h3>' +
+          '<p>Baking IPCW into the survdiff pseudo-outcome makes the R-learner’s Robinson pseudo-outcome ' +
+          '<code>(Y-m)/(A-e)</code> a double reciprocal <code>1/G × 1/(A-e)</code>, amplifying the <code>1/G</code> ' +
+          'variance beyond what an unweighted τ regression can absorb — on the RCT demo its ATE drifted from the ' +
+          'truth 0.15 to 0.38. Fix: the R-learner’s survival pseudo-outcome reverts to the raw indicator ' +
+          '<code>I(T&gt;t0)</code>, leaving censoring to the censoring-aware coxph/ranger outcome model — the ' +
+          'standard survival R-learner, and still unweighted in τ. X/DR tolerate <code>1/G</code> and are unchanged.</p>' +
+          '<h3>3. Validation</h3>' +
+          '<p><code>tests/testthat/test-engine.R</code>: all five learners’ ATEs on the survival RCT demo now sit ' +
+          'within 0.2 of the truth; full <code>testthat</code> passes; <code>dev/_validate.js</code> and ' +
+          '<code>_smoke_site.js</code> all green.</p>'
+      },
 
       {
         id: "v042",

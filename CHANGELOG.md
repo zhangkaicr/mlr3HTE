@@ -15,6 +15,27 @@
 - `0.21` 之前的历史批次沿用旧编号折算（`0.1.0` → `0.10`，10-21 那批观察性指标 →
   `0.11`，`0.2.0` → `0.20`）；`0.21` 起严格执行上面的 +0.01。
 
+## [0.43] — 2026-10-26（移除重采样权重，严格回归原始公式；修好生存 R-learner 偏差）
+
+按用户要求，把引擎里所有的「重要性重采样」（`.resample_by_weights`）彻底移除，**五种 meta-learner 的 τ 回归与结局模型一律无权重**，与 Künzel et al. 2019（X-learner）及 CausalML 的 BaseS/BaseT/BaseX/BaseR/BaseDR（`model_tau.fit(X, pseudo)` 无 `sample_weight`）一致。
+
+### 1. 三种「权重」的去留
+
+- **R-learner 的 (A-e)²**：本质是 R-loss 展开后平方相消的代数等价项，并非真实回归权重。v0.40 曾把它当样本权重经重采样近似，现已移除——R-learner 改为直接无权重回归伪结局 `(Y-m)/(A-e)`。
+- **生存删矢 IPCW**：烤进伪结局内部（survdiff 取 `I(T>t0)/G`，rmst 取 ξ），τ 回归全程无权重。
+- **S/T/X 的生存结局模型**：继续走 coxph/ranger 原生权重（偏似然 / KM 已在似然里正确处理删失），不走重采样。
+
+顺带：移除重采样也消掉了它引入的 MC 噪声，**R/DR 在不交叉拟合时变成种子可复现**。
+
+### 2. 修好一个被 v0.43 改动暴露的生存 R-learner 偏差
+
+把 IPCW 烤进 survdiff 伪结局后，R-learner 的 Robinson 伪结局 `(Y-m)/(A-e)` 等于 `1/G × 1/(A-e)` 双重倒数，把 `1/G` 的方差放大到无权重 τ 回归无法消化——RCT 演示数据上 ATE 从真值 0.15 漂到 0.38。修复：R-learner 的生存伪结局改回**原始指示 `I(T>t0)`**，删失交由 censoring-aware 的 coxph/ranger 结局模型承担（这才是生存 R-learner 的标准做法），且 τ 回归全程无权重，契合「原始公式不加权」。X/DR 的伪结局结构能吃下 `1/G`，保持不变。
+
+### 3. 校验
+
+- `tests/testthat/test-engine.R`：五种 learner 在生存 RCT 演示数据上的 ATE 全部回到真值 0.2 容差内（R 偏差 0.0015）。
+- 全量 `testthat` 通过；`dev/_validate.js` 与 `_smoke_site.js` 全绿。
+
 ## [0.42] — 2026-10-26（CI 修复 + 导航整理；R 代码不变）
 
 纯文档站与 `DESCRIPTION` 元数据调整，**不改任何 R 代码与统计行为**——v0.41 的引擎、API、测试全部原样。

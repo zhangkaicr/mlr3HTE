@@ -138,11 +138,18 @@
 }
 
 # 5 X/R/DR 需要的个体尺度分析结局 ---------------------------------------------
-#   survdiff: Yv = I(T > t0)，删失由外部乘 IPCW 权重校正
+#   survdiff: 默认 Yv = I(T > t0)/G(Tᵢ⁻)（删失 IPCW 烤进伪结局），τ 回归无需再加权；
+#             但 R-Learner 的 Robinson 伪结局还要再除以 (A - e(X))，等于
+#             1/G × 1/(A-e) 双重倒数，会把 1/G 的方差放大到无权重 τ 回归无法消化
+#             （实测 survdiff 的 R-Learner ATE 从真值 0.15 漂到 0.38）。因此 R-Learner
+#             改走 ipcw_bake = FALSE：用原始指示 I(T > t0)，由 censoring-aware 的
+#             结局模型（coxph/ranger 偏似然）承担删失校正——这才是生存 R-Learner 的
+#             标准做法，且 τ 回归全程无权重，契合"原始公式不加权"的约定。
 #   rmst:     Yv = ξ = δ · min(X, τ) / Ĝ(X)，其中 X = min(T, C)、δ = 1{T ≤ C}
 #             独立删失下有 E[ξ] = E[min(T, τ)] = RMST(τ)，
-#             所以删失校正已含在 ξ 内，外部不再额外乘 IPCW
-.surv_analysis_outcome <- function(time, status, X, t0, effect) {
+#             所以删失校正已含在 ξ 内，外部不再额外乘 IPCW（无原始指示的等价形式，
+#             R-Learner 同样沿用此 ξ，rmst 不受 survdiff 的双倒数问题困扰）
+.surv_analysis_outcome <- function(time, status, X, t0, effect, ipcw_bake = TRUE) {
   time <- as.numeric(time)
   status <- as.integer(status)
   if (identical(effect, "rmst")) {
@@ -152,6 +159,14 @@
     # 代价是 X/R/DR 的 RMST 方差明显大于 T（T 只用结局模型、不用个体结局）。
     as.numeric(status * pmin(time, t0) / G)
   } else {
-    as.integer(time > t0)
+    # survdiff 的个体结局：删失 IPCW 烤进伪结局内部（I(T>t0)/G(T-)），
+    # 与 rmst 的 ξ 一致，故 τ 回归无需再加权（Hernán 体系）。
+    # 但 R-Learner 例外：见上方章节说明，ipcw_bake = FALSE 时退回原始指示。
+    if (isTRUE(ipcw_bake)) {
+      G <- .surv_ipcw(time, status, X)
+      as.numeric(time > t0) / G
+    } else {
+      as.numeric(time > t0)
+    }
   }
 }
