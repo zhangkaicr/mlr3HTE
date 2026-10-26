@@ -9,8 +9,36 @@ window.SITE_PAGES.changelog = {
   /* ---------------- 中文 ---------------- */
   zh: {
     title: "更新日志",
-    lede: "mlr3HTE 的版本历史与重要变更。当前版本 v0.41。",
+    lede: "mlr3HTE 的版本历史与重要变更。当前版本 v0.42。",
     sections: [
+
+      {
+        id: "v042",
+        heading: "v0.42 · 2026-10-26",
+        body:
+          '<div class="callout ok"><div class="callout-title">CI 修复 + 导航整理</div>' +
+          '<p>修好 <code>R-CMD-check</code> 在 GitHub Actions 上连续失败的问题，并把文档站导航按使用习惯重排。' +
+          'R 引擎、API、统计行为<strong>完全不变</strong>。</p></div>' +
+          '<h3>1. CI 失败根因与修复</h3>' +
+          '<p>失败发生在 <code>setup-r-dependencies</code> 这一步：<code>survlearners</code>（生存第二套引擎，只发布在 GitHub，' +
+          '不在 CRAN）写在 <code>Suggests</code> 里，却漏了 <code>Remotes:</code> 声明，pak 按 CRAN 解析不到就中断。' +
+          '已补回 <code>Remotes: github::som-shahlab/survlearners/r-package/survlearners</code>，' +
+          'CI 据此从 GitHub 装齐，依赖安装通过后再跑检查。</p>' +
+          '<h3>2. 安装说明：pak 优先</h3>' +
+          '<p>首页「安装」改为<strong>方式一 pak（推荐）/ 方式二 remotes</strong> 两段式；' +
+          'README 早已是这套写法，现在教程站与之一致。</p>' +
+          '<h3>3. 导航整理</h3>' +
+          '<ul>' +
+          '<li><strong>可解释性合并</strong>：函数文档下拉里 9 个 CATE 可解释性函数（<code>hte_explainer()</code> 起）不再逐个列出，' +
+          '只保留「CATE 可解释性 · 总览」入口；各函数页仍由总览页内部链接可达。</li>' +
+          '<li><strong>目录去编号</strong>：教程下拉的「0…6」前缀去掉，只留语义名。</li>' +
+          '<li><strong>模拟数据并入函数文档</strong>：原独立的「模拟数据」顶栏下拉取消，' +
+          '其 6 个函数页（<code>mlr3HTE_scenarios()</code> 等）整体移入「函数文档」下拉。</li>' +
+          '</ul>' +
+          '<h3>4. 校验</h3>' +
+          '<p><code>dev/_validate.js</code> 与 <code>_smoke_site.js</code> 全绿；全站 JS <code>node --check</code> 通过。</p>'
+
+      },
 
       {
         id: "v041",
@@ -638,6 +666,34 @@ window.SITE_PAGES.changelog = {
     title: "Changelog",
     lede: "Version history and notable changes for mlr3HTE. Current version: v0.41.",
     sections: [
+
+      {
+        id: "v042",
+        heading: "v0.42 · 2026-10-26",
+        body:
+          '<div class="callout ok"><div class="callout-title">CI 修复 + 导航整理</div>' +
+          '<p>修好 <code>R-CMD-check</code> 在 GitHub Actions 上连续失败的问题，并把文档站导航按使用习惯重排。' +
+          'R 引擎、API、统计行为<strong>完全不变</strong>。</p></div>' +
+          '<h3>1. CI 失败根因与修复</h3>' +
+          '<p>失败发生在 <code>setup-r-dependencies</code> 这一步：<code>survlearners</code>（生存第二套引擎，只发布在 GitHub，' +
+          '不在 CRAN）写在 <code>Suggests</code> 里，却漏了 <code>Remotes:</code> 声明，pak 按 CRAN 解析不到就中断。' +
+          '已补回 <code>Remotes: github::som-shahlab/survlearners/r-package/survlearners</code>，' +
+          'CI 据此从 GitHub 装齐，依赖安装通过后再跑检查。</p>' +
+          '<h3>2. 安装说明：pak 优先</h3>' +
+          '<p>首页「安装」改为<strong>方式一 pak（推荐）/ 方式二 remotes</strong> 两段式；' +
+          'README 早已是这套写法，现在教程站与之一致。</p>' +
+          '<h3>3. 导航整理</h3>' +
+          '<ul>' +
+          '<li><strong>可解释性合并</strong>：函数文档下拉里 9 个 CATE 可解释性函数（<code>hte_explainer()</code> 起）不再逐个列出，' +
+          '只保留「CATE 可解释性 · 总览」入口；各函数页仍由总览页内部链接可达。</li>' +
+          '<li><strong>目录去编号</strong>：教程下拉的「0…6」前缀去掉，只留语义名。</li>' +
+          '<li><strong>模拟数据并入函数文档</strong>：原独立的「模拟数据」顶栏下拉取消，' +
+          '其 6 个函数页（<code>mlr3HTE_scenarios()</code> 等）整体移入「函数文档」下拉。</li>' +
+          '</ul>' +
+          '<h3>4. 校验</h3>' +
+          '<p><code>dev/_validate.js</code> 与 <code>_smoke_site.js</code> 全绿；全站 JS <code>node --check</code> 通过。</p>'
+
+      },
 
       {
         id: "v041",

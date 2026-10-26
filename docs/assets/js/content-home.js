@@ -2,7 +2,7 @@
    content-home.js —— 导航定义 + 站点元信息 + 首页（中英双语）
    ===================================================================== */
 
-window.SITE_META = { version: "0.41", date: "2026-10-24" };
+window.SITE_META = { version: "0.42", date: "2026-10-26" };
 
 window.SITE_NAV = [
   { id: "home",      zh: "首页",           en: "Home"                    },
@@ -13,13 +13,13 @@ window.SITE_NAV = [
     en: "Tutorial",
     children: [
       { id: "tutorial",         zh: "目录",                       en: "Contents"                          },
-      { id: "tutorialbasics",   zh: "0 数据生成机制与 DAG", en: "0 Data-generating process & DAG"   },
-      { id: "tutorialanalysis", zh: "1 RCT 与观察性研究分析", en: "1 RCT & observational analysis"     },
-      { id: "tutorialsurv",     zh: "2 生存结局分析",         en: "2 Survival outcomes"               },
-      { id: "tutoriallearners", zh: "3 换不同学习器",         en: "3 Swapping the base learner"       },
-      { id: "tutorialmetrics",  zh: "4 模型评价指标",         en: "4 Model evaluation metrics"        },
-      { id: "tutorialbenchmark", zh: "5 RCT 基准测试",        en: "5 RCT benchmark"                  },
-      { id: "tutorialbenchgrid", zh: "6 基准模拟数据网格", en: "6 Benchmark simulation grid" }
+      { id: "tutorialbasics",   zh: "数据生成机制与 DAG", en: "Data-generating process & DAG"   },
+      { id: "tutorialanalysis", zh: "RCT 与观察性研究分析", en: "RCT & observational analysis"     },
+      { id: "tutorialsurv",     zh: "生存结局分析",         en: "Survival outcomes"               },
+      { id: "tutoriallearners", zh: "换不同学习器",         en: "Swapping the base learner"       },
+      { id: "tutorialmetrics",  zh: "模型评价指标",         en: "Model evaluation metrics"        },
+      { id: "tutorialbenchmark", zh: "RCT 基准测试",        en: "RCT benchmark"                  },
+      { id: "tutorialbenchgrid", zh: "基准模拟数据网格", en: "Benchmark simulation grid" }
     ]
   },
   {
@@ -37,30 +37,14 @@ window.SITE_NAV = [
       { id: "apimetrics",     zh: "HTE 评价指标",                 en: "HTE evaluation metrics"                  },
       { id: "apibenchmark",  zh: "RCT 基准测试",                en: "RCT benchmark"                         },
       { id: "apihelpers",     zh: "辅助函数",                       en: "Helpers"                                 },
-      { id: "apiexplain",        zh: "CATE 可解释性 · 总览",       en: "CATE interpretability · Overview"        },
-      { id: "apiexplainer",      zh: "hte_explainer()",          en: "hte_explainer()"                       },
-      { id: "apisurrogate",      zh: "hte_surrogate()",          en: "hte_surrogate()"                       },
-      { id: "apiimportance",     zh: "hte_feature_importance()", en: "hte_feature_importance()"              },
-      { id: "apipdp",            zh: "hte_pdp()",                en: "hte_pdp()"                             },
-      { id: "apishap",           zh: "hte_shap()",               en: "hte_shap()"                            },
-      { id: "apishapdata",       zh: "hte_shap_data()",          en: "hte_shap_data()"                       },
-      { id: "apiplotimportance", zh: "plot_hte_importance()",    en: "plot_hte_importance()"                 },
-      { id: "apiplotpdp",        zh: "plot_hte_pdp()",           en: "plot_hte_pdp()"                        },
-      { id: "apiplotshap",       zh: "plot_hte_shap()",          en: "plot_hte_shap()"                       }
-    ]
-  },
-  {
-    id: "apisim",
-    zh: "模拟数据",
-    en: "Simulation data",
-    children: [
-      { id: "apisim",            zh: "总览",                    en: "Overview"                             },
-      { id: "apiscenarios",      zh: "mlr3HTE_scenarios()",     en: "mlr3HTE_scenarios()"                  },
-      { id: "apiscenario",       zh: "mlr3HTE_scenario()",      en: "mlr3HTE_scenario()"                   },
-      { id: "apibench",          zh: "mlr3HTE_bench()",         en: "mlr3HTE_bench()"                      },
-      { id: "apibenchindex",     zh: "mlr3HTE_bench_index()",   en: "mlr3HTE_bench_index()"                },
-      { id: "apibenchdata",      zh: "hte_benchmark_data()",    en: "hte_benchmark_data()"                 },
-      { id: "apidagdata",        zh: "mlr3HTE_dag_data()",      en: "mlr3HTE_dag_data()"                   }
+      { id: "apiexplain",     zh: "CATE 可解释性 · 总览",          en: "CATE interpretability · Overview"        },
+      { id: "apisim",         zh: "模拟数据 · 总览",               en: "Simulation data · Overview"             },
+      { id: "apiscenarios",   zh: "mlr3HTE_scenarios()",            en: "mlr3HTE_scenarios()"                  },
+      { id: "apiscenario",    zh: "mlr3HTE_scenario()",             en: "mlr3HTE_scenario()"                   },
+      { id: "apibench",       zh: "mlr3HTE_bench()",                en: "mlr3HTE_bench()"                      },
+      { id: "apibenchindex",  zh: "mlr3HTE_bench_index()",          en: "mlr3HTE_bench_index()"                },
+      { id: "apibenchdata",   zh: "hte_benchmark_data()",           en: "hte_benchmark_data()"                 },
+      { id: "apidagdata",     zh: "mlr3HTE_dag_data()",             en: "mlr3HTE_dag_data()"                   }
     ]
   },
   { id: "changelog", zh: "更新日志",      en: "Changelog"                 },
@@ -122,7 +106,10 @@ window.SITE_PAGES.home = {
         body:
           '<pre><code class="language-r"># 开发期加载（在包目录下）\n' +
           'pkgload::load_all("mlr3HTE")\n\n' +
-          '# 或从 GitHub 安装\n' +
+          '# 方式一：pak（依赖求解快、并行下载，推荐）\n' +
+          'pak::pak("zhangkaicr/mlr3HTE")\n' +
+          'library(mlr3HTE)\n\n' +
+          '# 方式二：remotes\n' +
           'remotes::install_github("zhangkaicr/mlr3HTE")\n' +
           'library(mlr3HTE)</code></pre>' +
           '<div class="table-wrap"><table>' +
@@ -241,7 +228,10 @@ window.SITE_PAGES.home = {
         body:
           '<pre><code class="language-r"># Load during development (from the package root)\n' +
           'pkgload::load_all("mlr3HTE")\n\n' +
-          '# Or install from GitHub\n' +
+          '# Option 1: pak (fast dependency resolution, parallel downloads — recommended)\n' +
+          'pak::pak("zhangkaicr/mlr3HTE")\n' +
+          'library(mlr3HTE)\n\n' +
+          '# Option 2: remotes\n' +
           'remotes::install_github("zhangkaicr/mlr3HTE")\n' +
           'library(mlr3HTE)</code></pre>' +
           '<div class="table-wrap"><table>' +

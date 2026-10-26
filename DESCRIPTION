@@ -1,6 +1,6 @@
 Package: mlr3HTE
 Title: Metalearner Learners for Heterogeneous Treatment Effects
-Version: 0.41
+Version: 0.42
 Authors@R:
     person(given = "Flexible", family = "Pangzi", role = c("cre", "aut"),
            email = "zhangkaicr@foxmail.com")
@@ -39,5 +39,7 @@ Suggests:
     ingredients,
     kernelshap,
     shapviz
+Remotes:
+    github::som-shahlab/survlearners/r-package/survlearners
 Roxygen: list(markdown = TRUE)
 Config/roxygen2/version: 8.1.1
