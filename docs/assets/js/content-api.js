@@ -1627,63 +1627,146 @@ window.SITE_PAGES.api = {
   /* ---------------- 中文 ---------------- */
   zh: {
     title: "函数文档",
-    lede: "mlr3HTE 共导出 42 个对象：1 个主拟合函数、5 个 meta-learner 便捷封装、1 个 Task 编码函数、1 个 R6 Learner " +
-          "类、1 个 CATE 置信区间辅助、1 个生存效应曲线函数、2 个 DAG 函数、6 个演示数据集生成器、4 个 HTE 评价指标、" +
-          "1 个观察性数据干扰参数估计器、3 个 RCT 基准测试函数、4 个基准模拟数据函数、9 个 CATE 可解释性函数、" +
-          "3 个配套绘图函数、1 个 mlr3 再导出。点函数名进入各自的详细说明页。",
+    lede: "mlr3HTE 共导出 45 个对象，按功能归入 9 个大类：" +
+          "① 核心拟合与 meta-learner；② Task 与 R6 Learner；③ 效应曲线、置信区间与评价指标；" +
+          "④ RCT 基准测试；⑤ 跨包基准数据集（grf / econml / causalml）；⑥ 模拟数据与随包设计；" +
+          "⑦ CATE 可解释性；⑧ 演示数据；⑨ 因果图 DAG。点函数名进入各自的详细说明页。",
     sections: [
 
       {
-        id: "overview",
-        heading: "函数总览",
+        id: "core",
+        heading: "① 核心拟合与 meta-learner",
         body:
           '<div class="table-wrap"><table>' +
-          '<thead><tr><th>函数</th><th>类别</th><th>一句话说明</th></tr></thead>' +
+          '<thead><tr><th>函数</th><th>一句话说明</th></tr></thead>' +
           '<tbody>' +
-          '<tr><td><a href="#/apimetalearner"><code>metalearner()</code></a></td><td>主拟合</td><td>拟合任意 metalearner，返回可重复预测的对象</td></tr>' +
-          '<tr><td><a href="#/apis"><code>s_learner()</code></a></td><td>便捷封装</td><td>S-learner 简写，直接返回 CATE 向量</td></tr>' +
-          '<tr><td><a href="#/apit"><code>t_learner()</code></a></td><td>便捷封装</td><td>T-learner 简写，两个模型相减</td></tr>' +
-          '<tr><td><a href="#/apix"><code>x_learner()</code></a></td><td>便捷封装</td><td>X-learner 简写，两阶段拟合</td></tr>' +
-          '<tr><td><a href="#/apir"><code>r_learner()</code></a></td><td>便捷封装</td><td>R-learner 简写，残差化后回归</td></tr>' +
-          '<tr><td><a href="#/apidr"><code>dr_learner()</code></a></td><td>便捷封装</td><td>DR-learner 简写，双重稳健伪结局</td></tr>' +
-          '<tr><td><a href="#/apimltask"><code>ml_task()</code></a></td><td>Task 编码</td><td>把 X/A/Y 编码成 mlr3 Task，三类结局统一</td></tr>' +
-          '<tr><td><a href="#/apilearner"><code>LearnerRegrMetalearner</code></a></td><td>R6 Learner</td><td><code>lrn("regr.metalearner")</code>，接入 mlr3 工作流</td></tr>' +
-          '<tr><td><a href="#/apicateci"><code>cate_ci()</code></a></td><td>辅助</td><td>CATE 的自助法置信区间（仅反映抽样波动）</td></tr>' +
-          '<tr><td><a href="#/apisurvcurve"><code>surv_effect_curve()</code></a></td><td>生存曲线</td><td>逐点重拟合，给出效应随时间变化的曲线</td></tr>' +
-          '<tr><td><a href="#/apisurvcurve"><code>plot_surv_effect_curve()</code></a></td><td>绘图</td><td>画效应—时间曲线，叠加个体 CATE 四分位带</td></tr>' +
-          '<tr><td><a href="#/apiplotqini"><code>plot_qini()</code></a></td><td>绘图</td><td>Qini 曲线，返回 ggplot 对象</td></tr>' +
-          '<tr><td><a href="#/apidag"><code>mlr3HTE_dag()</code></a></td><td>DAG</td><td>画 RCT / 观察性两种设计的因果结构图</td></tr>' +
-          '<tr><td><a href="#/apidagdata"><code>mlr3HTE_dag_data()</code></a></td><td>DAG</td><td>DAG 的节点表 / 边表 / 曲率路由结果</td></tr>' +
-          '<tr><td><a href="#/apidemodata"><code>mlr3HTE_demo_data()</code></a></td><td>演示数据</td><td>随机化 + 连续结局，带 tau / ate</td></tr>' +
-          '<tr><td><a href="#/apidemobinary"><code>mlr3HTE_demo_binary()</code></a></td><td>演示数据</td><td>随机化 + 二分类结局</td></tr>' +
-          '<tr><td><a href="#/apidemoobs"><code>mlr3HTE_demo_obs()</code></a></td><td>演示数据</td><td>观察性 + 连续结局，含真实 ps_true</td></tr>' +
-          '<tr><td><a href="#/apidemoobsbinary"><code>mlr3HTE_demo_obs_binary()</code></a></td><td>演示数据</td><td>观察性 + 二分类结局</td></tr>' +
-          '<tr><td><a href="#/apidemoobssurv"><code>mlr3HTE_demo_obs_surv()</code></a></td><td>演示数据</td><td>观察性 + 生存结局，混杂与删失并存</td></tr>' +
-          '<tr><td><a href="#/apidemosurv"><code>mlr3HTE_demo_surv()</code></a></td><td>演示数据</td><td>随机化 + 生存结局，只有删失</td></tr>' +
-          '<tr><td><a href="#/apiqinicurve"><code>qini_curve()</code></a></td><td>HTE 评价</td><td>Qini 曲线：累积增益随靶向比例的变化</td></tr>' +
-          '<tr><td><a href="#/apiqinicoef"><code>qini_coefficient()</code></a></td><td>HTE 评价</td><td>把 Qini 曲线压成一个数</td></tr>' +
-          '<tr><td><a href="#/apicforbenefit"><code>c_for_benefit()</code></a></td><td>HTE 评价</td><td>C 统计量：预测获益的配对一致性</td></tr>' +
-          '<tr><td><a href="#/apitoccurve"><code>toc_curve()</code></a></td><td>HTE 评价</td><td>顶部有序曲线，对照总体 ATE</td></tr>' +
-          '<tr><td><a href="#/apidrpseudo"><code>dr_pseudo_outcome()</code></a></td><td>观察性</td><td>一次拿到 propensity / mu1 / mu0 三件套，默认交叉拟合</td></tr>' +
-          '<tr><td><a href="#/apihtebenchmark"><code>hte_benchmark()</code></a></td><td>基准测试</td><td>RCT 上比较多个 learner，不依赖真实 tau</td></tr>' +
-          '<tr><td><a href="#/apibenchdata"><code>hte_benchmark_data()</code></a></td><td>基准测试</td><td>基准测试的曲线数据与参考线</td></tr>' +
-          '<tr><td><a href="#/apiplotbenchmark"><code>plot_hte_benchmark()</code></a></td><td>绘图</td><td>基准测试曲线分面对比，返回 ggplot</td></tr>' +
-          '<tr><td><a href="#/apiscenarios"><code>mlr3HTE_scenarios()</code></a></td><td>模拟数据</td><td>列出 10 个基准设计的结构标签</td></tr>' +
-          '<tr><td><a href="#/apiscenario"><code>mlr3HTE_scenario()</code></a></td><td>模拟数据</td><td>按场景 id 生成一份带真值的模拟数据</td></tr>' +
-          '<tr><td><a href="#/apibench"><code>mlr3HTE_bench()</code></a></td><td>模拟数据</td><td>取出随包发布的 30 份基准数据之一</td></tr>' +
-          '<tr><td><a href="#/apibenchindex"><code>mlr3HTE_bench_index()</code></a></td><td>模拟数据</td><td>打包数据中实际存在的键与真值 ATE</td></tr>' +
-          '<tr><td><a href="#/apiexplainer"><code>hte_explainer()</code></a></td><td>可解释性</td><td>把 CATE 模型包装为 DALEX 解释器（响应变量 = 伪结局）</td></tr>' +
-          '<tr><td><a href="#/apisurrogate"><code>hte_surrogate()</code></a></td><td>可解释性</td><td>用单一 mlr3 学习器重拟合 CATE 曲面得代理模型</td></tr>' +
-          '<tr><td><a href="#/apiimportance"><code>hte_feature_importance()</code></a></td><td>可解释性</td><td>置换法变量重要性（对伪结局的损失上升）</td></tr>' +
-          '<tr><td><a href="#/apipdp"><code>hte_pdp()</code></a></td><td>可解释性</td><td>偏依赖 PDP 与累积局部效应 ALE</td></tr>' +
-          '<tr><td><a href="#/apishap"><code>hte_shap()</code></a></td><td>可解释性</td><td>Kernel SHAP：个体 CATE 的变量分解</td></tr>' +
-          '<tr><td><a href="#/apishapdata"><code>hte_shap_data()</code></a></td><td>可解释性</td><td>把 shapviz 对象摊平为长表，便于导出自绘</td></tr>' +
-          '<tr><td><a href="#/apiplotimportance"><code>plot_hte_importance()</code></a></td><td>绘图</td><td>重要性条形图，返回 ggplot</td></tr>' +
-          '<tr><td><a href="#/apiplotpdp"><code>plot_hte_pdp()</code></a></td><td>绘图</td><td>偏依赖曲线分面图，返回 ggplot</td></tr>' +
-          '<tr><td><a href="#/apiplotshap"><code>plot_hte_shap()</code></a></td><td>绘图</td><td>SHAP 四视图：重要性 / 蜂群 / 依赖 / 瀑布</td></tr>' +
-          '<tr><td><a href="#/apilrn"><code>lrn()</code></a></td><td>再导出</td><td>从 mlr3 再导出，免额外加载</td></tr>' +
+          '<tr><td><a href="#/apimetalearner"><code>metalearner()</code></a></td><td>主入口：拟合任意 metalearner，返回可重复预测的对象</td></tr>' +
+          '<tr><td><a href="#/apis"><code>s_learner()</code></a></td><td>S-learner 简写，直接返回 CATE 向量</td></tr>' +
+          '<tr><td><a href="#/apit"><code>t_learner()</code></a></td><td>T-learner 简写，两个模型相减</td></tr>' +
+          '<tr><td><a href="#/apix"><code>x_learner()</code></a></td><td>X-learner 简写，两阶段拟合</td></tr>' +
+          '<tr><td><a href="#/apir"><code>r_learner()</code></a></td><td>R-learner 简写，残差化后回归</td></tr>' +
+          '<tr><td><a href="#/apidr"><code>dr_learner()</code></a></td><td>DR-learner 简写，双重稳健伪结局</td></tr>' +
+          '</tbody></table></div>'
+      },
+
+      {
+        id: "tasklearner",
+        heading: "② Task 与 R6 Learner",
+        body:
+          '<div class="table-wrap"><table>' +
+          '<thead><tr><th>函数</th><th>一句话说明</th></tr></thead>' +
+          '<tbody>' +
+          '<tr><td><a href="#/apimltask"><code>ml_task()</code></a></td><td>把 X/A/Y 编码成 mlr3 Task，三类结局统一</td></tr>' +
+          '<tr><td><a href="#/apilearner"><code>LearnerRegrMetalearner</code></a></td><td><code>lrn("regr.metalearner")</code>，接入 mlr3 工作流</td></tr>' +
+          '<tr><td><a href="#/apilrn"><code>lrn()</code></a></td><td>从 mlr3 再导出，免额外加载</td></tr>' +
+          '</tbody></table></div>'
+      },
+
+      {
+        id: "metrics",
+        heading: "③ 效应曲线、置信区间与评价指标",
+        body:
+          '<div class="table-wrap"><table>' +
+          '<thead><tr><th>函数</th><th>一句话说明</th></tr></thead>' +
+          '<tbody>' +
+          '<tr><td><a href="#/apisurvcurve"><code>surv_effect_curve()</code></a></td><td>逐点重拟合，给出效应随时间变化的曲线</td></tr>' +
+          '<tr><td><a href="#/apisurvcurve"><code>plot_surv_effect_curve()</code></a></td><td>画效应—时间曲线，叠加个体 CATE 四分位带</td></tr>' +
+          '<tr><td><a href="#/apicateci"><code>cate_ci()</code></a></td><td>CATE 的自助法置信区间（仅反映抽样波动）</td></tr>' +
+          '<tr><td><a href="#/apiqinicurve"><code>qini_curve()</code></a></td><td>Qini 曲线：累积增益随靶向比例的变化</td></tr>' +
+          '<tr><td><a href="#/apiqinicoef"><code>qini_coefficient()</code></a></td><td>把 Qini 曲线压成一个数</td></tr>' +
+          '<tr><td><a href="#/apicforbenefit"><code>c_for_benefit()</code></a></td><td>C 统计量：预测获益的配对一致性</td></tr>' +
+          '<tr><td><a href="#/apitoccurve"><code>toc_curve()</code></a></td><td>顶部有序曲线，对照总体 ATE</td></tr>' +
+          '<tr><td><a href="#/apiplotqini"><code>plot_qini()</code></a></td><td>Qini 曲线图，返回 ggplot 对象</td></tr>' +
+          '<tr><td><a href="#/apidrpseudo"><code>dr_pseudo_outcome()</code></a></td><td>一次拿到 propensity / mu1 / mu0 三件套，默认交叉拟合</td></tr>' +
+          '</tbody></table></div>'
+      },
+
+      {
+        id: "rctbench",
+        heading: "④ RCT 基准测试",
+        body:
+          '<div class="table-wrap"><table>' +
+          '<thead><tr><th>函数</th><th>一句话说明</th></tr></thead>' +
+          '<tbody>' +
+          '<tr><td><a href="#/apihtebenchmark"><code>hte_benchmark()</code></a></td><td>RCT 上比较多个 learner，不依赖真实 tau</td></tr>' +
+          '<tr><td><a href="#/apibenchdata"><code>hte_benchmark_data()</code></a></td><td>基准测试的曲线数据与参考线</td></tr>' +
+          '<tr><td><a href="#/apiplotbenchmark"><code>plot_hte_benchmark()</code></a></td><td>基准测试曲线分面对比，返回 ggplot</td></tr>' +
+          '</tbody></table></div>'
+      },
+
+      {
+        id: "xpkgbench",
+        heading: "⑤ 跨包基准数据集（grf / econml / causalml）",
+        body:
+          '<div class="table-wrap"><table>' +
+          '<thead><tr><th>函数</th><th>一句话说明</th></tr></thead>' +
+          '<tbody>' +
+          '<tr><td><a href="#/apibenchmarkdata"><code>mlr3HTE_benchmark_data()</code></a></td><td>读取随包分发的 5 个跨包基准数据集（含真实 <code>cate_true</code>）</td></tr>' +
+          '<tr><td><a href="#/apibenchmarkdata"><code>mlr3HTE_benchmark_meta()</code></a></td><td>数据字典：来源包、生成函数、样本量、真实 ATE 与字段说明</td></tr>' +
+          '<tr><td><a href="#/apibenchmarkdata"><code>mlr3HTE_benchmark_export()</code></a></td><td>把全部基准数据（RData + CSV）导出到指定目录</td></tr>' +
           '</tbody></table></div>' +
-          '<p class="text-muted">全部 42 个导出对象均有对应的说明页面，示例代码与输出都是实跑结果。标注「绘图」的函数一律返回 ggplot 对象，可用 <code>+</code> 叠加图层、用 <code>ggsave()</code> 导出；其底层数据由对应的数据函数单独取出：<code>hte_feature_importance()</code>、<code>hte_pdp()</code>、<code>hte_shap_data()</code>、<code>hte_benchmark_data()</code>、<code>qini_curve()</code>、<code>mlr3HTE_dag_data()</code>、<code>surv_effect_curve()</code>。</p>'
+          '<p class="text-muted">数据同时以 <code>.RData</code> 与 <code>.csv</code> 随包安装到本地 library，运行时无需 Python。</p>'
+      },
+
+      {
+        id: "sim",
+        heading: "⑥ 模拟数据与随包设计",
+        body:
+          '<div class="table-wrap"><table>' +
+          '<thead><tr><th>函数</th><th>一句话说明</th></tr></thead>' +
+          '<tbody>' +
+          '<tr><td><a href="#/apiscenarios"><code>mlr3HTE_scenarios()</code></a></td><td>列出 10 个基准设计的结构标签</td></tr>' +
+          '<tr><td><a href="#/apiscenario"><code>mlr3HTE_scenario()</code></a></td><td>按场景 id 生成一份带真值的模拟数据</td></tr>' +
+          '<tr><td><a href="#/apibench"><code>mlr3HTE_bench()</code></a></td><td>取出随包发布的 30 份基准数据之一</td></tr>' +
+          '<tr><td><a href="#/apibenchindex"><code>mlr3HTE_bench_index()</code></a></td><td>打包数据中实际存在的键与真值 ATE</td></tr>' +
+          '</tbody></table></div>'
+      },
+
+      {
+        id: "explain",
+        heading: "⑦ CATE 可解释性",
+        body:
+          '<div class="table-wrap"><table>' +
+          '<thead><tr><th>函数</th><th>一句话说明</th></tr></thead>' +
+          '<tbody>' +
+          '<tr><td><a href="#/apiexplainer"><code>hte_explainer()</code></a></td><td>把 CATE 模型包装为 DALEX 解释器（响应变量 = 伪结局）</td></tr>' +
+          '<tr><td><a href="#/apisurrogate"><code>hte_surrogate()</code></a></td><td>用单一 mlr3 学习器重拟合 CATE 曲面得代理模型</td></tr>' +
+          '<tr><td><a href="#/apiimportance"><code>hte_feature_importance()</code></a></td><td>置换法变量重要性（对伪结局的损失上升）</td></tr>' +
+          '<tr><td><a href="#/apipdp"><code>hte_pdp()</code></a></td><td>偏依赖 PDP 与累积局部效应 ALE</td></tr>' +
+          '<tr><td><a href="#/apishap"><code>hte_shap()</code></a></td><td>Kernel SHAP：个体 CATE 的变量分解</td></tr>' +
+          '<tr><td><a href="#/apishapdata"><code>hte_shap_data()</code></a></td><td>把 shapviz 对象摊平为长表，便于导出自绘</td></tr>' +
+          '<tr><td><a href="#/apiplotimportance"><code>plot_hte_importance()</code></a></td><td>重要性条形图，返回 ggplot</td></tr>' +
+          '<tr><td><a href="#/apiplotpdp"><code>plot_hte_pdp()</code></a></td><td>偏依赖曲线分面图，返回 ggplot</td></tr>' +
+          '<tr><td><a href="#/apiplotshap"><code>plot_hte_shap()</code></a></td><td>SHAP 四视图：重要性 / 蜂群 / 依赖 / 瀑布</td></tr>' +
+          '</tbody></table></div>'
+      },
+
+      {
+        id: "demo",
+        heading: "⑧ 演示数据",
+        body:
+          '<div class="table-wrap"><table>' +
+          '<thead><tr><th>函数</th><th>一句话说明</th></tr></thead>' +
+          '<tbody>' +
+          '<tr><td><a href="#/apidemodata"><code>mlr3HTE_demo_data()</code></a></td><td>随机化 + 连续结局，带 tau / ate</td></tr>' +
+          '<tr><td><a href="#/apidemobinary"><code>mlr3HTE_demo_binary()</code></a></td><td>随机化 + 二分类结局</td></tr>' +
+          '<tr><td><a href="#/apidemoobs"><code>mlr3HTE_demo_obs()</code></a></td><td>观察性 + 连续结局，含真实 ps_true</td></tr>' +
+          '<tr><td><a href="#/apidemoobsbinary"><code>mlr3HTE_demo_obs_binary()</code></a></td><td>观察性 + 二分类结局</td></tr>' +
+          '<tr><td><a href="#/apidemoobssurv"><code>mlr3HTE_demo_obs_surv()</code></a></td><td>观察性 + 生存结局，混杂与删失并存</td></tr>' +
+          '<tr><td><a href="#/apidemosurv"><code>mlr3HTE_demo_surv()</code></a></td><td>随机化 + 生存结局，只有删失</td></tr>' +
+          '</tbody></table></div>'
+      },
+
+      {
+        id: "dag",
+        heading: "⑨ 因果图 DAG",
+        body:
+          '<div class="table-wrap"><table>' +
+          '<thead><tr><th>函数</th><th>一句话说明</th></tr></thead>' +
+          '<tbody>' +
+          '<tr><td><a href="#/apidag"><code>mlr3HTE_dag()</code></a></td><td>画 RCT / 观察性两种设计的因果结构图</td></tr>' +
+          '<tr><td><a href="#/apidagdata"><code>mlr3HTE_dag_data()</code></a></td><td>DAG 的节点表 / 边表 / 曲率路由结果</td></tr>' +
+          '</tbody></table></div>'
       }
     ]
   },
@@ -1691,67 +1774,146 @@ window.SITE_PAGES.api = {
   /* ---------------- English ---------------- */
   en: {
     title: "API Reference",
-    lede: "mlr3HTE exports 42 objects: one main fitting function, five meta-learner " +
-          "shortcuts, one Task-encoding helper, one R6 Learner class, one CATE " +
-          "confidence-interval helper, one survival effect-curve function, two DAG " +
-          "functions, six demo data generators, four " +
-          "HTE evaluation metrics, one nuisance-parameter estimator for observational " +
-          "data, three RCT benchmark functions, four benchmark simulation functions, nine " +
-          "CATE interpretability functions, three companion plotting functions and one mlr3 " +
-          "re-export. Click a function name to open its dedicated page.",
+    lede: "mlr3HTE exports 45 objects, grouped into 9 categories: " +
+          "(1) core fitting and meta-learners; (2) Task and R6 learner; (3) effect curves, confidence intervals and metrics; " +
+          "(4) RCT benchmark; (5) cross-package benchmark datasets (grf / econml / causalml); (6) simulation and bundled designs; " +
+          "(7) CATE interpretability; (8) demo data; (9) causal DAG. Click a function name to open its dedicated page.",
     sections: [
 
       {
-        id: "overview",
-        heading: "Overview",
+        id: "core",
+        heading: "① Core fitting and meta-learners",
         body:
           '<div class="table-wrap"><table>' +
-          '<thead><tr><th>Function</th><th>Category</th><th>One-line description</th></tr></thead>' +
+          '<thead><tr><th>Function</th><th>One-line description</th></tr></thead>' +
           '<tbody>' +
-          '<tr><td><a href="#/apimetalearner"><code>metalearner()</code></a></td><td>Main entry</td><td>Fit any meta-learner and return a predictive object</td></tr>' +
-          '<tr><td><a href="#/apis"><code>s_learner()</code></a></td><td>Shortcut</td><td>S-learner shorthand, returns the CATE vector directly</td></tr>' +
-          '<tr><td><a href="#/apit"><code>t_learner()</code></a></td><td>Shortcut</td><td>T-learner shorthand, difference of two models</td></tr>' +
-          '<tr><td><a href="#/apix"><code>x_learner()</code></a></td><td>Shortcut</td><td>X-learner shorthand, two-stage imputation</td></tr>' +
-          '<tr><td><a href="#/apir"><code>r_learner()</code></a></td><td>Shortcut</td><td>R-learner shorthand, regression on residuals</td></tr>' +
-          '<tr><td><a href="#/apidr"><code>dr_learner()</code></a></td><td>Shortcut</td><td>DR-learner shorthand, doubly robust pseudo-outcome</td></tr>' +
-          '<tr><td><a href="#/apimltask"><code>ml_task()</code></a></td><td>Task encoding</td><td>Encode X/A/Y into an mlr3 Task, uniform across outcomes</td></tr>' +
-          '<tr><td><a href="#/apilearner"><code>LearnerRegrMetalearner</code></a></td><td>R6 Learner</td><td><code>lrn("regr.metalearner")</code> for mlr3 workflows</td></tr>' +
-          '<tr><td><a href="#/apicateci"><code>cate_ci()</code></a></td><td>Helper</td><td>Bootstrap confidence interval for CATE (sampling noise only)</td></tr>' +
-          '<tr><td><a href="#/apisurvcurve"><code>surv_effect_curve()</code></a></td><td>Survival curve</td><td>Refits point by point and returns the effect-over-time curve</td></tr>' +
-          '<tr><td><a href="#/apisurvcurve"><code>plot_surv_effect_curve()</code></a></td><td>Plot</td><td>Draws the effect-over-time curve with an individual-CATE IQR band</td></tr>' +
-          '<tr><td><a href="#/apiplotqini"><code>plot_qini()</code></a></td><td>Plot</td><td>Qini curve, returns a ggplot object</td></tr>' +
-          '<tr><td><a href="#/apidag"><code>mlr3HTE_dag()</code></a></td><td>DAG</td><td>Causal diagram for the RCT and observational designs</td></tr>' +
-          '<tr><td><a href="#/apidagdata"><code>mlr3HTE_dag_data()</code></a></td><td>DAG</td><td>Node and edge tables plus curvature routing for the DAG</td></tr>' +
-          '<tr><td><a href="#/apidemodata"><code>mlr3HTE_demo_data()</code></a></td><td>Demo data</td><td>Randomised + continuous outcome, with tau / ate</td></tr>' +
-          '<tr><td><a href="#/apidemobinary"><code>mlr3HTE_demo_binary()</code></a></td><td>Demo data</td><td>Randomised + binary outcome</td></tr>' +
-          '<tr><td><a href="#/apidemoobs"><code>mlr3HTE_demo_obs()</code></a></td><td>Demo data</td><td>Observational + continuous outcome, with true ps_true</td></tr>' +
-          '<tr><td><a href="#/apidemoobsbinary"><code>mlr3HTE_demo_obs_binary()</code></a></td><td>Demo data</td><td>Observational + binary outcome</td></tr>' +
-          '<tr><td><a href="#/apidemoobssurv"><code>mlr3HTE_demo_obs_surv()</code></a></td><td>Demo data</td><td>Observational + survival, confounding and censoring</td></tr>' +
-          '<tr><td><a href="#/apidemosurv"><code>mlr3HTE_demo_surv()</code></a></td><td>Demo data</td><td>Randomised + survival outcome, censoring only</td></tr>' +
-          '<tr><td><a href="#/apiqinicurve"><code>qini_curve()</code></a></td><td>HTE metrics</td><td>Qini curve: cumulative gain against the targeted fraction</td></tr>' +
-          '<tr><td><a href="#/apiqinicoef"><code>qini_coefficient()</code></a></td><td>HTE metrics</td><td>Compresses the Qini curve into a single number</td></tr>' +
-          '<tr><td><a href="#/apicforbenefit"><code>c_for_benefit()</code></a></td><td>HTE metrics</td><td>C statistic: pairwise concordance of predicted benefit</td></tr>' +
-          '<tr><td><a href="#/apitoccurve"><code>toc_curve()</code></a></td><td>HTE metrics</td><td>Top-ordered curve against the overall ATE</td></tr>' +
-          '<tr><td><a href="#/apidrpseudo"><code>dr_pseudo_outcome()</code></a></td><td>Observational</td><td>Propensity / mu1 / mu0 in one call, cross-fitted by default</td></tr>' +
-          '<tr><td><a href="#/apihtebenchmark"><code>hte_benchmark()</code></a></td><td>Benchmark</td><td>Compare learners on RCT data without a known tau</td></tr>' +
-          '<tr><td><a href="#/apibenchdata"><code>hte_benchmark_data()</code></a></td><td>Benchmark</td><td>Benchmark curve data together with the reference lines</td></tr>' +
-          '<tr><td><a href="#/apiplotbenchmark"><code>plot_hte_benchmark()</code></a></td><td>Plot</td><td>Faceted benchmark curves, returns a ggplot</td></tr>' +
-          '<tr><td><a href="#/apiscenarios"><code>mlr3HTE_scenarios()</code></a></td><td>Simulation</td><td>Structural labels of the ten benchmark designs</td></tr>' +
-          '<tr><td><a href="#/apiscenario"><code>mlr3HTE_scenario()</code></a></td><td>Simulation</td><td>Generate one simulated dataset with known ground truth</td></tr>' +
-          '<tr><td><a href="#/apibench"><code>mlr3HTE_bench()</code></a></td><td>Simulation</td><td>Fetch one of the thirty bundled benchmark datasets</td></tr>' +
-          '<tr><td><a href="#/apibenchindex"><code>mlr3HTE_bench_index()</code></a></td><td>Simulation</td><td>Keys present in the bundled data and their true ATE</td></tr>' +
-          '<tr><td><a href="#/apiexplainer"><code>hte_explainer()</code></a></td><td>Interpret</td><td>Wrap a CATE model as a DALEX explainer (response = pseudo-outcome)</td></tr>' +
-          '<tr><td><a href="#/apisurrogate"><code>hte_surrogate()</code></a></td><td>Interpret</td><td>Refit the CATE surface with one mlr3 learner as a surrogate</td></tr>' +
-          '<tr><td><a href="#/apiimportance"><code>hte_feature_importance()</code></a></td><td>Interpret</td><td>Permutation importance (loss rise against the pseudo-outcome)</td></tr>' +
-          '<tr><td><a href="#/apipdp"><code>hte_pdp()</code></a></td><td>Interpret</td><td>Partial dependence (PDP) and accumulated local effects (ALE)</td></tr>' +
-          '<tr><td><a href="#/apishap"><code>hte_shap()</code></a></td><td>Interpret</td><td>Kernel SHAP: decomposition of an individual CATE</td></tr>' +
-          '<tr><td><a href="#/apishapdata"><code>hte_shap_data()</code></a></td><td>Interpret</td><td>Flatten a shapviz object into a long table for export</td></tr>' +
-          '<tr><td><a href="#/apiplotimportance"><code>plot_hte_importance()</code></a></td><td>Plot</td><td>Importance bar chart, returns a ggplot</td></tr>' +
-          '<tr><td><a href="#/apiplotpdp"><code>plot_hte_pdp()</code></a></td><td>Plot</td><td>Faceted partial dependence curves, returns a ggplot</td></tr>' +
-          '<tr><td><a href="#/apiplotshap"><code>plot_hte_shap()</code></a></td><td>Plot</td><td>Four SHAP views: importance / beeswarm / dependence / waterfall</td></tr>' +
-          '<tr><td><a href="#/apilrn"><code>lrn()</code></a></td><td>Re-export</td><td>Re-exported from mlr3 so you need not load it</td></tr>' +
+          '<tr><td><a href="#/apimetalearner"><code>metalearner()</code></a></td><td>Main entry: fit any meta-learner and return a predictive object</td></tr>' +
+          '<tr><td><a href="#/apis"><code>s_learner()</code></a></td><td>S-learner shorthand, returns the CATE vector directly</td></tr>' +
+          '<tr><td><a href="#/apit"><code>t_learner()</code></a></td><td>T-learner shorthand, difference of two models</td></tr>' +
+          '<tr><td><a href="#/apix"><code>x_learner()</code></a></td><td>X-learner shorthand, two-stage imputation</td></tr>' +
+          '<tr><td><a href="#/apir"><code>r_learner()</code></a></td><td>R-learner shorthand, regression on residuals</td></tr>' +
+          '<tr><td><a href="#/apidr"><code>dr_learner()</code></a></td><td>DR-learner shorthand, doubly robust pseudo-outcome</td></tr>' +
+          '</tbody></table></div>'
+      },
+
+      {
+        id: "tasklearner",
+        heading: "② Task and R6 learner",
+        body:
+          '<div class="table-wrap"><table>' +
+          '<thead><tr><th>Function</th><th>One-line description</th></tr></thead>' +
+          '<tbody>' +
+          '<tr><td><a href="#/apimltask"><code>ml_task()</code></a></td><td>Encode X/A/Y into an mlr3 Task, uniform across outcomes</td></tr>' +
+          '<tr><td><a href="#/apilearner"><code>LearnerRegrMetalearner</code></a></td><td><code>lrn("regr.metalearner")</code> for mlr3 workflows</td></tr>' +
+          '<tr><td><a href="#/apilrn"><code>lrn()</code></a></td><td>Re-exported from mlr3 so you need not load it</td></tr>' +
+          '</tbody></table></div>'
+      },
+
+      {
+        id: "metrics",
+        heading: "③ Effect curves, confidence intervals and metrics",
+        body:
+          '<div class="table-wrap"><table>' +
+          '<thead><tr><th>Function</th><th>One-line description</th></tr></thead>' +
+          '<tbody>' +
+          '<tr><td><a href="#/apisurvcurve"><code>surv_effect_curve()</code></a></td><td>Refits point by point and returns the effect-over-time curve</td></tr>' +
+          '<tr><td><a href="#/apisurvcurve"><code>plot_surv_effect_curve()</code></a></td><td>Draws the effect-over-time curve with an individual-CATE IQR band</td></tr>' +
+          '<tr><td><a href="#/apicateci"><code>cate_ci()</code></a></td><td>Bootstrap confidence interval for CATE (sampling noise only)</td></tr>' +
+          '<tr><td><a href="#/apiqinicurve"><code>qini_curve()</code></a></td><td>Qini curve: cumulative gain against the targeted fraction</td></tr>' +
+          '<tr><td><a href="#/apiqinicoef"><code>qini_coefficient()</code></a></td><td>Compresses the Qini curve into a single number</td></tr>' +
+          '<tr><td><a href="#/apicforbenefit"><code>c_for_benefit()</code></a></td><td>C statistic: pairwise concordance of predicted benefit</td></tr>' +
+          '<tr><td><a href="#/apitoccurve"><code>toc_curve()</code></a></td><td>Top-ordered curve against the overall ATE</td></tr>' +
+          '<tr><td><a href="#/apiplotqini"><code>plot_qini()</code></a></td><td>Qini curve plot, returns a ggplot object</td></tr>' +
+          '<tr><td><a href="#/apidrpseudo"><code>dr_pseudo_outcome()</code></a></td><td>Propensity / mu1 / mu0 in one call, cross-fitted by default</td></tr>' +
+          '</tbody></table></div>'
+      },
+
+      {
+        id: "rctbench",
+        heading: "④ RCT benchmark",
+        body:
+          '<div class="table-wrap"><table>' +
+          '<thead><tr><th>Function</th><th>One-line description</th></tr></thead>' +
+          '<tbody>' +
+          '<tr><td><a href="#/apihtebenchmark"><code>hte_benchmark()</code></a></td><td>Compare learners on RCT data without a known tau</td></tr>' +
+          '<tr><td><a href="#/apibenchdata"><code>hte_benchmark_data()</code></a></td><td>Benchmark curve data together with the reference lines</td></tr>' +
+          '<tr><td><a href="#/apiplotbenchmark"><code>plot_hte_benchmark()</code></a></td><td>Faceted benchmark curves, returns a ggplot</td></tr>' +
+          '</tbody></table></div>'
+      },
+
+      {
+        id: "xpkgbench",
+        heading: "⑤ Cross-package benchmark datasets (grf / econml / causalml)",
+        body:
+          '<div class="table-wrap"><table>' +
+          '<thead><tr><th>Function</th><th>One-line description</th></tr></thead>' +
+          '<tbody>' +
+          '<tr><td><a href="#/apibenchmarkdata"><code>mlr3HTE_benchmark_data()</code></a></td><td>Load the five bundled cross-package datasets (with true <code>cate_true</code>)</td></tr>' +
+          '<tr><td><a href="#/apibenchmarkdata"><code>mlr3HTE_benchmark_meta()</code></a></td><td>Data dictionary: source package, generator, sample size, true ATE, field notes</td></tr>' +
+          '<tr><td><a href="#/apibenchmarkdata"><code>mlr3HTE_benchmark_export()</code></a></td><td>Export all benchmark data (RData + CSV) to a directory</td></tr>' +
           '</tbody></table></div>' +
-          '<p class="text-muted">All forty-two exported objects have a corresponding page, and every example is an actual run. The functions marked Plot return ggplot objects that accept further layers with <code>+</code> and export through <code>ggsave()</code>; their underlying data comes from the matching data function: <code>hte_feature_importance()</code>, <code>hte_pdp()</code>, <code>hte_shap_data()</code>, <code>hte_benchmark_data()</code>, <code>qini_curve()</code>, <code>mlr3HTE_dag_data()</code> and <code>surv_effect_curve()</code>.</p>'
+          '<p class="text-muted">The data ship as both <code>.RData</code> and <code>.csv</code> inside the installed package, so no Python is needed at run time.</p>'
+      },
+
+      {
+        id: "sim",
+        heading: "⑥ Simulation and bundled designs",
+        body:
+          '<div class="table-wrap"><table>' +
+          '<thead><tr><th>Function</th><th>One-line description</th></tr></thead>' +
+          '<tbody>' +
+          '<tr><td><a href="#/apiscenarios"><code>mlr3HTE_scenarios()</code></a></td><td>Structural labels of the ten benchmark designs</td></tr>' +
+          '<tr><td><a href="#/apiscenario"><code>mlr3HTE_scenario()</code></a></td><td>Generate one simulated dataset with known ground truth</td></tr>' +
+          '<tr><td><a href="#/apibench"><code>mlr3HTE_bench()</code></a></td><td>Fetch one of the thirty bundled benchmark datasets</td></tr>' +
+          '<tr><td><a href="#/apibenchindex"><code>mlr3HTE_bench_index()</code></a></td><td>Keys present in the bundled data and their true ATE</td></tr>' +
+          '</tbody></table></div>'
+      },
+
+      {
+        id: "explain",
+        heading: "⑦ CATE interpretability",
+        body:
+          '<div class="table-wrap"><table>' +
+          '<thead><tr><th>Function</th><th>One-line description</th></tr></thead>' +
+          '<tbody>' +
+          '<tr><td><a href="#/apiexplainer"><code>hte_explainer()</code></a></td><td>Wrap a CATE model as a DALEX explainer (response = pseudo-outcome)</td></tr>' +
+          '<tr><td><a href="#/apisurrogate"><code>hte_surrogate()</code></a></td><td>Refit the CATE surface with one mlr3 learner as a surrogate</td></tr>' +
+          '<tr><td><a href="#/apiimportance"><code>hte_feature_importance()</code></a></td><td>Permutation importance (loss rise against the pseudo-outcome)</td></tr>' +
+          '<tr><td><a href="#/apipdp"><code>hte_pdp()</code></a></td><td>Partial dependence (PDP) and accumulated local effects (ALE)</td></tr>' +
+          '<tr><td><a href="#/apishap"><code>hte_shap()</code></a></td><td>Kernel SHAP: decomposition of an individual CATE</td></tr>' +
+          '<tr><td><a href="#/apishapdata"><code>hte_shap_data()</code></a></td><td>Flatten a shapviz object into a long table for export</td></tr>' +
+          '<tr><td><a href="#/apiplotimportance"><code>plot_hte_importance()</code></a></td><td>Importance bar chart, returns a ggplot</td></tr>' +
+          '<tr><td><a href="#/apiplotpdp"><code>plot_hte_pdp()</code></a></td><td>Faceted partial dependence curves, returns a ggplot</td></tr>' +
+          '<tr><td><a href="#/apiplotshap"><code>plot_hte_shap()</code></a></td><td>Four SHAP views: importance / beeswarm / dependence / waterfall</td></tr>' +
+          '</tbody></table></div>'
+      },
+
+      {
+        id: "demo",
+        heading: "⑧ Demo data",
+        body:
+          '<div class="table-wrap"><table>' +
+          '<thead><tr><th>Function</th><th>One-line description</th></tr></thead>' +
+          '<tbody>' +
+          '<tr><td><a href="#/apidemodata"><code>mlr3HTE_demo_data()</code></a></td><td>Randomised + continuous outcome, with tau / ate</td></tr>' +
+          '<tr><td><a href="#/apidemobinary"><code>mlr3HTE_demo_binary()</code></a></td><td>Randomised + binary outcome</td></tr>' +
+          '<tr><td><a href="#/apidemoobs"><code>mlr3HTE_demo_obs()</code></a></td><td>Observational + continuous outcome, with true ps_true</td></tr>' +
+          '<tr><td><a href="#/apidemoobsbinary"><code>mlr3HTE_demo_obs_binary()</code></a></td><td>Observational + binary outcome</td></tr>' +
+          '<tr><td><a href="#/apidemoobssurv"><code>mlr3HTE_demo_obs_surv()</code></a></td><td>Observational + survival, confounding and censoring</td></tr>' +
+          '<tr><td><a href="#/apidemosurv"><code>mlr3HTE_demo_surv()</code></a></td><td>Randomised + survival outcome, censoring only</td></tr>' +
+          '</tbody></table></div>'
+      },
+
+      {
+        id: "dag",
+        heading: "⑨ Causal DAG",
+        body:
+          '<div class="table-wrap"><table>' +
+          '<thead><tr><th>Function</th><th>One-line description</th></tr></thead>' +
+          '<tbody>' +
+          '<tr><td><a href="#/apidag"><code>mlr3HTE_dag()</code></a></td><td>Causal diagram for the RCT and observational designs</td></tr>' +
+          '<tr><td><a href="#/apidagdata"><code>mlr3HTE_dag_data()</code></a></td><td>Node and edge tables plus curvature routing for the DAG</td></tr>' +
+          '</tbody></table></div>'
       }
     ]
   },
@@ -3289,4 +3451,123 @@ window.SITE_PAGES.apiexplain = {
       }
     ]
   }
+};window.SITE_PAGES.apibenchmarkdata = {
+
+  zh: {
+    title: "跨包基准数据集",
+    lede: "读取随包分发的 5 个跨包基准数据集（来自 grf / econml / causalml），每个都带真实个体处理效应 cate_true，可直接评估 HTE 估计量。",
+    sections: [
+      {
+        id: "what",
+        heading: "返回什么",
+        body:
+          '<div class="fn">' +
+          '<div class="fn-name">mlr3HTE_benchmark_data()<span class="badge">data</span></div>' +
+          '<div class="fn-sig">mlr3HTE_benchmark_data(name = NULL, path = NULL)</div>' +
+          '<p>读取基准数据。优先 <code>.RData</code>（保留列类型、加载更快），缺失时回退 <code>.csv</code>。' +
+          '<code>name = NULL</code> 返回全部（命名 list）；取单个名称返回单个 data.frame。</p>' +
+          '</div>' +
+          '<div class="fn">' +
+          '<div class="fn-name">mlr3HTE_benchmark_meta()</div>' +
+          '<div class="fn-sig">mlr3HTE_benchmark_meta(path = NULL)</div>' +
+          '<p>数据字典：来源包、生成函数、样本量、特征数、结局/处理类型、是否含真实效应、真实 ATE 与字段说明。</p>' +
+          '</div>' +
+          '<div class="fn">' +
+          '<div class="fn-name">mlr3HTE_benchmark_export()</div>' +
+          '<div class="fn-sig">mlr3HTE_benchmark_export(dest, path = NULL)</div>' +
+          '<p>把全部基准数据（RData + CSV）与元信息复制到 <code>dest</code>，便于包外使用或上传其它仓库。</p>' +
+          '</div>'
+      },
+      {
+        id: "datasets",
+        heading: "数据集清单",
+        body:
+          '<div class="table-wrap"><table>' +
+          '<thead><tr><th>数据集</th><th>来源</th><th>样本量</th><th>结局</th><th>真实 ATE</th></tr></thead>' +
+          '<tbody>' +
+          '<tr><td><code>grf_causal</code></td><td>grf</td><td>2000</td><td>连续</td><td>0.069</td></tr>' +
+          '<tr><td><code>grf_survival</code></td><td>grf</td><td>2000</td><td>生存</td><td>0.610</td></tr>' +
+          '<tr><td><code>econml_ihdp</code></td><td>econml</td><td>747</td><td>连续</td><td>4.217</td></tr>' +
+          '<tr><td><code>causalml_uplift</code></td><td>causalml</td><td>8000</td><td>二分类</td><td>0.044</td></tr>' +
+          '<tr><td><code>causalml_continuous</code></td><td>causalml</td><td>5000</td><td>连续</td><td>0.500</td></tr>' +
+          '</tbody></table></div>' +
+          '<p class="text-muted">数据同时以 <code>.RData</code> 与 <code>.csv</code> 随包安装到本地 library，运行时无需 Python。</p>'
+      },
+      {
+        id: "example",
+        heading: "实测示例",
+        body:
+          '<pre><code class="language-r"># 数据字典\n' +
+          'mlr3HTE_benchmark_meta()\n\n' +
+          '# 取单个数据集（列含 cate_true）\n' +
+          'd &lt;- mlr3HTE_benchmark_data("grf_causal")\n' +
+          'head(d)\n\n' +
+          '# 取全部，命名 list\n' +
+          'all_d &lt;- mlr3HTE_benchmark_data()\n' +
+          'names(all_d)\n\n' +
+          '# 导出到本地目录\n' +
+          'mlr3HTE_benchmark_export("~/benchmarks")</code></pre>'
+      }
+    ]
+  },
+
+  en: {
+    title: "Cross-package benchmark datasets",
+    lede: "Load the five bundled cross-package datasets (from grf / econml / causalml). Each carries a true individual treatment effect column cate_true for evaluating HTE estimators.",
+    sections: [
+      {
+        id: "what",
+        heading: "What it returns",
+        body:
+          '<div class="fn">' +
+          '<div class="fn-name">mlr3HTE_benchmark_data()<span class="badge">data</span></div>' +
+          '<div class="fn-sig">mlr3HTE_benchmark_data(name = NULL, path = NULL)</div>' +
+          '<p>Load benchmark data. Prefers <code>.RData</code> (preserves column types, faster) and falls back to <code>.csv</code>. ' +
+          '<code>name = NULL</code> returns all datasets as a named list; a single name returns one data.frame.</p>' +
+          '</div>' +
+          '<div class="fn">' +
+          '<div class="fn-name">mlr3HTE_benchmark_meta()</div>' +
+          '<div class="fn-sig">mlr3HTE_benchmark_meta(path = NULL)</div>' +
+          '<p>Data dictionary: source package, generator, sample size, number of features, outcome/treatment type, ground-truth availability, true ATE and field notes.</p>' +
+          '</div>' +
+          '<div class="fn">' +
+          '<div class="fn-name">mlr3HTE_benchmark_export()</div>' +
+          '<div class="fn-sig">mlr3HTE_benchmark_export(dest, path = NULL)</div>' +
+          '<p>Copy all benchmark data (RData + CSV) and metadata to <code>dest</code>, for use outside the package or upload to another repository.</p>' +
+          '</div>'
+      },
+      {
+        id: "datasets",
+        heading: "Dataset inventory",
+        body:
+          '<div class="table-wrap"><table>' +
+          '<thead><tr><th>Dataset</th><th>Source</th><th>n</th><th>Outcome</th><th>True ATE</th></tr></thead>' +
+          '<tbody>' +
+          '<tr><td><code>grf_causal</code></td><td>grf</td><td>2000</td><td>continuous</td><td>0.069</td></tr>' +
+          '<tr><td><code>grf_survival</code></td><td>grf</td><td>2000</td><td>survival</td><td>0.610</td></tr>' +
+          '<tr><td><code>econml_ihdp</code></td><td>econml</td><td>747</td><td>continuous</td><td>4.217</td></tr>' +
+          '<tr><td><code>causalml_uplift</code></td><td>causalml</td><td>8000</td><td>binary</td><td>0.044</td></tr>' +
+          '<tr><td><code>causalml_continuous</code></td><td>causalml</td><td>5000</td><td>continuous</td><td>0.500</td></tr>' +
+          '</tbody></table></div>' +
+          '<p class="text-muted">The data ship as both <code>.RData</code> and <code>.csv</code> inside the installed package, so no Python is needed at run time.</p>'
+      },
+      {
+        id: "example",
+        heading: "Example",
+        body:
+          '<pre><code class="language-r"># data dictionary\n' +
+          'mlr3HTE_benchmark_meta()\n\n' +
+          '# one dataset (columns include cate_true)\n' +
+          'd &lt;- mlr3HTE_benchmark_data("grf_causal")\n' +
+          'head(d)\n\n' +
+          '# all datasets as a named list\n' +
+          'all_d &lt;- mlr3HTE_benchmark_data()\n' +
+          'names(all_d)\n\n' +
+          '# export to a local directory\n' +
+          'mlr3HTE_benchmark_export("~/benchmarks")</code></pre>'
+      }
+    ]
+  }
+
 };
+

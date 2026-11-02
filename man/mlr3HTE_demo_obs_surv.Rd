@@ -2,24 +2,24 @@
 % Please edit documentation in R/api.R
 \name{mlr3HTE_demo_obs_surv}
 \alias{mlr3HTE_demo_obs_surv}
-\title{演示数据：生存结局 + 观察性（混杂）}
+\title{Demo data: survival outcome + observational (confounding)}
 \usage{
 mlr3HTE_demo_obs_surv(n = 4000, t0 = 2, strength = 1, seed = 1206)
 }
 \arguments{
-\item{n}{样本量，默认 4000}
+\item{n}{sample size; default 4000}
 
-\item{t0}{效应评估时点，默认 2}
+\item{t0}{effect evaluation time point; default 2}
 
-\item{strength}{混杂强度，默认 1；\code{0} 时等价 RCT}
+\item{strength}{confounding strength; default 1; \code{0} is equivalent to an RCT}
 
-\item{seed}{随机种子}
+\item{seed}{random seed}
 }
 \value{
-list：X、A、Y（Surv 对象）、tau（生存概率差尺度的真实 CATE）、ate、t0、
-ps_true、tau_rmst、ate_rmst
+a list: X, A, Y (Surv object), tau (true CATE on the survival-probability-difference scale), ate, t0,
+ps_true, tau_rmst, ate_rmst
 }
 \description{
-与 \code{\link{mlr3HTE_demo_obs}} 同一套混杂结构，结局换成生存时间。
-默认效应度量 = t0 时点生存概率差；另返回 RMST 版真实效应与 \code{ps_true}。
+Same confounding structure as \code{\link{mlr3HTE_demo_obs}}, but with a survival-time outcome.
+The default effect measure is the survival-probability difference at t0; the RMST version of the true effect and \code{ps_true} are also returned.
 }

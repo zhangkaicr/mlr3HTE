@@ -2,29 +2,30 @@
 % Please edit documentation in R/learner.R
 \name{LearnerRegrMetalearner}
 \alias{LearnerRegrMetalearner}
-\title{mlr3 参数化 Metalearner 学习器}
+\title{Parameterized mlr3 Metalearner learner}
 \format{
-\code{R6Class} 对象；用 \code{mlr3::lrn("regr.metalearner")} 获取。
+\code{R6Class} object; obtain it via \code{mlr3::lrn("regr.metalearner")}.
 }
 \description{
-一个 \code{\link[mlr3]{LearnerRegr}} 子类，把全部 metalearner 类型
-（S / T / X / R / DR）与结局类型（连续 / 二分类 / 生存）封装进同一个
-\code{Learner}，可直接接入 \code{resample()} / \code{benchmark()} / \code{tune()}。
-须知：构造 Task 必须用 \code{\link{ml_task}}（它会把结局类型、生存状态列与 t0 写进
-\code{task$extra_args}，该字段在 resample 分折后仍保留）。
+A \code{\link[mlr3]{LearnerRegr}} subclass that wraps all metalearner types
+(S / T / X / R / DR) and outcome types (continuous / binary / survival) into a single
+\code{Learner}, which can be plugged directly into \code{resample()} / \code{benchmark()} / \code{tune()}.
+Note: the Task must be built with \code{\link{ml_task}} (it writes the outcome type, the survival status column, and t0 into
+\code{task$extra_args}, and this field survives resample's fold splitting).
 }
-\section{参数(param_set)}{
+\section{Parameters (param_set)}{
 
 \describe{
-\item{metalearner}{字符，S / T / X / R / DR，默认 "T"}
-\item{engine}{字符，native / survlearners，默认 "native"；
-生存结局的第二套引擎（survlearners 包，只支持 S/T/X/R 与 S(t0) 差）}
+\item{metalearner}{character, S / T / X / R / DR, default "T"}
+\item{engine}{character, native / survlearners, default "native";
+the second engine for survival outcomes (survlearners package, supports only S/T/X/R and the S(t0) difference)}
 }
 }
 
-\section{预测}{
+\section{Prediction}{
 
-返回 CATE（个体处理效应）作为 \code{response}，可直接与真实 tau 比较。
+Returns the CATE (conditional average treatment effect for the individual) as \code{response}, which can be
+compared directly with the true tau.
 }
 
 \seealso{
@@ -36,25 +37,25 @@
 \section{Public fields}{
   \if{html}{\out{<div class="r6-fields">}}
   \describe{
-    \item{\code{learner_base}}{结局模型基学习器（类型须与结局匹配；生存用 "coxph"/"ranger"，
-survlearners 引擎下用 "coxph"/"grf"/"lasso"）。T / X Learner 可传命名 list
-（\code{list(treated=, control=)} 或 \code{list(m1=, m0=)}）让分组 / 阶段各自用不同算法。}
+    \item{\code{learner_base}}{Outcome-model base learner (type must match the outcome; for survival use "coxph"/"ranger",
+or "coxph"/"grf"/"lasso" under the survlearners engine). T / X Learners may take a named list
+(\code{list(treated=, control=)} or \code{list(m1=, m0=)}) so each group / stage uses a different algorithm.}
 
-    \item{\code{learner_tau}}{效应阶段回归学习器；NULL 时引擎用偏正则化的 ranger。
-X-Learner 可传 \code{list(tau1=, tau0=)} 分别指定两个效应回归。}
+    \item{\code{learner_tau}}{Effect-stage regression learner; when NULL the engine uses a lightly-regularized ranger.
+The X-Learner may take \code{list(tau1=, tau0=)} to specify the two effect regressions separately.}
 
-    \item{\code{learner_ps}}{倾向得分，仅 X / R / DR 使用（S / T 忽略）：mlr3 分类学习器、
-常数倾向得分标量，或 \code{function(newX)}；NULL 时引擎默认 \code{classif.log_reg}}
+    \item{\code{learner_ps}}{Propensity score, used only by X / R / DR (ignored by S / T): an mlr3 classification learner,
+a constant propensity-score scalar, or \code{function(newX)}; when NULL the engine defaults to \code{classif.log_reg}}
 
-    \item{\code{treatment_col}}{处理列名（可被 task$extra_args$ml_treatment_col 覆盖）}
+    \item{\code{treatment_col}}{Name of the treatment column (overridable by task$extra_args$ml_treatment_col)}
 
-    \item{\code{status_col}}{生存事件指示列名（可被 ml_status_col 覆盖）}
+    \item{\code{status_col}}{Name of the survival event-indicator column (overridable by ml_status_col)}
 
-    \item{\code{t0}}{生存效应评估时点；NULL 时取 extra_args$ml_t0，再取事件中位数}
+    \item{\code{t0}}{Survival effect evaluation time point; when NULL uses extra_args$ml_t0, then the median event time}
 
-    \item{\code{engine}}{生存结局估计引擎：native（默认）/ survlearners}
+    \item{\code{engine}}{Survival-outcome estimation engine: native (default) / survlearners}
 
-    \item{\code{model_id}}{真实拟合结果在登记处的 id}
+    \item{\code{model_id}}{id of the real fitted result in the registry}
   }
   \if{html}{\out{</div>}}
 }
@@ -93,7 +94,7 @@ X-Learner 可传 \code{list(tau1=, tau0=)} 分别指定两个效应回归。}
   \subsection{Arguments}{
     \if{html}{\out{<div class="arguments">}}
     \describe{
-      \item{\code{id}}{学习器 id}
+      \item{\code{id}}{learner id}
     }
     \if{html}{\out{</div>}}
   }

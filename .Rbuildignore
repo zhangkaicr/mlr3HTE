@@ -8,3 +8,4 @@
 ^run_checks\.R$
 ^dev$
 ^data-raw$
+^overview.*\.md$

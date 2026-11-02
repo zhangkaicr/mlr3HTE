@@ -2,7 +2,7 @@
 % Please edit documentation in R/metrics.R
 \name{qini_coefficient}
 \alias{qini_coefficient}
-\title{Qini 系数：Qini 曲线与随机靶向线之间的面积}
+\title{Qini coefficient: area between the Qini curve and the random targeting line}
 \usage{
 qini_coefficient(
   cate,
@@ -15,39 +15,45 @@ qini_coefficient(
 )
 }
 \arguments{
-\item{cate}{逐个体估计的 CATE（数值向量），即模型的排序分数。}
+\item{cate}{Per-individual estimated CATE (numeric vector), i.e. the model's
+ranking score.}
 
-\item{A}{处理指示（0/1 或逻辑）。}
+\item{A}{Treatment indicator (0/1 or logical).}
 
-\item{Y}{结局：连续数值、0/1 二分类，或生存对象
-（\code{survival::Surv(time, status)}，也可直接给两列矩阵）。}
+\item{Y}{Outcome: continuous numeric, 0/1 binary, or a survival object
+(\code{survival::Surv(time, status)}; a two-column matrix is also accepted).}
 
-\item{propensity}{倾向得分 \eqn{e(X)}；\code{NULL}（默认）时用 \code{mean(A)}，
-适用于随机化试验。观察性数据请传入估计好的倾向得分。}
+\item{propensity}{The propensity score \eqn{e(X)}; \code{NULL} (default) uses
+\code{mean(A)}, suitable for randomized trials. For observational data, pass
+an estimated propensity score.}
 
-\item{t0}{生存结局的关键时点；\code{NULL}（默认）取事件时间中位数。
-连续/二分类结局忽略此参数。}
+\item{t0}{The key time point for survival outcomes; \code{NULL} (default) uses
+the median event time. Ignored for continuous / binary outcomes.}
 
-\item{X}{协变量 data.frame；仅生存结局且删失依赖协变量时需要，用于 Cox 建模
-删失分布。\code{NULL}（默认）用边际 Kaplan–Meier，假定删失与协变量无关。}
+\item{X}{A data.frame of covariates; needed only for survival outcomes when
+censoring depends on covariates, used to model the censoring distribution with
+Cox. \code{NULL} (default) uses the marginal Kaplan--Meier, assuming censoring
+is independent of covariates.}
 
-\item{effect}{生存结局的效应标尺：\code{"survdiff"}（默认）为 \eqn{t0} 时点
-生存概率差，与 \code{metalearner()} 的默认 CATE 一致；\code{"rmst"} 为
-限制平均生存时间差。连续/二分类结局忽略此参数。}
+\item{effect}{The effect scale for survival outcomes: \code{"survdiff"} (default)
+is the survival probability difference at \eqn{t0}, matching the default CATE
+of \code{metalearner()}; \code{"rmst"} is the restricted mean survival time
+difference. Ignored for continuous / binary outcomes.}
 }
 \value{
-一个 list，含 \code{qini_coefficient}（绝对面积）、
-\code{qini_normalized}（归一化到随机线面积）、\code{auc}（曲线下面积）
-与 \code{qini_at_full}（\eqn{Q(1)}）。
+A list containing \code{qini_coefficient} (absolute area),
+\code{qini_normalized} (normalized to the random-line area), \code{auc} (area
+under the curve) and \code{qini_at_full} (\eqn{Q(1)}).
 }
 \description{
-在 \code{\link{qini_curve}} 的基础上，计算曲线下面积（梯形法）与
-"随机靶向线"（从 (0,0) 连到 (1, Q(1))）之间夹的面积。面积越大，
-说明模型排序相对随机分配带来的额外增益越多。
+Building on \code{\link{qini_curve}}, compute the area between the curve (trapezoidal
+rule) and the "random targeting line" (connecting (0,0) to (1, Q(1))). The larger
+the area, the more extra gain the model's ranking brings over random allocation.
 }
 \details{
-同时给出归一化版本：面积除以随机线下的面积 \eqn{0.5\,Q(1)}。
-随机模型的 Qini 系数约为 0；完美排序为正。
+A normalized version is also returned: the area divided by the area under the
+random line \eqn{0.5\,Q(1)}. A random model has a Qini coefficient near 0; a
+perfect ranking is positive.
 }
 \examples{
 set.seed(1)

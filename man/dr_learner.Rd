@@ -2,27 +2,27 @@
 % Please edit documentation in R/api.R
 \name{dr_learner}
 \alias{dr_learner}
-\title{DR-Learner（便捷封装，直接返回训练集 CATE）}
+\title{DR-Learner (convenience wrapper, returns the training-set CATE directly)}
 \usage{
 dr_learner(X, A, Y, learner_base = mlr3::lrn("regr.ranger"), ...)
 }
 \arguments{
-\item{X}{协变量 data.frame（不含处理与结局）}
+\item{X}{covariate data.frame (excluding treatment and outcome)}
 
-\item{A}{处理指示（0/1，或逻辑）}
+\item{A}{treatment indicator (0/1, or logical)}
 
-\item{Y}{结局：连续（数值）/ 二分类（0-1 或两水平因子）/ 生存（Surv 对象）}
+\item{Y}{outcome: continuous (numeric) / binary (0-1 or two-level factor) / survival (Surv object)}
 
-\item{learner_base}{结局模型基学习器，默认 \code{regr.ranger}}
+\item{learner_base}{outcome-model base learner; default \code{regr.ranger}}
 
-\item{...}{其他传给 \code{\link{metalearner}} 的参数}
+\item{...}{other arguments passed to \code{\link{metalearner}}}
 }
 \value{
-训练集上逐样本的 CATE 数值向量
+a per-sample CATE numeric vector on the training set
 }
 \description{
-拟合 DR-Learner 并直接返回训练集上的 CATE 向量（双重稳健）。
-可用 \code{cross_fitting = TRUE} 启用交叉拟合。
+Fit a DR-Learner and return the CATE vector on the training set (doubly robust).
+Cross-fitting can be enabled with \code{cross_fitting = TRUE}.
 }
 \seealso{
 \code{\link{metalearner}}

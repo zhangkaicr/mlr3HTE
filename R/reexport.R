@@ -1,17 +1,17 @@
-# 目的：再导出 mlr3 的 lrn()，使 library(mlr3HTE) 之后可直接使用，无需再 library(mlr3)
-# 输入：无运行时代码，仅 roxygen 声明
-# 输出：NAMESPACE 中的 importFrom(mlr3, lrn) 与 export(lrn)
-# 依赖：mlr3（Imports）
+# Purpose: re-export mlr3's lrn() so that after library(mlr3HTE) it can be used directly, without loading mlr3 again
+# Input: no runtime code, only roxygen declarations
+# Output: importFrom(mlr3, lrn) and export(lrn) in NAMESPACE
+# Dependencies: mlr3 (Imports)
 
 # 0 环境与依赖 ----
 
-# roxygen 的 re-export 写法：@export 作用在 pkg::name 上，
-# 会同时生成 importFrom(mlr3, lrn) 与 export(lrn)。
-# 为什么再导出：文档站与教程里 lrn("regr.ranger", ...) 出现频率极高，
-# 且本包默认基学习器就是 mlr3 learner。若不导出，用户照文档执行
+# roxygen's re-export idiom: @export placed on pkg::name
+# generates both importFrom(mlr3, lrn) and export(lrn).
+# Why re-export: lrn("regr.ranger", ...) appears extremely frequently across the docs site and tutorials,
+# and this package's default base learner is an mlr3 learner. If not re-exported, a user following the docs and running
 #   library(mlr3HTE); lrn("regr.ranger")
-# 会报「没有 lrn 这个函数」——这是真实发生过的消费者故障，不是假设。
-# 再导出的是同一个函数对象，与 mlr3 同时 attach 不会产生冲突。
+# would get "no such function lrn" -- this is a real, observed consumer failure, not a hypothetical.
+# The re-exported object is the same function, so attaching it together with mlr3 causes no conflict.
 
 # 1 再导出 ----
 

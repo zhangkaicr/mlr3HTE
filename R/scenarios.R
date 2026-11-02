@@ -1,29 +1,39 @@
 # =====================================================================
-# scenarios.R —— 基准模拟数据体系（10 个设计 × 3 类结局）
+# scenarios.R — Benchmark simulation data system (10 designs x 3 outcome types)
 #
-# 目的：为 HTE 方法学比较提供一组「结构可控、真值已知」的基准数据。
-#       旧版六个 demo_* 函数只覆盖「线性混杂 + 线性 HTE」一种结构，
-#       无法回答「非线性混杂下 IPTW 是否仍然够用」「效应修饰与混杂共用
-#       同一变量时哪个 learner 更稳」这类问题。这里把结构显式参数化。
+# Purpose: provide a set of benchmark data with "controllable structure and known
+#          truth" for HTE methodology comparison. The old six demo_* functions only
+#          covered one structure ("linear confounding + linear HTE"), and could not
+#          answer questions like "is IPTW still adequate under nonlinear confounding"
+#          or "which learner is more stable when effect modification and confounding
+#          share the same variable". Here the structure is made explicit and parameterized.
 #
-# 四个设计维度：
-#   1. design        随机化（rct）/ 观察性（obs）
-#   2. confounding   无 / 线性 / 非线性（仅 obs 有混杂）
-#   3. hte           线性 / 非线性（真实 CATE 对协变量的函数形式）
-#   4. shared        是否存在「既影响处理分配、又修饰治疗效应」的变量
+# Four design dimensions:
+#   1. design        randomization (rct) / observational (obs)
+#   2. confounding   none / linear / nonlinear (confounding only exists for obs)
+#   3. hte           linear / nonlinear (the functional form of the true CATE in
+#                    covariates)
+#   4. shared        whether a variable exists that "both affects treatment assignment
+#                    and modifies the treatment effect"
 #
-# 因果结构约定：
-#   协变量 Z = (z1, z2, z3, sex)，z1/z2 已标准化，z3 = (age - 60) / 12
-#   效应修饰：tau 只由 z1（线性或非线性）与 z2 决定
-#   处理分配：logit e 由 z2 决定；shared = TRUE 时 z1 也进入 e
-#     -> shared = FALSE：混杂变量（z2）与效应修饰变量（z1）不相交
-#     -> shared = TRUE ：z1 同时进入 e 与 tau，是混杂因子兼效应修饰因子
-#   预后：mu 由 z1 / z2 / z3 / sex 决定，与 tau 共享 z1、z2（故两族相关但不相同）
+# Causal-structure conventions:
+#   covariates Z = (z1, z2, z3, sex), z1/z2 standardized, z3 = (age - 60) / 12
+#   effect modification: tau is determined only by z1 (linear or nonlinear) and z2
+#   treatment assignment: logit e is determined by z2; when shared = TRUE, z1 also
+#     enters e
+#     -> shared = FALSE: the confounder (z2) and the effect-modifier (z1) are disjoint
+#     -> shared = TRUE : z1 enters both e and tau, acting as both a confounder and an
+#       effect modifier
+#   prognosis: mu is determined by z1 / z2 / z3 / sex and shares z1, z2 with tau
+#     (so the two families are correlated but not identical)
 #
-# 三类结局共用同一份 (Z, A, tau)，只是把 tau 映射到各自的效应尺度：
-#   连续  ：均值差
-#   二分类：风险差（对数几率尺度加 tau_logit，再逐人换算到风险差）
-#   生存  ：t0 时点生存概率差（风险乘 exp(-tau)），另给 RMST 版真值
+# The three outcome types share the same (Z, A, tau), only mapping tau onto their
+# respective effect scales:
+#   continuous : mean difference
+#   binary     : risk difference (add tau_logit on the log-odds scale, then convert
+#                per individual to risk difference)
+#   survival   : survival probability difference at t0 (hazard multiplied by exp(-tau)),
+#                with an RMST-version truth also provided
 # =====================================================================
 
 # 1 场景清单 -------------------------------------------------------------------
@@ -47,20 +57,24 @@
   out
 }
 
-#' 基准模拟场景清单
+#' List of benchmark simulation scenarios
 #'
 #' @description
-#' 列出 \code{\link{mlr3HTE_scenario}} 支持的 10 个基准设计及其结构标签。
-#' 四个维度分别是：研究设计（\code{design}）、混杂机制的函数形式
-#' （\code{confounding}）、真实 CATE 的函数形式（\code{hte}），以及是否存在
-#' **同时影响处理分配与治疗效应**的协变量（\code{shared}）。
+#' List the 10 benchmark designs supported by \code{\link{mlr3HTE_scenario}} and
+#' their structural labels. The four dimensions are: study design (\code{design}),
+#' the functional form of the confounding mechanism (\code{confounding}), the
+#' functional form of the true CATE (\code{hte}), and whether a covariate exists
+#' that **simultaneously affects treatment assignment and the treatment effect**
+#' (\code{shared}).
 #'
-#' 这一组场景用于方法学比较：固定其余结构、只改变一个维度，即可分离出
-#' 「非线性混杂」「非线性效应修饰」「混杂与效应修饰共用变量」各自对
-#' 估计量的影响，而不会把多个来源的偏差混在一起。
+#' This set of scenarios is for methodology comparison: by fixing the other
+#' structures and changing only one dimension, you can isolate the effect of
+#' "nonlinear confounding", "nonlinear effect modification", and "confounding and
+#' effect modification sharing a variable" on the estimator, without mixing biases
+#' from multiple sources.
 #'
-#' @return data.frame，每行一个设计，列为 \code{id} / \code{design} /
-#'   \code{confounding} / \code{hte} / \code{shared}。
+#' @return A data.frame with one row per design and columns \code{id} / \code{design}
+#'   / \code{confounding} / \code{hte} / \code{shared}.
 #' @seealso \code{\link{mlr3HTE_scenario}}, \code{\link{mlr3HTE_bench}}
 #' @export
 #' @examples
@@ -152,35 +166,39 @@ mlr3HTE_scenarios <- function() {
 }
 
 # 7 单个场景生成器 -------------------------------------------------------------
-#' 生成一个基准模拟场景
+#' Generate a benchmark simulation scenario
 #'
 #' @description
-#' 按 \code{\link{mlr3HTE_scenarios}} 中的结构标签生成一份带真值的模拟数据。
-#' 同一个 \code{id} + \code{outcome} + \code{n} + \code{seed} 组合结果完全可复现，
-#' 因此可以直接作为方法学比较的固定基准。
+#' Generate a simulation dataset with a known truth according to the structural
+#' labels in \code{\link{mlr3HTE_scenarios}}. The same \code{id} + \code{outcome} +
+#' \code{n} + \code{seed} combination is fully reproducible, so it can be used
+#' directly as a fixed benchmark for methodology comparison.
 #'
-#' 真值 \code{tau} 的定义随结局尺度变化：连续结局为**均值差**，二分类为
-#' **风险差**（逐人换算，不是对数几率尺度的常数），生存结局为
-#' \strong{t0 时点生存概率差}；生存结局同时返回 RMST 尺度的真值
-#' \code{tau_rmst}。ATE 为 \code{tau} 的样本均值。
+#' The definition of the truth \code{tau} varies with the outcome scale: for
+#' continuous outcomes it is the **mean difference**, for binary outcomes the
+#' **risk difference** (converted per individual, not a constant on the log-odds
+#' scale), and for survival outcomes the \strong{survival probability difference at
+#' t0}; survival outcomes also return the RMST-scale truth \code{tau_rmst}. The ATE
+#' is the sample mean of \code{tau}.
 #'
-#' @param id 场景 id，见 \code{\link{mlr3HTE_scenarios}}。
-#' @param outcome 结局类型：\code{"continuous"}（默认）/ \code{"binary"} /
-#'   \code{"survival"}。
-#' @param n 样本量，默认 2000。
-#' @param seed 随机种子；默认 \code{NULL} 时按 \code{id} 与 \code{outcome}
-#'   派生一个固定种子，保证不同场景之间互不相同但各自可复现。
-#' @param t0 生存结局的效应评估时点，默认 2。
-#' @return list：
+#' @param id The scenario id, see \code{\link{mlr3HTE_scenarios}}.
+#' @param outcome The outcome type: \code{"continuous"} (default) / \code{"binary"} /
+#'   \code{"survival"}.
+#' @param n The sample size, default 2000.
+#' @param seed The random seed; when \code{NULL} (default), a fixed seed is derived
+#'   from \code{id} and \code{outcome}, ensuring different scenarios are distinct from
+#'   each other yet each reproducible.
+#' @param t0 The effect evaluation time point for survival outcomes, default 2.
+#' @return A list:
 #'   \itemize{
-#'     \item \code{X} 协变量 data.frame（age / lac / tumor / sex）
-#'     \item \code{A} 处理指示（0/1）
-#'     \item \code{Y} 结局（生存结局为 \code{Surv} 对象）
-#'     \item \code{tau} 逐人真实 CATE（当前结局尺度）
-#'     \item \code{ate} 真实 ATE = \code{mean(tau)}
-#'     \item \code{ps_true} 真实倾向得分（RCT 恒为 0.5）
-#'     \item \code{tau_rmst} / \code{ate_rmst} 生存结局的 RMST 尺度真值
-#'     \item \code{meta} 该场景的结构标签与参数
+#'     \item \code{X} A data.frame of covariates (age / lac / tumor / sex)
+#'     \item \code{A} Treatment indicator (0/1)
+#'     \item \code{Y} Outcome (a \code{Surv} object for survival outcomes)
+#'     \item \code{tau} Per-individual true CATE (on the current outcome scale)
+#'     \item \code{ate} True ATE = \code{mean(tau)}
+#'     \item \code{ps_true} True propensity score (always 0.5 for RCT scenarios)
+#'     \item \code{tau_rmst} / \code{ate_rmst} RMST-scale truth for survival outcomes
+#'     \item \code{meta} The scenario's structural labels and parameters
 #'   }
 #' @seealso \code{\link{mlr3HTE_scenarios}}, \code{\link{mlr3HTE_bench}}
 #' @export
@@ -242,21 +260,25 @@ mlr3HTE_scenario <- function(id, outcome = c("continuous", "binary", "survival")
 }
 
 # 8 随包发布的基准数据 ---------------------------------------------------------
-#' 随包发布的基准模拟数据（.rda）
+#' Benchmark simulation data shipped with the package (.rda)
 #'
 #' @description
-#' \code{\link{mlr3HTE_scenario}} 已按 10 个设计 × 3 类结局预生成完毕，
-#' 以 \code{n = 2000}、固定种子打包在 \code{data/mlr3hte_bench_data.rda} 中随包发布。
-#' 方法学比较应统一使用这一份数据，避免各自重新模拟导致结论不可比。
+#' \code{\link{mlr3HTE_scenario}} has been pre-generated for all 10 designs x 3
+#' outcome types, packaged with \code{n = 2000} and a fixed seed in
+#' \code{data/mlr3hte_bench_data.rda} and shipped with the package. Methodology
+#' comparisons should uniformly use this one dataset to avoid conclusions becoming
+#' incomparable due to each analysis re-simulating on its own.
 #'
-#' 每个元素与 \code{mlr3HTE_scenario()} 的返回值结构相同；集合本身的
-#' 键为 \code{<场景 id>.<结局>}，例如 \code{"obs_nonlin_nonlin_sharedT.survival"}。
-#' 键的完整清单见 \code{mlr3HTE_bench_index()}。
+#' Each element has the same structure as the return value of
+#' \code{mlr3HTE_scenario()}; the keys of the collection itself are
+#' \code{<scenario id>.<outcome>}, e.g. \code{"obs_nonlin_nonlin_sharedT.survival"}.
+#' The full list of keys is available from \code{mlr3HTE_bench_index()}.
 #'
-#' @param id 场景 id，见 \code{\link{mlr3HTE_scenarios}}。
-#' @param outcome 结局类型。
-#' @return 与 \code{\link{mlr3HTE_scenario}} 相同的 list；若该组合没有被
-#'   预生成，则从磁盘上的场景生成器即时重算（结果一致，只是慢一点）。
+#' @param id The scenario id, see \code{\link{mlr3HTE_scenarios}}.
+#' @param outcome The outcome type.
+#' @return The same list as \code{\link{mlr3HTE_scenario}}; if that combination was
+#'   not pre-generated, it is recomputed on the fly from the on-disk scenario
+#'   generator (the result is identical, just slower).
 #' @seealso \code{\link{mlr3HTE_scenarios}}, \code{\link{mlr3HTE_scenario}}
 #' @export
 #' @examples
@@ -283,11 +305,12 @@ mlr3HTE_bench <- function(id, outcome = c("continuous", "binary", "survival")) {
   NULL
 }
 
-#' 已打包基准数据的索引
+#' Index of the packaged benchmark data
 #'
-#' @description 列出 \code{data/mlr3hte_bench_data.rda} 中实际存在的键，方便批量循环。
-#' @return data.frame：\code{key} / \code{id} / \code{outcome} / \code{ate} /
-#'   \code{n}。
+#' @description List the keys that actually exist in
+#'   \code{data/mlr3hte_bench_data.rda}, convenient for batch looping.
+#' @return A data.frame with \code{key} / \code{id} / \code{outcome} / \code{ate} /
+#'   \code{n}.
 #' @seealso \code{\link{mlr3HTE_bench}}
 #' @export
 mlr3HTE_bench_index <- function() {

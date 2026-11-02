@@ -9,8 +9,21 @@ window.SITE_PAGES.changelog = {
   /* ---------------- 中文 ---------------- */
   zh: {
     title: "更新日志",
-    lede: "mlr3HTE 的版本历史与重要变更。当前版本 v0.44。",
+    lede: "mlr3HTE 的版本历史与重要变更。当前版本 v0.45。",
     sections: [
+
+      {
+        id: "v045",
+        heading: "v0.45 · 2026-11-02",
+        body:
+          '<div class="callout ok"><div class="callout-title">帮助文档英文化 + 修复基准函数未导出 + 站点函数文档按大类重组</div>' +
+          '<ul>' +
+          '<li><strong>修复</strong>：<code>mlr3HTE_benchmark_data()/_meta()/_export()</code> 在 v0.44 漏进 <code>NAMESPACE</code>，安装后报「没有这个函数」；已重跑 roxygen2 补齐导出与 <code>man/*.Rd</code>。</li>' +
+          '<li><strong>帮助文档</strong>：全部 roxygen 注释与 <code>man/*.Rd</code> 由中文改为英文。</li>' +
+          '<li><strong>站点重组</strong>：API Reference 按 9 个大类分组，新增「跨包基准数据集」页，导出对象 42 → 45。</li>' +
+          '<li><strong>验证</strong>：<code>dev/validate_benchmarks.R</code> 用 S/T/X/R/DR 拟合 5 个基准数据并对比真值；S/T/X 恢复良好，R/DR 在强混杂 <code>econml_ihdp</code> 上因极端倾向得分高估。</li>' +
+          '</ul></div>'
+      },
 
       {
         id: "v044",
@@ -716,8 +729,21 @@ window.SITE_PAGES.changelog = {
   /* ---------------- English ---------------- */
   en: {
     title: "Changelog",
-    lede: "Version history and notable changes for mlr3HTE. Current version: v0.44.",
+    lede: "Version history and notable changes for mlr3HTE. Current version: v0.45.",
     sections: [
+
+      {
+        id: "v045",
+        heading: "v0.45 · 2026-11-02",
+        body:
+          '<div class="callout ok"><div class="callout-title">English help docs + fixed missing benchmark exports + API reference regrouped by category</div>' +
+          '<ul>' +
+          '<li><strong>Fix</strong>: <code>mlr3HTE_benchmark_data()/_meta()/_export()</code> were missing from <code>NAMESPACE</code> in v0.44, so installing the package left them unavailable. Re-ran roxygen2 to add the exports and <code>man/*.Rd</code>.</li>' +
+          '<li><strong>Help docs</strong>: all roxygen comments and <code>man/*.Rd</code> converted from Chinese to English.</li>' +
+          '<li><strong>Site</strong>: API Reference regrouped into 9 categories, a new "Cross-package benchmark datasets" page was added, and the exported-object count went from 42 to 45.</li>' +
+          '<li><strong>Validation</strong>: <code>dev/validate_benchmarks.R</code> fits S/T/X/R/DR on the five benchmark datasets and compares against ground truth. S/T/X recover well; R/DR overestimate on strongly confounded <code>econml_ihdp</code> because of extreme propensity scores.</li>' +
+          '</ul></div>'
+      },
 
       {
         id: "v044",

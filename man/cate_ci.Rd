@@ -2,40 +2,40 @@
 % Please edit documentation in R/api.R
 \name{cate_ci}
 \alias{cate_ci}
-\title{CATE / ATE 的自助法置信区间}
+\title{Bootstrap confidence intervals for CATE / ATE}
 \usage{
 cate_ci(type, X, A, Y, B = 100L, level = 0.95, seed = NULL, newX = NULL, ...)
 }
 \arguments{
-\item{type}{metalearner 类型，或 "auto" 沿用 fit 的类型}
+\item{type}{metalearner type, or "auto" to reuse the type of the fit}
 
-\item{X}{协变量 data.frame}
+\item{X}{covariate data.frame}
 
-\item{A}{处理指示}
+\item{A}{treatment indicator}
 
-\item{Y}{结局}
+\item{Y}{outcome}
 
-\item{B}{自助次数，默认 100}
+\item{B}{number of bootstrap repetitions; default 100}
 
-\item{level}{置信水平，默认 0.95}
+\item{level}{confidence level; default 0.95}
 
-\item{seed}{随机种子，便于复现}
+\item{seed}{random seed, for reproducibility}
 
-\item{newX}{需要 CATE 区间的新数据；默认用训练集 X}
+\item{newX}{new data for which CATE intervals are needed; defaults to the training set X}
 
-\item{...}{其他传给 metalearner() 的参数（learner_base、t0、effect 等）}
+\item{...}{other arguments passed to metalearner() (learner_base, t0, effect, etc.)}
 }
 \value{
-list：cate_lo / cate_hi（逐点 CATE 区间）、ate_lo / ate_hi、
-cate_mean、ate、B、level
+a list: cate_lo / cate_hi (pointwise CATE intervals), ate_lo / ate_hi,
+cate_mean, ate, B, level
 }
 \description{
-对整条拟合流程做 B 次自助重抽样（有放回抽同样本量的行），
-用百分位数法给出逐点 CATE 区间与 ATE 区间。
+Performs B bootstrap resamples of the whole fitting pipeline (sampling rows with replacement at the same sample size),
+and reports pointwise CATE intervals and an ATE interval via the percentile method.
 }
 \details{
-注意：这是\strong{非参数自助法}，只反映抽样变异，不覆盖模型设定偏倚；
-且每次要重新拟合，B 较大时开销不小（建议先用小 B 试）。
+Note: this is a \strong{nonparametric bootstrap} that reflects only sampling variation, not model-specification bias;
+each run refits the model, so the cost is non-trivial for large B (try a small B first).
 }
 \examples{
 \donttest{

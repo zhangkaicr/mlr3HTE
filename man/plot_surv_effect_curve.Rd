@@ -2,7 +2,7 @@
 % Please edit documentation in R/surv_curve.R
 \name{plot_surv_effect_curve}
 \alias{plot_surv_effect_curve}
-\title{画生存结局的效应—时间曲线}
+\title{Plot the effect-over-time curve for survival outcomes}
 \usage{
 plot_surv_effect_curve(
   curve,
@@ -13,24 +13,29 @@ plot_surv_effect_curve(
 )
 }
 \arguments{
-\item{curve}{\code{\link{surv_effect_curve}} 的返回值。}
+\item{curve}{the return value of \code{\link{surv_effect_curve}}.}
 
-\item{ribbon}{是否叠加个体 CATE 的 25\%–75\% 四分位带，默认 \code{TRUE}。}
+\item{ribbon}{whether to overlay the 25\%--75\% quantile band of individual CATE,
+default \code{TRUE}.}
 
-\item{main}{图标题；\code{NULL} 时由 \code{type} 与 \code{effect} 自动生成。}
+\item{main}{plot title; auto-generated from \code{type} and \code{effect} when
+\code{NULL}.}
 
-\item{color}{曲线颜色。}
+\item{color}{curve color.}
 
-\item{...}{不再使用，保留以兼容旧调用。}
+\item{...}{no longer used, kept for backward compatibility.}
 }
 \value{
-一个 \code{ggplot} 对象，可用 \code{+} 继续定制或 \code{ggsave()} 导出。
+a \code{ggplot} object, customizable with \code{+} or exportable via
+\code{ggsave()}.
 }
 \description{
-把 \code{\link{surv_effect_curve}} 的结果画成 ggplot：横轴时间、纵轴效应，
-并叠加一条 0 参考线（效应为零 = 处理与对照无差别）。默认再叠一层
-\strong{个体 CATE 的四分位带}（25\%–75\%），直观显示异质性的时间变化：
-带子越宽说明该时点上不同个体的效应分歧越大。
+Plot the result of \code{\link{surv_effect_curve}} as a ggplot: time on the
+x-axis and effect on the y-axis, with a horizontal 0 reference line (zero
+effect = no difference between treatment and control). By default an additional
+\strong{25\%--75\% quantile band of individual CATE} is overlaid, visually showing how
+heterogeneity changes over time: a wider band means greater spread of individual
+effects at that time point.
 }
 \examples{
 d <- mlr3HTE_demo_surv(n = 400, t0 = 2, seed = 103)

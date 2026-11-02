@@ -2,7 +2,7 @@
 % Please edit documentation in R/benchmark.R
 \name{hte_benchmark}
 \alias{hte_benchmark}
-\title{在随机化试验（RCT）数据上对多个 meta-learner 做基准测试}
+\title{Benchmark multiple meta-learners on randomized trial (RCT) data}
 \usage{
 hte_benchmark(
   X,
@@ -22,91 +22,106 @@ hte_benchmark(
 )
 }
 \arguments{
-\item{X}{协变量 data.frame。}
+\item{X}{A data.frame of covariates.}
 
-\item{A}{处理指示（0/1 或逻辑）。}
+\item{A}{Treatment indicator (0/1 or logical).}
 
-\item{Y}{结局：连续数值、0/1 二分类，或 \code{survival::Surv(time, status)}。}
+\item{Y}{Outcome: continuous numeric, 0/1 binary, or \code{survival::Surv(time, status)}.}
 
-\item{t0}{生存结局的效应时点；连续 / 二分类忽略。默认取事件时间中位数。}
+\item{t0}{The effect time point for survival outcomes; ignored for continuous / binary.
+Defaults to the median event time.}
 
-\item{learners}{要比较的 meta-learner，默认五族全上。}
+\item{learners}{The meta-learners to compare, defaulting to all five families.}
 
-\item{learner_base}{基学习器；默认按结局类型自动选（连续/二分类用
-\code{regr.ranger}，生存用 \code{"coxph"}）。所有 learner 共用同一个，
-这样比出来的差异才归因于 meta-learner 而不是基学习器。}
+\item{learner_base}{The base learner; by default chosen automatically by outcome type
+(continuous / binary use \code{regr.ranger}, survival uses \code{"coxph"}). All
+learners share the same one, so the compared differences are attributed to the
+meta-learner rather than the base learner.}
 
-\item{metrics}{要算的指标，默认三个全算。}
+\item{metrics}{The metrics to compute, defaulting to all three.}
 
-\item{n_folds}{交叉拟合折数，默认 5。}
+\item{n_folds}{The number of cross-fitting folds, default 5.}
 
-\item{tau}{\strong{可选}的真实 CATE，只有模拟数据才有。给了就额外输出
-\code{tau_cor} 与 \code{tau_rmse} 两列。}
+\item{tau}{\strong{Optional} true CATE, available only for simulated data. If given,
+the two extra columns \code{tau_cor} and \code{tau_rmse} are output.}
 
-\item{propensity, mu1, mu0}{\strong{可选}的观察性数据三件套（见
-\code{\link{dr_pseudo_outcome}}）。RCT 下全部留空。}
+\item{propensity, mu1, mu0}{\strong{Optional} triple for observational data (see
+\code{\link{dr_pseudo_outcome}}). Leave all empty under an RCT.}
 
-\item{effect}{生存效应的标尺，\code{"survdiff"}（默认，S(t0) 差）或 \code{"rmst"}。}
+\item{effect}{The scale of the survival effect, \code{"survdiff"} (default, S(t0)
+difference) or \code{"rmst"}.}
 
-\item{seed}{随机种子，用于折的划分；固定后才能复现。}
+\item{seed}{Random seed used for fold assignment; fix it for reproducibility.}
 }
 \value{
-一个 list：
+A list:
 \describe{
-\item{table}{一行一个 learner 的 tidy 汇总表（tibble）。}
-\item{cate}{长表：\code{.row} / \code{learner} / \code{cate}，即交叉拟合的
-留出预测，可用来自己画图或做进一步分析。}
-\item{curves}{命名 list：\code{qini} 与 \code{toc} 各含每个 learner 的曲线
-data.frame，可直接喂给 ggplot2。}
-\item{truth}{传了 \code{tau} 才有：\code{.row} / \code{tau} 长表。}
-\item{setup}{折数、种子、效应标尺、t0、样本量等运行参数。}
+\item{table}{A tidy summary table (tibble) with one row per learner.}
+\item{cate}{A long table: \code{.row} / \code{learner} / \code{cate}, i.e. the
+cross-fitted out-of-fold predictions, usable for your own plotting or further
+analysis.}
+\item{curves}{A named list: \code{qini} and \code{toc} each contain a data.frame
+of every learner's curve, directly feedable to ggplot2.}
+\item{truth}{Present only when \code{tau} is passed: a long table \code{.row} /
+\code{tau}.}
+\item{setup}{Run parameters such as number of folds, seed, effect scale, t0,
+sample size.}
 }
 }
 \description{
-\strong{这套基准测试不依赖真实 CATE，因此在现实 RCT 数据上同样可用}——
-它只问一个问题：模型把"谁更获益"排到前面的能力如何。这与
-\code{\link{metalearner}} 在自带真值的模拟数据上做的对账（相关 / RMSE）是
-两件事：真实 \eqn{\tau} 只有模拟数据才有，现实研究永远拿不到。
+\strong{This benchmark does not rely on the true CATE, so it is equally usable on
+real-world RCT data} — it asks only one question: how well does the model rank
+"who benefits more" to the front. This is a different thing from the reconciliation
+(correlation / RMSE) that \code{\link{metalearner}} does on simulated data with a
+built-in truth: the true \eqn{\tau} exists only in simulated data and is never
+available in real studies.
 }
 \details{
-三个指标全部建立在\strong{随机化}带来的可交换性上，不需要倾向得分：
+All three metrics are built on the exchangeability brought by \strong{randomization}
+and need no propensity score:
 \describe{
-\item{Qini 系数}{\code{\link{qini_coefficient}}：曲线与"随机靶向线"之间
-夹的面积。越大说明按模型排序比随机分配带来的额外增益越多。}
-\item{TOC 增益}{TOC 曲线（\code{\link{toc_curve}}）与全样本 ATE 水平线
-之间夹的面积，量纲 = 结局单位。正值表示"优先处理模型排前面的人"
-平均而言优于随机靶向。}
-\item{c-for-benefit}{\code{\link{c_for_benefit}}：把处理组按预测获益
-与对照组做增益匹配后的 C 统计量，0.5 = 随机排序。}
+\item{Qini coefficient}{\code{\link{qini_coefficient}}: the area between the curve
+and the "random targeting line". The larger it is, the more extra gain the
+model's ranking brings over random allocation.}
+\item{TOC gain}{The area between the TOC curve (\code{\link{toc_curve}}) and the
+full-sample ATE horizontal line; its unit is the outcome unit. A positive value
+means "prioritizing the people the model ranks first" is on average better than
+random targeting.}
+\item{c-for-benefit}{\code{\link{c_for_benefit}}: the C-statistic after gain-matching
+the treated group by predicted benefit against the control group; 0.5 = random
+ranking.}
 }
 }
-\section{为什么必须交叉拟合}{
+\section{Why cross-fitting is mandatory}{
 
-每个 meta-learner 都在 K 折的\strong{训练折}上拟合、在\strong{留出折}上预测，
-最终用全部留出预测（out-of-fold）拼成一条 CATE。若用全样本拟合后回代自己
-（in-fold），模型会把训练噪声也排进序里，Qini 会明显虚高。本包演示数据上
-实测 in-fold 的 c-for-benefit 会呈现"模型 CATE 0.754 > 真 tau 0.717"的倒挂，
-交叉拟合后恢复为"0.662 ≤ 0.669"。
+Each meta-learner is fit on the \strong{training folds} of K folds and predicted on
+the \strong{held-out folds}, and finally the out-of-fold predictions are stitched
+into one CATE. If the full sample is fit and then fed back to itself (in-fold), the
+model also ranks its training noise, and Qini is visibly inflated. On this package's
+demo data, in-fold c-for-benefit actually shows the inversion "model CATE 0.754 >
+true tau 0.717", which recovers to "0.662 <= 0.669" after cross-fitting.
 }
 
-\section{什么时候能报什么}{
+\section{What can be reported when}{
 
 \itemize{
-\item \strong{模拟数据}（自带 \eqn{\tau}）：可以额外报 CATE 相关 / RMSE
-—— 传 \code{tau} 即可，输出里会多两列。
-\item \strong{现实 RCT 数据}：没有 \eqn{\tau}，只能报 Qini / TOC / c-for-benefit。
-这三列正是为这种情况设计的。
+\item \strong{Simulated data} (with built-in \eqn{\tau}): can additionally report
+CATE correlation / RMSE — just pass \code{tau}, and two extra columns appear in
+the output.
+\item \strong{Real RCT data}: without \eqn{\tau}, only Qini / TOC / c-for-benefit
+can be reported. These three columns are designed exactly for this situation.
 }
 }
 
 \examples{
 \donttest{
-# 模拟数据：既能报 Qini 三件套，也能报相关 / RMSE（因为有真值）
+# Simulated data: can report the Qini triple as well as correlation / RMSE (because
+# a truth is available)
 d <- mlr3HTE_demo_data(n = 1500, seed = 1)
 bm <- hte_benchmark(d$X, d$A, d$Y, tau = d$tau, seed = 1)
 bm$table
 
-# 现实 RCT 数据：没有 tau，只看 Qini / TOC / c-for-benefit 三列
+# Real RCT data: without tau, only the Qini / TOC / c-for-benefit columns are shown
 # hte_benchmark(X, A, Y, seed = 1)$table
 }
 }

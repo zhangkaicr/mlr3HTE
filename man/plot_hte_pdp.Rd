@@ -2,22 +2,23 @@
 % Please edit documentation in R/explain.R
 \name{plot_hte_pdp}
 \alias{plot_hte_pdp}
-\title{绘制 CATE 的偏依赖曲线}
+\title{Plot the partial dependence curves of the CATE model}
 \usage{
 plot_hte_pdp(pdp, color = "#1B6CA8", free_y = TRUE)
 }
 \arguments{
-\item{pdp}{\code{\link{hte_pdp}} 的返回 data.frame。}
+\item{pdp}{The data.frame returned by \code{\link{hte_pdp}}.}
 
-\item{color}{线条颜色。}
+\item{color}{The line color.}
 
-\item{free_y}{是否让各分面使用各自的 y 轴刻度（不同变量的 CATE 量级差异大时建议 TRUE）。}
+\item{free_y}{Whether each facet uses its own y-axis scale (recommended TRUE when
+the CATE magnitudes of different variables differ substantially).}
 }
 \value{
-\code{ggplot} 对象。
+A \code{ggplot} object.
 }
 \description{
-绘制 CATE 的偏依赖曲线
+Plot the partial dependence curves of the CATE model
 }
 \seealso{
 \code{\link{hte_pdp}}

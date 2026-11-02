@@ -2,21 +2,21 @@
 % Please edit documentation in R/api.R
 \name{mlr3HTE_demo_obs_binary}
 \alias{mlr3HTE_demo_obs_binary}
-\title{演示数据：二分类结局 + 观察性（混杂）}
+\title{Demo data: binary outcome + observational (confounding)}
 \usage{
 mlr3HTE_demo_obs_binary(n = 4000, strength = 1, seed = 1205)
 }
 \arguments{
-\item{n}{样本量，默认 4000}
+\item{n}{sample size; default 4000}
 
-\item{strength}{混杂强度，默认 1；\code{0} 时等价 RCT}
+\item{strength}{confounding strength; default 1; \code{0} is equivalent to an RCT}
 
-\item{seed}{随机种子}
+\item{seed}{random seed}
 }
 \value{
-list：X、A、Y、tau（风险差尺度的真实 CATE）、ate（真实 ATE）、ps_true
+a list: X, A, Y, tau (true CATE on the risk-difference scale), ate (true ATE), ps_true
 }
 \description{
-与 \code{\link{mlr3HTE_demo_obs}} 同一套混杂结构（病情越重越易接受
-处理），结局换成二分类。风险差尺度的真实 CATE 随数据返回，另含 \code{ps_true}。
+Same confounding structure as \code{\link{mlr3HTE_demo_obs}} (the sicker the patient, the more likely to be treated),
+but with a binary outcome. The true CATE on the risk-difference scale is returned with the data, along with \code{ps_true}.
 }

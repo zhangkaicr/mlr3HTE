@@ -1,29 +1,36 @@
 # =====================================================================
-# surv_survlearners.R —— 生存结局的 survlearners 引擎（可选后端）
+# surv_survlearners.R -- survlearners engine for survival outcomes (optional backend)
 #
-# 背景：survlearners（Shah Lab，som-shahlab/survlearners，GPL-3）为生存结局
-# 实现了 S/T/X/R/M 五种 metalearner，自带 IPCW 删失校正与（R 族的）交叉拟合，
-# 基学习器固定为 coxph / grf（随机生存森林）/ lasso 三种，
-# 效应尺度是 t0 时点生存概率差 tau(X) = P(Y(1)>t0|X) - P(Y(0)>t0|X)，
-# 与 mlr3HTE 的 effect = "survdiff" 定义一致。
+# Background: survlearners (Shah Lab, som-shahlab/survlearners, GPL-3) implements
+# five survival metalearners S/T/X/R/M, with built-in IPCW censoring correction
+# and (for the R family) cross-fitting; its base learners are fixed to coxph /
+# grf (random survival forest) / lasso; the effect scale is the survival
+# probability difference at t0, tau(X) = P(Y(1)>t0|X) - P(Y(0)>t0|X), which
+# matches mlr3HTE's effect = "survdiff" definition.
 #
-# 该包只发布在 GitHub（不在 CRAN），所以 mlr3HTE 不把它放进 Imports，
-# 而是作为 Suggests 提供第二套引擎：engine = "survlearners" 时，
-# 生存分支把估计整体委托给它；未安装时给出一条明确的安装提示。
+# The package is published only on GitHub (not on CRAN), so mlr3HTE does not put
+# it in Imports but offers it as Suggests for a second engine: when
+# engine = "survlearners", the survival branch delegates estimation to it
+# entirely; a clear install hint is given when it is not installed.
 #
-# 与原生引擎（survival_base.R）的能力差异，务必如实告知用户：
-#   survlearners 没有 DR-learner（只有 S/T/X/R/M）
-#   survlearners 只有 S(t0) 差一种效应尺度（没有 RMST）
-#   survlearners 的基学习器固定三种（不支持任意 mlr3 learner）
-# 因此这两类需求会被明确拒绝并提示改用 engine = "native"。
+# Capability differences from the native engine (survival_base.R) must be
+# disclosed honestly to users:
+#   survlearners has no DR-learner (only S/T/X/R/M)
+#   survlearners only has the S(t0) difference effect scale (no RMST)
+#   survlearners's base learners are fixed to three (no arbitrary mlr3 learner)
+# Consequently these two needs are explicitly rejected with a hint to switch to
+# engine = "native".
 #
-# 倾向得分 W.hat 的来源（survlearners 的 X/R 族需要它）：与原生引擎一致，由
-# learner_ps 给出——mlr3 分类学习器（默认 classif.log_reg，观察性数据）、
-# 常数标量（RCT 已知随机化概率，如 0.5）或 function(newX)。
-# 它只服务 X/R 族的算法定义（X 的 g(x) 融合、R 的 Robinson 中心化），
-# 不是可开关的去混杂加权（v0.40 起移除了 weighting / weights / stabilize）。
-# 另有一处权重：S-coxph 签名接受 weights，用来传生存删矢 IPCW，
-# 与原生引擎对 effect = "survdiff" 的处理保持一致。
+# Source of the propensity score W.hat (needed by survlearners's X/R families):
+# consistent with the native engine, supplied by learner_ps -- an mlr3
+# classification learner (default classif.log_reg, for observational data), a
+# constant scalar (known randomization probability in an RCT, e.g. 0.5), or a
+# function(newX). It only serves the algorithmic definition of the X/R families
+# (X's g(x) blending, R's Robinson centering), not a toggleable deconfounding
+# weighting (weighting / weights / stabilize removed since v0.40).
+# One more weight: the S-coxph signature accepts weights to pass the survival
+# censoring IPCW, consistent with how the native engine handles effect =
+# "survdiff".
 # =====================================================================
 
 # 1 可用性检查 -----------------------------------------------------------------

@@ -2,25 +2,26 @@
 % Please edit documentation in R/benchmark.R
 \name{hte_benchmark_data}
 \alias{hte_benchmark_data}
-\title{取出 hte_benchmark() 的曲线绘图数据}
+\title{Extract the curve plotting data of hte_benchmark()}
 \usage{
 hte_benchmark_data(x, metric = c("qini", "toc"), min_fraction = 0.05)
 }
 \arguments{
-\item{x}{\code{\link{hte_benchmark}} 的返回对象。}
+\item{x}{The object returned by \code{\link{hte_benchmark}}.}
 
-\item{metric}{\code{"qini"} 或 \code{"toc"}。}
+\item{metric}{\code{"qini"} or \code{"toc"}.}
 
-\item{min_fraction}{从哪个靶向比例开始保留，含义同 \code{\link{plot_hte_benchmark}}。}
+\item{min_fraction}{From which targeting fraction to keep, with the same meaning as
+in \code{\link{plot_hte_benchmark}}.}
 }
 \value{
-data.frame：\code{learner} / \code{fraction} / 指标列
-（\code{qini} 或 \code{toc}），另附属性 \code{reference}（各 learner 的参考线
-截距与斜率）。
+A data.frame with \code{learner} / \code{fraction} / the metric column
+(\code{qini} or \code{toc}), plus the attribute \code{reference} (the intercept
+and slope of each learner's reference line).
 }
 \description{
-\code{\link{plot_hte_benchmark}} 画图所用的长表数据，单独提供出来便于
-导出 CSV 或自行用 ggplot2 重画。
+The long-format data used by \code{\link{plot_hte_benchmark}} for plotting, provided
+separately to facilitate exporting to CSV or redrawing with ggplot2 on your own.
 }
 \seealso{
 \code{\link{plot_hte_benchmark}}

@@ -2,7 +2,7 @@
 % Please edit documentation in R/surv_curve.R
 \name{surv_effect_curve}
 \alias{surv_effect_curve}
-\title{生存结局的效应—时间曲线（逐点重拟合）}
+\title{Effect-over-time curve for survival outcomes (pointwise refitting)}
 \usage{
 surv_effect_curve(
   type,
@@ -18,58 +18,69 @@ surv_effect_curve(
 )
 }
 \arguments{
-\item{type}{metalearner 类型：S / T / X / R / DR。}
+\item{type}{metalearner type: S / T / X / R / DR.}
 
-\item{X}{协变量 data.frame（不含处理与结局）。}
+\item{X}{covariate data.frame (excluding treatment and outcome).}
 
-\item{A}{处理指示（0/1 或逻辑）。}
+\item{A}{treatment indicator (0/1 or logical).}
 
-\item{Y}{生存结局，\code{survival::Surv} 对象。其他结局类型会报错——
-连续 / 二分类的效应不随时间变化，没有曲线可画。}
+\item{Y}{survival outcome, a \code{survival::Surv} object. Other outcome types
+error out -- continuous / binary effects do not vary over time, so there is
+no curve to draw.}
 
-\item{times}{时点向量。\code{NULL}（默认）时取\strong{事件时间}的 10\%–90\% 分位数
-共 \code{n_times} 个——避开两端是因为尾部事件数少、估计不稳定。}
+\item{times}{vector of time points. \code{NULL} (default) uses the 10\%--90\%
+quantiles of the event times, \code{n_times} of them -- the tails are
+avoided because few events there make the estimate unstable.}
 
-\item{n_times}{\code{times = NULL} 时的时点个数，默认 20。}
+\item{n_times}{number of time points when \code{times = NULL}, default 20.}
 
-\item{effect}{效应尺度，\code{"survdiff"}（默认）或 \code{"rmst"}。}
+\item{effect}{effect scale, \code{"survdiff"} (default) or \code{"rmst"}.}
 
-\item{learner_base}{生存结局的原生基学习器，\code{"coxph"}（默认，快且可解释）
-或 \code{"ranger"}（非线性）。注意生存结局\strong{不能}用 \code{lrn("regr.*")}。}
+\item{learner_base}{native base learner for survival outcomes, \code{"coxph"}
+(default, fast and interpretable) or \code{"ranger"} (non-linear). Note that
+survival outcomes \strong{cannot} use \code{lrn("regr.*")}.}
 
-\item{newX}{求逐点 CATE 的协变量；默认用训练集 \code{X}。
-曲线的 \code{ate} 始终是训练集人群上的 ATE，与 \code{newX} 无关。}
+\item{newX}{covariates for pointwise CATE; defaults to the training set \code{X}.
+The curve's \code{ate} is always the ATE over the training population and
+independent of \code{newX}.}
 
-\item{...}{其他传给 \code{\link{metalearner}} 的参数（\code{learner_tau}、
-\code{learner_ps}、\code{cross_fitting}、\code{engine} 等）。}
+\item{...}{other arguments passed to \code{\link{metalearner}} (\code{learner_tau},
+\code{learner_ps}, \code{cross_fitting}, \code{engine}, etc.).}
 }
 \value{
-一个 data.frame，两列：\code{time} 与 \code{ate}；并带属性：
+a data.frame with two columns: \code{time} and \code{ate}; with
+attributes:
 \itemize{
-\item \code{cate}：\code{nrow(newX) × length(times)} 矩阵，第 j 列是
-第 j 个时点上各样本的 CATE；
-\item \code{type} / \code{effect} / \code{learner_base}：本次拟合的配置；
-\item \code{n_fits}：实际重拟合次数（= 时点个数）。
+\item \code{cate}: a \code{nrow(newX) x length(times)} matrix, whose j-th
+column is the CATE of each sample at the j-th time point;
+\item \code{type} / \code{effect} / \code{learner_base}: this fit's
+configuration;
+\item \code{n_fits}: the actual number of refits (= number of time points).
 }
 }
 \description{
-在一组时点上\strong{逐个重拟合}同一个 metalearner，把「效应随时间怎么变」
-画成一条曲线。曲线上第 g 个点就是 \code{metalearner(type, X, A, Y, t0 = times[g])}
-的估计结果——没有任何近似或复用，五族学习器行为完全一致。
+Refit the same metalearner independently at each time point, turning "how the
+effect changes over time" into a curve. The g-th point on the curve is exactly
+the estimate of \code{metalearner(type, X, A, Y, t0 = times[g])} -- no approximation
+or reuse; all five learner families behave identically.
 
-两种效应尺度由 \code{effect} 决定，与 \code{\link{metalearner}} 完全对齐：
+The two effect scales are set by \code{effect}, fully aligned with
+\code{\link{metalearner}}:
 \itemize{
-\item \code{"survdiff"}：\eqn{\Delta S(t) = S_1(t) - S_0(t)}，t 时点的生存概率差；
-\item \code{"rmst"}：\eqn{\Delta \mathrm{RMST}(\tau)}，限制到 \eqn{\tau} 的
-平均生存时间之差。每个 \eqn{\tau} 各自重拟合（伪结局
-\eqn{\xi = \delta\min(T,\tau)/\hat G(T)} 本身随 \eqn{\tau} 变化）。
+\item \code{"survdiff"}: \eqn{\Delta S(t) = S_1(t) - S_0(t)}, the survival
+probability difference at time t;
+\item \code{"rmst"}: \eqn{\Delta \mathrm{RMST}(\tau)}, the difference in
+restricted mean survival time truncated at \eqn{\tau}. Each \eqn{\tau} is
+refit separately (the pseudo-outcome
+\eqn{\xi = \delta\min(T,\tau)/\hat G(T)} itself varies with \eqn{\tau}).
 }
 }
-\section{计算代价}{
+\section{Computational cost}{
 
-G 个时点就是 G 次完整拟合，倾向得分模型也会重复训练 G 次。
-默认 \code{n_times = 20}；若基学习器换成 \code{"ranger"}，20 个点会明显变慢，
-建议先减小 \code{n_times} 试跑。
+G time points mean G full fits, and the propensity-score model is retrained G
+times. Default \code{n_times = 20}; if the base learner is changed to
+\code{"ranger"}, 20 points will be noticeably slower -- try a smaller
+\code{n_times} first.
 }
 
 \examples{

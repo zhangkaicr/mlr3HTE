@@ -2,20 +2,22 @@
 % Please edit documentation in R/explain.R
 \name{hte_shap_data}
 \alias{hte_shap_data}
-\title{把 shapviz 对象摊平为长表数据}
+\title{Flatten a shapviz object into long-format data}
 \usage{
 hte_shap_data(sv)
 }
 \arguments{
-\item{sv}{\code{\link{hte_shap}} 返回的 \code{shapviz} 对象。}
+\item{sv}{The \code{shapviz} object returned by \code{\link{hte_shap}}.}
 }
 \value{
-data.frame：\code{id}（样本序号）/ \code{variable} /
-\code{value}（该样本该变量的取值）/ \code{shap}（SHAP 值）。
-基线值 \eqn{\phi_0} 放在属性 \code{baseline} 里。
+A data.frame with \code{id} (sample index) / \code{variable} /
+\code{value} (the covariate value for that sample) / \code{shap} (the SHAP
+value). The baseline value \eqn{\phi_0} is stored in the \code{baseline}
+attribute.
 }
 \description{
-便于把 SHAP 值导出为 CSV 或自行用 ggplot2 重画。
+Convenient for exporting SHAP values to CSV or redrawing with
+ggplot2 on your own.
 }
 \seealso{
 \code{\link{hte_shap}}

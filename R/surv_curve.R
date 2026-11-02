@@ -1,67 +1,83 @@
 # =====================================================================
-# surv_curve.R —— 生存结局的「效应—时间」曲线
+# surv_curve.R -- "effect-over-time" curves for survival outcomes
 #
-# 为什么需要它：metalearner() 的生存效应只在**一个**时点 t0 上定义
-# （survdiff: S(t0) 差；rmst: 限制到 τ=t0 的平均生存时间差）。但临床解释
-# 常常要回答「效应随时间怎么变」——术后 1 个月的生存获益和 3 年时不一样。
+# Why it is needed: metalearner()'s survival effect is defined at only a single
+# time point t0 (survdiff: S(t0) difference; rmst: restricted mean survival time
+# difference truncated at tau=t0). But clinical interpretation often needs to
+# answer "how does the effect change over time" -- the survival benefit one month
+# after surgery differs from that at three years.
 #
-# 实现方式（用户拍板：统一逐点重拟合）：
-#   对每个 t 完整调用一次 metalearner(t0 = t)，五族（S/T/X/R/DR）行为
-#   **完全一致**，不做任何「一次拟合出整条曲线」的特例。
+# Implementation (user decision: uniform pointwise refitting):
+#   call metalearner(t0 = t) once in full for each t; the five families
+#   (S/T/X/R/DR) behave exactly the same, with no "fit the whole curve at once"
+#   special case.
 #
-# 为什么不为 S/T 开特例：S/T 的结局模型本身就是生存模型，理论上一次拟合
-# 就能在任意 t 取值，快一到两个数量级。但那样接口行为会按 learner 类型
-# 分叉，用户得先记住「我是 S 还是 DR」才知道函数做了什么。这里宁可慢，
-# 也要语义单一：曲线上的每个点，都是一个完整、独立的 metalearner 估计。
+# Why no special case for S/T: S/T's outcome models are survival models
+# themselves, so in principle one fit can evaluate at any t, one to two orders of
+# magnitude faster. But then the interface behavior would branch on learner type,
+# forcing users to remember "am I S or DR" to know what the function does. Here
+# we prefer slower-but-single-semantics: every point on the curve is a complete,
+# independent metalearner estimate.
 #
-# 代价（必须在文档里说清）：G 个时点 = G 次完整拟合，倾向得分模型也会被
-# 重复训练 G 次。默认 n_times = 20。
+# Cost (must be stated clearly in the docs): G time points = G full fits, and the
+# propensity-score model is retrained G times. Default n_times = 20.
 # =====================================================================
 
 # 0 环境与依赖 ----
 
-#' 生存结局的效应—时间曲线（逐点重拟合）
+#' Effect-over-time curve for survival outcomes (pointwise refitting)
 #'
 #' @description
-#' 在一组时点上**逐个重拟合**同一个 metalearner，把「效应随时间怎么变」
-#' 画成一条曲线。曲线上第 g 个点就是 `metalearner(type, X, A, Y, t0 = times[g])`
-#' 的估计结果——没有任何近似或复用，五族学习器行为完全一致。
+#' Refit the same metalearner independently at each time point, turning "how the
+#' effect changes over time" into a curve. The g-th point on the curve is exactly
+#' the estimate of `metalearner(type, X, A, Y, t0 = times[g])` -- no approximation
+#' or reuse; all five learner families behave identically.
 #'
-#' 两种效应尺度由 `effect` 决定，与 \code{\link{metalearner}} 完全对齐：
+#' The two effect scales are set by `effect`, fully aligned with
+#' \code{\link{metalearner}}:
 #' \itemize{
-#'   \item \code{"survdiff"}：\eqn{\Delta S(t) = S_1(t) - S_0(t)}，t 时点的生存概率差；
-#'   \item \code{"rmst"}：\eqn{\Delta \mathrm{RMST}(\tau)}，限制到 \eqn{\tau} 的
-#'     平均生存时间之差。每个 \eqn{\tau} 各自重拟合（伪结局
-#'     \eqn{\xi = \delta\min(T,\tau)/\hat G(T)} 本身随 \eqn{\tau} 变化）。
+#'   \item \code{"survdiff"}: \eqn{\Delta S(t) = S_1(t) - S_0(t)}, the survival
+#'     probability difference at time t;
+#'   \item \code{"rmst"}: \eqn{\Delta \mathrm{RMST}(\tau)}, the difference in
+#'     restricted mean survival time truncated at \eqn{\tau}. Each \eqn{\tau} is
+#'     refit separately (the pseudo-outcome
+#'     \eqn{\xi = \delta\min(T,\tau)/\hat G(T)} itself varies with \eqn{\tau}).
 #' }
 #'
-#' @section 计算代价:
-#' G 个时点就是 G 次完整拟合，倾向得分模型也会重复训练 G 次。
-#' 默认 \code{n_times = 20}；若基学习器换成 \code{"ranger"}，20 个点会明显变慢，
-#' 建议先减小 \code{n_times} 试跑。
+#' @section Computational cost:
+#' G time points mean G full fits, and the propensity-score model is retrained G
+#' times. Default \code{n_times = 20}; if the base learner is changed to
+#' \code{"ranger"}, 20 points will be noticeably slower -- try a smaller
+#' \code{n_times} first.
 #'
-#' @param type metalearner 类型：S / T / X / R / DR。
-#' @param X 协变量 data.frame（不含处理与结局）。
-#' @param A 处理指示（0/1 或逻辑）。
-#' @param Y 生存结局，\code{survival::Surv} 对象。其他结局类型会报错——
-#'   连续 / 二分类的效应不随时间变化，没有曲线可画。
-#' @param times 时点向量。\code{NULL}（默认）时取**事件时间**的 10%–90% 分位数
-#'   共 \code{n_times} 个——避开两端是因为尾部事件数少、估计不稳定。
-#' @param n_times \code{times = NULL} 时的时点个数，默认 20。
-#' @param effect 效应尺度，\code{"survdiff"}（默认）或 \code{"rmst"}。
-#' @param learner_base 生存结局的原生基学习器，\code{"coxph"}（默认，快且可解释）
-#'   或 \code{"ranger"}（非线性）。注意生存结局**不能**用 \code{lrn("regr.*")}。
-#' @param newX 求逐点 CATE 的协变量；默认用训练集 \code{X}。
-#'   曲线的 \code{ate} 始终是训练集人群上的 ATE，与 \code{newX} 无关。
-#' @param ... 其他传给 \code{\link{metalearner}} 的参数（\code{learner_tau}、
-#'   \code{learner_ps}、\code{cross_fitting}、\code{engine} 等）。
+#' @param type metalearner type: S / T / X / R / DR.
+#' @param X covariate data.frame (excluding treatment and outcome).
+#' @param A treatment indicator (0/1 or logical).
+#' @param Y survival outcome, a \code{survival::Surv} object. Other outcome types
+#'   error out -- continuous / binary effects do not vary over time, so there is
+#'   no curve to draw.
+#' @param times vector of time points. \code{NULL} (default) uses the 10%--90%
+#'   quantiles of the event times, \code{n_times} of them -- the tails are
+#'   avoided because few events there make the estimate unstable.
+#' @param n_times number of time points when \code{times = NULL}, default 20.
+#' @param effect effect scale, \code{"survdiff"} (default) or \code{"rmst"}.
+#' @param learner_base native base learner for survival outcomes, \code{"coxph"}
+#'   (default, fast and interpretable) or \code{"ranger"} (non-linear). Note that
+#'   survival outcomes **cannot** use \code{lrn("regr.*")}.
+#' @param newX covariates for pointwise CATE; defaults to the training set \code{X}.
+#'   The curve's \code{ate} is always the ATE over the training population and
+#'   independent of \code{newX}.
+#' @param ... other arguments passed to \code{\link{metalearner}} (\code{learner_tau},
+#'   \code{learner_ps}, \code{cross_fitting}, \code{engine}, etc.).
 #'
-#' @return 一个 data.frame，两列：\code{time} 与 \code{ate}；并带属性：
+#' @return a data.frame with two columns: \code{time} and \code{ate}; with
+#'   attributes:
 #'   \itemize{
-#'     \item \code{cate}：\code{nrow(newX) × length(times)} 矩阵，第 j 列是
-#'       第 j 个时点上各样本的 CATE；
-#'     \item \code{type} / \code{effect} / \code{learner_base}：本次拟合的配置；
-#'     \item \code{n_fits}：实际重拟合次数（= 时点个数）。
+#'     \item \code{cate}: a \code{nrow(newX) x length(times)} matrix, whose j-th
+#'       column is the CATE of each sample at the j-th time point;
+#'     \item \code{type} / \code{effect} / \code{learner_base}: this fit's
+#'       configuration;
+#'     \item \code{n_fits}: the actual number of refits (= number of time points).
 #'   }
 #' @seealso \code{\link{plot_surv_effect_curve}}, \code{\link{metalearner}}
 #' @export
@@ -168,21 +184,26 @@ surv_effect_curve <- function(type, X, A, Y,
 }
 
 # 1 绘制度量曲型的曲线 ---------------------------------------------------------
-#' 画生存结局的效应—时间曲线
+#' Plot the effect-over-time curve for survival outcomes
 #'
 #' @description
-#' 把 \code{\link{surv_effect_curve}} 的结果画成 ggplot：横轴时间、纵轴效应，
-#' 并叠加一条 0 参考线（效应为零 = 处理与对照无差别）。默认再叠一层
-#' **个体 CATE 的四分位带**（25%–75%），直观显示异质性的时间变化：
-#' 带子越宽说明该时点上不同个体的效应分歧越大。
+#' Plot the result of \code{\link{surv_effect_curve}} as a ggplot: time on the
+#' x-axis and effect on the y-axis, with a horizontal 0 reference line (zero
+#' effect = no difference between treatment and control). By default an additional
+#' **25%--75% quantile band of individual CATE** is overlaid, visually showing how
+#' heterogeneity changes over time: a wider band means greater spread of individual
+#' effects at that time point.
 #'
-#' @param curve \code{\link{surv_effect_curve}} 的返回值。
-#' @param ribbon 是否叠加个体 CATE 的 25%–75% 四分位带，默认 \code{TRUE}。
-#' @param main 图标题；\code{NULL} 时由 \code{type} 与 \code{effect} 自动生成。
-#' @param color 曲线颜色。
-#' @param ... 不再使用，保留以兼容旧调用。
+#' @param curve the return value of \code{\link{surv_effect_curve}}.
+#' @param ribbon whether to overlay the 25%--75% quantile band of individual CATE,
+#'   default \code{TRUE}.
+#' @param main plot title; auto-generated from \code{type} and \code{effect} when
+#'   \code{NULL}.
+#' @param color curve color.
+#' @param ... no longer used, kept for backward compatibility.
 #'
-#' @return 一个 \code{ggplot} 对象，可用 \code{+} 继续定制或 \code{ggsave()} 导出。
+#' @return a \code{ggplot} object, customizable with \code{+} or exportable via
+#'   \code{ggsave()}.
 #' @seealso \code{\link{surv_effect_curve}}
 #' @export
 #'

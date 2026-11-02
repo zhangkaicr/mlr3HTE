@@ -2,7 +2,7 @@
 % Please edit documentation in R/metrics.R
 \name{qini_curve}
 \alias{qini_curve}
-\title{Qini 曲线：按估计 CATE 排序的累积治疗增益}
+\title{Qini curve: cumulative treatment gain ranked by estimated CATE}
 \usage{
 qini_curve(
   cate,
@@ -16,61 +16,76 @@ qini_curve(
 )
 }
 \arguments{
-\item{cate}{逐个体估计的 CATE（数值向量），即模型的排序分数。}
+\item{cate}{Per-individual estimated CATE (numeric vector), i.e. the model's
+ranking score.}
 
-\item{A}{处理指示（0/1 或逻辑）。}
+\item{A}{Treatment indicator (0/1 or logical).}
 
-\item{Y}{结局：连续数值、0/1 二分类，或生存对象
-（\code{survival::Surv(time, status)}，也可直接给两列矩阵）。}
+\item{Y}{Outcome: continuous numeric, 0/1 binary, or a survival object
+(\code{survival::Surv(time, status)}; a two-column matrix is also accepted).}
 
-\item{propensity}{倾向得分 \eqn{e(X)}；\code{NULL}（默认）时用 \code{mean(A)}，
-适用于随机化试验。观察性数据请传入估计好的倾向得分。}
+\item{propensity}{The propensity score \eqn{e(X)}; \code{NULL} (default) uses
+\code{mean(A)}, suitable for randomized trials. For observational data, pass
+an estimated propensity score.}
 
-\item{n_bins}{曲线取多少个点（等量分箱的箱末点）；\code{NULL} 表示用全部样本点。}
+\item{n_bins}{How many points the curve takes (bin endpoints of equal-sized
+bins); \code{NULL} means using all sample points.}
 
-\item{t0}{生存结局的关键时点；\code{NULL}（默认）取事件时间中位数。
-连续/二分类结局忽略此参数。}
+\item{t0}{The key time point for survival outcomes; \code{NULL} (default) uses
+the median event time. Ignored for continuous / binary outcomes.}
 
-\item{X}{协变量 data.frame；仅生存结局且删失依赖协变量时需要，用于 Cox 建模
-删失分布。\code{NULL}（默认）用边际 Kaplan–Meier，假定删失与协变量无关。}
+\item{X}{A data.frame of covariates; needed only for survival outcomes when
+censoring depends on covariates, used to model the censoring distribution with
+Cox. \code{NULL} (default) uses the marginal Kaplan--Meier, assuming censoring
+is independent of covariates.}
 
-\item{effect}{生存结局的效应标尺：\code{"survdiff"}（默认）为 \eqn{t0} 时点
-生存概率差，与 \code{metalearner()} 的默认 CATE 一致；\code{"rmst"} 为
-限制平均生存时间差。连续/二分类结局忽略此参数。}
+\item{effect}{The effect scale for survival outcomes: \code{"survdiff"} (default)
+is the survival probability difference at \eqn{t0}, matching the default CATE
+of \code{metalearner()}; \code{"rmst"} is the restricted mean survival time
+difference. Ignored for continuous / binary outcomes.}
 }
 \value{
-一个 data.frame，含 \code{fraction}（靶向比例，从 0 到 1）与
-\code{qini}（对应累积增益），并附属性 \code{qini_at_full}。
+A data.frame containing \code{fraction} (targeting fraction, from 0 to 1)
+and \code{qini} (the corresponding cumulative gain), with the attribute
+\code{qini_at_full}.
 }
 \description{
-将样本按估计的 CATE 从高到低排序，在"靶向前 k 个个体"的预算约束下，
-用逆概率加权（IPW）估计累积治疗增益，得到 Qini 曲线（亦称 uplift 曲线）。
-曲线越早抬升、越靠上，说明模型越能把真正获益的人排到前面。
+Sort the samples by estimated CATE from high to low, and under the budget
+constraint of "targeting the top-k individuals", use inverse probability
+weighting (IPW) to estimate the cumulative treatment gain, yielding the Qini
+curve (also known as the uplift curve). The earlier and higher the curve rises,
+the better the model ranks the truly benefiting individuals to the front.
 }
 \details{
-估计式（Sverdrup et al. 2025）：
+Estimator (Sverdrup et al. 2025):
 \deqn{Q(f_k) = \frac{1}{n}\sum_{i \in \text{top-}k}
   \left(\frac{A_i Y_i}{e_i} - \frac{(1-A_i) Y_i}{1-e_i}\right)}
-其中 \eqn{f_k = k/n} 为靶向比例，\eqn{e_i} 为倾向得分。
+where \eqn{f_k = k/n} is the targeting fraction and \eqn{e_i} is the propensity
+score.
 }
-\section{三类结局怎么处理}{
+\section{How the three outcome types are handled}{
 
-连续与二分类结局直接用原始数值；生存结局先降维成\strong{里程碑生存指示}
-\eqn{I(T > t_0)}。之所以必须选这个标尺，是因为 \code{metalearner()} 的生存
-CATE 定义为 \eqn{S_1(t_0) - S_0(t_0)}——指标与 CATE 不在同一把尺子上，
-排序就无从比较。
+Continuous and binary outcomes use the raw values directly; survival outcomes
+are first reduced to the \strong{milestone survival indicator} \eqn{I(T > t_0)}.
+This scale must be chosen because \code{metalearner()}'s survival CATE is defined
+as \eqn{S_1(t_0) - S_0(t_0)} — if the metric and the CATE are not on the same
+scale, the ranking becomes incomparable.
 
-删失用\strong{完整病例 IPCW}校正：在 \eqn{t_0} 之前就被删失的人，\eqn{I(T > t_0)}
-无从得知，权重取 0；其余人权重为 \eqn{1/G(\min(T, t_0))}，\eqn{G} 为删失生存
-函数（给了 \code{X} 就用 Cox 建模，否则用边际 Kaplan–Meier）。
-这条校正不是可选项：真 ATE 0.148 的演示数据在 30\% 删失下，不做 IPCW 会把
-\eqn{Q(1)} 从 0.151 压到 0.115，58\% 删失下压到 0.062，而做完 IPCW 分别回到
-0.151 与 0.144。
+Censoring is corrected with \strong{complete-case IPCW}: for individuals
+censored before \eqn{t_0}, \eqn{I(T > t_0)} is unknown and the weight is set to
+0; the others get weight \eqn{1/G(\min(T, t_0))}, where \eqn{G} is the censoring
+survival function (Cox modeling is used if \code{X} is given, otherwise the
+marginal Kaplan--Meier). This correction is not optional: in a demo dataset with
+a true ATE of 0.148 and 30\% censoring, skipping IPCW drops \eqn{Q(1)} from 0.151
+to 0.115, and to 0.062 under 58\% censoring, while after IPCW it returns to 0.151
+and 0.144 respectively.
 
-\code{effect = "rmst"} 换成限制平均生存时间标尺（\eqn{\xi = \delta\min(T,t_0)/\hat G(T)}，
-删失校正已含在 \eqn{\xi} 内）。它的权重取自 \eqn{\hat G(T_i)}，删失重时权重被
-截断到 100 会低估效应（58\% 删失下实测 0.043，真值 0.184），
-\strong{删失较重时请用默认的 \code{"survdiff"}}。
+\code{effect = "rmst"} switches to the restricted mean survival time scale
+(\eqn{\xi = \delta\min(T,t_0)/\hat G(T)}, with the censoring correction already
+contained in \eqn{\xi}). Its weight is taken from \eqn{\hat G(T_i)}; when
+censoring is heavy the weight is truncated at 100, underestimating the effect
+(0.043 measured under 58\% censoring vs. a true value of 0.184),
+so \strong{use the default \code{"survdiff"} when censoring is heavy}.
 }
 
 \examples{
@@ -81,7 +96,7 @@ tau <- rnorm(n)
 Y <- 1 + A * tau + rnorm(n)
 head(qini_curve(tau, A, Y))
 
-# 生存结局：效应标尺 = t0 时点生存概率差
+# Survival outcome: effect scale = survival probability difference at t0
 d <- mlr3HTE_demo_surv(n = 600)
 fit <- metalearner("T", d$X, d$A, d$Y, learner_base = "coxph", t0 = d$t0)
 head(qini_curve(fit$cate_train, d$A, d$Y, t0 = d$t0))

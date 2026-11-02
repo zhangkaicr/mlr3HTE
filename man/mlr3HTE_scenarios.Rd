@@ -2,23 +2,27 @@
 % Please edit documentation in R/scenarios.R
 \name{mlr3HTE_scenarios}
 \alias{mlr3HTE_scenarios}
-\title{基准模拟场景清单}
+\title{List of benchmark simulation scenarios}
 \usage{
 mlr3HTE_scenarios()
 }
 \value{
-data.frame，每行一个设计，列为 \code{id} / \code{design} /
-\code{confounding} / \code{hte} / \code{shared}。
+A data.frame with one row per design and columns \code{id} / \code{design}
+/ \code{confounding} / \code{hte} / \code{shared}.
 }
 \description{
-列出 \code{\link{mlr3HTE_scenario}} 支持的 10 个基准设计及其结构标签。
-四个维度分别是：研究设计（\code{design}）、混杂机制的函数形式
-（\code{confounding}）、真实 CATE 的函数形式（\code{hte}），以及是否存在
-\strong{同时影响处理分配与治疗效应}的协变量（\code{shared}）。
+List the 10 benchmark designs supported by \code{\link{mlr3HTE_scenario}} and
+their structural labels. The four dimensions are: study design (\code{design}),
+the functional form of the confounding mechanism (\code{confounding}), the
+functional form of the true CATE (\code{hte}), and whether a covariate exists
+that \strong{simultaneously affects treatment assignment and the treatment effect}
+(\code{shared}).
 
-这一组场景用于方法学比较：固定其余结构、只改变一个维度，即可分离出
-「非线性混杂」「非线性效应修饰」「混杂与效应修饰共用变量」各自对
-估计量的影响，而不会把多个来源的偏差混在一起。
+This set of scenarios is for methodology comparison: by fixing the other
+structures and changing only one dimension, you can isolate the effect of
+"nonlinear confounding", "nonlinear effect modification", and "confounding and
+effect modification sharing a variable" on the estimator, without mixing biases
+from multiple sources.
 }
 \examples{
 mlr3HTE_scenarios()

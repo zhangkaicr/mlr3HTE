@@ -1,22 +1,25 @@
 # =====================================================================
-# metrics.R —— 异质性治疗效应（HTE）模型的判别性评价
+# metrics.R — Discriminative evaluation of heterogeneous treatment effect (HTE) models
 #
-# 三类结局（连续 / 二分类 / 生存）共用同一套指标：
-#   1. Qini 曲线 / Qini 系数 —— 基于"按效应排序后靶向治疗"的增益曲线
-#   2. TOC 曲线             —— 靶向前 k 个个体的平均治疗效应
-#   3. c-for-benefit        —— 模型预测"治疗获益"的 C 统计量
+# The three outcome types (continuous / binary / survival) share the same set of metrics:
+#   1. Qini curve / Qini coefficient — a gain curve based on "targeted treatment
+#      after ranking by effect"
+#   2. TOC curve — the average treatment effect among the top-k targeted individuals
+#   3. c-for-benefit — the C-statistic for the model's prediction of "treatment benefit"
 #
-# 统一的做法是先把结局降维成「个体层面数值结局 y + 权重 w」（见 .hte_outcome）：
-#   连续 / 二分类 : y = Y,                    w = 1
-#   生存 survdiff : y = I(T > t0),            w = I(可观测)/G(min(T,t0))
-#   生存 rmst     : y = δ·min(T,t0)/G(T),     w = 1（IPCW 已含在 y 里）
-# 之后所有指标都用加权版 IPW 评分 s_i = w_i·(A_i y_i/e_i − (1−A_i) y_i/(1−e_i))，
-# 无删失时 w ≡ 1，与经典公式完全一致。
+# The unified approach first reduces the outcome to an "individual-level numeric
+# outcome y + weight w" (see .hte_outcome):
+#   continuous / binary : y = Y,                    w = 1
+#   survival survdiff   : y = I(T > t0),            w = I(observed)/G(min(T,t0))
+#   survival rmst       : y = delta*min(T,t0)/G(T), w = 1 (IPCW already in y)
+# All metrics then use the weighted IPW score
+#   s_i = w_i*(A_i y_i/e_i - (1-A_i) y_i/(1-e_i));
+# with no censoring w == 1, which coincides exactly with the classic formula.
 #
-# 参考实现对照：
-#   - Qini：Sverdrup, Wu, Athey & Wager (2025) 的 IPW 估计式
-#   - c-for-benefit：van Klaveren, Steyerberg, Serruys & Kent (2018)
-#   - TOC：Yadlowsky, Fleming, Shah, Brunskill & Wager (2025)
+# Reference implementations:
+#   - Qini: the IPW estimator of Sverdrup, Wu, Athey & Wager (2025)
+#   - c-for-benefit: van Klaveren, Steyerberg, Serruys & Kent (2018)
+#   - TOC: Yadlowsky, Fleming, Shah, Brunskill & Wager (2025)
 # =====================================================================
 
 # ---------------------------------------------------------------------
@@ -94,51 +97,66 @@
   )
 }
 
-#' Qini 曲线：按估计 CATE 排序的累积治疗增益
+#' Qini curve: cumulative treatment gain ranked by estimated CATE
 #'
-#' 将样本按估计的 CATE 从高到低排序，在"靶向前 k 个个体"的预算约束下，
-#' 用逆概率加权（IPW）估计累积治疗增益，得到 Qini 曲线（亦称 uplift 曲线）。
-#' 曲线越早抬升、越靠上，说明模型越能把真正获益的人排到前面。
+#' Sort the samples by estimated CATE from high to low, and under the budget
+#' constraint of "targeting the top-k individuals", use inverse probability
+#' weighting (IPW) to estimate the cumulative treatment gain, yielding the Qini
+#' curve (also known as the uplift curve). The earlier and higher the curve rises,
+#' the better the model ranks the truly benefiting individuals to the front.
 #'
-#' 估计式（Sverdrup et al. 2025）：
+#' Estimator (Sverdrup et al. 2025):
 #' \deqn{Q(f_k) = \frac{1}{n}\sum_{i \in \text{top-}k}
 #'   \left(\frac{A_i Y_i}{e_i} - \frac{(1-A_i) Y_i}{1-e_i}\right)}
-#' 其中 \eqn{f_k = k/n} 为靶向比例，\eqn{e_i} 为倾向得分。
+#' where \eqn{f_k = k/n} is the targeting fraction and \eqn{e_i} is the propensity
+#' score.
 #'
-#' @param cate 逐个体估计的 CATE（数值向量），即模型的排序分数。
-#' @param A 处理指示（0/1 或逻辑）。
-#' @param Y 结局：连续数值、0/1 二分类，或生存对象
-#'   （\code{survival::Surv(time, status)}，也可直接给两列矩阵）。
-#' @param propensity 倾向得分 \eqn{e(X)}；\code{NULL}（默认）时用 \code{mean(A)}，
-#'   适用于随机化试验。观察性数据请传入估计好的倾向得分。
-#' @param n_bins 曲线取多少个点（等量分箱的箱末点）；\code{NULL} 表示用全部样本点。
-#' @param t0 生存结局的关键时点；\code{NULL}（默认）取事件时间中位数。
-#'   连续/二分类结局忽略此参数。
-#' @param X 协变量 data.frame；仅生存结局且删失依赖协变量时需要，用于 Cox 建模
-#'   删失分布。\code{NULL}（默认）用边际 Kaplan–Meier，假定删失与协变量无关。
-#' @param effect 生存结局的效应标尺：\code{"survdiff"}（默认）为 \eqn{t0} 时点
-#'   生存概率差，与 \code{metalearner()} 的默认 CATE 一致；\code{"rmst"} 为
-#'   限制平均生存时间差。连续/二分类结局忽略此参数。
-#' @section 三类结局怎么处理:
-#' 连续与二分类结局直接用原始数值；生存结局先降维成\strong{里程碑生存指示}
-#' \eqn{I(T > t_0)}。之所以必须选这个标尺，是因为 \code{metalearner()} 的生存
-#' CATE 定义为 \eqn{S_1(t_0) - S_0(t_0)}——指标与 CATE 不在同一把尺子上，
-#' 排序就无从比较。
+#' @param cate Per-individual estimated CATE (numeric vector), i.e. the model's
+#'   ranking score.
+#' @param A Treatment indicator (0/1 or logical).
+#' @param Y Outcome: continuous numeric, 0/1 binary, or a survival object
+#'   (\code{survival::Surv(time, status)}; a two-column matrix is also accepted).
+#' @param propensity The propensity score \eqn{e(X)}; \code{NULL} (default) uses
+#'   \code{mean(A)}, suitable for randomized trials. For observational data, pass
+#'   an estimated propensity score.
+#' @param n_bins How many points the curve takes (bin endpoints of equal-sized
+#'   bins); \code{NULL} means using all sample points.
+#' @param t0 The key time point for survival outcomes; \code{NULL} (default) uses
+#'   the median event time. Ignored for continuous / binary outcomes.
+#' @param X A data.frame of covariates; needed only for survival outcomes when
+#'   censoring depends on covariates, used to model the censoring distribution with
+#'   Cox. \code{NULL} (default) uses the marginal Kaplan--Meier, assuming censoring
+#'   is independent of covariates.
+#' @param effect The effect scale for survival outcomes: \code{"survdiff"} (default)
+#'   is the survival probability difference at \eqn{t0}, matching the default CATE
+#'   of \code{metalearner()}; \code{"rmst"} is the restricted mean survival time
+#'   difference. Ignored for continuous / binary outcomes.
+#' @section How the three outcome types are handled:
+#' Continuous and binary outcomes use the raw values directly; survival outcomes
+#' are first reduced to the \strong{milestone survival indicator} \eqn{I(T > t_0)}.
+#' This scale must be chosen because \code{metalearner()}'s survival CATE is defined
+#' as \eqn{S_1(t_0) - S_0(t_0)} — if the metric and the CATE are not on the same
+#' scale, the ranking becomes incomparable.
 #'
-#' 删失用\strong{完整病例 IPCW}校正：在 \eqn{t_0} 之前就被删失的人，\eqn{I(T > t_0)}
-#' 无从得知，权重取 0；其余人权重为 \eqn{1/G(\min(T, t_0))}，\eqn{G} 为删失生存
-#' 函数（给了 \code{X} 就用 Cox 建模，否则用边际 Kaplan–Meier）。
-#' 这条校正不是可选项：真 ATE 0.148 的演示数据在 30% 删失下，不做 IPCW 会把
-#' \eqn{Q(1)} 从 0.151 压到 0.115，58% 删失下压到 0.062，而做完 IPCW 分别回到
-#' 0.151 与 0.144。
+#' Censoring is corrected with \strong{complete-case IPCW}: for individuals
+#' censored before \eqn{t_0}, \eqn{I(T > t_0)} is unknown and the weight is set to
+#' 0; the others get weight \eqn{1/G(\min(T, t_0))}, where \eqn{G} is the censoring
+#' survival function (Cox modeling is used if \code{X} is given, otherwise the
+#' marginal Kaplan--Meier). This correction is not optional: in a demo dataset with
+#' a true ATE of 0.148 and 30% censoring, skipping IPCW drops \eqn{Q(1)} from 0.151
+#' to 0.115, and to 0.062 under 58% censoring, while after IPCW it returns to 0.151
+#' and 0.144 respectively.
 #'
-#' \code{effect = "rmst"} 换成限制平均生存时间标尺（\eqn{\xi = \delta\min(T,t_0)/\hat G(T)}，
-#' 删失校正已含在 \eqn{\xi} 内）。它的权重取自 \eqn{\hat G(T_i)}，删失重时权重被
-#' 截断到 100 会低估效应（58% 删失下实测 0.043，真值 0.184），
-#' \strong{删失较重时请用默认的 \code{"survdiff"}}。
+#' \code{effect = "rmst"} switches to the restricted mean survival time scale
+#' (\eqn{\xi = \delta\min(T,t_0)/\hat G(T)}, with the censoring correction already
+#' contained in \eqn{\xi}). Its weight is taken from \eqn{\hat G(T_i)}; when
+#' censoring is heavy the weight is truncated at 100, underestimating the effect
+#' (0.043 measured under 58% censoring vs. a true value of 0.184),
+#' so \strong{use the default \code{"survdiff"} when censoring is heavy}.
 #'
-#' @return 一个 data.frame，含 \code{fraction}（靶向比例，从 0 到 1）与
-#'   \code{qini}（对应累积增益），并附属性 \code{qini_at_full}。
+#' @return A data.frame containing \code{fraction} (targeting fraction, from 0 to 1)
+#'   and \code{qini} (the corresponding cumulative gain), with the attribute
+#'   \code{qini_at_full}.
 #' @references
 #' Sverdrup E, Wu H, Athey S, Wager S. Qini Curves for Multi-Armed Treatment
 #' Rules. \emph{Journal of Computational and Graphical Statistics}, 2025.
@@ -156,7 +174,7 @@
 #' Y <- 1 + A * tau + rnorm(n)
 #' head(qini_curve(tau, A, Y))
 #'
-#' # 生存结局：效应标尺 = t0 时点生存概率差
+#' # Survival outcome: effect scale = survival probability difference at t0
 #' d <- mlr3HTE_demo_surv(n = 600)
 #' fit <- metalearner("T", d$X, d$A, d$Y, learner_base = "coxph", t0 = d$t0)
 #' head(qini_curve(fit$cate_train, d$A, d$Y, t0 = d$t0))
@@ -191,19 +209,20 @@ qini_curve <- function(cate, A, Y, propensity = NULL, n_bins = NULL,
   out
 }
 
-#' Qini 系数：Qini 曲线与随机靶向线之间的面积
+#' Qini coefficient: area between the Qini curve and the random targeting line
 #'
-#' 在 \code{\link{qini_curve}} 的基础上，计算曲线下面积（梯形法）与
-#' "随机靶向线"（从 (0,0) 连到 (1, Q(1))）之间夹的面积。面积越大，
-#' 说明模型排序相对随机分配带来的额外增益越多。
+#' Building on \code{\link{qini_curve}}, compute the area between the curve (trapezoidal
+#' rule) and the "random targeting line" (connecting (0,0) to (1, Q(1))). The larger
+#' the area, the more extra gain the model's ranking brings over random allocation.
 #'
-#' 同时给出归一化版本：面积除以随机线下的面积 \eqn{0.5\,Q(1)}。
-#' 随机模型的 Qini 系数约为 0；完美排序为正。
+#' A normalized version is also returned: the area divided by the area under the
+#' random line \eqn{0.5\,Q(1)}. A random model has a Qini coefficient near 0; a
+#' perfect ranking is positive.
 #'
 #' @inheritParams qini_curve
-#' @return 一个 list，含 \code{qini_coefficient}（绝对面积）、
-#'   \code{qini_normalized}（归一化到随机线面积）、\code{auc}（曲线下面积）
-#'   与 \code{qini_at_full}（\eqn{Q(1)}）。
+#' @return A list containing \code{qini_coefficient} (absolute area),
+#'   \code{qini_normalized} (normalized to the random-line area), \code{auc} (area
+#'   under the curve) and \code{qini_at_full} (\eqn{Q(1)}).
 #' @references
 #' Sverdrup E, Wu H, Athey S, Wager S. Qini Curves for Multi-Armed Treatment
 #' Rules. \emph{Journal of Computational and Graphical Statistics}, 2025.
@@ -233,45 +252,57 @@ qini_coefficient <- function(cate, A, Y, propensity = NULL,
        auc = auc, qini_at_full = q_full)
 }
 
-#' 双重稳健伪结局：观察性数据做 HTE 评价的入口
+#' Doubly robust pseudo-outcome: the entry point for HTE evaluation on observational data
 #'
-#' 计算 \eqn{Y^*}（AIPW / 双重稳健伪结局）：
+#' Compute \eqn{Y^*} (the AIPW / doubly robust pseudo-outcome):
 #' \deqn{Y^*_i = (\hat\mu_1(X_i) - \hat\mu_0(X_i)) +
 #'   \frac{A_i(Y_i - \hat\mu_1(X_i))}{e_i} -
 #'   \frac{(1-A_i)(Y_i - \hat\mu_0(X_i))}{1-e_i}}
-#' 满足 \eqn{E[Y^*_i \mid X_i] = \tau(X_i)}，且\strong{结局模型与倾向得分模型
-#' 只要有一个正确即无偏}。\eqn{Y^*} 的均值就是 ATE 的 DR 估计。
+#' It satisfies \eqn{E[Y^*_i \mid X_i] = \tau(X_i)}, and is \strong{unbiased as long
+#' as either the outcome model or the propensity-score model is correct}. The mean
+#' of \eqn{Y^*} is the DR estimate of the ATE.
 #'
-#' 它同时把三个"干扰参数"（倾向得分 \eqn{e}、\eqn{\hat\mu_1}、\eqn{\hat\mu_0}）
-#' 一并返回，正好是 \code{\link{c_for_benefit}} 在观察性数据下需要的输入；
-#' 其中的 \code{propensity} 也可以直接喂给 \code{\link{qini_curve}} /
-#' \code{\link{qini_coefficient}} / \code{\link{toc_curve}}。
+#' It also returns the three "nuisance parameters" (propensity score \eqn{e},
+#' \eqn{\hat\mu_1}, \eqn{\hat\mu_0}) together, which is exactly the input that
+#' \code{\link{c_for_benefit}} needs under observational data; the \code{propensity}
+#' element can also be fed directly to \code{\link{qini_curve}} /
+#' \code{\link{qini_coefficient}} / \code{\link{toc_curve}}.
 #'
-#' @section 为什么要交叉拟合:
-#' 默认 \code{cross_fitting = TRUE}：倾向得分与结局模型都在 K 折的\strong{训练折}
-#' 上拟合、在留出折上预测。若用全样本拟合再回代自己（in-fold），\eqn{Y^*} 里的
-#' \eqn{\hat\mu_1-\hat\mu_0} 与被评价的 CATE 出自同一个模型，配对时又按该 CATE
-#' 找最近邻，会把"观测获益"人为对齐到"预测获益"，导致 c-for-benefit 虚高——
-#' 本包演示数据上实测 in-fold 会出现"模型 CATE 0.754 > 真 tau 0.717"的倒挂，
-#' 交叉拟合后恢复为"模型 0.659 ≤ 真 tau 0.669"。
+#' @section Why cross-fitting is necessary:
+#' By default \code{cross_fitting = TRUE}: the propensity score and outcome models
+#' are both fit on the \strong{training folds} of K folds and predicted on the held-out
+#' folds. If the full sample is fit and then fed back to itself (in-fold), the
+#' \eqn{\hat\mu_1-\hat\mu_0} in \eqn{Y^*} and the evaluated CATE come from the same
+#' model, and when matching by nearest neighbor on that CATE, the "observed benefit"
+#' is artificially aligned with the "predicted benefit", inflating c-for-benefit —
+#' on this package's demo data, in-fold actually produces the inversion "model CATE
+#' 0.754 > true tau 0.717", which recovers to "model 0.659 <= true tau 0.669" after
+#' cross-fitting.
 #'
-#' @param X 协变量 data.frame。生存结局下还用于建模删失分布（IPCW 权重）。
-#' @param A 处理指示（0/1 或逻辑）。
-#' @param Y 结局：连续数值、0/1 二分类，或生存对象
-#'   （\code{survival::Surv(time, status)}）。
-#' @param cross_fitting 是否对干扰参数做交叉拟合，默认 \code{TRUE}。
-#' @param n_folds 交叉拟合折数，默认 5。
-#' @param learner_ps 倾向得分学习器（classif），默认 \code{classif.log_reg}。
-#' @param learner_base 结局模型基学习器。连续/二分类下是 mlr3 Learner，默认
-#'   \code{regr.ranger}（连续）或 \code{classif.log_reg}（二分类）；生存结局下
-#'   用字符串 \code{"coxph"}（默认）或 \code{"ranger"}，与 \code{metalearner()}
-#'   的生存分支取同样的值。
-#' @param seed 折分配的随机种子；\code{NULL} 则不设（复现请显式给）。
-#' @param t0 生存结局的关键时点；\code{NULL}（默认）取事件时间中位数。
-#' @param effect 生存结局的效应标尺，\code{"survdiff"}（默认）或 \code{"rmst"}。
-#' @return list：\code{pseudo}（DR 伪结局向量）、\code{mu1}、\code{mu0}、
-#'   \code{propensity}、\code{ate}（\code{mean(pseudo)}）、\code{t0}、
-#'   \code{effect}（生存结局时给出，便于与 CATE 标尺对齐）。
+#' @param X A data.frame of covariates. For survival outcomes it is also used to
+#'   model the censoring distribution (IPCW weights).
+#' @param A Treatment indicator (0/1 or logical).
+#' @param Y Outcome: continuous numeric, 0/1 binary, or a survival object
+#'   (\code{survival::Surv(time, status)}).
+#' @param cross_fitting Whether to cross-fit the nuisance parameters, default
+#'   \code{TRUE}.
+#' @param n_folds The number of cross-fitting folds, default 5.
+#' @param learner_ps The propensity-score learner (classif), default
+#'   \code{classif.log_reg}.
+#' @param learner_base The base learner for the outcome model. For continuous /
+#'   binary outcomes this is an mlr3 Learner, defaulting to \code{regr.ranger}
+#'   (continuous) or \code{classif.log_reg} (binary); for survival outcomes a
+#'   character string \code{"coxph"} (default) or \code{"ranger"} is used, taking
+#'   the same value as the survival branch of \code{metalearner()}.
+#' @param seed The random seed for fold assignment; \code{NULL} means none is set
+#'   (provide explicitly for reproducibility).
+#' @param t0 The key time point for survival outcomes; \code{NULL} (default) uses
+#'   the median event time.
+#' @param effect The effect scale for survival outcomes, \code{"survdiff"} (default)
+#'   or \code{"rmst"}.
+#' @return A list with \code{pseudo} (the DR pseudo-outcome vector), \code{mu1},
+#'   \code{mu0}, \code{propensity}, \code{ate} (\code{mean(pseudo)}), \code{t0},
+#'   \code{effect} (provided for survival outcomes, to align with the CATE scale).
 #' @references
 #' Yadlowsky S, Fleming T, Shah N, Brunskill E, Wager S. Evaluating treatment
 #' prioritization rules via rank-weighted average treatment effects.
@@ -391,51 +422,70 @@ dr_pseudo_outcome <- function(X, A, Y, cross_fitting = TRUE, n_folds = 5L,
   if (binary) .pred_classif(model, newX) else .pred_regr(model, newX)
 }
 
-#' c-for-benefit：预测治疗获益的 C 统计量
+#' c-for-benefit: the C-statistic for predicting treatment benefit
 #'
-#' 按 van Klaveren 等（2018）的思路，把处理组与对照组个体**按预测获益配对**
-#' （贪心 1:1 最近邻，基于估计 CATE），每对给出"观测获益"
-#' （处理者结局减对照者结局）与"预测获益"（该对的估计 CATE）。
-#' 随后在所有配对之间比较：若观测获益更大的那一对，其预测获益也更大，
-#' 记为一致（concordant）。c-for-benefit 即一致对占全部信息对的比例
-#' （预测获益相同按 0.5 计）。
+#' Following van Klaveren et al. (2018), pair treated and control individuals
+#' **by predicted benefit** (greedy 1:1 nearest neighbor, based on the estimated
+#' CATE); each pair yields an "observed benefit" (treated outcome minus control
+#' outcome) and a "predicted benefit" (the pair's estimated CATE). Then compare
+#' across all pairs: if the pair with the larger observed benefit also has the
+#' larger predicted benefit, it counts as concordant. c-for-benefit is the
+#' proportion of concordant pairs among all informative pairs (ties in predicted
+#' benefit count as 0.5).
 #'
-#' 解释：c = 0.5 相当于随机排序；越接近 1，模型越能区分"谁获益更多"。
-#' 注意：这是对 van Klaveren 配对思想的**近似实现**（贪心配对 + 配对间秩相关），
-#' 不是原文的完整匹配流程；需要严格复现时请对照 \code{CforBenefit} 包。
+#' Interpretation: c = 0.5 is equivalent to random ranking; the closer to 1, the
+#' better the model distinguishes "who benefits more". Note: this is an
+#' **approximate implementation** of van Klaveren's pairing idea (greedy pairing +
+#' rank correlation between pairs), not the full matching procedure of the original
+#' paper; for strict reproduction please refer to the \code{CforBenefit} package.
 #'
-#' @section 观察性数据 - 必须走双重稳健，不能只给倾向得分:
-#' 默认的"观测获益 = 处理者结局 − 对照者结局"只在处理随机化时无偏。观察性数据里
-#' 两者基线预后不同，这个差被混杂污染。
-#' 正确做法是把观测获益换成\strong{双重稳健（DR）伪结局}：
+#' @section Observational data — doubly robust is required, not just a propensity score:
+#' The default "observed benefit = treated outcome - control outcome" is unbiased
+#' only when treatment is randomized. In observational data the two groups have
+#' different baseline prognoses, so this difference is confounded.
+#' The correct approach is to replace the observed benefit with the
+#' \strong{doubly robust (DR) pseudo-outcome}:
 #' \deqn{Y^*_i = (\hat\mu_1(X_i) - \hat\mu_0(X_i)) +
 #'   \frac{A_i(Y_i - \hat\mu_1(X_i))}{e_i} -
 #'   \frac{(1-A_i)(Y_i - \hat\mu_0(X_i))}{1-e_i}}
-#' 满足 \eqn{E[Y^*_i \mid X_i] = \tau(X_i)}，且\strong{结局模型与倾向得分模型
-#' 只要有一个正确即无偏}。配对内取两人的 \eqn{Y^*} 平均作为观测获益。
+#' It satisfies \eqn{E[Y^*_i \mid X_i] = \tau(X_i)}, and is \strong{unbiased as long
+#' as either the outcome model or the propensity-score model is correct}. Within a
+#' pair, the average of the two individuals' \eqn{Y^*} is taken as the observed
+#' benefit.
 #'
-#' 为什么不能只传 \code{propensity}：那样等价于用 Horvitz–Thompson 评分
-#' \eqn{AY/e - (1-A)Y/(1-e)} 当观测获益，其单次样本标准差极大（本包演示数据上
-#' 实测约 15，而 ATE 只有 1 左右），噪声会把 C 统计量压到随机线以下——实测即使用
-#' 真 \code{tau} 排序也只有 0.39，比随机还差。所以只给 \code{propensity} 会直接报错，
-#' 逼你把结局模型一起给进来。
+#' Why not just pass \code{propensity}: that is equivalent to using the
+#' Horvitz--Thompson score \eqn{AY/e - (1-A)Y/(1-e)} as the observed benefit, whose
+#' single-sample standard deviation is huge (about 15 on this package's demo data,
+#' while the ATE is around 1), and the noise pushes the C-statistic below the random
+#' line — even ranking by the true \code{tau} measures only 0.39, worse than random.
+#' So passing only \code{propensity} errors out, forcing you to also supply the
+#' outcome model.
 #'
-#' 三个干扰参数可以用 \code{\link{dr_pseudo_outcome}} 一次拿到，它默认做交叉拟合，
-#' 避免"结局模型评价自己的 CATE"带来的虚高。
+#' The three nuisance parameters can be obtained at once with
+#' \code{\link{dr_pseudo_outcome}}, which cross-fits by default to avoid the
+#' inflation from "the outcome model evaluating its own CATE".
 #'
 #' @inheritParams qini_curve
-#' @param caliper 配对时允许的最大预测获益差；\code{NULL}（默认）不设卡钳，
-#'   总是取最近邻。设卡钳可避免把获益相差很大的两人硬配。
-#' @param mu1 处理组的结局模型预测值 \eqn{\hat\mu_1(X)}（数值向量，长度同 \code{cate}）。
-#'   观察性数据下与 \code{propensity}、\code{mu0} 一起传入以启用 DR 校正；
-#'   \code{NULL}（默认）时用原始结局差，仅在随机化试验下无偏。
-#' @param mu0 对照组的结局模型预测值 \eqn{\hat\mu_0(X)}。用法同 \code{mu1}。
-#' @param t0 生存结局的关键时点；\code{NULL}（默认）取事件时间中位数。
-#' @param X 协变量 data.frame；仅生存结局且删失依赖协变量时需要（Cox 建模删失
-#'   分布）。\code{NULL}（默认）用边际 Kaplan–Meier。
-#' @param effect 生存结局的效应标尺，\code{"survdiff"}（默认）或 \code{"rmst"}。
-#' @return 一个 list，含 \code{c_for_benefit}（C 统计量）、\code{n_pairs}
-#'   （配对数）以及一致/不一致/预测并列的对数。
+#' @param caliper The maximum allowed predicted-benefit difference when pairing;
+#'   \code{NULL} (default) sets no caliper and always takes the nearest neighbor.
+#'   Setting a caliper avoids forcibly pairing two people with very different benefits.
+#' @param mu1 The outcome-model prediction for the treated group \eqn{\hat\mu_1(X)}
+#'   (numeric vector, same length as \code{cate}). Under observational data, pass it
+#'   together with \code{propensity} and \code{mu0} to enable DR correction;
+#'   \code{NULL} (default) uses the raw outcome difference, unbiased only under
+#'   randomization.
+#' @param mu0 The outcome-model prediction for the control group \eqn{\hat\mu_0(X)}.
+#'   Used the same way as \code{mu1}.
+#' @param t0 The key time point for survival outcomes; \code{NULL} (default) uses
+#'   the median event time.
+#' @param X A data.frame of covariates; needed only for survival outcomes when
+#'   censoring depends on covariates (Cox modeling of the censoring distribution).
+#'   \code{NULL} (default) uses the marginal Kaplan--Meier.
+#' @param effect The effect scale for survival outcomes, \code{"survdiff"} (default)
+#'   or \code{"rmst"}.
+#' @return A list containing \code{c_for_benefit} (the C-statistic), \code{n_pairs}
+#'   (number of pairs), and the numbers of concordant / discordant / tied-prediction
+#'   pairs.
 #' @references
 #' van Klaveren D, Steyerberg EW, Serruys PW, Kent DM. The proposed
 #' 'concordance-statistic for benefit' provided a useful metric when modeling
@@ -454,14 +504,14 @@ dr_pseudo_outcome <- function(X, A, Y, cross_fitting = TRUE, n_folds = 5L,
 #' Y <- 1 + A * tau + rnorm(n)
 #' c_for_benefit(tau, A, Y)$c_for_benefit
 #'
-#' # 观察性数据：用交叉拟合的 DR 伪结局当观测获益
+#' # Observational data: use the cross-fitted DR pseudo-outcome as the observed benefit
 #' set.seed(1)
 #' d <- mlr3HTE_demo_obs(n = 800)
 #' dr <- dr_pseudo_outcome(d$X, d$A, d$Y, seed = 1)
 #' c_for_benefit(dr$mu1 - dr$mu0, d$A, d$Y,
 #'               propensity = dr$propensity, mu1 = dr$mu1, mu0 = dr$mu0)
 #'
-#' # 观察性数据：DR-Learner 默认内部拟合倾向得分，双重稳健
+#' # Observational data: the DR-Learner fits the propensity score internally by default (doubly robust)
 #' set.seed(1)
 #' d <- mlr3HTE_demo_obs(n = 800)
 #' fit <- metalearner("DR", d$X, d$A, d$Y)
@@ -571,18 +621,20 @@ c_for_benefit <- function(cate, A, Y, caliper = NULL,
        n_concordant = conc, n_discordant = disc, n_tied_pred = tiep)
 }
 
-#' 绘制 Qini 曲线
+#' Plot the Qini curve
 #'
-#' 画 \code{\link{qini_curve}} 的返回对象，并叠加随机靶向参考线（虚线）。
+#' Plot the object returned by \code{\link{qini_curve}}, with an overlaid random
+#' targeting reference line (dashed).
 #'
-#' 返回 \code{ggplot} 对象，可继续用 \code{+} 叠加图层或主题；
-#' 绘图所用的数据就是 \code{\link{qini_curve}} 的返回值本身。
+#' Returns a \code{ggplot} object, which can be further augmented with \code{+}
+#' layers or themes; the data used for plotting is exactly the return value of
+#' \code{\link{qini_curve}} itself.
 #'
-#' @param curve \code{\link{qini_curve}} 返回的 data.frame。
-#' @param main 图标题。
-#' @param color 曲线颜色。
-#' @param ... 不再使用，保留以兼容旧调用。
-#' @return \code{ggplot} 对象。
+#' @param curve The data.frame returned by \code{\link{qini_curve}}.
+#' @param main The plot title.
+#' @param color The curve color.
+#' @param ... No longer used; kept for backward compatibility with old calls.
+#' @return A \code{ggplot} object.
 #' @references
 #' Sverdrup E, Wu H, Athey S, Wager S. Qini Curves for Multi-Armed Treatment
 #' Rules. \emph{Journal of Computational and Graphical Statistics}, 2025.
@@ -614,16 +666,19 @@ plot_qini <- function(curve, main = "Qini curve", color = "#1B6CA8", ...) {
                    plot.title = ggplot2::element_text(face = "bold"))
 }
 
-#' TOC 曲线：按效应排序后各分位的平均治疗效应
+#' TOC curve: average treatment effect by quantile after ranking by effect
 #'
-#' 把样本按估计 CATE 从高到低排序，看"靶向前 k 个个体"这一子群里的
-#' 平均治疗效应（用同一 IPW 评分估计）如何随靶向比例变化，并与全样本
-#' 的总体 ATE（水平参考线）比较。信息性模型在前段应明显高于总体 ATE，
-#' 说明获益更多的人被排到了前面；平坦贴近总体线则说明无异质性可利用。
+#' Sort the samples by estimated CATE from high to low, and look at how the average
+#' treatment effect (estimated with the same IPW score) within the subgroup of
+#' "top-k targeted individuals" changes with the targeting fraction, compared with
+#' the overall ATE of the full sample (horizontal reference line). An informative
+#' model should be clearly above the overall ATE in the front segment, indicating
+#' that the more-benefiting individuals are ranked to the front; a flat curve hugging
+#' the overall line means there is no heterogeneity to exploit.
 #'
 #' @inheritParams qini_curve
-#' @return data.frame，含 \code{fraction} 与 \code{toc}，并附属性
-#'   \code{overall_ate}（全样本 IPW 估计的 ATE，作为水平参考）。
+#' @return A data.frame containing \code{fraction} and \code{toc}, with the attribute
+#'   \code{overall_ate} (the full-sample IPW-estimated ATE, as the horizontal reference).
 #' @references
 #' Yadlowsky S, Fleming S, Shah N, Brunskill E, Wager S. Evaluating Treatment
 #' Prioritization Rules via Rank-Weighted Average Treatment Effects.

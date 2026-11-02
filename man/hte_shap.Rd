@@ -2,7 +2,7 @@
 % Please edit documentation in R/explain.R
 \name{hte_shap}
 \alias{hte_shap}
-\title{CATE 模型的 SHAP 值（Kernel SHAP）}
+\title{SHAP values for CATE models (Kernel SHAP)}
 \usage{
 hte_shap(
   object,
@@ -15,36 +15,43 @@ hte_shap(
 )
 }
 \arguments{
-\item{object}{\code{\link{hte_explainer}} 的结果，或任何带
-\code{$predict(newX)} 的对象。}
+\item{object}{The result of \code{\link{hte_explainer}}, or any object with
+\code{$predict(newX)}.}
 
-\item{X}{需要计算 SHAP 的样本；默认为解释器里的 \code{X}。}
+\item{X}{The sample for which SHAP is computed; defaults to \code{X} in the
+explainer.}
 
-\item{bg_X}{背景数据（用于估计联盟的边际期望）；默认从 \code{X} 中
-随机抽 \code{n_background} 行。背景集越大越稳定但越慢。}
+\item{bg_X}{Background data (used to estimate the marginal expectation of
+coalitions); by default \code{n_background} rows are randomly drawn from
+\code{X}. A larger background set is more stable but slower.}
 
-\item{n_background}{背景样本量，默认 100。}
+\item{n_background}{The background sample size, default 100.}
 
-\item{seed}{随机种子（用于抽背景集）。}
+\item{seed}{Random seed (used to draw the background set).}
 
-\item{verbose}{是否显示 kernelshap 的进度条，默认 \code{FALSE}。}
+\item{verbose}{Whether to show the kernelshap progress bar, default
+\code{FALSE}.}
 
-\item{...}{传给 \code{kernelshap::kernelshap} 的其他参数。}
+\item{...}{Additional arguments passed to \code{kernelshap::kernelshap}.}
 }
 \value{
-\code{shapviz} 对象，可交给 \code{\link{plot_hte_shap}} 或
-\code{shapviz} 自带的 \code{sv_*()} 函数。
+A \code{shapviz} object, which can be passed to \code{\link{plot_hte_shap}}
+or to the \code{sv_*()} functions provided by \code{shapviz}.
 }
 \description{
-用 \code{kernelshap} 计算精确的 Kernel SHAP 值，再用 \code{shapviz}
-包装为可绘图的 \code{shapviz} 对象。SHAP 把每个个体的预测值分解为
-「基线值 + 各协变量的贡献」之和，且贡献满足可加性：
+Compute exact Kernel SHAP values with \code{kernelshap}, then wrap them into a
+plottable \code{shapviz} object with \code{shapviz}. SHAP decomposes each
+individual's prediction into the sum of "a baseline value + each covariate's
+contribution", and the contributions are additive:
 \deqn{\hat\tau(x) = \phi_0 + \sum_j \phi_j(x)}
-与置换重要性相比，SHAP 同时给出\strong{方向}（该变量把 CATE 推高还是压低）
-与\strong{局部性}（这一个体身上贡献多少），这是 PDP 做不到的。
+Compared with permutation importance, SHAP additionally provides the
+\strong{direction} (whether the variable pushes CATE up or down) and the
+\strong{locality} (how much it contributes for this particular individual), which PDP
+cannot do.
 
-协变量数 p 不大时 Kernel SHAP 走精确枚举（\eqn{2^p} 个联盟），
-p 较大时由 kernelshap 自动切换到采样近似。
+When the number of covariates p is small, Kernel SHAP uses exact enumeration
+(\eqn{2^p} coalitions); when p is large, kernelshap automatically switches to
+sampling approximation.
 }
 \examples{
 \donttest{

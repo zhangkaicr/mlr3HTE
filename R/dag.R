@@ -1,18 +1,21 @@
 # =====================================================================
 # dag.R
-# 目的：为演示数据集画出配套的因果图（DAG），说明「为什么 RCT 无混杂、
-#       观察性数据存在 confounding by indication」。纯 ggplot2 实现，
-#       不引入 ggdag 等重依赖。
-# 输入：design（rct / obs）、outcome（continuous / binary / survival）
-# 输出：mlr3HTE_dag() 返回 ggplot；mlr3HTE_dag_data() 返回节点与边
-# 依赖：ggplot2
+# Purpose: draw a companion causal diagram (DAG) for the demo datasets, illustrating
+#          "why RCTs have no confounding, while observational data suffer from
+#          confounding by indication". Pure ggplot2 implementation, without pulling
+#          in heavy dependencies such as ggdag.
+# Input:  design (rct / obs), outcome (continuous / binary / survival)
+# Output: mlr3HTE_dag() returns a ggplot; mlr3HTE_dag_data() returns nodes and edges
+# Depends on: ggplot2
 #
-# 关于箭头的关键约定（v0.34 修正）：
-#   任意两个节点之间只允许**一条**有向边，且任何一条边都不允许从
-#   第三个节点身上穿过。早期版本里 A -> Y 是一条直线，恰好穿过 mu 节点，
-#   视觉上看起来就是「mu 与 Y 之间有两条箭头」，读者无法判断哪条是哪条。
-#   现在改为：边先去重，再由 .route_edges() 逐条检测是否穿过其他节点，
-#   穿过就自动给这条边加曲率（二分搜索最小可行曲率），从节点旁绕过去。
+# Key conventions about arrows (fixed in v0.34):
+#   Between any two nodes only **one** directed edge is allowed, and no edge is
+#   allowed to pass through a third node. In earlier versions A -> Y was a straight
+#   line that happened to pass through the mu node, visually looking like "two arrows
+#   between mu and Y", leaving readers unable to tell which is which.
+#   Now: edges are first de-duplicated, then .route_edges() checks each one for
+#   passing through another node, and if so automatically adds curvature to that edge
+#   (binary search for the minimal feasible curvature) to route it around the node.
 # =====================================================================
 
 # ggplot2 的 aes() 里引用的数据列名对 codetools 不可见，
@@ -145,21 +148,24 @@ utils::globalVariables(c("x", "y", "xend", "yend", "label", "role",
 }
 
 # 3 对外接口：绘图数据 ---------------------------------------------------------
-#' DAG 图的绘图数据（节点与边）
+#' Plotting data for the DAG (nodes and edges)
 #'
 #' @description
-#' \code{\link{mlr3HTE_dag}} 画图所用的节点表与边表。单独提供出来，便于
-#' 用其他工具（ggraph、DiagrammeR）重画，或检查每条边的路由结果。
+#' The node table and edge table used by \code{\link{mlr3HTE_dag}} for plotting.
+#' Provided separately to facilitate redrawing with other tools (ggraph, DiagrammeR)
+#' or inspecting the routing result of each edge.
 #'
-#' @param design 研究设计，\code{"rct"} 或 \code{"obs"}。
-#' @param outcome 结局类型，只影响标题文字，不改变因果结构。
-#' @return list：
+#' @param design The study design, \code{"rct"} or \code{"obs"}.
+#' @param outcome The outcome type, which only affects the title text and does not
+#'   change the causal structure.
+#' @return A list:
 #'   \itemize{
-#'     \item \code{nodes}：\code{id} / \code{x} / \code{y} / \code{label} / \code{role}
-#'     \item \code{edges}：\code{from} / \code{to} / \code{type}（\code{"conf"} 为
-#'       红绘的混杂路径）/ \code{x} \code{y} \code{xend} \code{yend}（原始端点）/
-#'       \code{xs} \code{ys} \code{xe} \code{ye}（回退后用于绘制的端点）/
-#'       \code{curve}（该边的曲率；0 表示直线）
+#'     \item \code{nodes}: \code{id} / \code{x} / \code{y} / \code{label} / \code{role}
+#'     \item \code{edges}: \code{from} / \code{to} / \code{type} (\code{"conf"} is the
+#'       confounding path drawn in red) / \code{x} \code{y} \code{xend} \code{yend}
+#'       (original endpoints) / \code{xs} \code{ys} \code{xe} \code{ye} (endpoints
+#'       after retreating, used for drawing) / \code{curve} (the edge's curvature; 0
+#'       means a straight line)
 #'   }
 #' @seealso \code{\link{mlr3HTE_dag}}
 #' @export
@@ -178,31 +184,39 @@ mlr3HTE_dag_data <- function(design = c("rct", "obs"),
   )
 }
 
-#' 因果图（DAG）：演示数据集的生成机制
+#' Causal diagram (DAG): the data-generating mechanism of the demo datasets
 #'
 #' @description
-#' 为 mlr3HTE 的演示数据集画出配套的因果有向无环图（DAG），展示
-#' **数据生成机制（DGP）** 与**真实值从何而来**：
+#' Draw a companion causal directed acyclic graph (DAG) for the mlr3HTE demo
+#' datasets, illustrating the **data-generating mechanism (DGP)** and **where the
+#' truth comes from**:
 #' \itemize{
-#'   \item \code{design = "rct"}：处理 \code{A} 随机化，与协变量 \code{X} 独立
-#'     （\code{A} 没有任何父节点），因此不存在混杂，未调整的差分即可无偏估计 ATE。
-#'   \item \code{design = "obs"}：处理概率 \code{e} 由协变量决定（病情越重越易接受
-#'     治疗，confounding by indication），\code{X} 同时是 \code{A} 与结局 \code{Y}
-#'     的共同原因，打开了一条后门路径 \code{A <- e <- X -> mu -> Y}，
-#'     必须调整 \code{X}：S/T/X 把 \code{X} 放进结局模型条件化，R 走 Robinson
-#'     残差化，DR 走 AIPW 双重稳健。
+#'   \item \code{design = "rct"}: treatment \code{A} is randomized and independent of
+#'     covariates \code{X} (\code{A} has no parent), so there is no confounding and the
+#'     unadjusted difference is an unbiased estimate of the ATE.
+#'   \item \code{design = "obs"}: the treatment probability \code{e} is determined by
+#'     covariates (the sicker you are, the more likely you receive treatment,
+#'     confounding by indication), and \code{X} is a common cause of both \code{A} and
+#'     the outcome \code{Y}, opening a back-door path \code{A <- e <- X -> mu -> Y};
+#'     \code{X} must be adjusted: S/T/X condition on \code{X} in the outcome model, R
+#'     uses Robinson residualization, DR uses AIPW doubly robust estimation.
 #' }
-#' 两种设计里，\code{X} 都同时驱动真实 CATE（\code{tau}，效应修饰）与基线结局
-#' （\code{mu}，预后），这正是异质处理效应（HTE）存在的来源。
+#' In both designs, \code{X} simultaneously drives the true CATE (\code{tau}, effect
+#' modification) and the baseline outcome (\code{mu}, prognosis), which is exactly the
+#' source of heterogeneous treatment effects (HTE).
 #'
-#' 图中任意两个节点之间只有一条有向边；若某条边会从第三个节点身上穿过，
-#' 自动加曲率绕行（见 \code{\link{mlr3HTE_dag_data}} 的 \code{curve} 列）。
+#' In the diagram there is only one directed edge between any two nodes; if an edge
+#' would pass through a third node, curvature is added automatically to route around
+#' it (see the \code{curve} column of \code{\link{mlr3HTE_dag_data}}).
 #'
-#' @param design 研究设计，\code{"rct"}（随机化）或 \code{"obs"}（观察性 / 有混杂）。
-#' @param outcome 结局类型，\code{"continuous"}（连续）、\code{"binary"}（二分类）或
-#'   \code{"survival"}（生存）。仅影响图标题与节点文字，不改变因果结构。
+#' @param design The study design, \code{"rct"} (randomized) or \code{"obs"}
+#'   (observational / with confounding).
+#' @param outcome The outcome type, \code{"continuous"} (continuous), \code{"binary"}
+#'   (binary) or \code{"survival"} (survival). It only affects the plot title and node
+#'   text, not the causal structure.
 #'
-#' @return 一个 \code{ggplot} 对象，可用 \code{+} 继续定制或 \code{ggsave()} 导出。
+#' @return A \code{ggplot} object, which can be further customized with \code{+} or
+#'   exported with \code{ggsave()}.
 #' @seealso \code{\link{mlr3HTE_dag_data}}
 #' @export
 #'

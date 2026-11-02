@@ -2,7 +2,7 @@
 % Please edit documentation in R/dag.R
 \name{mlr3HTE_dag}
 \alias{mlr3HTE_dag}
-\title{因果图（DAG）：演示数据集的生成机制}
+\title{Causal diagram (DAG): the data-generating mechanism of the demo datasets}
 \usage{
 mlr3HTE_dag(
   design = c("rct", "obs"),
@@ -10,31 +10,39 @@ mlr3HTE_dag(
 )
 }
 \arguments{
-\item{design}{研究设计，\code{"rct"}（随机化）或 \code{"obs"}（观察性 / 有混杂）。}
+\item{design}{The study design, \code{"rct"} (randomized) or \code{"obs"}
+(observational / with confounding).}
 
-\item{outcome}{结局类型，\code{"continuous"}（连续）、\code{"binary"}（二分类）或
-\code{"survival"}（生存）。仅影响图标题与节点文字，不改变因果结构。}
+\item{outcome}{The outcome type, \code{"continuous"} (continuous), \code{"binary"}
+(binary) or \code{"survival"} (survival). It only affects the plot title and node
+text, not the causal structure.}
 }
 \value{
-一个 \code{ggplot} 对象，可用 \code{+} 继续定制或 \code{ggsave()} 导出。
+A \code{ggplot} object, which can be further customized with \code{+} or
+exported with \code{ggsave()}.
 }
 \description{
-为 mlr3HTE 的演示数据集画出配套的因果有向无环图（DAG），展示
-\strong{数据生成机制（DGP）} 与\strong{真实值从何而来}：
+Draw a companion causal directed acyclic graph (DAG) for the mlr3HTE demo
+datasets, illustrating the \strong{data-generating mechanism (DGP)} and \strong{where the
+truth comes from}:
 \itemize{
-\item \code{design = "rct"}：处理 \code{A} 随机化，与协变量 \code{X} 独立
-（\code{A} 没有任何父节点），因此不存在混杂，未调整的差分即可无偏估计 ATE。
-\item \code{design = "obs"}：处理概率 \code{e} 由协变量决定（病情越重越易接受
-治疗，confounding by indication），\code{X} 同时是 \code{A} 与结局 \code{Y}
-的共同原因，打开了一条后门路径 \code{A <- e <- X -> mu -> Y}，
-必须调整 \code{X}：S/T/X 把 \code{X} 放进结局模型条件化，R 走 Robinson
-残差化，DR 走 AIPW 双重稳健。
+\item \code{design = "rct"}: treatment \code{A} is randomized and independent of
+covariates \code{X} (\code{A} has no parent), so there is no confounding and the
+unadjusted difference is an unbiased estimate of the ATE.
+\item \code{design = "obs"}: the treatment probability \code{e} is determined by
+covariates (the sicker you are, the more likely you receive treatment,
+confounding by indication), and \code{X} is a common cause of both \code{A} and
+the outcome \code{Y}, opening a back-door path \code{A <- e <- X -> mu -> Y};
+\code{X} must be adjusted: S/T/X condition on \code{X} in the outcome model, R
+uses Robinson residualization, DR uses AIPW doubly robust estimation.
 }
-两种设计里，\code{X} 都同时驱动真实 CATE（\code{tau}，效应修饰）与基线结局
-（\code{mu}，预后），这正是异质处理效应（HTE）存在的来源。
+In both designs, \code{X} simultaneously drives the true CATE (\code{tau}, effect
+modification) and the baseline outcome (\code{mu}, prognosis), which is exactly the
+source of heterogeneous treatment effects (HTE).
 
-图中任意两个节点之间只有一条有向边；若某条边会从第三个节点身上穿过，
-自动加曲率绕行（见 \code{\link{mlr3HTE_dag_data}} 的 \code{curve} 列）。
+In the diagram there is only one directed edge between any two nodes; if an edge
+would pass through a third node, curvature is added automatically to route around
+it (see the \code{curve} column of \code{\link{mlr3HTE_dag_data}}).
 }
 \examples{
 if (requireNamespace("ggplot2", quietly = TRUE)) {

@@ -2,7 +2,7 @@
 % Please edit documentation in R/metrics.R
 \name{dr_pseudo_outcome}
 \alias{dr_pseudo_outcome}
-\title{双重稳健伪结局：观察性数据做 HTE 评价的入口}
+\title{Doubly robust pseudo-outcome: the entry point for HTE evaluation on observational data}
 \usage{
 dr_pseudo_outcome(
   X,
@@ -18,57 +18,69 @@ dr_pseudo_outcome(
 )
 }
 \arguments{
-\item{X}{协变量 data.frame。生存结局下还用于建模删失分布（IPCW 权重）。}
+\item{X}{A data.frame of covariates. For survival outcomes it is also used to
+model the censoring distribution (IPCW weights).}
 
-\item{A}{处理指示（0/1 或逻辑）。}
+\item{A}{Treatment indicator (0/1 or logical).}
 
-\item{Y}{结局：连续数值、0/1 二分类，或生存对象
-（\code{survival::Surv(time, status)}）。}
+\item{Y}{Outcome: continuous numeric, 0/1 binary, or a survival object
+(\code{survival::Surv(time, status)}).}
 
-\item{cross_fitting}{是否对干扰参数做交叉拟合，默认 \code{TRUE}。}
+\item{cross_fitting}{Whether to cross-fit the nuisance parameters, default
+\code{TRUE}.}
 
-\item{n_folds}{交叉拟合折数，默认 5。}
+\item{n_folds}{The number of cross-fitting folds, default 5.}
 
-\item{learner_ps}{倾向得分学习器（classif），默认 \code{classif.log_reg}。}
+\item{learner_ps}{The propensity-score learner (classif), default
+\code{classif.log_reg}.}
 
-\item{learner_base}{结局模型基学习器。连续/二分类下是 mlr3 Learner，默认
-\code{regr.ranger}（连续）或 \code{classif.log_reg}（二分类）；生存结局下
-用字符串 \code{"coxph"}（默认）或 \code{"ranger"}，与 \code{metalearner()}
-的生存分支取同样的值。}
+\item{learner_base}{The base learner for the outcome model. For continuous /
+binary outcomes this is an mlr3 Learner, defaulting to \code{regr.ranger}
+(continuous) or \code{classif.log_reg} (binary); for survival outcomes a
+character string \code{"coxph"} (default) or \code{"ranger"} is used, taking
+the same value as the survival branch of \code{metalearner()}.}
 
-\item{seed}{折分配的随机种子；\code{NULL} 则不设（复现请显式给）。}
+\item{seed}{The random seed for fold assignment; \code{NULL} means none is set
+(provide explicitly for reproducibility).}
 
-\item{t0}{生存结局的关键时点；\code{NULL}（默认）取事件时间中位数。}
+\item{t0}{The key time point for survival outcomes; \code{NULL} (default) uses
+the median event time.}
 
-\item{effect}{生存结局的效应标尺，\code{"survdiff"}（默认）或 \code{"rmst"}。}
+\item{effect}{The effect scale for survival outcomes, \code{"survdiff"} (default)
+or \code{"rmst"}.}
 }
 \value{
-list：\code{pseudo}（DR 伪结局向量）、\code{mu1}、\code{mu0}、
-\code{propensity}、\code{ate}（\code{mean(pseudo)}）、\code{t0}、
-\code{effect}（生存结局时给出，便于与 CATE 标尺对齐）。
+A list with \code{pseudo} (the DR pseudo-outcome vector), \code{mu1},
+\code{mu0}, \code{propensity}, \code{ate} (\code{mean(pseudo)}), \code{t0},
+\code{effect} (provided for survival outcomes, to align with the CATE scale).
 }
 \description{
-计算 \eqn{Y^*}（AIPW / 双重稳健伪结局）：
+Compute \eqn{Y^*} (the AIPW / doubly robust pseudo-outcome):
 \deqn{Y^*_i = (\hat\mu_1(X_i) - \hat\mu_0(X_i)) +
   \frac{A_i(Y_i - \hat\mu_1(X_i))}{e_i} -
   \frac{(1-A_i)(Y_i - \hat\mu_0(X_i))}{1-e_i}}
-满足 \eqn{E[Y^*_i \mid X_i] = \tau(X_i)}，且\strong{结局模型与倾向得分模型
-只要有一个正确即无偏}。\eqn{Y^*} 的均值就是 ATE 的 DR 估计。
+It satisfies \eqn{E[Y^*_i \mid X_i] = \tau(X_i)}, and is \strong{unbiased as long
+as either the outcome model or the propensity-score model is correct}. The mean
+of \eqn{Y^*} is the DR estimate of the ATE.
 }
 \details{
-它同时把三个"干扰参数"（倾向得分 \eqn{e}、\eqn{\hat\mu_1}、\eqn{\hat\mu_0}）
-一并返回，正好是 \code{\link{c_for_benefit}} 在观察性数据下需要的输入；
-其中的 \code{propensity} 也可以直接喂给 \code{\link{qini_curve}} /
-\code{\link{qini_coefficient}} / \code{\link{toc_curve}}。
+It also returns the three "nuisance parameters" (propensity score \eqn{e},
+\eqn{\hat\mu_1}, \eqn{\hat\mu_0}) together, which is exactly the input that
+\code{\link{c_for_benefit}} needs under observational data; the \code{propensity}
+element can also be fed directly to \code{\link{qini_curve}} /
+\code{\link{qini_coefficient}} / \code{\link{toc_curve}}.
 }
-\section{为什么要交叉拟合}{
+\section{Why cross-fitting is necessary}{
 
-默认 \code{cross_fitting = TRUE}：倾向得分与结局模型都在 K 折的\strong{训练折}
-上拟合、在留出折上预测。若用全样本拟合再回代自己（in-fold），\eqn{Y^*} 里的
-\eqn{\hat\mu_1-\hat\mu_0} 与被评价的 CATE 出自同一个模型，配对时又按该 CATE
-找最近邻，会把"观测获益"人为对齐到"预测获益"，导致 c-for-benefit 虚高——
-本包演示数据上实测 in-fold 会出现"模型 CATE 0.754 > 真 tau 0.717"的倒挂，
-交叉拟合后恢复为"模型 0.659 ≤ 真 tau 0.669"。
+By default \code{cross_fitting = TRUE}: the propensity score and outcome models
+are both fit on the \strong{training folds} of K folds and predicted on the held-out
+folds. If the full sample is fit and then fed back to itself (in-fold), the
+\eqn{\hat\mu_1-\hat\mu_0} in \eqn{Y^*} and the evaluated CATE come from the same
+model, and when matching by nearest neighbor on that CATE, the "observed benefit"
+is artificially aligned with the "predicted benefit", inflating c-for-benefit —
+on this package's demo data, in-fold actually produces the inversion "model CATE
+0.754 > true tau 0.717", which recovers to "model 0.659 <= true tau 0.669" after
+cross-fitting.
 }
 
 \examples{

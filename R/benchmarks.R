@@ -22,25 +22,32 @@
   if (file.exists(f)) f else NULL
 }
 
-#' 读取因果推断基准数据集
+#' Load causal-inference benchmark datasets
 #'
-#' 加载随包分发的基准数据集（来自 \pkg{grf}、\pkg{econml}、\pkg{causalml} 自带的测试/合成数据），
-#' 每个数据集都带有真实个体处理效应列 \code{cate_true}，可用于评估各类 HTE 估计量。
-#' 数据同时以 \code{.RData} 与 \code{.csv} 两种格式随包分发（安装后即位于本地 library），
-#' 本函数优先读取 \code{.RData}（保留列类型、加载更快），缺失时回退 \code{.csv}。
+#' Load the benchmark datasets shipped with the package (test/synthetic data from
+#' \pkg{grf}, \pkg{econml}, and \pkg{causalml}). Every dataset carries a true
+#' individual treatment-effect column \code{cate_true}, which is useful for
+#' evaluating any HTE estimator. The data are distributed in both \code{.RData}
+#' and \code{.csv} formats (installed into the local library at install time);
+#' this function prefers \code{.RData} (preserves column types, faster to load)
+#' and falls back to \code{.csv} when needed.
 #'
-#' @param name 数据集名称，详见 \code{\link{mlr3HTE_benchmark_meta}} 的 \code{dataset} 列。
-#'   默认 \code{NULL} 返回全部；传入单个或多个名称则返回对应数据。
-#' @param path 基准数据目录，默认通过 \code{system.file} 定位包内 \code{inst/extdata/benchmarks}。
-#' @return 单个 \code{data.frame}（仅取一个数据集时）或命名 \code{list}（取多个或全部）。
+#' @param name Dataset name(s); see the \code{dataset} column of
+#'   \code{\link{mlr3HTE_benchmark_meta}}. \code{NULL} (default) returns all
+#'   datasets; a single name or a vector of names returns the corresponding
+#'   data.
+#' @param path Benchmark data directory. Defaults to the package's
+#'   \code{inst/extdata/benchmarks} located via \code{system.file}.
+#' @return A single \code{data.frame} when one dataset is requested, or a named
+#'   \code{list} of \code{data.frame}s when several or all are requested.
 #' @export
 #' @examples
 #' \dontrun{
-#' # 列出所有可用基准数据集
+#' # list all available benchmark datasets
 #' mlr3HTE_benchmark_meta()
-#' # 取单个数据集
+#' # load a single dataset
 #' d <- mlr3HTE_benchmark_data("grf_causal")
-#' # 取全部（命名 list）
+#' # load all datasets as a named list
 #' all <- mlr3HTE_benchmark_data()
 #' }
 mlr3HTE_benchmark_data <- function(name = NULL, path = NULL) {
@@ -74,14 +81,17 @@ mlr3HTE_benchmark_data <- function(name = NULL, path = NULL) {
   if (length(out) == 1L) out[[1L]] else out
 }
 
-#' 读取基准数据集元信息（数据字典）
+#' Load benchmark dataset metadata (data dictionary)
 #'
-#' 返回一张描述每张基准数据集的表：来源包、生成函数、样本量、特征数、结局/处理类型、
-#' 是否含真实处理效应、真实 ATE 与字段说明。优先读取 \code{benchmarks_meta.RData}，
-#' 缺失时回退 \code{benchmarks_meta.csv}。
+#' Returns a table describing each benchmark dataset: source package, generator
+#' function, sample size, number of features, outcome/treatment type, whether a
+#' true treatment effect is included, the true ATE, and field descriptions.
+#' Prefers \code{benchmarks_meta.RData} and falls back to
+#' \code{benchmarks_meta.csv}.
 #'
-#' @param path 基准数据目录，默认通过 \code{system.file} 定位包内 \code{inst/extdata/benchmarks}。
-#' @return 一个 \code{tibble}，每行对应一个数据集。
+#' @param path Benchmark data directory. Defaults to the package's
+#'   \code{inst/extdata/benchmarks} located via \code{system.file}.
+#' @return A \code{tibble} with one row per dataset.
 #' @export
 #' @examples
 #' \dontrun{
@@ -96,14 +106,16 @@ mlr3HTE_benchmark_meta <- function(path = NULL) {
   readr::read_csv(file.path(path, "benchmarks_meta.csv"), show_col_types = FALSE)
 }
 
-#' 导出基准数据集到指定目录
+#' Export benchmark datasets to a directory
 #'
-#' 将包内所有基准数据集（RData + CSV）与元信息文件复制到用户指定目录，
-#' 便于在包外直接使用或上传到其它仓库。
+#' Copy all benchmark datasets (RData + CSV) and the metadata file from the
+#' installed package to a user-specified directory, for use outside the package
+#' or upload to another repository.
 #'
-#' @param dest 目标目录；不存在则自动创建。
-#' @param path 基准数据目录，默认通过 \code{system.file} 定位包内 \code{inst/extdata/benchmarks}。
-#' @return 被复制的文件路径组成的字符向量（不可见返回）。
+#' @param dest Destination directory; created recursively if it does not exist.
+#' @param path Benchmark data directory. Defaults to the package's
+#'   \code{inst/extdata/benchmarks} located via \code{system.file}.
+#' @return (Invisibly) the file paths that were copied.
 #' @export
 #' @examples
 #' \dontrun{

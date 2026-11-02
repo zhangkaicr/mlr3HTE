@@ -1,50 +1,66 @@
 # =====================================================================
-# engine.R —— 内部算法引擎（单一事实来源）
+# engine.R -- internal algorithm engine (single source of truth)
 #
-# 核心抽象：五种 metalearner 的公式与结局类型无关，它们只跟「结局模型」打交道。
-# 结局模型是一个 list，自带 predict(newX)，返回：
-#     连续结局   -> E[Y | X]
-#     二分类结局 -> P(Y = 1 | X)
-#     生存结局   -> S(t0 | X)（t0 时点的生存概率）
-# 于是同一个公式骨架同时服务三类结局：
-#     S-Learner  = 把 A 当普通特征的结局模型，两个反事实预测相减
-#     T-Learner  = 两个分组各自的结局模型，预测相减
-#     X-Learner  = 插补个体治疗效应，再按倾向得分 g(X) 加权融合
-#     R-Learner  = Robinson 残差化：结局与处理都对 X 取残差后回归
-#     DR-Learner = 双重稳健伪结果（Kennedy 2020）后回归
+# Core abstraction: the five metalearner formulas are outcome-type agnostic;
+# they only interact with an "outcome model".
+# An outcome model is a list with a predict(newX) method that returns:
+#     continuous outcome  -> E[Y | X]
+#     binary outcome      -> P(Y = 1 | X)
+#     survival outcome    -> S(t0 | X) (survival probability at time t0)
+# The same formula skeleton thus serves all three outcome types:
+#     S-Learner  = outcome model treating A as an ordinary feature; difference
+#                  of the two counterfactual predictions
+#     T-Learner  = one outcome model per treatment group; difference of predictions
+#     X-Learner  = impute individual treatment effects, then blend by propensity
+#                  score g(X)
+#     R-Learner  = Robinson residualization: residualize both outcome and
+#                  treatment on X, then regress
+#     DR-Learner = regression on doubly-robust pseudo-outcome (Kennedy 2020)
 #
-# 关于「加权」的设计边界（v0.40 起，v0.43 进一步收紧）：
-#   经典 metalearner 文献（Künzel et al. 2019 PNAS 的 X-learner，以及
-#   CausalML 的 BaseS / BaseT / BaseX / BaseR / BaseDR）的 τ 回归一律**不加权**
-#   （causalml 即 model_tau.fit(X, pseudo) 无 sample_weight）。
-#   去混杂在 S/T/X 里靠的是**把混杂因子放进 X、由结局模型条件化**；
-#   R-Learner 靠 Robinson 残差化，DR-Learner 靠 AIPW 伪结果——后两者
-#   通过 learner_ps 使用倾向得分，但那是算法定义的一部分，不是可开关的加权。
-#   因此本包不再提供 weighting / weights / stabilize 三个参数：
-#   一个只会重估结局模型的「单稳健」加权既不是文献做法，也无法单独去混杂
-#   （漏掉混杂因子时偏倚同朴素估计），留着只会误导使用者。
+# Design boundaries regarding "weighting" (from v0.40, further tightened in v0.43):
+#   Classical metalearner literature (the X-learner of Künzel et al. 2019, PNAS,
+#   and CausalML's BaseS / BaseT / BaseX / BaseR / BaseDR) never weights the
+#   tau regression (causalml uses model_tau.fit(X, pseudo) with no sample_weight).
+#   Confounding control in S/T/X is achieved by including confounders in X and
+#   conditioning on them via the outcome model; R-Learner relies on Robinson
+#   residualization, DR-Learner on the AIPW pseudo-outcome -- the latter two use
+#   the propensity score through learner_ps, but that is part of the algorithm
+#   definition, not a toggleable weighting.
+#   The package therefore no longer exposes the weighting / weights / stabilize
+#   parameters: a "single-robust" weighting that merely re-estimates the outcome
+#   model is neither the literature approach nor able to deconfound on its own
+#   (bias matches the naive estimate when confounders are omitted), so keeping it
+#   would only mislead users.
 #
-#   权重形式上的两处历史实现，均在 v0.43 移除：
-#     (a) R-Learner 曾把 (A-e)² 当作回归样本权重、经重要性重采样近似——
-#         它只是 R-loss 的代数等价重写（展开后平方相消），并非真实加权，
-#         移除后 R-Learner 改为直接无权重回归 (Y-m)/(A-e)；
-#     (b) DR-Learner 的 τ 回归曾把生存删失 IPCW 当作样本权重（同样经重采样）。
-#   剩余与「权重」相关、且算法上必需的只有：
-#     - 生存删失 IPCW 已**烤进伪结局内部**（survdiff 取 I(T>t0)/G，rmst 取 ξ），
-#       故 τ 回归全程无权重；S/T/X 的生存结局模型仍走 coxph/ranger 原生权重。
-#   实现层不再有任何「重要性重采样」，R/DR 复现无需为权重再 set.seed()
-#   （交叉拟合的折划分仍需 set.seed）。
+#   Two historical weighting implementations were removed in v0.43:
+#     (a) R-Learner once used (A-e)^2 as regression sample weights via importance
+#         resampling -- this was merely an algebraic rewrite of the R-loss
+#         (squares cancel on expansion) and not real weighting; after removal
+#         R-Learner regresses (Y-m)/(A-e) directly without weights;
+#     (b) DR-Learner's tau regression once used survival censoring IPCW as sample
+#         weights (again via resampling).
+#   The only weight-related elements that remain algorithmically necessary are:
+#     - survival censoring IPCW is baked into the pseudo-outcome (survdiff uses
+#       I(T>t0)/G, rmst uses xi), so the tau regression is fully unweighted;
+#       S/T/X survival outcome models still use coxph/ranger native weights.
+#   No "importance resampling" remains at the implementation level; reproducing
+#   R/DR no longer requires set.seed() for weights (cross-fitting fold splits
+#   still need set.seed).
 #
-# 约定：内部函数名一律以 . 开头；基学习器用 mlr3 Learner（生存分支可为
-# 原生名字符串，见 survival_base.R）；每次拟合前 clone(deep = TRUE)，
-# 避免同一个 learner 对象多次 $train 互相覆盖。
+# Conventions: internal function names always start with .; base learners use
+# mlr3 Learners (the survival branch may use native name strings, see
+# survival_base.R); clone(deep = TRUE) before each fit to avoid the same learner
+# object being overwritten across multiple $train calls.
 #
-# 生存结局有两套引擎（engine 参数，默认 "native"）：
-#   "native"      原生 coxph/ranger 实现（survival_base.R），五族齐全、
-#                 支持 RMST、支持任意 mlr3 基学习器，零额外依赖；
-#   "survlearners" 委托 survlearners 包（surv_survlearners.R，GitHub-only，
-#                 装没装都会给明确提示），只有 S/T/X/R 与 S(t0) 差尺度，
-#                 但它自带 IPCW 与 R 族的交叉拟合，适合做方法学对照。
+# Survival outcomes have two engines (engine argument, default "native"):
+#   "native"       native coxph/ranger implementation (survival_base.R), all five
+#                  families, supports RMST, accepts any mlr3 base learner, zero
+#                  extra dependencies;
+#   "survlearners" delegates to the survlearners package (surv_survlearners.R,
+#                  GitHub-only, with a clear message whether or not it is
+#                  installed), only S/T/X/R with the S(t0) difference scale, but
+#                  it ships IPCW and R-family cross-fitting, useful as a
+#                  methodological cross-check.
 # =====================================================================
 
 # 1 识别基学习器种类 -----------------------------------------------------------

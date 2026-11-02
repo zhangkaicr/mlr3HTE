@@ -2,7 +2,7 @@
 % Please edit documentation in R/explain.R
 \name{hte_surrogate}
 \alias{hte_surrogate}
-\title{用 mlr3 学习器为 CATE 曲面拟合代理模型}
+\title{Fit a surrogate model for the CATE surface using an mlr3 learner}
 \usage{
 hte_surrogate(
   X,
@@ -11,24 +11,25 @@ hte_surrogate(
 )
 }
 \arguments{
-\item{X}{协变量 data.frame。}
+\item{X}{A data.frame of covariates.}
 
-\item{tau_hat}{逐人 CATE 估计（通常来自 \code{fit$predict(X)}）。}
+\item{tau_hat}{Per-individual CATE estimates (usually from \code{fit$predict(X)}).}
 
-\item{learner}{用于重拟合的 mlr3 回归学习器，默认
-\code{regr.ranger}（\code{num.trees = 500}，\code{min.node.size = 20}）。}
+\item{learner}{The mlr3 regression learner used for refitting, defaulting to
+\code{regr.ranger} (\code{num.trees = 500}, \code{min.node.size = 20}).}
 }
 \value{
-带 \code{$predict(newX)} 与 \code{$model} 的 list，可直接传给
-\code{\link{hte_explainer}}。
+A list with \code{$predict(newX)} and \code{$model}, which can be passed
+directly to \code{\link{hte_explainer}}.
 }
 \description{
-metalearner 的 CATE 预测可能是多阶段、带权重、带交叉拟合的复合过程，
-直接解释未必对应单一可读的函数。做法是先得到逐人 CATE 估计
-\eqn{\hat\tau(X_i)}，再用一个\strong{单一}的 mlr3 学习器把它重拟合一遍，
-得到一个结构简单、可解释的代理模型（surrogate），用于 PDP、SHAP 与
-后续规则提取。这是 Explanatory Model Analysis 中
-\emph{model distillation} 的做法。
+The CATE prediction from a metalearner may be a multi-stage, weighted,
+cross-fitted composite process, and explaining it directly may not correspond
+to a single readable function. The approach is to first obtain per-individual
+CATE estimates \eqn{\hat\tau(X_i)} and then refit them with a \strong{single} mlr3
+learner, yielding a structurally simple, interpretable surrogate model for use
+in PDP, SHAP and subsequent rule extraction. This is the \emph{model
+distillation} approach in Explanatory Model Analysis.
 }
 \examples{
 \donttest{

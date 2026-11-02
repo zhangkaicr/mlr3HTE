@@ -2,16 +2,17 @@
 % Please edit documentation in R/scenarios.R
 \name{mlr3HTE_bench_index}
 \alias{mlr3HTE_bench_index}
-\title{已打包基准数据的索引}
+\title{Index of the packaged benchmark data}
 \usage{
 mlr3HTE_bench_index()
 }
 \value{
-data.frame：\code{key} / \code{id} / \code{outcome} / \code{ate} /
-\code{n}。
+A data.frame with \code{key} / \code{id} / \code{outcome} / \code{ate} /
+\code{n}.
 }
 \description{
-列出 \code{data/mlr3hte_bench_data.rda} 中实际存在的键，方便批量循环。
+List the keys that actually exist in
+\code{data/mlr3hte_bench_data.rda}, convenient for batch looping.
 }
 \seealso{
 \code{\link{mlr3HTE_bench}}

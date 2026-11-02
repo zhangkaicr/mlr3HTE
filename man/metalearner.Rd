@@ -2,7 +2,7 @@
 % Please edit documentation in R/api.R
 \name{metalearner}
 \alias{metalearner}
-\title{拟合一个 metalearner，返回可预测的对象}
+\title{Fit a metalearner and return an object that supports prediction}
 \usage{
 metalearner(
   type,
@@ -21,107 +21,108 @@ metalearner(
 )
 }
 \arguments{
-\item{type}{metalearner 类型：S / T / X / R / DR}
+\item{type}{metalearner type: S / T / X / R / DR}
 
-\item{X}{协变量 data.frame（不含处理与结局）}
+\item{X}{covariate data.frame (excluding treatment and outcome)}
 
-\item{A}{处理指示（0/1，或逻辑）}
+\item{A}{treatment indicator (0/1, or logical)}
 
-\item{Y}{结局：连续（数值）/ 二分类（0-1 或两水平因子）/ 生存（Surv 对象）}
+\item{Y}{outcome: continuous (numeric) / binary (0-1 or two-level factor) / survival (Surv object)}
 
-\item{learner_base}{结局模型基学习器，类型须与结局匹配：连续用 regr.\emph{，
-二分类用 classif.}，生存用 "coxph"/"ranger"（原生实现，不依赖 mlr3proba）；
-默认 regr.ranger。可传单个 learner（所有分组 / 阶段共用，向后兼容），
-也可传命名 list 为每组 / 每阶段单独指定：T-Learner 用
-\code{list(treated = ..., control = ...)}；X-Learner 用
-\code{list(m1 = ..., m0 = ...)}。S / R / DR 与 survlearners 引擎只接受单个 learner。}
+\item{learner_base}{Outcome-model base learner; its type must match the outcome: use regr.* for continuous,
+classif.* for binary, and "coxph"/"ranger" for survival (native implementation, no mlr3proba dependency);
+default is regr.ranger. You may pass a single learner (shared across all groups / stages, for backward compatibility)
+or a named list to specify a different learner per group / stage: T-Learner uses
+\code{list(treated = ..., control = ...)}; X-Learner uses
+\code{list(m1 = ..., m0 = ...)}. The S / R / DR learners and the survlearners engine accept only a single learner.}
 
-\item{learner_tau}{效应阶段回归学习器；默认沿用回归型 learner_base，否则
-regr.ranger（min.node.size = 50）。X-Learner 的两个效应回归可分别指定：
-\code{list(tau1 = ..., tau0 = ...)}；其余 learner 传单个 learner 即可。}
+\item{learner_tau}{Effect-stage regression learner; by default the regression-type learner_base is reused, otherwise
+regr.ranger (min.node.size = 50). For the X-Learner the two effect regressions can be specified separately via
+\code{list(tau1 = ..., tau0 = ...)}; for all other learners pass a single learner.}
 
-\item{learner_ps}{倾向得分。仅 X / R / DR 使用，S / T 忽略（它们是纯结局回归，
-去混杂靠把混杂因子放进 \code{X} 条件化）。三种形态：
+\item{learner_ps}{Propensity score. Used only by X / R / DR; ignored by S / T (they are pure outcome regressions,
+achieving confounding control by conditioning on \code{X} which includes the confounders). Three forms:
 \describe{
-\item{mlr3 分类学习器}{内部拟合，观察性数据的默认做法；不指定时用
-\code{classif.log_reg}}
-\item{标量}{常数倾向得分，用于 RCT 已知随机化概率（如 \code{0.5}），
-也免掉拟计入的噪声}
-\item{函数}{用户自建的 \code{function(newX)}，例如用别的包估好后封起来}
+\item{mlr3 classification learner}{fitted internally; the default approach for observational data; when not
+supplied, \code{classif.log_reg} is used}
+\item{scalar}{a constant propensity score, for RCTs with a known randomization probability (e.g. \code{0.5}),
+also avoiding the noise of fitting one}
+\item{function}{a user-supplied \code{function(newX)}, e.g. wrapping an estimate produced by another package}
 }
-注意 X-learner 的 \code{g(x)} 融合、R 的 Robinson 中心化、DR 的 AIPW 伪结果
-都把 \code{e(x)} 当作算法定义的必需输入——它们\strong{不是}可开关的去混杂加权。}
+Note that the X-learner's \code{g(x)} blending, R's Robinson centering, and DR's AIPW pseudo-outcome
+all treat \code{e(x)} as a required input defined by the algorithm -- they are \strong{not} toggleable confounding weights.}
 
-\item{t0}{生存结局的效应评估时点，默认取事件时间中位数}
+\item{t0}{Effect evaluation time point for survival outcomes; defaults to the median event time}
 
-\item{outcome}{结局类型 "auto"/"continuous"/"binary"/"survival"}
+\item{outcome}{Outcome type: "auto"/"continuous"/"binary"/"survival"}
 
-\item{effect}{生存结局的效应度量："survdiff"（t0 时点生存概率差，默认）
-或 "rmst"（t0 时点限制平均生存时间差 RMST）}
+\item{effect}{Effect measure for survival outcomes: "survdiff" (survival-probability difference at t0, default)
+or "rmst" (restricted mean survival time difference at t0, RMST)}
 
-\item{cross_fitting}{R/DR 是否做交叉拟合（干扰参数在 K 折训练折上拟合，
-伪结果在留出折上计算），默认 FALSE}
+\item{cross_fitting}{Whether R/DR perform cross-fitting (nuisance parameters are fitted on K training folds
+and pseudo-outcomes are computed on held-out folds); default FALSE}
 
-\item{n_folds}{交叉拟合的折数，默认 5}
+\item{n_folds}{Number of cross-fitting folds; default 5}
 
-\item{engine}{生存结局的估计引擎：\code{"native"}（默认，原生 coxph/ranger
-实现，五族齐全、支持 RMST 与任意 mlr3 基学习器）或 \code{"survlearners"}
-（委托 GitHub 包 survlearners，只有 S/T/X/R 与 S(t0) 差尺度，DR 与 RMST
-会明确报错；未安装该包时也会给出安装提示）}
+\item{engine}{Estimation engine for survival outcomes: \code{"native"} (default, native coxph/ranger
+implementation, all five families supported, with RMST and arbitrary mlr3 base learners) or \code{"survlearners"}
+(delegates to the GitHub package survlearners, supporting only the S/T/X/R families and the S(t0) difference scale;
+DR and RMST will raise an explicit error; an installation hint is also provided if the package is missing)}
 }
 \value{
-含 \code{$predict(newX)}、\code{$ate}、\code{$cate_train} 与 \code{$models}
-（每阶段训练好的 mlr3 模型，见 \code{@details}）的拟合对象
+A fitted object containing \code{$predict(newX)}, \code{$ate}, \code{$cate_train}, and \code{$models}
+(the fitted mlr3 models for each stage; see \code{@details})
 }
 \description{
-拟合一个 metalearner，返回可预测的对象
+Fit a metalearner and return an object that supports prediction
 }
 \details{
-每个 metalearner 在内部都会\strong{为每一个阶段、每一种机器学习算法各拟合一个 mlr3 模型}，
-由 \code{mlr3} 负责训练、预测与（如启用）交叉拟合；这些模型全部留在返回对象的
-\code{$models} 字段里，便于核查训练结果与复用。各类型的 \code{$models} 命名如下：
+Internally, every metalearner \strong{fits one mlr3 model per stage and per machine-learning algorithm},
+with \code{mlr3} handling training, prediction, and (if enabled) cross-fitting; all of these models are kept in the
+\code{$models} field of the returned object for inspection and reuse. The \code{$models} naming for each type is:
 \describe{
-\item{S}{单个结局模型 \code{m}（处理当普通特征，反事实相减）}
-\item{T}{\code{m1}（处理组结局模型）、\code{m0}（对照组结局模型）}
-\item{X}{\code{m1}、\code{m0}（两阶段插补的结局模型）与 \code{tau1}、\code{tau0}（效应回归）}
-\item{R}{\code{mu}（\eqn{E[Y|X]} 模型）、\code{tau}（Robinson 残差回归）}
-\item{DR}{\code{m1}、\code{m0}（两组结局模型）与 \code{tau}（双重稳健伪结果回归）}
+\item{S}{a single outcome model \code{m} (treatment as an ordinary feature, counterfactual subtraction)}
+\item{T}{\code{m1} (treated-group outcome model), \code{m0} (control-group outcome model)}
+\item{X}{\code{m1}, \code{m0} (two-stage imputed outcome models) and \code{tau1}, \code{tau0} (effect regressions)}
+\item{R}{\code{mu} (\eqn{E[Y|X]} model), \code{tau} (Robinson residual regression)}
+\item{DR}{\code{m1}, \code{m0} (two-group outcome models) and \code{tau} (doubly-robust pseudo-outcome regression)}
 }
-\code{learner_base} / \code{learner_tau} / \code{learner_ps} 既可传单个 mlr3 learner
-（各阶段共用），也可传按角色命名的 list（见对应参数）让每组 / 每阶段用不同算法。
-例如 T-Learner 可用 \code{list(treated = lrn("regr.lm"), control = lrn("regr.ranger"))}
-让两组用不同模型；X-Learner 还能用 \code{list(tau1 = ..., tau0 = ...)} 分开两个效应回归。
+\code{learner_base} / \code{learner_tau} / \code{learner_ps} can be either a single mlr3 learner
+(shared across stages) or a role-named list (see the respective arguments) so that each group / stage uses a different algorithm.
+For example, a T-Learner can use \code{list(treated = lrn("regr.lm"), control = lrn("regr.ranger"))}
+to give the two groups different models; an X-Learner can also use \code{list(tau1 = ..., tau0 = ...)} to separate the two effect regressions.
 }
-\section{观察性数据与「加权」的设计边界}{
+\section{Observational data and the design boundary around "weighting"}{
 
-本包\strong{不提供} \code{weighting} / \code{weights} / \code{stabilize} 参数（v0.40 起移除）。
-理由是：经典 metalearner 文献（Künzel et al. 2019 PNAS 的 X-learner，以及 CausalML 的
-BaseS / BaseT / BaseX）从不给 S/T/X 的结局模型套逆概率权重。各 learner 处理混杂的
-方式各不相同，且都写在各自的定义里：
+This package \strong{does not provide} \code{weighting} / \code{weights} / \code{stabilize} arguments (removed since v0.40).
+The reason: the classic metalearner literature (the X-learner of Künzel et al. 2019, PNAS, and CausalML's
+BaseS / BaseT / BaseX) never applies inverse-probability weights to the S/T/X outcome models. Each learner handles
+confounding differently, and each does so by construction:
 \describe{
-\item{S / T / X}{靠\strong{把混杂因子放进 \code{X}}、由结局模型条件化。
-漏掉混杂因子时偏倚与朴素估计相同——加任何权重都救不回来}
-\item{R}{Robinson 残差化：结局与处理都对 \code{X} 取残差后回归}
-\item{DR}{AIPW 双重稳健伪结果：只要 \code{(m1, m0)} 或 \code{e(x)} 之一设定正确
-就一致，是观察性数据下最稳健的选择}
+\item{S / T / X}{relies on \strong{putting the confounders into \code{X}} and conditioning on them via the outcome model.
+When a confounder is omitted, the bias equals that of the naive estimator -- no weighting can recover from it}
+\item{R}{Robinson residualization: both outcome and treatment are residualized on \code{X} before regression}
+\item{DR}{AIPW doubly-robust pseudo-outcome: consistent as long as \strong{one} of \code{(m1, m0)} or \code{e(x)} is correctly specified,
+the most robust choice under observational data}
 }
-一个只会重估结局模型的「单稳健」加权既不是文献做法，也无法单独去混杂，
-因此不再保留。生存结局另有\strong{删矢 IPCW}（\code{effect = "survdiff"} 时乘在个体结局
-\code{I(T > t0)} 上），那是估计量对删矢的标准处理，不是用户可开关的选项。
+A "single-robust" weighting that only re-estimates the outcome model is neither the literature's approach nor able to
+deconfound on its own, so it is no longer retained. Survival outcomes additionally use \strong{censoring IPCW} (multiplied onto the
+individual outcome \code{I(T > t0)} when \code{effect = "survdiff"}), which is the estimator's standard handling of censoring,
+not a user-toggleable option.
 }
 
 \examples{
-# RCT：默认即可，无需任何加权
+# RCT: defaults suffice; no weighting needed
 d <- mlr3HTE_demo_data(n = 500, seed = 1)
 fit <- metalearner("T", d$X, d$A, d$Y, learner_base = mlr3::lrn("regr.lm"))
 cor(fit$cate_train, d$tau)
 
-# 观察性数据：DR-Learner 默认内部拟合倾向得分，双重稳健
+# Observational data: the DR-Learner fits the propensity score internally by default (doubly robust)
 dobs <- mlr3HTE_demo_obs(n = 800, seed = 1)
 fit_obs <- metalearner("DR", dobs$X, dobs$A, dobs$Y)
-fit_obs$ate                     # 对比 dobs$ate（真实 ATE）
+fit_obs$ate                     # compare against dobs$ate (true ATE)
 
-# RCT 已知随机化概率 0.5 时，可直接把常数倾向得分传给 X/R/DR
+# For an RCT with a known randomization probability of 0.5, pass a constant propensity score to X/R/DR
 fit_rct <- metalearner("X", d$X, d$A, d$Y, learner_ps = 0.5)
 }
 \seealso{

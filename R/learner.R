@@ -1,69 +1,70 @@
 # =====================================================================
-# learner.R —— 参数化 mlr3 Learner 子类（"A learner"）
+# learner.R -- Parametric mlr3 Learner subclass ("A learner")
 #
-# 一个 Learner 包揽全部 metalearner 类型（S/T/X/R/DR）与结局类型
-# （连续/二分类/生存），可无缝接入 resample() / benchmark() / tune()。
-# 倾向得分只服务于 X/R/DR 的算法定义（g(x) 融合 / Robinson 中心化 /
-# AIPW 伪结果），不是可开关的加权——见 metalearner() 的设计边界说明。
+# A single Learner covers all metalearner types (S/T/X/R/DR) and outcome types
+# (continuous / binary / survival), and slots seamlessly into resample() / benchmark() / tune().
+# The propensity score serves only the algorithmic definitions of X/R/DR (g(x) blending / Robinson
+# centering / AIPW pseudo-outcome), not as a toggleable weighting -- see metalearner()'s design-boundary note.
 #
-# Task 的构造必须用 ml_task()：它把 X/A/Y 编码成 Task，并把结局类型、
-# 生存的状态列与 t0 写进 task$extra_args。该字段经实测在
-# clone(deep = TRUE)$filter() 与 serialize()/unserialize() 之后都保留，
-# 所以 resample 分折时元数据不丢。（Task 没有 extra 字段，自定义
-# col_roles 会被 assert_names 拒绝，只有 extra_args 可用。）
+# The Task must be built with ml_task(): it encodes X/A/Y into a Task and writes the outcome type,
+# the survival status column, and t0 into task$extra_args. This field has been verified to survive
+# clone(deep = TRUE)$filter() and serialize()/unserialize(),
+# so the metadata is not lost when resample splits into folds. (A Task has no extra field; custom
+# col_roles are rejected by assert_names, so only extra_args is usable.)
 #
-# 编码约定（见 ml_task）：
-#   目标列 .outcome = Y（连续/二分类）或随访时间（生存）
-#   生存时另有特征列 .status = 事件指示，拟合时需从协变量中剔除
-#   处理列列名由 ml_treatment_col 指定，默认 "A"
+# Encoding conventions (see ml_task):
+#   target column .outcome = Y (continuous/binary) or follow-up time (survival)
+#   for survival there is an extra feature column .status = event indicator, which must be dropped from covariates at fit time
+#   the treatment column name is given by ml_treatment_col, default "A"
 #
-# mlr3 1.8 训练/预测链说明：
+# mlr3 1.8 train/predict chain notes:
 #   Learner$train(task) -> .__Learner__train -> learner_train
-#     -> private$.train(task)   <-- 真正的训练逻辑（resample 也直接调它）
+#     -> private$.train(task)   <-- the real training logic (also called directly by resample)
 #   Learner$predict(task) -> .__Learner__predict -> learner_predict
-#     -> private$.predict(task) <-- 真正的预测逻辑
-# 因此钩子必须写在 private 里；覆盖公开 train/predict 会替换掉
-# .__Learner__train，导致 state$train_task 不被设置。
+#     -> private$.predict(task) <-- the real prediction logic
+# Hence the hooks must live in private; overriding the public train/predict would replace
+# .__Learner__train, leaving state$train_task unset.
 #
-# 关键工程点（避免 resample 段错误）：
-#   mlr3 在 .__Learner__train 末尾会对 self$state$model 调 unmarshal_model()。
-#   我们的拟合结果装着多个基学习器 + predict 闭包，递归（反）序列化会出问题，
-#   因此 .train 只向框架返回一个无害的占位 list()，真实结果存进
-#   .metalearner_registry 登记处，本对象只留一个字符串 model_id。
-#   另外 PredictionRegr$new() 的 truth 必须取自预测任务本身，传 NULL 会让
-#   measure（如 regr.mse）的 assert_regr 断言失败。
+# Key engineering point (avoiding resample segfaults):
+#   mlr3 calls unmarshal_model() on self$state$model at the end of .__Learner__train.
+#   Our fitted result holds multiple base learners + a predict closure, which breaks on recursive (de)serialization,
+#   so .train returns only a harmless placeholder list() to the framework, while the real result is stored in
+#   the .metalearner_registry registry; this object keeps only a string model_id.
+#   Also, the truth passed to PredictionRegr$new() must come from the prediction task itself; passing NULL
+#   makes the measure's (e.g. regr.mse) assert_regr assertion fail.
 # =====================================================================
 
-#' mlr3 参数化 Metalearner 学习器
+#' Parameterized mlr3 Metalearner learner
 #'
-#' @description 一个 \code{\link[mlr3]{LearnerRegr}} 子类，把全部 metalearner 类型
-#'   （S / T / X / R / DR）与结局类型（连续 / 二分类 / 生存）封装进同一个
-#'   \code{Learner}，可直接接入 \code{resample()} / \code{benchmark()} / \code{tune()}。
-#'   须知：构造 Task 必须用 \code{\link{ml_task}}（它会把结局类型、生存状态列与 t0 写进
-#'   \code{task$extra_args}，该字段在 resample 分折后仍保留）。
-#' @format \code{R6Class} 对象；用 \code{mlr3::lrn("regr.metalearner")} 获取。
-#' @section 参数(param_set):
+#' @description A \code{\link[mlr3]{LearnerRegr}} subclass that wraps all metalearner types
+#'   (S / T / X / R / DR) and outcome types (continuous / binary / survival) into a single
+#'   \code{Learner}, which can be plugged directly into \code{resample()} / \code{benchmark()} / \code{tune()}.
+#'   Note: the Task must be built with \code{\link{ml_task}} (it writes the outcome type, the survival status column, and t0 into
+#'   \code{task$extra_args}, and this field survives resample's fold splitting).
+#' @format \code{R6Class} object; obtain it via \code{mlr3::lrn("regr.metalearner")}.
+#' @section Parameters (param_set):
 #'   \describe{
-#'     \item{metalearner}{字符，S / T / X / R / DR，默认 "T"}
-#'     \item{engine}{字符，native / survlearners，默认 "native"；
-#'       生存结局的第二套引擎（survlearners 包，只支持 S/T/X/R 与 S(t0) 差）}
+#'     \item{metalearner}{character, S / T / X / R / DR, default "T"}
+#'     \item{engine}{character, native / survlearners, default "native";
+#'       the second engine for survival outcomes (survlearners package, supports only S/T/X/R and the S(t0) difference)}
 #'   }
-#' @field learner_base 结局模型基学习器（类型须与结局匹配；生存用 "coxph"/"ranger"，
-#'   survlearners 引擎下用 "coxph"/"grf"/"lasso"）。T / X Learner 可传命名 list
-#'   （\code{list(treated=, control=)} 或 \code{list(m1=, m0=)}）让分组 / 阶段各自用不同算法。
-#' @field learner_tau 效应阶段回归学习器；NULL 时引擎用偏正则化的 ranger。
-#'   X-Learner 可传 \code{list(tau1=, tau0=)} 分别指定两个效应回归。
-#' @field learner_ps 倾向得分，仅 X / R / DR 使用（S / T 忽略）：mlr3 分类学习器、
-#'   常数倾向得分标量，或 \code{function(newX)}；NULL 时引擎默认 \code{classif.log_reg}
-#' @field treatment_col 处理列名（可被 task$extra_args$ml_treatment_col 覆盖）
-#' @field status_col 生存事件指示列名（可被 ml_status_col 覆盖）
-#' @field t0 生存效应评估时点；NULL 时取 extra_args$ml_t0，再取事件中位数
-#' @field engine 生存结局估计引擎：native（默认）/ survlearners
-#' @field model_id 真实拟合结果在登记处的 id
-#' @section 预测:
-#'   返回 CATE（个体处理效应）作为 \code{response}，可直接与真实 tau 比较。
-#' @method initialize 构造函数
-#' @param id 学习器 id
+#' @field learner_base Outcome-model base learner (type must match the outcome; for survival use "coxph"/"ranger",
+#'   or "coxph"/"grf"/"lasso" under the survlearners engine). T / X Learners may take a named list
+#'   (\code{list(treated=, control=)} or \code{list(m1=, m0=)}) so each group / stage uses a different algorithm.
+#' @field learner_tau Effect-stage regression learner; when NULL the engine uses a lightly-regularized ranger.
+#'   The X-Learner may take \code{list(tau1=, tau0=)} to specify the two effect regressions separately.
+#' @field learner_ps Propensity score, used only by X / R / DR (ignored by S / T): an mlr3 classification learner,
+#'   a constant propensity-score scalar, or \code{function(newX)}; when NULL the engine defaults to \code{classif.log_reg}
+#' @field treatment_col Name of the treatment column (overridable by task$extra_args$ml_treatment_col)
+#' @field status_col Name of the survival event-indicator column (overridable by ml_status_col)
+#' @field t0 Survival effect evaluation time point; when NULL uses extra_args$ml_t0, then the median event time
+#' @field engine Survival-outcome estimation engine: native (default) / survlearners
+#' @field model_id id of the real fitted result in the registry
+#' @section Prediction:
+#'   Returns the CATE (conditional average treatment effect for the individual) as \code{response}, which can be
+#'   compared directly with the true tau.
+#' @method initialize Constructor
+#' @param id learner id
 #' @seealso \code{\link{ml_task}}, \code{\link{metalearner}}
 #' @export
 LearnerRegrMetalearner <- R6::R6Class("LearnerRegrMetalearner",

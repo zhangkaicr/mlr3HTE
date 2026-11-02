@@ -2,7 +2,7 @@
 % Please edit documentation in R/explain.R
 \name{plot_hte_importance}
 \alias{plot_hte_importance}
-\title{绘制 CATE 变量重要性}
+\title{Plot CATE variable importance}
 \usage{
 plot_hte_importance(
   importance,
@@ -11,18 +11,19 @@ plot_hte_importance(
 )
 }
 \arguments{
-\item{importance}{\code{\link{hte_feature_importance}} 的返回 data.frame。}
+\item{importance}{The data.frame returned by \code{\link{hte_feature_importance}}.}
 
-\item{metric}{画哪一列，默认 \code{"dropout_pct"}（相对上升百分比）；
-也可用 \code{"dropout"}（绝对上升）。}
+\item{metric}{Which column to plot, default \code{"dropout_pct"} (relative
+increase in percent); \code{"dropout"} (absolute increase) is also available.}
 
-\item{fill}{条形填充色。}
+\item{fill}{The bar fill color.}
 }
 \value{
-\code{ggplot} 对象，可直接 \code{print()} 或用 \code{+} 继续定制。
+A \code{ggplot} object, which can be directly \code{print()}ed or further
+customized with \code{+}.
 }
 \description{
-绘制 CATE 变量重要性
+Plot CATE variable importance
 }
 \seealso{
 \code{\link{hte_feature_importance}}

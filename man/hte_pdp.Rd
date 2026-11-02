@@ -2,7 +2,7 @@
 % Please edit documentation in R/explain.R
 \name{hte_pdp}
 \alias{hte_pdp}
-\title{CATE 模型的偏依赖（PDP）与累积局部效应（ALE）}
+\title{Partial dependence (PDP) and accumulated local effects (ALE) for CATE models}
 \usage{
 hte_pdp(
   explainer,
@@ -14,29 +14,34 @@ hte_pdp(
 )
 }
 \arguments{
-\item{explainer}{\code{\link{hte_explainer}} 的结果。}
+\item{explainer}{The result of \code{\link{hte_explainer}}.}
 
-\item{variables}{要计算的变量名向量，默认取全部协变量。}
+\item{variables}{A vector of variable names to compute, defaulting to all
+covariates.}
 
-\item{grid_points}{网格点数，默认 101。}
+\item{grid_points}{The number of grid points, default 101.}
 
-\item{type}{\code{"partial"}（PDP，默认）或 \code{"accumulated"}（ALE）。}
+\item{type}{\code{"partial"} (PDP, default) or \code{"accumulated"} (ALE).}
 
-\item{center}{是否把曲线减去平均预测值，默认 \code{FALSE}。CATE 语境下纵轴
-应为\strong{绝对的平均预测 CATE}（量级本身有临床含义），曲线围绕 0 波动会
-掩盖效应水平。这里显式传值，不依赖 DALEX 版本对该参数的默认处理。}
+\item{center}{Whether to subtract the mean prediction from the curve, default
+\code{FALSE}. In the CATE context the vertical axis should be the \strong{absolute
+average predicted CATE} (the magnitude itself is clinically meaningful), and
+a curve fluctuating around 0 would mask the effect level. Here the value is
+passed explicitly rather than relying on DALEX's version-dependent default.}
 
-\item{...}{传给 \code{DALEX::model_profile}。}
+\item{...}{Passed to \code{DALEX::model_profile}.}
 }
 \value{
-data.frame：\code{variable} / \code{x}（该变量的取值）/
-\code{yhat}（该点的平均 CATE）/ \code{type}。
+A data.frame with \code{variable} / \code{x} (the covariate value) /
+\code{yhat} (the average CATE at that point) / \code{type}.
 }
 \description{
-基于 \code{DALEX::model_profile}：把某个协变量固定在网格上逐点变动、
-其余变量保持观测分布，看 \eqn{\hat\tau} 的平均值如何随之变化。
-\code{type = "partial"} 为经典 PDP，\code{type = "accumulated"} 为 ALE
-（在变量相关时 ALE 比 PDP 更稳健，因为 PDP 的外推会偏离观测支撑集）。
+Based on \code{DALEX::model_profile}: fix a covariate on a grid point by point,
+keep the remaining variables at their observed distribution, and see how the
+average of \eqn{\hat\tau} changes accordingly. \code{type = "partial"} is the
+classic PDP and \code{type = "accumulated"} is ALE (ALE is more robust than PDP
+when variables are correlated, because PDP extrapolation drifts away from the
+observed support).
 }
 \examples{
 \donttest{

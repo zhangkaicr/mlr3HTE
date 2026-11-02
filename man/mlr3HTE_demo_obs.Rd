@@ -2,25 +2,25 @@
 % Please edit documentation in R/api.R
 \name{mlr3HTE_demo_obs}
 \alias{mlr3HTE_demo_obs}
-\title{演示数据：连续结局 + 观察性（混杂）}
+\title{Demo data: continuous outcome + observational (confounding)}
 \usage{
 mlr3HTE_demo_obs(n = 4000, strength = 1, seed = 1204)
 }
 \arguments{
-\item{n}{样本量，默认 4000}
+\item{n}{sample size; default 4000}
 
-\item{strength}{混杂强度，默认 1。\code{0} 时处理概率与协变量无关（等价 RCT），
-数值越大混杂越强；用于扫描「不同强度混杂下的估计表现」}
+\item{strength}{confounding strength; default 1. When \code{0} the treatment probability is independent of covariates (equivalent to an RCT),
+larger values mean stronger confounding; used to scan estimator performance under varying confounding strength}
 
-\item{seed}{随机种子}
+\item{seed}{random seed}
 }
 \value{
-list：X、A、Y、tau（真实 CATE）、ate（真实 ATE）、ps_true（真实倾向得分）
+a list: X, A, Y, tau (true CATE), ate (true ATE), ps_true (true propensity score)
 }
 \description{
-生成连续结局的\strong{观察性}演示数据，处理概率依赖协变量（病情越重越易
-接受治疗 = confounding by indication），未调整的差分会偏离真实 ATE。
-观察性数据下去混杂的正道：S/T/X 把混杂因子放进 \code{X} 由结局模型条件化，
-R-Learner 走 Robinson 残差化，DR-Learner 走 AIPW 双重稳健（最稳健）。
-同时返回真实倾向得分 \code{ps_true} 供核查。
+Generate \strong{observational} demo data with a continuous outcome, where the treatment probability depends on covariates
+(the sicker the patient, the more likely to be treated = confounding by indication), so the unadjusted difference deviates from the true ATE.
+The proper way to deconfound under observational data: S/T/X put the confounders into \code{X} and condition on them via the outcome model,
+the R-Learner uses Robinson residualization, and the DR-Learner uses AIPW doubly-robust estimation (most robust).
+The true propensity score \code{ps_true} is also returned for inspection.
 }

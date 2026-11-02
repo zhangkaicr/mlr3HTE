@@ -1,28 +1,31 @@
 # =====================================================================
-# survival_base.R —— 原生生存基学习器 + 删失 IPCW 权重
+# survival_base.R -- native survival base learners + censoring IPCW weights
 #
-# 生存分支【完全不依赖 mlr3proba】：直接用 survival::coxph 与 ranger 的
-# 生存模式实现基学习器，包装成与另外两类结局一致的接口：
+# The survival branch [fully independent of mlr3proba]: implements base learners
+# directly via survival::coxph and ranger's survival mode, wrapped with an
+# interface consistent with the other two outcome types:
 #
 #   .fit_surv(X, time, status, kind, t0, weights, effect)
-#     -> 结局模型对象，自带 $predict(newX)
+#     -> outcome model object with $predict(newX)
 #
-# 两种效应度量（effect 参数），共用同一个时间范围参数 t0：
-#   "survdiff"（默认）: predict 返回 S(t0 | X)，CATE = t0 时点生存概率差
-#   "rmst"           : predict 返回 RMST(t0) = ∫₀^t0 S(u|X) du，
-#                      CATE = 限制平均生存时间差
+# Two effect measures (effect argument) sharing the same time-horizon t0:
+#   "survdiff" (default): predict returns S(t0 | X), CATE = survival prob. diff at t0
+#   "rmst"             : predict returns RMST(t0) = integral_0^t0 S(u|X) du,
+#                        CATE = restricted mean survival time difference
 #
-# 基学习器用字符串指定："coxph"（默认，线性预测、可解释）或 "ranger"
-# （非线性，需装 ranger）。传 mlr3 的 lrn("surv.*") 会被明确拒绝并给出提示，
-# 因为那需要 mlr3proba。
+# Base learners are given as strings: "coxph" (default, linear, interpretable)
+# or "ranger" (non-linear, requires ranger). Passing mlr3's lrn("surv.*") is
+# explicitly rejected with a message, because that would require mlr3proba.
 #
-# 删失处理分工：
-#   S/T 学习器不需要额外处理——生存模型本身（偏似然 / Kaplan-Meier）
-#   已经在似然里正确处理了删失。
-#   X/R/DR 需要个体尺度的结局（.surv_analysis_outcome）：
-#     effect="survdiff": 取 I(T > t0)，删失由 IPCW 权重 1/G(Tᵢ⁻) 在外部校正
-#     effect="rmst":     取 ξ = δ·min(X, τ)/Ĝ(X)，其期望即 RMST，
-#                        IPCW 已含在 ξ 里，外部不再额外乘权重
+# Censoring handling division of labor:
+#   S/T learners need no extra handling -- the survival model itself
+#   (partial likelihood / Kaplan-Meier) already accounts for censoring in the
+#   likelihood.
+#   X/R/DR need individual-scale outcomes (.surv_analysis_outcome):
+#     effect="survdiff": use I(T > t0); censoring corrected externally by the
+#       IPCW weight 1/G(T_i-)
+#     effect="rmst": use xi = delta * min(X, tau)/hat(G)(X), whose expectation is
+#       RMST; the IPCW is already inside xi, no extra external weight
 # =====================================================================
 
 # 1 在阶梯生存曲线上取 t0 时点的生存概率 --------------------------------------

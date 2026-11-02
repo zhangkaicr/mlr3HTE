@@ -15,6 +15,23 @@
 - `0.21` 之前的历史批次沿用旧编号折算（`0.1.0` → `0.10`，10-21 那批观察性指标 →
   `0.11`，`0.2.0` → `0.20`）；`0.21` 起严格执行上面的 +0.01。
 
+## [0.45] — 2026-11-02（帮助文档全面英文化 + 修复基准函数未导出 + 站点函数文档按大类重组）
+
+- **修复（阻断性）**：`mlr3HTE_benchmark_data() / _meta() / _export()` 在 v0.44 里从未进入
+  `NAMESPACE`（`R/benchmarks.R` 写了 `#' @export` 但发布前没跑 `roxygen2`），导致安装后
+  「没有这个函数」。本次重跑 `roxygen2::roxygenise()`，补齐 3 个 `export()` 与对应 `man/*.Rd`。
+- **帮助文档英文化**：全部 R 源文件的 roxygen 注释与 `man/*.Rd` 由中文改为英文，
+  `R CMD check` 通过；`man/` 下已无中文字符。
+- **站点函数文档重组**：API Reference 由「一张平表 + 类别列」改为按 9 个大类分组
+  （核心拟合与 meta-learner、Task 与 R6 Learner、效应曲线/CI/指标、RCT 基准、跨包基准数据集、
+  模拟数据、CATE 可解释性、演示数据、因果图 DAG），并新增
+  「跨包基准数据集」详情页，补上 v0.44 漏列的 3 个基准函数；导出对象计数 42 → 45。
+- **新增验证脚本** `dev/validate_benchmarks.R`：用 S/T/X/R/DR 拟合 5 个跨包基准数据，
+  与真值 ATE 对照。结论：S/T/X 在各数据集上都能把 ATE 恢复到真值附近（与 grf::causal_forest
+  同量级）；R/DR 在强混杂的 `econml_ihdp` 上会因极端倾向得分（15% 个体 PS<0.05，
+  伪结局放大达 117×）显著高估——这是 R-learner 无权重 Robinson 伪结局的已知脆弱点，
+  不是数据问题。
+
 ## [0.44] — 2026-11-01（新增跨包基准数据集：grf / econml / causalml，含真实 CATE）
 
 新增 `inst/extdata/benchmarks/` 基准数据集与配套读取函数，便于在 mlr3HTE 里直接评估各类 HTE 估计量。

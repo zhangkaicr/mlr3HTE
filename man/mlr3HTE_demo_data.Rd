@@ -2,21 +2,21 @@
 % Please edit documentation in R/api.R
 \name{mlr3HTE_demo_data}
 \alias{mlr3HTE_demo_data}
-\title{演示数据：连续结局 RCT}
+\title{Demo data: continuous-outcome RCT}
 \usage{
 mlr3HTE_demo_data(n = 4000, treat_frac = 0.5, seed = 1201)
 }
 \arguments{
-\item{n}{样本量，默认 4000}
+\item{n}{sample size; default 4000}
 
-\item{treat_frac}{处理组比例，默认 0.5}
+\item{treat_frac}{treated-group proportion; default 0.5}
 
-\item{seed}{随机种子}
+\item{seed}{random seed}
 }
 \value{
-list：X（协变量）、A（处理）、Y（结局）、tau（真实 CATE 向量）、ate（真实 ATE）
+a list: X (covariates), A (treatment), Y (outcome), tau (true CATE vector), ate (true ATE)
 }
 \description{
-生成连续结局的 RCT 演示数据（默认处理 A 与协变量 X 独立，无混杂）。
-真实 CATE 与 ATE 随数据一并返回，便于评估 metalearner 的拟合质量。
+Generate RCT demo data with a continuous outcome (by default treatment A is independent of covariates X, no confounding).
+The true CATE and ATE are returned alongside the data, for assessing the metalearner's fit quality.
 }

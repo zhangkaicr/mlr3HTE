@@ -2,7 +2,7 @@
 % Please edit documentation in R/explain.R
 \name{hte_explainer}
 \alias{hte_explainer}
-\title{构造 CATE 模型的解释器（DALEX）}
+\title{Construct an explainer for CATE models (DALEX)}
 \usage{
 hte_explainer(
   fit,
@@ -18,43 +18,53 @@ hte_explainer(
 )
 }
 \arguments{
-\item{fit}{\code{\link{metalearner}} 的返回对象，或任何带
-\code{$predict(newX)} 的对象（例如 \code{\link{hte_surrogate}} 的结果）。}
+\item{fit}{The return object of \code{\link{metalearner}}, or any object with
+\code{$predict(newX)} (e.g. the result of \code{\link{hte_surrogate}}).}
 
-\item{X}{协变量 data.frame，解释所依据的样本（通常就是训练集）。}
+\item{X}{A data.frame of covariates, the sample on which the explanation is based
+(usually the training set).}
 
-\item{A}{处理指示；当 \code{pseudo} 未提供时用于计算伪结局。}
+\item{A}{Treatment indicator; used to compute the pseudo-outcome when \code{pseudo}
+is not supplied.}
 
-\item{Y}{结局；当 \code{pseudo} 未提供时用于计算伪结局。}
+\item{Y}{Outcome; used to compute the pseudo-outcome when \code{pseudo} is not
+supplied.}
 
-\item{pseudo}{已经算好的逐人伪结局向量。给出时忽略 \code{A} / \code{Y}，
-适合复用 \code{\link{dr_pseudo_outcome}} 的结果以省去重复计算。}
+\item{pseudo}{A precomputed per-individual pseudo-outcome vector. When supplied,
+\code{A} / \code{Y} are ignored, which is convenient for reusing the result of
+\code{\link{dr_pseudo_outcome}} to avoid repeated computation.}
 
-\item{t0}{生存结局的效应评估时点，传给 \code{\link{dr_pseudo_outcome}}。}
+\item{t0}{The effect evaluation time point for survival outcomes, passed to
+\code{\link{dr_pseudo_outcome}}.}
 
-\item{effect}{生存结局的效应尺度，\code{"survdiff"} 或 \code{"rmst"}。}
+\item{effect}{The effect scale for survival outcomes, \code{"survdiff"} or
+\code{"rmst"}.}
 
-\item{label}{解释器的显示名，默认沿用 metalearner 的类型标签。}
+\item{label}{The display name of the explainer, defaulting to the metalearner's
+type label.}
 
-\item{verbose}{是否打印 DALEX 的进度信息。}
+\item{verbose}{Whether to print DALEX progress information.}
 
-\item{...}{传给 \code{\link{dr_pseudo_outcome}} 的其他参数
-（\code{learner_ps}、\code{learner_base}、\code{cross_fitting}、\code{seed} 等）。}
+\item{...}{Additional arguments passed to \code{\link{dr_pseudo_outcome}}
+(\code{learner_ps}, \code{learner_base}, \code{cross_fitting}, \code{seed}, etc.).}
 }
 \value{
-\code{hte_explainer} 对象：含 \code{$explainer}（DALEX 解释器）、
-\code{$fit}、\code{$pseudo}、\code{$X}、\code{$t0}、\code{$effect}。
+A \code{hte_explainer} object containing \code{$explainer} (the DALEX
+explainer), \code{$fit}, \code{$pseudo}, \code{$X}, \code{$t0}, \code{$effect}.
 }
 \description{
-把 \code{\link{metalearner}} 的拟合结果包装成 \code{DALEX::explain} 解释器，
-供 \code{\link{hte_feature_importance}} 与 \code{\link{hte_pdp}} 使用。
+Wrap the fitted result of \code{\link{metalearner}} into a \code{DALEX::explain}
+explainer, for use by \code{\link{hte_feature_importance}} and \code{\link{hte_pdp}}.
 
-\strong{响应变量是双重稳健伪结局，不是原始 Y。} 这是本函数与方法学文献里
-「直接解释预测值」做法的关键差别：CATE 模型的预测目标是 \eqn{\tau(X)}，
-而 \eqn{E[Y \mid X]} 含基线预后 \eqn{\mu(X)}。若用 Y 作响应，
-置换重要性衡量的是「该变量对预后的重要性」，与效应异质性无关。
-双重稳健伪结局 \eqn{Y^*} 满足 \eqn{E[Y^* \mid X] = \tau(X)}，
-因此用它作响应时，重要性、PDP 与 SHAP 回答的都是\strong{效应异质性}的问题。
+\strong{The response variable is the doubly robust pseudo-outcome, not the raw Y.}
+This is the key difference from the "directly explain the predictions" approach
+in the methodology literature: the CATE model's prediction target is
+\eqn{\tau(X)}, whereas \eqn{E[Y \mid X]} contains the baseline prognosis
+\eqn{\mu(X)}. If Y is used as the response, permutation importance measures
+"the variable's importance for prognosis", which is unrelated to effect
+heterogeneity. The doubly robust pseudo-outcome \eqn{Y^*} satisfies
+\eqn{E[Y^* \mid X] = \tau(X)}, so when it is used as the response, the
+importance, PDP and SHAP all answer questions about \strong{effect heterogeneity}.
 }
 \examples{
 \donttest{

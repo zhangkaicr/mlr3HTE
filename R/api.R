@@ -1,105 +1,106 @@
 # =====================================================================
-# api.R —— 函数式 API（与课程模块三教学代码风格一致）
+# api.R -- Functional API (consistent with the teaching-code style of Course Module 3)
 #
-# metalearner() 返回完整拟合对象（含 $predict / $ate / $cate_train / $models）；
-# s_learner()/t_learner()/... 直接返回训练集 CATE 向量，方便对照课程脚本；
-# ml_task() 把原始 X/A/Y 编码成 mlr3 Task，供 R6 Learner 使用。
+# metalearner() returns a full fitted object (with $predict / $ate / $cate_train / $models);
+# s_learner()/t_learner()/... return the training-set CATE vector directly, for easy comparison with course scripts;
+# ml_task() encodes the raw X/A/Y into an mlr3 Task for use by the R6 Learner.
 #
-# 三类结局（用 learner_base 的类型自动判定，也可用 outcome 显式指定）：
-#   连续   Y 为数值，配 regr.* 学习器，CATE = E[Y|A=1] - E[Y|A=0]
-#   二分类 Y 为 0/1 或两水平因子，配 classif.* 学习器，CATE = 风险差
-#   生存   Y 为 survival::Surv 对象。两套引擎（engine 参数）：
-#            "native"（默认）原生 "coxph"/"ranger" 基学习器（不依赖 mlr3proba），
-#              CATE = t0 时点生存概率差 S1(t0) - S0(t0)，五族 + RMST 齐全
-#            "survlearners" 委托 survlearners 包（Suggests，GitHub-only），
-#              S/T/X/R 四族 + S(t0) 差，自带 IPCW 与 R 族交叉拟合
+# Three outcome types (auto-detected from learner_base's type, or set explicitly via outcome):
+#   continuous  Y is numeric, paired with regr.* learners, CATE = E[Y|A=1] - E[Y|A=0]
+#   binary      Y is 0/1 or a two-level factor, paired with classif.* learners, CATE = risk difference
+#   survival    Y is a survival::Surv object. Two engines (via the engine argument):
+#                 "native" (default) native "coxph"/"ranger" base learners (no mlr3proba dependency),
+#                   CATE = survival-probability difference at t0, S1(t0) - S0(t0); all five families + RMST supported
+#                 "survlearners" delegates to the survlearners package (Suggests, GitHub-only),
+#                   S/T/X/R families + S(t0) difference, with built-in IPCW and R-family cross-fitting
 # =====================================================================
 
-#' 拟合一个 metalearner，返回可预测的对象
+#' Fit a metalearner and return an object that supports prediction
 #'
-#' @param type metalearner 类型：S / T / X / R / DR
-#' @param X 协变量 data.frame（不含处理与结局）
-#' @param A 处理指示（0/1，或逻辑）
-#' @param Y 结局：连续（数值）/ 二分类（0-1 或两水平因子）/ 生存（Surv 对象）
-#' @param learner_base 结局模型基学习器，类型须与结局匹配：连续用 regr.*，
-#'   二分类用 classif.*，生存用 "coxph"/"ranger"（原生实现，不依赖 mlr3proba）；
-#'   默认 regr.ranger。可传单个 learner（所有分组 / 阶段共用，向后兼容），
-#'   也可传命名 list 为每组 / 每阶段单独指定：T-Learner 用
-#'   \code{list(treated = ..., control = ...)}；X-Learner 用
-#'   \code{list(m1 = ..., m0 = ...)}。S / R / DR 与 survlearners 引擎只接受单个 learner。
-#' @param learner_tau 效应阶段回归学习器；默认沿用回归型 learner_base，否则
-#'   regr.ranger（min.node.size = 50）。X-Learner 的两个效应回归可分别指定：
-#'   \code{list(tau1 = ..., tau0 = ...)}；其余 learner 传单个 learner 即可。
-#' @param learner_ps 倾向得分。仅 X / R / DR 使用，S / T 忽略（它们是纯结局回归，
-#'   去混杂靠把混杂因子放进 \code{X} 条件化）。三种形态：
+#' @param type metalearner type: S / T / X / R / DR
+#' @param X covariate data.frame (excluding treatment and outcome)
+#' @param A treatment indicator (0/1, or logical)
+#' @param Y outcome: continuous (numeric) / binary (0-1 or two-level factor) / survival (Surv object)
+#' @param learner_base Outcome-model base learner; its type must match the outcome: use regr.* for continuous,
+#'   classif.* for binary, and "coxph"/"ranger" for survival (native implementation, no mlr3proba dependency);
+#'   default is regr.ranger. You may pass a single learner (shared across all groups / stages, for backward compatibility)
+#'   or a named list to specify a different learner per group / stage: T-Learner uses
+#'   \code{list(treated = ..., control = ...)}; X-Learner uses
+#'   \code{list(m1 = ..., m0 = ...)}. The S / R / DR learners and the survlearners engine accept only a single learner.
+#' @param learner_tau Effect-stage regression learner; by default the regression-type learner_base is reused, otherwise
+#'   regr.ranger (min.node.size = 50). For the X-Learner the two effect regressions can be specified separately via
+#'   \code{list(tau1 = ..., tau0 = ...)}; for all other learners pass a single learner.
+#' @param learner_ps Propensity score. Used only by X / R / DR; ignored by S / T (they are pure outcome regressions,
+#'   achieving confounding control by conditioning on \code{X} which includes the confounders). Three forms:
 #'   \describe{
-#'     \item{mlr3 分类学习器}{内部拟合，观察性数据的默认做法；不指定时用
-#'       \code{classif.log_reg}}
-#'     \item{标量}{常数倾向得分，用于 RCT 已知随机化概率（如 \code{0.5}），
-#'       也免掉拟计入的噪声}
-#'     \item{函数}{用户自建的 \code{function(newX)}，例如用别的包估好后封起来}
+#'     \item{mlr3 classification learner}{fitted internally; the default approach for observational data; when not
+#'       supplied, \code{classif.log_reg} is used}
+#'     \item{scalar}{a constant propensity score, for RCTs with a known randomization probability (e.g. \code{0.5}),
+#'       also avoiding the noise of fitting one}
+#'     \item{function}{a user-supplied \code{function(newX)}, e.g. wrapping an estimate produced by another package}
 #'   }
-#'   注意 X-learner 的 \code{g(x)} 融合、R 的 Robinson 中心化、DR 的 AIPW 伪结果
-#'   都把 \code{e(x)} 当作算法定义的必需输入——它们**不是**可开关的去混杂加权。
-#' @param t0 生存结局的效应评估时点，默认取事件时间中位数
-#' @param outcome 结局类型 "auto"/"continuous"/"binary"/"survival"
-#' @param effect 生存结局的效应度量："survdiff"（t0 时点生存概率差，默认）
-#'   或 "rmst"（t0 时点限制平均生存时间差 RMST）
-#' @param cross_fitting R/DR 是否做交叉拟合（干扰参数在 K 折训练折上拟合，
-#'   伪结果在留出折上计算），默认 FALSE
-#' @param n_folds 交叉拟合的折数，默认 5
-#' @param engine 生存结局的估计引擎：\code{"native"}（默认，原生 coxph/ranger
-#'   实现，五族齐全、支持 RMST 与任意 mlr3 基学习器）或 \code{"survlearners"}
-#'   （委托 GitHub 包 survlearners，只有 S/T/X/R 与 S(t0) 差尺度，DR 与 RMST
-#'   会明确报错；未安装该包时也会给出安装提示）
+#'   Note that the X-learner's \code{g(x)} blending, R's Robinson centering, and DR's AIPW pseudo-outcome
+#'   all treat \code{e(x)} as a required input defined by the algorithm -- they are **not** toggleable confounding weights.
+#' @param t0 Effect evaluation time point for survival outcomes; defaults to the median event time
+#' @param outcome Outcome type: "auto"/"continuous"/"binary"/"survival"
+#' @param effect Effect measure for survival outcomes: "survdiff" (survival-probability difference at t0, default)
+#'   or "rmst" (restricted mean survival time difference at t0, RMST)
+#' @param cross_fitting Whether R/DR perform cross-fitting (nuisance parameters are fitted on K training folds
+#'   and pseudo-outcomes are computed on held-out folds); default FALSE
+#' @param n_folds Number of cross-fitting folds; default 5
+#' @param engine Estimation engine for survival outcomes: \code{"native"} (default, native coxph/ranger
+#'   implementation, all five families supported, with RMST and arbitrary mlr3 base learners) or \code{"survlearners"}
+#'   (delegates to the GitHub package survlearners, supporting only the S/T/X/R families and the S(t0) difference scale;
+#'   DR and RMST will raise an explicit error; an installation hint is also provided if the package is missing)
 #' @details
-#' 每个 metalearner 在内部都会**为每一个阶段、每一种机器学习算法各拟合一个 mlr3 模型**，
-#' 由 \code{mlr3} 负责训练、预测与（如启用）交叉拟合；这些模型全部留在返回对象的
-#' \code{$models} 字段里，便于核查训练结果与复用。各类型的 \code{$models} 命名如下：
+#' Internally, every metalearner **fits one mlr3 model per stage and per machine-learning algorithm**,
+#' with \code{mlr3} handling training, prediction, and (if enabled) cross-fitting; all of these models are kept in the
+#' \code{$models} field of the returned object for inspection and reuse. The \code{$models} naming for each type is:
 #' \describe{
-#'   \item{S}{单个结局模型 \code{m}（处理当普通特征，反事实相减）}
-#'   \item{T}{\code{m1}（处理组结局模型）、\code{m0}（对照组结局模型）}
-#'   \item{X}{\code{m1}、\code{m0}（两阶段插补的结局模型）与 \code{tau1}、\code{tau0}（效应回归）}
-#'   \item{R}{\code{mu}（\eqn{E[Y|X]} 模型）、\code{tau}（Robinson 残差回归）}
-#'   \item{DR}{\code{m1}、\code{m0}（两组结局模型）与 \code{tau}（双重稳健伪结果回归）}
+#'   \item{S}{a single outcome model \code{m} (treatment as an ordinary feature, counterfactual subtraction)}
+#'   \item{T}{\code{m1} (treated-group outcome model), \code{m0} (control-group outcome model)}
+#'   \item{X}{\code{m1}, \code{m0} (two-stage imputed outcome models) and \code{tau1}, \code{tau0} (effect regressions)}
+#'   \item{R}{\code{mu} (\eqn{E[Y|X]} model), \code{tau} (Robinson residual regression)}
+#'   \item{DR}{\code{m1}, \code{m0} (two-group outcome models) and \code{tau} (doubly-robust pseudo-outcome regression)}
 #' }
-#' \code{learner_base} / \code{learner_tau} / \code{learner_ps} 既可传单个 mlr3 learner
-#' （各阶段共用），也可传按角色命名的 list（见对应参数）让每组 / 每阶段用不同算法。
-#' 例如 T-Learner 可用 \code{list(treated = lrn("regr.lm"), control = lrn("regr.ranger"))}
-#' 让两组用不同模型；X-Learner 还能用 \code{list(tau1 = ..., tau0 = ...)} 分开两个效应回归。
+#' \code{learner_base} / \code{learner_tau} / \code{learner_ps} can be either a single mlr3 learner
+#' (shared across stages) or a role-named list (see the respective arguments) so that each group / stage uses a different algorithm.
+#' For example, a T-Learner can use \code{list(treated = lrn("regr.lm"), control = lrn("regr.ranger"))}
+#' to give the two groups different models; an X-Learner can also use \code{list(tau1 = ..., tau0 = ...)} to separate the two effect regressions.
 #'
-#' @section 观察性数据与「加权」的设计边界:
-#' 本包**不提供** \code{weighting} / \code{weights} / \code{stabilize} 参数（v0.40 起移除）。
-#' 理由是：经典 metalearner 文献（Künzel et al. 2019 PNAS 的 X-learner，以及 CausalML 的
-#' BaseS / BaseT / BaseX）从不给 S/T/X 的结局模型套逆概率权重。各 learner 处理混杂的
-#' 方式各不相同，且都写在各自的定义里：
+#' @section Observational data and the design boundary around "weighting":
+#' This package **does not provide** \code{weighting} / \code{weights} / \code{stabilize} arguments (removed since v0.40).
+#' The reason: the classic metalearner literature (the X-learner of Künzel et al. 2019, PNAS, and CausalML's
+#' BaseS / BaseT / BaseX) never applies inverse-probability weights to the S/T/X outcome models. Each learner handles
+#' confounding differently, and each does so by construction:
 #' \describe{
-#'   \item{S / T / X}{靠**把混杂因子放进 \code{X}**、由结局模型条件化。
-#'     漏掉混杂因子时偏倚与朴素估计相同——加任何权重都救不回来}
-#'   \item{R}{Robinson 残差化：结局与处理都对 \code{X} 取残差后回归}
-#'   \item{DR}{AIPW 双重稳健伪结果：只要 \code{(m1, m0)} 或 \code{e(x)} 之一设定正确
-#'     就一致，是观察性数据下最稳健的选择}
+#'   \item{S / T / X}{relies on **putting the confounders into \code{X}** and conditioning on them via the outcome model.
+#'     When a confounder is omitted, the bias equals that of the naive estimator -- no weighting can recover from it}
+#'   \item{R}{Robinson residualization: both outcome and treatment are residualized on \code{X} before regression}
+#'   \item{DR}{AIPW doubly-robust pseudo-outcome: consistent as long as \strong{one} of \code{(m1, m0)} or \code{e(x)} is correctly specified,
+#'     the most robust choice under observational data}
 #' }
-#' 一个只会重估结局模型的「单稳健」加权既不是文献做法，也无法单独去混杂，
-#' 因此不再保留。生存结局另有**删矢 IPCW**（\code{effect = "survdiff"} 时乘在个体结局
-#' \code{I(T > t0)} 上），那是估计量对删矢的标准处理，不是用户可开关的选项。
+#' A "single-robust" weighting that only re-estimates the outcome model is neither the literature's approach nor able to
+#' deconfound on its own, so it is no longer retained. Survival outcomes additionally use **censoring IPCW** (multiplied onto the
+#' individual outcome \code{I(T > t0)} when \code{effect = "survdiff"}), which is the estimator's standard handling of censoring,
+#' not a user-toggleable option.
 #'
-#' @return 含 \code{$predict(newX)}、\code{$ate}、\code{$cate_train} 与 \code{$models}
-#'   （每阶段训练好的 mlr3 模型，见 \code{@@details}）的拟合对象
+#' @return A fitted object containing \code{$predict(newX)}, \code{$ate}, \code{$cate_train}, and \code{$models}
+#'   (the fitted mlr3 models for each stage; see \code{@@details})
 #' @seealso \code{\link{s_learner}}, \code{\link{ml_task}}
 #' @export
 #' @examples
-#' # RCT：默认即可，无需任何加权
+#' # RCT: defaults suffice; no weighting needed
 #' d <- mlr3HTE_demo_data(n = 500, seed = 1)
 #' fit <- metalearner("T", d$X, d$A, d$Y, learner_base = mlr3::lrn("regr.lm"))
 #' cor(fit$cate_train, d$tau)
 #'
-#' # 观察性数据：DR-Learner 默认内部拟合倾向得分，双重稳健
+#' # Observational data: the DR-Learner fits the propensity score internally by default (doubly robust)
 #' dobs <- mlr3HTE_demo_obs(n = 800, seed = 1)
 #' fit_obs <- metalearner("DR", dobs$X, dobs$A, dobs$Y)
-#' fit_obs$ate                     # 对比 dobs$ate（真实 ATE）
+#' fit_obs$ate                     # compare against dobs$ate (true ATE)
 #'
-#' # RCT 已知随机化概率 0.5 时，可直接把常数倾向得分传给 X/R/DR
+#' # For an RCT with a known randomization probability of 0.5, pass a constant propensity score to X/R/DR
 #' fit_rct <- metalearner("X", d$X, d$A, d$Y, learner_ps = 0.5)
 metalearner <- function(type, X, A, Y,
                         learner_base = mlr3::lrn("regr.ranger"),
@@ -115,25 +116,25 @@ metalearner <- function(type, X, A, Y,
          cross_fitting = cross_fitting, n_folds = n_folds, engine = engine)
 }
 
-#' CATE / ATE 的自助法置信区间
+#' Bootstrap confidence intervals for CATE / ATE
 #'
-#' 对整条拟合流程做 B 次自助重抽样（有放回抽同样本量的行），
-#' 用百分位数法给出逐点 CATE 区间与 ATE 区间。
+#' Performs B bootstrap resamples of the whole fitting pipeline (sampling rows with replacement at the same sample size),
+#' and reports pointwise CATE intervals and an ATE interval via the percentile method.
 #'
-#' 注意：这是**非参数自助法**，只反映抽样变异，不覆盖模型设定偏倚；
-#' 且每次要重新拟合，B 较大时开销不小（建议先用小 B 试）。
+#' Note: this is a **nonparametric bootstrap** that reflects only sampling variation, not model-specification bias;
+#' each run refits the model, so the cost is non-trivial for large B (try a small B first).
 #'
-#' @param type metalearner 类型，或 "auto" 沿用 fit 的类型
-#' @param X 协变量 data.frame
-#' @param A 处理指示
-#' @param Y 结局
-#' @param B 自助次数，默认 100
-#' @param level 置信水平，默认 0.95
-#' @param seed 随机种子，便于复现
-#' @param newX 需要 CATE 区间的新数据；默认用训练集 X
-#' @param ... 其他传给 metalearner() 的参数（learner_base、t0、effect 等）
-#' @return list：cate_lo / cate_hi（逐点 CATE 区间）、ate_lo / ate_hi、
-#'   cate_mean、ate、B、level
+#' @param type metalearner type, or "auto" to reuse the type of the fit
+#' @param X covariate data.frame
+#' @param A treatment indicator
+#' @param Y outcome
+#' @param B number of bootstrap repetitions; default 100
+#' @param level confidence level; default 0.95
+#' @param seed random seed, for reproducibility
+#' @param newX new data for which CATE intervals are needed; defaults to the training set X
+#' @param ... other arguments passed to metalearner() (learner_base, t0, effect, etc.)
+#' @return a list: cate_lo / cate_hi (pointwise CATE intervals), ate_lo / ate_hi,
+#'   cate_mean, ate, B, level
 #' @seealso \code{\link{metalearner}}
 #' @export
 #' @examples
@@ -175,98 +176,98 @@ cate_ci <- function(type, X, A, Y, B = 100L, level = 0.95, seed = NULL,
 
 # 各 learner 的便捷封装：直接返回训练集 CATE 向量（与课程脚本同款签名）
 # 完整控制（含 $predict、$ate、$cate_train）请用 metalearner()。
-#' S-Learner（便捷封装，直接返回训练集 CATE）
+#' S-Learner (convenience wrapper, returns the training-set CATE directly)
 #'
-#' @description 拟合 S-Learner 并直接返回训练集上的 CATE 向量，方便与课程脚本对照。
-#' @param X 协变量 data.frame（不含处理与结局）
-#' @param A 处理指示（0/1，或逻辑）
-#' @param Y 结局：连续（数值）/ 二分类（0-1 或两水平因子）/ 生存（Surv 对象）
-#' @param learner_base 结局模型基学习器，默认 \code{regr.ranger}
-#' @param ... 其他传给 \code{\link{metalearner}} 的参数（\code{t0}、
-#'   \code{effect}、\code{cross_fitting} 等）
-#' @return 训练集上逐样本的 CATE 数值向量
+#' @description Fit an S-Learner and return the CATE vector on the training set, for easy comparison with course scripts.
+#' @param X covariate data.frame (excluding treatment and outcome)
+#' @param A treatment indicator (0/1, or logical)
+#' @param Y outcome: continuous (numeric) / binary (0-1 or two-level factor) / survival (Surv object)
+#' @param learner_base outcome-model base learner; default \code{regr.ranger}
+#' @param ... other arguments passed to \code{\link{metalearner}} (\code{t0},
+#'   \code{effect}, \code{cross_fitting}, etc.)
+#' @return a per-sample CATE numeric vector on the training set
 #' @seealso \code{\link{metalearner}}
 #' @export
 s_learner <- function(X, A, Y, learner_base = mlr3::lrn("regr.ranger"), ...) {
   ml_fit("S", X, A, Y, learner_base = learner_base, ...)$cate_train
 }
-#' T-Learner（便捷封装，直接返回训练集 CATE）
+#' T-Learner (convenience wrapper, returns the training-set CATE directly)
 #'
-#' @description 拟合 T-Learner 并直接返回训练集上的 CATE 向量。
-#' @param X 协变量 data.frame（不含处理与结局）
-#' @param A 处理指示（0/1，或逻辑）
-#' @param Y 结局：连续（数值）/ 二分类（0-1 或两水平因子）/ 生存（Surv 对象）
-#' @param learner_base 结局模型基学习器，默认 \code{regr.ranger}
-#' @param ... 其他传给 \code{\link{metalearner}} 的参数
-#' @return 训练集上逐样本的 CATE 数值向量
+#' @description Fit a T-Learner and return the CATE vector on the training set.
+#' @param X covariate data.frame (excluding treatment and outcome)
+#' @param A treatment indicator (0/1, or logical)
+#' @param Y outcome: continuous (numeric) / binary (0-1 or two-level factor) / survival (Surv object)
+#' @param learner_base outcome-model base learner; default \code{regr.ranger}
+#' @param ... other arguments passed to \code{\link{metalearner}}
+#' @return a per-sample CATE numeric vector on the training set
 #' @seealso \code{\link{metalearner}}
 #' @export
 t_learner <- function(X, A, Y, learner_base = mlr3::lrn("regr.ranger"), ...) {
   ml_fit("T", X, A, Y, learner_base = learner_base, ...)$cate_train
 }
-#' X-Learner（便捷封装，直接返回训练集 CATE）
+#' X-Learner (convenience wrapper, returns the training-set CATE directly)
 #'
-#' @description 拟合 X-Learner 并直接返回训练集上的 CATE 向量。
-#' @param X 协变量 data.frame（不含处理与结局）
-#' @param A 处理指示（0/1，或逻辑）
-#' @param Y 结局：连续（数值）/ 二分类（0-1 或两水平因子）/ 生存（Surv 对象）
-#' @param learner_base 结局模型基学习器，默认 \code{regr.ranger}
-#' @param ... 其他传给 \code{\link{metalearner}} 的参数
-#' @return 训练集上逐样本的 CATE 数值向量
+#' @description Fit an X-Learner and return the CATE vector on the training set.
+#' @param X covariate data.frame (excluding treatment and outcome)
+#' @param A treatment indicator (0/1, or logical)
+#' @param Y outcome: continuous (numeric) / binary (0-1 or two-level factor) / survival (Surv object)
+#' @param learner_base outcome-model base learner; default \code{regr.ranger}
+#' @param ... other arguments passed to \code{\link{metalearner}}
+#' @return a per-sample CATE numeric vector on the training set
 #' @seealso \code{\link{metalearner}}
 #' @export
 x_learner <- function(X, A, Y, learner_base = mlr3::lrn("regr.ranger"), ...) {
   ml_fit("X", X, A, Y, learner_base = learner_base, ...)$cate_train
 }
-#' R-Learner（便捷封装，直接返回训练集 CATE）
+#' R-Learner (convenience wrapper, returns the training-set CATE directly)
 #'
-#' @description 拟合 R-Learner 并直接返回训练集上的 CATE 向量。
-#'   可用 \code{cross_fitting = TRUE} 启用交叉拟合。
-#' @param X 协变量 data.frame（不含处理与结局）
-#' @param A 处理指示（0/1，或逻辑）
-#' @param Y 结局：连续（数值）/ 二分类（0-1 或两水平因子）/ 生存（Surv 对象）
-#' @param learner_base 结局模型基学习器，默认 \code{regr.ranger}
-#' @param ... 其他传给 \code{\link{metalearner}} 的参数
-#' @return 训练集上逐样本的 CATE 数值向量
+#' @description Fit an R-Learner and return the CATE vector on the training set.
+#'   Cross-fitting can be enabled with \code{cross_fitting = TRUE}.
+#' @param X covariate data.frame (excluding treatment and outcome)
+#' @param A treatment indicator (0/1, or logical)
+#' @param Y outcome: continuous (numeric) / binary (0-1 or two-level factor) / survival (Surv object)
+#' @param learner_base outcome-model base learner; default \code{regr.ranger}
+#' @param ... other arguments passed to \code{\link{metalearner}}
+#' @return a per-sample CATE numeric vector on the training set
 #' @seealso \code{\link{metalearner}}
 #' @export
 r_learner <- function(X, A, Y, learner_base = mlr3::lrn("regr.ranger"), ...) {
   ml_fit("R", X, A, Y, learner_base = learner_base, ...)$cate_train
 }
-#' DR-Learner（便捷封装，直接返回训练集 CATE）
+#' DR-Learner (convenience wrapper, returns the training-set CATE directly)
 #'
-#' @description 拟合 DR-Learner 并直接返回训练集上的 CATE 向量（双重稳健）。
-#'   可用 \code{cross_fitting = TRUE} 启用交叉拟合。
-#' @param X 协变量 data.frame（不含处理与结局）
-#' @param A 处理指示（0/1，或逻辑）
-#' @param Y 结局：连续（数值）/ 二分类（0-1 或两水平因子）/ 生存（Surv 对象）
-#' @param learner_base 结局模型基学习器，默认 \code{regr.ranger}
-#' @param ... 其他传给 \code{\link{metalearner}} 的参数
-#' @return 训练集上逐样本的 CATE 数值向量
+#' @description Fit a DR-Learner and return the CATE vector on the training set (doubly robust).
+#'   Cross-fitting can be enabled with \code{cross_fitting = TRUE}.
+#' @param X covariate data.frame (excluding treatment and outcome)
+#' @param A treatment indicator (0/1, or logical)
+#' @param Y outcome: continuous (numeric) / binary (0-1 or two-level factor) / survival (Surv object)
+#' @param learner_base outcome-model base learner; default \code{regr.ranger}
+#' @param ... other arguments passed to \code{\link{metalearner}}
+#' @return a per-sample CATE numeric vector on the training set
 #' @seealso \code{\link{metalearner}}
 #' @export
 dr_learner <- function(X, A, Y, learner_base = mlr3::lrn("regr.ranger"), ...) {
   ml_fit("DR", X, A, Y, learner_base = learner_base, ...)$cate_train
 }
 
-#' 把原始 X/A/Y 编码成可直接喂给 lrn("regr.metalearner") 的 mlr3 Task
+#' Encode the raw X/A/Y into an mlr3 Task ready to feed to lrn("regr.metalearner")
 #'
-#' mlr3 的 Task 目标列只能是单一数值列，装不下 Surv 对象，所以约定如下编码：
+#' An mlr3 Task's target column can only be a single numeric column, which cannot hold a Surv object, so the encoding is as follows:
 #' \describe{
-#'   \item{连续/二分类}{目标列 \code{.outcome} = Y（二分类取 0/1 数值）}
-#'   \item{生存}{目标列 \code{.outcome} = 随访时间，另加特征列 \code{.status} = 事件指示}
+#'   \item{continuous / binary}{target column \code{.outcome} = Y (binary uses 0/1 numeric)}
+#'   \item{survival}{target column \code{.outcome} = follow-up time, plus a feature column \code{.status} = event indicator}
 #' }
-#' 结局类型与（生存的）t0 记录在 \code{task$extra_args} 里。实测该字段在
-#' \code{clone(deep = TRUE)$filter()} 与 \code{serialize()/unserialize()}
-#' 之后都保留，因此 \code{resample()} 分折时元数据不会丢。
+#' The outcome type and (for survival) t0 are recorded in \code{task$extra_args}. Testing confirms this field survives
+#' \code{clone(deep = TRUE)$filter()} and \code{serialize()/unserialize()},
+#' so the metadata is not lost when \code{resample()} splits into folds.
 #'
-#' @param X 协变量 data.frame
-#' @param A 处理指示（0/1）
-#' @param Y 结局（数值 / 0-1 / 两水平因子 / Surv 对象）
-#' @param t0 生存结局的效应评估时点
-#' @param id Task 的 id
-#' @param treatment_col 处理列在 Task 里的列名（默认 "A"）
-#' @return 一个 \code{TaskRegr}，可直接用于 \code{lrn("regr.metalearner")}
+#' @param X covariate data.frame
+#' @param A treatment indicator (0/1)
+#' @param Y outcome (numeric / 0-1 / two-level factor / Surv object)
+#' @param t0 effect evaluation time point for survival outcomes
+#' @param id id of the Task
+#' @param treatment_col name of the treatment column in the Task (default "A")
+#' @return a \code{TaskRegr}, directly usable with \code{lrn("regr.metalearner")}
 #' @seealso \code{\link{metalearner}}, \code{\link{LearnerRegrMetalearner}}
 #' @export
 ml_task <- function(X, A, Y, t0 = NULL, id = "ml_hte", treatment_col = "A") {
@@ -303,14 +304,14 @@ ml_task <- function(X, A, Y, t0 = NULL, id = "ml_hte", treatment_col = "A") {
 # 1 连续结局 RCT 演示数据（与课程模块三同款 DGP）------------------------------
 # 真实 CATE: tau = 1.0 + 0.8*z1 - 0.5*z2 + 0.6*(z1>1 & z2<0)
 # 真实基线均值: mu = 6 + 0.4*z1 + 0.5*z2 - 0.02*(age-60) + 0.3*sex
-#' 演示数据：连续结局 RCT
+#' Demo data: continuous-outcome RCT
 #'
-#' @description 生成连续结局的 RCT 演示数据（默认处理 A 与协变量 X 独立，无混杂）。
-#'   真实 CATE 与 ATE 随数据一并返回，便于评估 metalearner 的拟合质量。
-#' @param n 样本量，默认 4000
-#' @param treat_frac 处理组比例，默认 0.5
-#' @param seed 随机种子
-#' @return list：X（协变量）、A（处理）、Y（结局）、tau（真实 CATE 向量）、ate（真实 ATE）
+#' @description Generate RCT demo data with a continuous outcome (by default treatment A is independent of covariates X, no confounding).
+#'   The true CATE and ATE are returned alongside the data, for assessing the metalearner's fit quality.
+#' @param n sample size; default 4000
+#' @param treat_frac treated-group proportion; default 0.5
+#' @param seed random seed
+#' @return a list: X (covariates), A (treatment), Y (outcome), tau (true CATE vector), ate (true ATE)
 #' @export
 mlr3HTE_demo_data <- function(n = 4000, treat_frac = 0.5, seed = 1201) {
   set.seed(seed)
@@ -332,14 +333,15 @@ mlr3HTE_demo_data <- function(n = 4000, treat_frac = 0.5, seed = 1201) {
 # logit P(Y=1|A=0) = -1.2 + 0.5*z1 + 0.4*z2 + 0.1*(age-60)/12 + 0.2*sex
 # 治疗在对数几率尺度上加 tau_logit = 0.6 + 0.5*z1 - 0.4*z2；
 # 风险差尺度的真实 CATE 按基线概率逐一换算，随数据一并返回。
-#' 演示数据：二分类结局 RCT
+#' Demo data: binary-outcome RCT
 #'
-#' @description 生成二分类结局的 RCT 演示数据（无混杂）。治疗在对数几率尺度上施加
-#'   异质性效应，风险差尺度的真实 CATE 按基线概率逐一换算并随数据返回。
-#' @param n 样本量，默认 4000
-#' @param treat_frac 处理组比例，默认 0.5
-#' @param seed 随机种子
-#' @return list：X、A、Y、tau（风险差尺度的真实 CATE）、ate（真实 ATE）
+#' @description Generate RCT demo data with a binary outcome (no confounding). The treatment applies a
+#'   heterogeneous effect on the log-odds scale; the true CATE on the risk-difference scale is converted from the baseline
+#'   probabilities individually and returned with the data.
+#' @param n sample size; default 4000
+#' @param treat_frac treated-group proportion; default 0.5
+#' @param seed random seed
+#' @return a list: X, A, Y, tau (true CATE on the risk-difference scale), ate (true ATE)
 #' @export
 mlr3HTE_demo_binary <- function(n = 4000, treat_frac = 0.5, seed = 1202) {
   set.seed(seed)
@@ -362,17 +364,17 @@ mlr3HTE_demo_binary <- function(n = 4000, treat_frac = 0.5, seed = 1202) {
 # 3 生存结局 RCT 演示数据 ------------------------------------------------------
 # 指数基线风险，治疗把风险乘以 exp(-tau)，tau 随协变量变化；
 # 效应度量 = t0 时点生存概率差。含随机关闭，删失比例约 15%。
-#' 演示数据：生存结局 RCT
+#' Demo data: survival-outcome RCT
 #'
-#' @description 生成生存结局的 RCT 演示数据（指数基线风险，含约 15% 独立删失）。
-#'   默认效应度量 = t0 时点生存概率差 S1(t0) - S0(t0)；另返回 RMST 版真实效应
-#'   （tau_rmst / ate_rmst）。
-#' @param n 样本量，默认 4000
-#' @param treat_frac 处理组比例，默认 0.5
-#' @param t0 效应评估时点，默认 2
-#' @param seed 随机种子
-#' @return list：X、A、Y（Surv 对象）、tau（生存概率差尺度的真实 CATE）、ate、
-#'   t0、tau_rmst、ate_rmst
+#' @description Generate RCT demo data with a survival outcome (exponential baseline hazard, with about 15% independent censoring).
+#'   The default effect measure is the survival-probability difference at t0, S1(t0) - S0(t0); the RMST version of the true effect
+#'   is also returned (tau_rmst / ate_rmst).
+#' @param n sample size; default 4000
+#' @param treat_frac treated-group proportion; default 0.5
+#' @param t0 effect evaluation time point; default 2
+#' @param seed random seed
+#' @return a list: X, A, Y (Surv object), tau (true CATE on the survival-probability-difference scale), ate,
+#'   t0, tau_rmst, ate_rmst
 #' @export
 mlr3HTE_demo_surv <- function(n = 4000, treat_frac = 0.5, t0 = 2, seed = 1203) {
   set.seed(seed)
@@ -408,18 +410,18 @@ mlr3HTE_demo_surv <- function(n = 4000, treat_frac = 0.5, t0 = 2, seed = 1203) {
 # 处理概率依赖协变量（confounding by indication）：病情越重越容易接受处理，
 # 因此未调整的差分会偏离真实 ATE。强度由 strength 控制：0 = 与 RCT 等价
 # （处理与协变量独立），越大混杂越强。
-#' 演示数据：连续结局 + 观察性（混杂）
+#' Demo data: continuous outcome + observational (confounding)
 #'
-#' @description 生成连续结局的**观察性**演示数据，处理概率依赖协变量（病情越重越易
-#'   接受治疗 = confounding by indication），未调整的差分会偏离真实 ATE。
-#'   观察性数据下去混杂的正道：S/T/X 把混杂因子放进 \code{X} 由结局模型条件化，
-#'   R-Learner 走 Robinson 残差化，DR-Learner 走 AIPW 双重稳健（最稳健）。
-#'   同时返回真实倾向得分 \code{ps_true} 供核查。
-#' @param n 样本量，默认 4000
-#' @param strength 混杂强度，默认 1。\code{0} 时处理概率与协变量无关（等价 RCT），
-#'   数值越大混杂越强；用于扫描「不同强度混杂下的估计表现」
-#' @param seed 随机种子
-#' @return list：X、A、Y、tau（真实 CATE）、ate（真实 ATE）、ps_true（真实倾向得分）
+#' @description Generate **observational** demo data with a continuous outcome, where the treatment probability depends on covariates
+#'   (the sicker the patient, the more likely to be treated = confounding by indication), so the unadjusted difference deviates from the true ATE.
+#'   The proper way to deconfound under observational data: S/T/X put the confounders into \code{X} and condition on them via the outcome model,
+#'   the R-Learner uses Robinson residualization, and the DR-Learner uses AIPW doubly-robust estimation (most robust).
+#'   The true propensity score \code{ps_true} is also returned for inspection.
+#' @param n sample size; default 4000
+#' @param strength confounding strength; default 1. When \code{0} the treatment probability is independent of covariates (equivalent to an RCT),
+#'   larger values mean stronger confounding; used to scan estimator performance under varying confounding strength
+#' @param seed random seed
+#' @return a list: X, A, Y, tau (true CATE), ate (true ATE), ps_true (true propensity score)
 #' @export
 mlr3HTE_demo_obs <- function(n = 4000, strength = 1, seed = 1204) {
   set.seed(seed)
@@ -442,14 +444,14 @@ mlr3HTE_demo_obs <- function(n = 4000, strength = 1, seed = 1204) {
 # 与 mlr3HTE_demo_obs 同一套混杂结构（病情越重越容易接受处理），
 # 结局换成二分类：治疗在对数几率尺度上加 tau_logit，
 # 风险差尺度的真实 CATE 按基线概率逐一换算。
-#' 演示数据：二分类结局 + 观察性（混杂）
+#' Demo data: binary outcome + observational (confounding)
 #'
-#' @description 与 \code{\link{mlr3HTE_demo_obs}} 同一套混杂结构（病情越重越易接受
-#'   处理），结局换成二分类。风险差尺度的真实 CATE 随数据返回，另含 \code{ps_true}。
-#' @param n 样本量，默认 4000
-#' @param strength 混杂强度，默认 1；\code{0} 时等价 RCT
-#' @param seed 随机种子
-#' @return list：X、A、Y、tau（风险差尺度的真实 CATE）、ate（真实 ATE）、ps_true
+#' @description Same confounding structure as \code{\link{mlr3HTE_demo_obs}} (the sicker the patient, the more likely to be treated),
+#'   but with a binary outcome. The true CATE on the risk-difference scale is returned with the data, along with \code{ps_true}.
+#' @param n sample size; default 4000
+#' @param strength confounding strength; default 1; \code{0} is equivalent to an RCT
+#' @param seed random seed
+#' @return a list: X, A, Y, tau (true CATE on the risk-difference scale), ate (true ATE), ps_true
 #' @export
 mlr3HTE_demo_obs_binary <- function(n = 4000, strength = 1, seed = 1205) {
   set.seed(seed)
@@ -472,16 +474,16 @@ mlr3HTE_demo_obs_binary <- function(n = 4000, strength = 1, seed = 1205) {
 
 # 6 观察性数据（生存结局 + 混杂）-----------------------------------------------
 # 同一套混杂结构，结局换成生存时间；效应度量 = t0 时点生存概率差。
-#' 演示数据：生存结局 + 观察性（混杂）
+#' Demo data: survival outcome + observational (confounding)
 #'
-#' @description 与 \code{\link{mlr3HTE_demo_obs}} 同一套混杂结构，结局换成生存时间。
-#'   默认效应度量 = t0 时点生存概率差；另返回 RMST 版真实效应与 \code{ps_true}。
-#' @param n 样本量，默认 4000
-#' @param t0 效应评估时点，默认 2
-#' @param strength 混杂强度，默认 1；\code{0} 时等价 RCT
-#' @param seed 随机种子
-#' @return list：X、A、Y（Surv 对象）、tau（生存概率差尺度的真实 CATE）、ate、t0、
-#'   ps_true、tau_rmst、ate_rmst
+#' @description Same confounding structure as \code{\link{mlr3HTE_demo_obs}}, but with a survival-time outcome.
+#'   The default effect measure is the survival-probability difference at t0; the RMST version of the true effect and \code{ps_true} are also returned.
+#' @param n sample size; default 4000
+#' @param t0 effect evaluation time point; default 2
+#' @param strength confounding strength; default 1; \code{0} is equivalent to an RCT
+#' @param seed random seed
+#' @return a list: X, A, Y (Surv object), tau (true CATE on the survival-probability-difference scale), ate, t0,
+#'   ps_true, tau_rmst, ate_rmst
 #' @export
 mlr3HTE_demo_obs_surv <- function(n = 4000, t0 = 2, strength = 1, seed = 1206) {
   set.seed(seed)

@@ -2,27 +2,31 @@
 % Please edit documentation in R/scenarios.R
 \name{mlr3HTE_bench}
 \alias{mlr3HTE_bench}
-\title{随包发布的基准模拟数据（.rda）}
+\title{Benchmark simulation data shipped with the package (.rda)}
 \usage{
 mlr3HTE_bench(id, outcome = c("continuous", "binary", "survival"))
 }
 \arguments{
-\item{id}{场景 id，见 \code{\link{mlr3HTE_scenarios}}。}
+\item{id}{The scenario id, see \code{\link{mlr3HTE_scenarios}}.}
 
-\item{outcome}{结局类型。}
+\item{outcome}{The outcome type.}
 }
 \value{
-与 \code{\link{mlr3HTE_scenario}} 相同的 list；若该组合没有被
-预生成，则从磁盘上的场景生成器即时重算（结果一致，只是慢一点）。
+The same list as \code{\link{mlr3HTE_scenario}}; if that combination was
+not pre-generated, it is recomputed on the fly from the on-disk scenario
+generator (the result is identical, just slower).
 }
 \description{
-\code{\link{mlr3HTE_scenario}} 已按 10 个设计 × 3 类结局预生成完毕，
-以 \code{n = 2000}、固定种子打包在 \code{data/mlr3hte_bench_data.rda} 中随包发布。
-方法学比较应统一使用这一份数据，避免各自重新模拟导致结论不可比。
+\code{\link{mlr3HTE_scenario}} has been pre-generated for all 10 designs x 3
+outcome types, packaged with \code{n = 2000} and a fixed seed in
+\code{data/mlr3hte_bench_data.rda} and shipped with the package. Methodology
+comparisons should uniformly use this one dataset to avoid conclusions becoming
+incomparable due to each analysis re-simulating on its own.
 
-每个元素与 \code{mlr3HTE_scenario()} 的返回值结构相同；集合本身的
-键为 \code{<场景 id>.<结局>}，例如 \code{"obs_nonlin_nonlin_sharedT.survival"}。
-键的完整清单见 \code{mlr3HTE_bench_index()}。
+Each element has the same structure as the return value of
+\code{mlr3HTE_scenario()}; the keys of the collection itself are
+\code{<scenario id>.<outcome>}, e.g. \code{"obs_nonlin_nonlin_sharedT.survival"}.
+The full list of keys is available from \code{mlr3HTE_bench_index()}.
 }
 \examples{
 \donttest{

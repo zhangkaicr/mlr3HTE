@@ -2,28 +2,30 @@
 % Please edit documentation in R/metrics.R
 \name{plot_qini}
 \alias{plot_qini}
-\title{绘制 Qini 曲线}
+\title{Plot the Qini curve}
 \usage{
 plot_qini(curve, main = "Qini curve", color = "#1B6CA8", ...)
 }
 \arguments{
-\item{curve}{\code{\link{qini_curve}} 返回的 data.frame。}
+\item{curve}{The data.frame returned by \code{\link{qini_curve}}.}
 
-\item{main}{图标题。}
+\item{main}{The plot title.}
 
-\item{color}{曲线颜色。}
+\item{color}{The curve color.}
 
-\item{...}{不再使用，保留以兼容旧调用。}
+\item{...}{No longer used; kept for backward compatibility with old calls.}
 }
 \value{
-\code{ggplot} 对象。
+A \code{ggplot} object.
 }
 \description{
-画 \code{\link{qini_curve}} 的返回对象，并叠加随机靶向参考线（虚线）。
+Plot the object returned by \code{\link{qini_curve}}, with an overlaid random
+targeting reference line (dashed).
 }
 \details{
-返回 \code{ggplot} 对象，可继续用 \code{+} 叠加图层或主题；
-绘图所用的数据就是 \code{\link{qini_curve}} 的返回值本身。
+Returns a \code{ggplot} object, which can be further augmented with \code{+}
+layers or themes; the data used for plotting is exactly the return value of
+\code{\link{qini_curve}} itself.
 }
 \examples{
 set.seed(1)

@@ -2,7 +2,7 @@
 % Please edit documentation in R/metrics.R
 \name{c_for_benefit}
 \alias{c_for_benefit}
-\title{c-for-benefit：预测治疗获益的 C 统计量}
+\title{c-for-benefit: the C-statistic for predicting treatment benefit}
 \usage{
 c_for_benefit(
   cate,
@@ -18,68 +18,89 @@ c_for_benefit(
 )
 }
 \arguments{
-\item{cate}{逐个体估计的 CATE（数值向量），即模型的排序分数。}
+\item{cate}{Per-individual estimated CATE (numeric vector), i.e. the model's
+ranking score.}
 
-\item{A}{处理指示（0/1 或逻辑）。}
+\item{A}{Treatment indicator (0/1 or logical).}
 
-\item{Y}{结局：连续数值、0/1 二分类，或生存对象
-（\code{survival::Surv(time, status)}，也可直接给两列矩阵）。}
+\item{Y}{Outcome: continuous numeric, 0/1 binary, or a survival object
+(\code{survival::Surv(time, status)}; a two-column matrix is also accepted).}
 
-\item{caliper}{配对时允许的最大预测获益差；\code{NULL}（默认）不设卡钳，
-总是取最近邻。设卡钳可避免把获益相差很大的两人硬配。}
+\item{caliper}{The maximum allowed predicted-benefit difference when pairing;
+\code{NULL} (default) sets no caliper and always takes the nearest neighbor.
+Setting a caliper avoids forcibly pairing two people with very different benefits.}
 
-\item{propensity}{倾向得分 \eqn{e(X)}；\code{NULL}（默认）时用 \code{mean(A)}，
-适用于随机化试验。观察性数据请传入估计好的倾向得分。}
+\item{propensity}{The propensity score \eqn{e(X)}; \code{NULL} (default) uses
+\code{mean(A)}, suitable for randomized trials. For observational data, pass
+an estimated propensity score.}
 
-\item{mu1}{处理组的结局模型预测值 \eqn{\hat\mu_1(X)}（数值向量，长度同 \code{cate}）。
-观察性数据下与 \code{propensity}、\code{mu0} 一起传入以启用 DR 校正；
-\code{NULL}（默认）时用原始结局差，仅在随机化试验下无偏。}
+\item{mu1}{The outcome-model prediction for the treated group \eqn{\hat\mu_1(X)}
+(numeric vector, same length as \code{cate}). Under observational data, pass it
+together with \code{propensity} and \code{mu0} to enable DR correction;
+\code{NULL} (default) uses the raw outcome difference, unbiased only under
+randomization.}
 
-\item{mu0}{对照组的结局模型预测值 \eqn{\hat\mu_0(X)}。用法同 \code{mu1}。}
+\item{mu0}{The outcome-model prediction for the control group \eqn{\hat\mu_0(X)}.
+Used the same way as \code{mu1}.}
 
-\item{t0}{生存结局的关键时点；\code{NULL}（默认）取事件时间中位数。}
+\item{t0}{The key time point for survival outcomes; \code{NULL} (default) uses
+the median event time.}
 
-\item{X}{协变量 data.frame；仅生存结局且删失依赖协变量时需要（Cox 建模删失
-分布）。\code{NULL}（默认）用边际 Kaplan–Meier。}
+\item{X}{A data.frame of covariates; needed only for survival outcomes when
+censoring depends on covariates (Cox modeling of the censoring distribution).
+\code{NULL} (default) uses the marginal Kaplan--Meier.}
 
-\item{effect}{生存结局的效应标尺，\code{"survdiff"}（默认）或 \code{"rmst"}。}
+\item{effect}{The effect scale for survival outcomes, \code{"survdiff"} (default)
+or \code{"rmst"}.}
 }
 \value{
-一个 list，含 \code{c_for_benefit}（C 统计量）、\code{n_pairs}
-（配对数）以及一致/不一致/预测并列的对数。
+A list containing \code{c_for_benefit} (the C-statistic), \code{n_pairs}
+(number of pairs), and the numbers of concordant / discordant / tied-prediction
+pairs.
 }
 \description{
-按 van Klaveren 等（2018）的思路，把处理组与对照组个体\strong{按预测获益配对}
-（贪心 1:1 最近邻，基于估计 CATE），每对给出"观测获益"
-（处理者结局减对照者结局）与"预测获益"（该对的估计 CATE）。
-随后在所有配对之间比较：若观测获益更大的那一对，其预测获益也更大，
-记为一致（concordant）。c-for-benefit 即一致对占全部信息对的比例
-（预测获益相同按 0.5 计）。
+Following van Klaveren et al. (2018), pair treated and control individuals
+\strong{by predicted benefit} (greedy 1:1 nearest neighbor, based on the estimated
+CATE); each pair yields an "observed benefit" (treated outcome minus control
+outcome) and a "predicted benefit" (the pair's estimated CATE). Then compare
+across all pairs: if the pair with the larger observed benefit also has the
+larger predicted benefit, it counts as concordant. c-for-benefit is the
+proportion of concordant pairs among all informative pairs (ties in predicted
+benefit count as 0.5).
 }
 \details{
-解释：c = 0.5 相当于随机排序；越接近 1，模型越能区分"谁获益更多"。
-注意：这是对 van Klaveren 配对思想的\strong{近似实现}（贪心配对 + 配对间秩相关），
-不是原文的完整匹配流程；需要严格复现时请对照 \code{CforBenefit} 包。
+Interpretation: c = 0.5 is equivalent to random ranking; the closer to 1, the
+better the model distinguishes "who benefits more". Note: this is an
+\strong{approximate implementation} of van Klaveren's pairing idea (greedy pairing +
+rank correlation between pairs), not the full matching procedure of the original
+paper; for strict reproduction please refer to the \code{CforBenefit} package.
 }
-\section{观察性数据 - 必须走双重稳健，不能只给倾向得分}{
+\section{Observational data — doubly robust is required, not just a propensity score}{
 
-默认的"观测获益 = 处理者结局 − 对照者结局"只在处理随机化时无偏。观察性数据里
-两者基线预后不同，这个差被混杂污染。
-正确做法是把观测获益换成\strong{双重稳健（DR）伪结局}：
+The default "observed benefit = treated outcome - control outcome" is unbiased
+only when treatment is randomized. In observational data the two groups have
+different baseline prognoses, so this difference is confounded.
+The correct approach is to replace the observed benefit with the
+\strong{doubly robust (DR) pseudo-outcome}:
 \deqn{Y^*_i = (\hat\mu_1(X_i) - \hat\mu_0(X_i)) +
   \frac{A_i(Y_i - \hat\mu_1(X_i))}{e_i} -
   \frac{(1-A_i)(Y_i - \hat\mu_0(X_i))}{1-e_i}}
-满足 \eqn{E[Y^*_i \mid X_i] = \tau(X_i)}，且\strong{结局模型与倾向得分模型
-只要有一个正确即无偏}。配对内取两人的 \eqn{Y^*} 平均作为观测获益。
+It satisfies \eqn{E[Y^*_i \mid X_i] = \tau(X_i)}, and is \strong{unbiased as long
+as either the outcome model or the propensity-score model is correct}. Within a
+pair, the average of the two individuals' \eqn{Y^*} is taken as the observed
+benefit.
 
-为什么不能只传 \code{propensity}：那样等价于用 Horvitz–Thompson 评分
-\eqn{AY/e - (1-A)Y/(1-e)} 当观测获益，其单次样本标准差极大（本包演示数据上
-实测约 15，而 ATE 只有 1 左右），噪声会把 C 统计量压到随机线以下——实测即使用
-真 \code{tau} 排序也只有 0.39，比随机还差。所以只给 \code{propensity} 会直接报错，
-逼你把结局模型一起给进来。
+Why not just pass \code{propensity}: that is equivalent to using the
+Horvitz--Thompson score \eqn{AY/e - (1-A)Y/(1-e)} as the observed benefit, whose
+single-sample standard deviation is huge (about 15 on this package's demo data,
+while the ATE is around 1), and the noise pushes the C-statistic below the random
+line — even ranking by the true \code{tau} measures only 0.39, worse than random.
+So passing only \code{propensity} errors out, forcing you to also supply the
+outcome model.
 
-三个干扰参数可以用 \code{\link{dr_pseudo_outcome}} 一次拿到，它默认做交叉拟合，
-避免"结局模型评价自己的 CATE"带来的虚高。
+The three nuisance parameters can be obtained at once with
+\code{\link{dr_pseudo_outcome}}, which cross-fits by default to avoid the
+inflation from "the outcome model evaluating its own CATE".
 }
 
 \examples{
@@ -90,14 +111,14 @@ tau <- rnorm(n)
 Y <- 1 + A * tau + rnorm(n)
 c_for_benefit(tau, A, Y)$c_for_benefit
 
-# 观察性数据：用交叉拟合的 DR 伪结局当观测获益
+# Observational data: use the cross-fitted DR pseudo-outcome as the observed benefit
 set.seed(1)
 d <- mlr3HTE_demo_obs(n = 800)
 dr <- dr_pseudo_outcome(d$X, d$A, d$Y, seed = 1)
 c_for_benefit(dr$mu1 - dr$mu0, d$A, d$Y,
               propensity = dr$propensity, mu1 = dr$mu1, mu0 = dr$mu0)
 
-# 观察性数据：DR-Learner 默认内部拟合倾向得分，双重稳健
+# Observational data: the DR-Learner fits the propensity score internally by default (doubly robust)
 set.seed(1)
 d <- mlr3HTE_demo_obs(n = 800)
 fit <- metalearner("DR", d$X, d$A, d$Y)

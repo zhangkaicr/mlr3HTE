@@ -2,7 +2,7 @@
 % Please edit documentation in R/dag.R
 \name{mlr3HTE_dag_data}
 \alias{mlr3HTE_dag_data}
-\title{DAG 图的绘图数据（节点与边）}
+\title{Plotting data for the DAG (nodes and edges)}
 \usage{
 mlr3HTE_dag_data(
   design = c("rct", "obs"),
@@ -10,23 +10,26 @@ mlr3HTE_dag_data(
 )
 }
 \arguments{
-\item{design}{研究设计，\code{"rct"} 或 \code{"obs"}。}
+\item{design}{The study design, \code{"rct"} or \code{"obs"}.}
 
-\item{outcome}{结局类型，只影响标题文字，不改变因果结构。}
+\item{outcome}{The outcome type, which only affects the title text and does not
+change the causal structure.}
 }
 \value{
-list：
+A list:
 \itemize{
-\item \code{nodes}：\code{id} / \code{x} / \code{y} / \code{label} / \code{role}
-\item \code{edges}：\code{from} / \code{to} / \code{type}（\code{"conf"} 为
-红绘的混杂路径）/ \code{x} \code{y} \code{xend} \code{yend}（原始端点）/
-\code{xs} \code{ys} \code{xe} \code{ye}（回退后用于绘制的端点）/
-\code{curve}（该边的曲率；0 表示直线）
+\item \code{nodes}: \code{id} / \code{x} / \code{y} / \code{label} / \code{role}
+\item \code{edges}: \code{from} / \code{to} / \code{type} (\code{"conf"} is the
+confounding path drawn in red) / \code{x} \code{y} \code{xend} \code{yend}
+(original endpoints) / \code{xs} \code{ys} \code{xe} \code{ye} (endpoints
+after retreating, used for drawing) / \code{curve} (the edge's curvature; 0
+means a straight line)
 }
 }
 \description{
-\code{\link{mlr3HTE_dag}} 画图所用的节点表与边表。单独提供出来，便于
-用其他工具（ggraph、DiagrammeR）重画，或检查每条边的路由结果。
+The node table and edge table used by \code{\link{mlr3HTE_dag}} for plotting.
+Provided separately to facilitate redrawing with other tools (ggraph, DiagrammeR)
+or inspecting the routing result of each edge.
 }
 \seealso{
 \code{\link{mlr3HTE_dag}}

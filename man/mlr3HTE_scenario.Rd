@@ -2,7 +2,7 @@
 % Please edit documentation in R/scenarios.R
 \name{mlr3HTE_scenario}
 \alias{mlr3HTE_scenario}
-\title{生成一个基准模拟场景}
+\title{Generate a benchmark simulation scenario}
 \usage{
 mlr3HTE_scenario(
   id,
@@ -13,40 +13,44 @@ mlr3HTE_scenario(
 )
 }
 \arguments{
-\item{id}{场景 id，见 \code{\link{mlr3HTE_scenarios}}。}
+\item{id}{The scenario id, see \code{\link{mlr3HTE_scenarios}}.}
 
-\item{outcome}{结局类型：\code{"continuous"}（默认）/ \code{"binary"} /
-\code{"survival"}。}
+\item{outcome}{The outcome type: \code{"continuous"} (default) / \code{"binary"} /
+\code{"survival"}.}
 
-\item{n}{样本量，默认 2000。}
+\item{n}{The sample size, default 2000.}
 
-\item{seed}{随机种子；默认 \code{NULL} 时按 \code{id} 与 \code{outcome}
-派生一个固定种子，保证不同场景之间互不相同但各自可复现。}
+\item{seed}{The random seed; when \code{NULL} (default), a fixed seed is derived
+from \code{id} and \code{outcome}, ensuring different scenarios are distinct from
+each other yet each reproducible.}
 
-\item{t0}{生存结局的效应评估时点，默认 2。}
+\item{t0}{The effect evaluation time point for survival outcomes, default 2.}
 }
 \value{
-list：
+A list:
 \itemize{
-\item \code{X} 协变量 data.frame（age / lac / tumor / sex）
-\item \code{A} 处理指示（0/1）
-\item \code{Y} 结局（生存结局为 \code{Surv} 对象）
-\item \code{tau} 逐人真实 CATE（当前结局尺度）
-\item \code{ate} 真实 ATE = \code{mean(tau)}
-\item \code{ps_true} 真实倾向得分（RCT 恒为 0.5）
-\item \code{tau_rmst} / \code{ate_rmst} 生存结局的 RMST 尺度真值
-\item \code{meta} 该场景的结构标签与参数
+\item \code{X} A data.frame of covariates (age / lac / tumor / sex)
+\item \code{A} Treatment indicator (0/1)
+\item \code{Y} Outcome (a \code{Surv} object for survival outcomes)
+\item \code{tau} Per-individual true CATE (on the current outcome scale)
+\item \code{ate} True ATE = \code{mean(tau)}
+\item \code{ps_true} True propensity score (always 0.5 for RCT scenarios)
+\item \code{tau_rmst} / \code{ate_rmst} RMST-scale truth for survival outcomes
+\item \code{meta} The scenario's structural labels and parameters
 }
 }
 \description{
-按 \code{\link{mlr3HTE_scenarios}} 中的结构标签生成一份带真值的模拟数据。
-同一个 \code{id} + \code{outcome} + \code{n} + \code{seed} 组合结果完全可复现，
-因此可以直接作为方法学比较的固定基准。
+Generate a simulation dataset with a known truth according to the structural
+labels in \code{\link{mlr3HTE_scenarios}}. The same \code{id} + \code{outcome} +
+\code{n} + \code{seed} combination is fully reproducible, so it can be used
+directly as a fixed benchmark for methodology comparison.
 
-真值 \code{tau} 的定义随结局尺度变化：连续结局为\strong{均值差}，二分类为
-\strong{风险差}（逐人换算，不是对数几率尺度的常数），生存结局为
-\strong{t0 时点生存概率差}；生存结局同时返回 RMST 尺度的真值
-\code{tau_rmst}。ATE 为 \code{tau} 的样本均值。
+The definition of the truth \code{tau} varies with the outcome scale: for
+continuous outcomes it is the \strong{mean difference}, for binary outcomes the
+\strong{risk difference} (converted per individual, not a constant on the log-odds
+scale), and for survival outcomes the \strong{survival probability difference at
+t0}; survival outcomes also return the RMST-scale truth \code{tau_rmst}. The ATE
+is the sample mean of \code{tau}.
 }
 \examples{
 d <- mlr3HTE_scenario("obs_nonlin_nonlin_sharedT", "continuous", n = 500, seed = 1)

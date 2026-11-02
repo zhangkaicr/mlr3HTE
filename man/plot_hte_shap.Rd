@@ -2,7 +2,7 @@
 % Please edit documentation in R/explain.R
 \name{plot_hte_shap}
 \alias{plot_hte_shap}
-\title{绘制 SHAP 解释图}
+\title{Plot SHAP explanation figures}
 \usage{
 plot_hte_shap(
   sv,
@@ -13,27 +13,27 @@ plot_hte_shap(
 )
 }
 \arguments{
-\item{sv}{\code{\link{hte_shap}} 返回的 \code{shapviz} 对象。}
+\item{sv}{The \code{shapviz} object returned by \code{\link{hte_shap}}.}
 
-\item{kind}{视图类型，见上。}
+\item{kind}{The view type, see above.}
 
-\item{variable}{\code{kind = "dependence"} 时指定变量名；
-\code{kind = "waterfall"} 时指定样本行号。}
+\item{variable}{For \code{kind = "dependence"} specify the variable name;
+for \code{kind = "waterfall"} specify the sample row number.}
 
-\item{max_vars}{最多显示多少个变量，默认 8。}
+\item{max_vars}{The maximum number of variables to display, default 8.}
 
-\item{...}{传给对应的 \code{shapviz::sv_*()} 函数。}
+\item{...}{Passed to the corresponding \code{shapviz::sv_*()} function.}
 }
 \value{
-\code{ggplot} 对象。
+A \code{ggplot} object.
 }
 \description{
-四类常用视图，全部返回 \code{ggplot} 对象：
+Four common views, all returning a \code{ggplot} object:
 \describe{
-\item{\code{"importance"}}{平均绝对 SHAP 值的条形图（全局重要性）}
-\item{\code{"beeswarm"}}{逐样本 SHAP 值的蜂群图（重要性 + 方向 + 取值）}
-\item{\code{"dependence"}}{单个变量的 SHAP 值对取值的散点图}
-\item{\code{"waterfall"}}{单个样本的瀑布图（从基线到最终预测）}
+\item{\code{"importance"}}{Bar plot of mean absolute SHAP values (global importance)}
+\item{\code{"beeswarm"}}{Beeswarm plot of per-sample SHAP values (importance + direction + value)}
+\item{\code{"dependence"}}{Scatter plot of a single variable's SHAP values against its values}
+\item{\code{"waterfall"}}{Waterfall plot for a single sample (from baseline to final prediction)}
 }
 }
 \seealso{

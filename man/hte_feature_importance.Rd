@@ -2,7 +2,7 @@
 % Please edit documentation in R/explain.R
 \name{hte_feature_importance}
 \alias{hte_feature_importance}
-\title{CATE 模型的变量重要性（置换法）}
+\title{Variable importance for CATE models (permutation method)}
 \usage{
 hte_feature_importance(
   explainer,
@@ -14,35 +14,43 @@ hte_feature_importance(
 )
 }
 \arguments{
-\item{explainer}{\code{\link{hte_explainer}} 的结果。}
+\item{explainer}{The result of \code{\link{hte_explainer}}.}
 
-\item{loss}{损失函数，默认 \code{"rmse"}；也可用 \code{"mse"}，或直接传一个
-\code{function(observed, predicted)} 形式的函数对象。DALEX 2.5 并未导出
-MAE，因此这里不提供 \code{"mae"}。注意必须传函数对象而非字符串：
-传字符串时 DALEX 会在自身框架内按名查找 \code{loss_*}，跨包调用会失败。}
+\item{loss}{The loss function, defaulting to \code{"rmse"}; \code{"mse"} is also
+accepted, or you may pass a function object of the form
+\code{function(observed, predicted)}. DALEX 2.5 does not export MAE, so
+\code{"mae"} is not offered here. Note that a function object must be passed
+rather than a string: when a string is passed, DALEX looks up \code{loss_*}
+by name within its own framework, and cross-package calls will fail.}
 
-\item{B}{置换次数，默认 10。B 越大越稳定，代价是乘 B 的预测开销。}
+\item{B}{The number of permutations, default 10. Larger B is more stable at the
+cost of B times the prediction overhead.}
 
-\item{variables}{只评估这些变量（默认全部）。}
+\item{variables}{Only evaluate these variables (all by default).}
 
-\item{seed}{随机种子。}
+\item{seed}{Random seed.}
 
-\item{N}{用于计算损失的抽样行数；\code{NULL}（默认）用 DALEX 的默认值
-（1000 行或全量，取小者）。大样本下显式给 N 可显著加速。}
+\item{N}{The number of sampled rows used to compute the loss; \code{NULL}
+(default) uses DALEX's default (1000 rows or the full data, whichever is
+smaller). Explicitly setting N on large samples can substantially speed things up.}
 }
 \value{
-data.frame：\code{variable} / \code{dropout_loss} /
-\code{baseline}（全模型损失）/ \code{dropout}（相对上升量）/
-\code{dropout_pct}（相对上升百分比），按 \code{dropout} 降序。
+A data.frame with \code{variable} / \code{dropout_loss} /
+\code{baseline} (full-model loss) / \code{dropout} (relative increase) /
+\code{dropout_pct} (relative increase in percent), sorted by \code{dropout}
+in descending order.
 }
 \description{
-基于 \code{DALEX::model_parts} 计算置换重要性：逐个打乱某个协变量的取值，
-观察 \eqn{\hat\tau} 相对双重稳健伪结局的损失上升多少。
-上升越多，说明该变量对 CATE 的异质性贡献越大。
+Compute permutation importance based on \code{DALEX::model_parts}: for each
+covariate, shuffle its values and observe how much the loss of \eqn{\hat\tau}
+relative to the doubly robust pseudo-outcome increases. The larger the increase,
+the more that variable contributes to CATE heterogeneity.
 
-注意这是\strong{对模型的解释}，不是因果效应分解：重要性高只说明模型用到了这个
-变量，不说明该变量真的修饰了治疗效果。判断后者需要设计层面的证据
-（例如交互项检验或随机化下的分层分析）。
+Note that this is an \strong{explanation of the model}, not a causal-effect
+decomposition: a high importance only means the model uses the variable, not
+that the variable truly modifies the treatment effect. Establishing the latter
+requires design-level evidence (e.g. interaction tests or stratified analysis
+under randomization).
 }
 \examples{
 \donttest{

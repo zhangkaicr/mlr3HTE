@@ -2,7 +2,7 @@
 % Please edit documentation in R/metrics.R
 \name{toc_curve}
 \alias{toc_curve}
-\title{TOC 曲线：按效应排序后各分位的平均治疗效应}
+\title{TOC curve: average treatment effect by quantile after ranking by effect}
 \usage{
 toc_curve(
   cate,
@@ -16,37 +16,46 @@ toc_curve(
 )
 }
 \arguments{
-\item{cate}{逐个体估计的 CATE（数值向量），即模型的排序分数。}
+\item{cate}{Per-individual estimated CATE (numeric vector), i.e. the model's
+ranking score.}
 
-\item{A}{处理指示（0/1 或逻辑）。}
+\item{A}{Treatment indicator (0/1 or logical).}
 
-\item{Y}{结局：连续数值、0/1 二分类，或生存对象
-（\code{survival::Surv(time, status)}，也可直接给两列矩阵）。}
+\item{Y}{Outcome: continuous numeric, 0/1 binary, or a survival object
+(\code{survival::Surv(time, status)}; a two-column matrix is also accepted).}
 
-\item{propensity}{倾向得分 \eqn{e(X)}；\code{NULL}（默认）时用 \code{mean(A)}，
-适用于随机化试验。观察性数据请传入估计好的倾向得分。}
+\item{propensity}{The propensity score \eqn{e(X)}; \code{NULL} (default) uses
+\code{mean(A)}, suitable for randomized trials. For observational data, pass
+an estimated propensity score.}
 
-\item{n_bins}{曲线取多少个点（等量分箱的箱末点）；\code{NULL} 表示用全部样本点。}
+\item{n_bins}{How many points the curve takes (bin endpoints of equal-sized
+bins); \code{NULL} means using all sample points.}
 
-\item{t0}{生存结局的关键时点；\code{NULL}（默认）取事件时间中位数。
-连续/二分类结局忽略此参数。}
+\item{t0}{The key time point for survival outcomes; \code{NULL} (default) uses
+the median event time. Ignored for continuous / binary outcomes.}
 
-\item{X}{协变量 data.frame；仅生存结局且删失依赖协变量时需要，用于 Cox 建模
-删失分布。\code{NULL}（默认）用边际 Kaplan–Meier，假定删失与协变量无关。}
+\item{X}{A data.frame of covariates; needed only for survival outcomes when
+censoring depends on covariates, used to model the censoring distribution with
+Cox. \code{NULL} (default) uses the marginal Kaplan--Meier, assuming censoring
+is independent of covariates.}
 
-\item{effect}{生存结局的效应标尺：\code{"survdiff"}（默认）为 \eqn{t0} 时点
-生存概率差，与 \code{metalearner()} 的默认 CATE 一致；\code{"rmst"} 为
-限制平均生存时间差。连续/二分类结局忽略此参数。}
+\item{effect}{The effect scale for survival outcomes: \code{"survdiff"} (default)
+is the survival probability difference at \eqn{t0}, matching the default CATE
+of \code{metalearner()}; \code{"rmst"} is the restricted mean survival time
+difference. Ignored for continuous / binary outcomes.}
 }
 \value{
-data.frame，含 \code{fraction} 与 \code{toc}，并附属性
-\code{overall_ate}（全样本 IPW 估计的 ATE，作为水平参考）。
+A data.frame containing \code{fraction} and \code{toc}, with the attribute
+\code{overall_ate} (the full-sample IPW-estimated ATE, as the horizontal reference).
 }
 \description{
-把样本按估计 CATE 从高到低排序，看"靶向前 k 个个体"这一子群里的
-平均治疗效应（用同一 IPW 评分估计）如何随靶向比例变化，并与全样本
-的总体 ATE（水平参考线）比较。信息性模型在前段应明显高于总体 ATE，
-说明获益更多的人被排到了前面；平坦贴近总体线则说明无异质性可利用。
+Sort the samples by estimated CATE from high to low, and look at how the average
+treatment effect (estimated with the same IPW score) within the subgroup of
+"top-k targeted individuals" changes with the targeting fraction, compared with
+the overall ATE of the full sample (horizontal reference line). An informative
+model should be clearly above the overall ATE in the front segment, indicating
+that the more-benefiting individuals are ranked to the front; a flat curve hugging
+the overall line means there is no heterogeneity to exploit.
 }
 \examples{
 set.seed(1)

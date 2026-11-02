@@ -1,4 +1,4 @@
-# 包级初始化：把 LearnerRegrMetalearner 注册进 mlr3 词典，使 lrn("regr.metalearner") 可用
+# Package-level initialization: register LearnerRegrMetalearner into the mlr3 dictionary so that lrn("regr.metalearner") is available
 .onLoad <- function(libname, pkgname) {
   if (requireNamespace("mlr3", quietly = TRUE)) {
     x <- try(mlr3::mlr_learners$get("regr.metalearner"), silent = TRUE)

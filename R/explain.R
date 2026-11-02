@@ -1,23 +1,28 @@
 # =====================================================================
-# explain.R —— CATE 模型的可解释性（DALEX 体系 + kernelshap + shapviz）
+# explain.R — Interpretability for CATE models (DALEX framework + kernelshap + shapviz)
 #
-# 目的：metalearner 输出的 CATE 是一个黑箱函数 tau_hat(X)。
-#       方法学上需要回答两个问题：
-#         (1) 哪些协变量在驱动 CATE 的异质性？（全局：置换重要性、PDP、ALE）
-#         (2) 某个具体个体的 CATE 为什么是这个数？（局部：SHAP）
+# Purpose: the CATE produced by a metalearner is a black-box function tau_hat(X).
+#          Methodologically two questions must be answered:
+#            (1) Which covariates drive CATE heterogeneity? (global: permutation
+#                importance, PDP, ALE)
+#            (2) Why does a specific individual have this CATE value? (local: SHAP)
 #
-# 关键设计：被解释的「模型」是 CATE 预测器，被解释的「响应」不是原始 Y，
-# 而是**双重稳健伪结局** Y*（满足 E[Y*|X] = tau(X)）。
-# 直接用 Y 做响应是错的——Y 里含基线预后 mu(X) 与噪声，
-# 置换重要性会退化成「谁在预测预后」，而不是「谁在预测效应异质性」。
+# Key design: the "model" being explained is the CATE predictor, and the "response"
+#             being explained is not the raw Y but the **doubly robust pseudo-outcome**
+#             Y* (which satisfies E[Y*|X] = tau(X)).
+#             Using Y directly as the response is wrong — Y contains the baseline
+#             prognosis mu(X) and noise, so permutation importance degenerates into
+#             "who predicts prognosis" rather than "who predicts effect heterogeneity".
 #
-# 三条依赖各自负责一件事，全部放在 Suggests 里按需加载：
-#   DALEX       置换重要性（model_parts）、PDP / ALE（model_profile）
-#   kernelshap  Kernel SHAP 精确值（p 不大时可用；p 大时自动切换采样）
-#   shapviz     SHAP 的可视化（importance / beeswarm / dependence / waterfall）
+# The three dependencies each handle one task, all loaded on demand from Suggests:
+#   DALEX        permutation importance (model_parts), PDP / ALE (model_profile)
+#   kernelshap  exact Kernel SHAP values (usable when p is small; switches to
+#               sampling automatically when p is large)
+#   shapviz     SHAP visualization (importance / beeswarm / dependence / waterfall)
 #
-# 与 mlr3 的关系：mlr3 负责拟合，DALEX 负责解释，两者通过
-# predict_function = function(model, newdata) 这一个接口衔接。
+# Relationship with mlr3: mlr3 does the fitting, DALEX does the explanation, and the
+# two are connected through the single interface
+# predict_function = function(model, newdata)
 # =====================================================================
 
 # 1 依赖守卫 -------------------------------------------------------------------
@@ -44,34 +49,44 @@ utils::globalVariables(".data")
 }
 
 # 3 构建解释器 -------------------------------------------------------------
-#' 构造 CATE 模型的解释器（DALEX）
+#' Construct an explainer for CATE models (DALEX)
 #'
 #' @description
-#' 把 \code{\link{metalearner}} 的拟合结果包装成 \code{DALEX::explain} 解释器，
-#' 供 \code{\link{hte_feature_importance}} 与 \code{\link{hte_pdp}} 使用。
+#' Wrap the fitted result of \code{\link{metalearner}} into a \code{DALEX::explain}
+#' explainer, for use by \code{\link{hte_feature_importance}} and \code{\link{hte_pdp}}.
 #'
-#' **响应变量是双重稳健伪结局，不是原始 Y。** 这是本函数与方法学文献里
-#' 「直接解释预测值」做法的关键差别：CATE 模型的预测目标是 \eqn{\tau(X)}，
-#' 而 \eqn{E[Y \mid X]} 含基线预后 \eqn{\mu(X)}。若用 Y 作响应，
-#' 置换重要性衡量的是「该变量对预后的重要性」，与效应异质性无关。
-#' 双重稳健伪结局 \eqn{Y^*} 满足 \eqn{E[Y^* \mid X] = \tau(X)}，
-#' 因此用它作响应时，重要性、PDP 与 SHAP 回答的都是**效应异质性**的问题。
+#' **The response variable is the doubly robust pseudo-outcome, not the raw Y.**
+#' This is the key difference from the "directly explain the predictions" approach
+#' in the methodology literature: the CATE model's prediction target is
+#' \eqn{\tau(X)}, whereas \eqn{E[Y \mid X]} contains the baseline prognosis
+#' \eqn{\mu(X)}. If Y is used as the response, permutation importance measures
+#' "the variable's importance for prognosis", which is unrelated to effect
+#' heterogeneity. The doubly robust pseudo-outcome \eqn{Y^*} satisfies
+#' \eqn{E[Y^* \mid X] = \tau(X)}, so when it is used as the response, the
+#' importance, PDP and SHAP all answer questions about **effect heterogeneity**.
 #'
-#' @param fit \code{\link{metalearner}} 的返回对象，或任何带
-#'   \code{$predict(newX)} 的对象（例如 \code{\link{hte_surrogate}} 的结果）。
-#' @param X 协变量 data.frame，解释所依据的样本（通常就是训练集）。
-#' @param A 处理指示；当 \code{pseudo} 未提供时用于计算伪结局。
-#' @param Y 结局；当 \code{pseudo} 未提供时用于计算伪结局。
-#' @param pseudo 已经算好的逐人伪结局向量。给出时忽略 \code{A} / \code{Y}，
-#'   适合复用 \code{\link{dr_pseudo_outcome}} 的结果以省去重复计算。
-#' @param t0 生存结局的效应评估时点，传给 \code{\link{dr_pseudo_outcome}}。
-#' @param effect 生存结局的效应尺度，\code{"survdiff"} 或 \code{"rmst"}。
-#' @param label 解释器的显示名，默认沿用 metalearner 的类型标签。
-#' @param verbose 是否打印 DALEX 的进度信息。
-#' @param ... 传给 \code{\link{dr_pseudo_outcome}} 的其他参数
-#'   （\code{learner_ps}、\code{learner_base}、\code{cross_fitting}、\code{seed} 等）。
-#' @return \code{hte_explainer} 对象：含 \code{$explainer}（DALEX 解释器）、
-#'   \code{$fit}、\code{$pseudo}、\code{$X}、\code{$t0}、\code{$effect}。
+#' @param fit The return object of \code{\link{metalearner}}, or any object with
+#'   \code{$predict(newX)} (e.g. the result of \code{\link{hte_surrogate}}).
+#' @param X A data.frame of covariates, the sample on which the explanation is based
+#'   (usually the training set).
+#' @param A Treatment indicator; used to compute the pseudo-outcome when \code{pseudo}
+#'   is not supplied.
+#' @param Y Outcome; used to compute the pseudo-outcome when \code{pseudo} is not
+#'   supplied.
+#' @param pseudo A precomputed per-individual pseudo-outcome vector. When supplied,
+#'   \code{A} / \code{Y} are ignored, which is convenient for reusing the result of
+#'   \code{\link{dr_pseudo_outcome}} to avoid repeated computation.
+#' @param t0 The effect evaluation time point for survival outcomes, passed to
+#'   \code{\link{dr_pseudo_outcome}}.
+#' @param effect The effect scale for survival outcomes, \code{"survdiff"} or
+#'   \code{"rmst"}.
+#' @param label The display name of the explainer, defaulting to the metalearner's
+#'   type label.
+#' @param verbose Whether to print DALEX progress information.
+#' @param ... Additional arguments passed to \code{\link{dr_pseudo_outcome}}
+#'   (\code{learner_ps}, \code{learner_base}, \code{cross_fitting}, \code{seed}, etc.).
+#' @return A \code{hte_explainer} object containing \code{$explainer} (the DALEX
+#'   explainer), \code{$fit}, \code{$pseudo}, \code{$X}, \code{$t0}, \code{$effect}.
 #' @references
 #' Biecek P, Burzykowski T. \emph{Explanatory Model Analysis: Explore, Explain,
 #' and Examine Predictive Models}. Chapman & Hall/CRC, 2021.
@@ -141,22 +156,23 @@ hte_explainer <- function(fit, X, A = NULL, Y = NULL, pseudo = NULL,
 }
 
 # 4 代理模型：用任意 mlr3 学习器重拟合 CATE 曲面 -------------------------------
-#' 用 mlr3 学习器为 CATE 曲面拟合代理模型
+#' Fit a surrogate model for the CATE surface using an mlr3 learner
 #'
 #' @description
-#' metalearner 的 CATE 预测可能是多阶段、带权重、带交叉拟合的复合过程，
-#' 直接解释未必对应单一可读的函数。做法是先得到逐人 CATE 估计
-#' \eqn{\hat\tau(X_i)}，再用一个**单一**的 mlr3 学习器把它重拟合一遍，
-#' 得到一个结构简单、可解释的代理模型（surrogate），用于 PDP、SHAP 与
-#' 后续规则提取。这是 Explanatory Model Analysis 中
-#' \emph{model distillation} 的做法。
+#' The CATE prediction from a metalearner may be a multi-stage, weighted,
+#' cross-fitted composite process, and explaining it directly may not correspond
+#' to a single readable function. The approach is to first obtain per-individual
+#' CATE estimates \eqn{\hat\tau(X_i)} and then refit them with a **single** mlr3
+#' learner, yielding a structurally simple, interpretable surrogate model for use
+#' in PDP, SHAP and subsequent rule extraction. This is the \emph{model
+#' distillation} approach in Explanatory Model Analysis.
 #'
-#' @param X 协变量 data.frame。
-#' @param tau_hat 逐人 CATE 估计（通常来自 \code{fit$predict(X)}）。
-#' @param learner 用于重拟合的 mlr3 回归学习器，默认
-#'   \code{regr.ranger}（\code{num.trees = 500}，\code{min.node.size = 20}）。
-#' @return 带 \code{$predict(newX)} 与 \code{$model} 的 list，可直接传给
-#'   \code{\link{hte_explainer}}。
+#' @param X A data.frame of covariates.
+#' @param tau_hat Per-individual CATE estimates (usually from \code{fit$predict(X)}).
+#' @param learner The mlr3 regression learner used for refitting, defaulting to
+#'   \code{regr.ranger} (\code{num.trees = 500}, \code{min.node.size = 20}).
+#' @return A list with \code{$predict(newX)} and \code{$model}, which can be passed
+#'   directly to \code{\link{hte_explainer}}.
 #' @seealso \code{\link{hte_explainer}}
 #' @export
 #' @examples
@@ -185,30 +201,38 @@ hte_surrogate <- function(X, tau_hat,
 }
 
 # 5 全局解释：置换重要性 -------------------------------------------------------
-#' CATE 模型的变量重要性（置换法）
+#' Variable importance for CATE models (permutation method)
 #'
 #' @description
-#' 基于 \code{DALEX::model_parts} 计算置换重要性：逐个打乱某个协变量的取值，
-#' 观察 \eqn{\hat\tau} 相对双重稳健伪结局的损失上升多少。
-#' 上升越多，说明该变量对 CATE 的异质性贡献越大。
+#' Compute permutation importance based on \code{DALEX::model_parts}: for each
+#' covariate, shuffle its values and observe how much the loss of \eqn{\hat\tau}
+#' relative to the doubly robust pseudo-outcome increases. The larger the increase,
+#' the more that variable contributes to CATE heterogeneity.
 #'
-#' 注意这是**对模型的解释**，不是因果效应分解：重要性高只说明模型用到了这个
-#' 变量，不说明该变量真的修饰了治疗效果。判断后者需要设计层面的证据
-#' （例如交互项检验或随机化下的分层分析）。
+#' Note that this is an **explanation of the model**, not a causal-effect
+#' decomposition: a high importance only means the model uses the variable, not
+#' that the variable truly modifies the treatment effect. Establishing the latter
+#' requires design-level evidence (e.g. interaction tests or stratified analysis
+#' under randomization).
 #'
-#' @param explainer \code{\link{hte_explainer}} 的结果。
-#' @param loss 损失函数，默认 \code{"rmse"}；也可用 \code{"mse"}，或直接传一个
-#'   \code{function(observed, predicted)} 形式的函数对象。DALEX 2.5 并未导出
-#'   MAE，因此这里不提供 \code{"mae"}。注意必须传函数对象而非字符串：
-#'   传字符串时 DALEX 会在自身框架内按名查找 \code{loss_*}，跨包调用会失败。
-#' @param B 置换次数，默认 10。B 越大越稳定，代价是乘 B 的预测开销。
-#' @param variables 只评估这些变量（默认全部）。
-#' @param seed 随机种子。
-#' @param N 用于计算损失的抽样行数；\code{NULL}（默认）用 DALEX 的默认值
-#'   （1000 行或全量，取小者）。大样本下显式给 N 可显著加速。
-#' @return data.frame：\code{variable} / \code{dropout_loss} /
-#'   \code{baseline}（全模型损失）/ \code{dropout}（相对上升量）/
-#'   \code{dropout_pct}（相对上升百分比），按 \code{dropout} 降序。
+#' @param explainer The result of \code{\link{hte_explainer}}.
+#' @param loss The loss function, defaulting to \code{"rmse"}; \code{"mse"} is also
+#'   accepted, or you may pass a function object of the form
+#'   \code{function(observed, predicted)}. DALEX 2.5 does not export MAE, so
+#'   \code{"mae"} is not offered here. Note that a function object must be passed
+#'   rather than a string: when a string is passed, DALEX looks up \code{loss_*}
+#'   by name within its own framework, and cross-package calls will fail.
+#' @param B The number of permutations, default 10. Larger B is more stable at the
+#'   cost of B times the prediction overhead.
+#' @param variables Only evaluate these variables (all by default).
+#' @param seed Random seed.
+#' @param N The number of sampled rows used to compute the loss; \code{NULL}
+#'   (default) uses DALEX's default (1000 rows or the full data, whichever is
+#'   smaller). Explicitly setting N on large samples can substantially speed things up.
+#' @return A data.frame with \code{variable} / \code{dropout_loss} /
+#'   \code{baseline} (full-model loss) / \code{dropout} (relative increase) /
+#'   \code{dropout_pct} (relative increase in percent), sorted by \code{dropout}
+#'   in descending order.
 #' @seealso \code{\link{hte_explainer}}, \code{\link{plot_hte_importance}}
 #' @export
 #' @examples
@@ -267,24 +291,29 @@ hte_feature_importance <- function(explainer, loss = "rmse", B = 10L,
 }
 
 # 6 全局解释：PDP / ALE -------------------------------------------------------
-#' CATE 模型的偏依赖（PDP）与累积局部效应（ALE）
+#' Partial dependence (PDP) and accumulated local effects (ALE) for CATE models
 #'
 #' @description
-#' 基于 \code{DALEX::model_profile}：把某个协变量固定在网格上逐点变动、
-#' 其余变量保持观测分布，看 \eqn{\hat\tau} 的平均值如何随之变化。
-#' \code{type = "partial"} 为经典 PDP，\code{type = "accumulated"} 为 ALE
-#' （在变量相关时 ALE 比 PDP 更稳健，因为 PDP 的外推会偏离观测支撑集）。
+#' Based on \code{DALEX::model_profile}: fix a covariate on a grid point by point,
+#' keep the remaining variables at their observed distribution, and see how the
+#' average of \eqn{\hat\tau} changes accordingly. \code{type = "partial"} is the
+#' classic PDP and \code{type = "accumulated"} is ALE (ALE is more robust than PDP
+#' when variables are correlated, because PDP extrapolation drifts away from the
+#' observed support).
 #'
-#' @param explainer \code{\link{hte_explainer}} 的结果。
-#' @param variables 要计算的变量名向量，默认取全部协变量。
-#' @param grid_points 网格点数，默认 101。
-#' @param type \code{"partial"}（PDP，默认）或 \code{"accumulated"}（ALE）。
-#' @param center 是否把曲线减去平均预测值，默认 \code{FALSE}。CATE 语境下纵轴
-#'   应为**绝对的平均预测 CATE**（量级本身有临床含义），曲线围绕 0 波动会
-#'   掩盖效应水平。这里显式传值，不依赖 DALEX 版本对该参数的默认处理。
-#' @param ... 传给 \code{DALEX::model_profile}。
-#' @return data.frame：\code{variable} / \code{x}（该变量的取值）/
-#'   \code{yhat}（该点的平均 CATE）/ \code{type}。
+#' @param explainer The result of \code{\link{hte_explainer}}.
+#' @param variables A vector of variable names to compute, defaulting to all
+#'   covariates.
+#' @param grid_points The number of grid points, default 101.
+#' @param type \code{"partial"} (PDP, default) or \code{"accumulated"} (ALE).
+#' @param center Whether to subtract the mean prediction from the curve, default
+#'   \code{FALSE}. In the CATE context the vertical axis should be the **absolute
+#'   average predicted CATE** (the magnitude itself is clinically meaningful), and
+#'   a curve fluctuating around 0 would mask the effect level. Here the value is
+#'   passed explicitly rather than relying on DALEX's version-dependent default.
+#' @param ... Passed to \code{DALEX::model_profile}.
+#' @return A data.frame with \code{variable} / \code{x} (the covariate value) /
+#'   \code{yhat} (the average CATE at that point) / \code{type}.
 #' @seealso \code{\link{hte_explainer}}, \code{\link{plot_hte_pdp}}
 #' @export
 #' @examples
@@ -320,30 +349,37 @@ hte_pdp <- function(explainer, variables = NULL, grid_points = 101L,
 }
 
 # 7 局部解释：Kernel SHAP ------------------------------------------------------
-#' CATE 模型的 SHAP 值（Kernel SHAP）
+#' SHAP values for CATE models (Kernel SHAP)
 #'
 #' @description
-#' 用 \code{kernelshap} 计算精确的 Kernel SHAP 值，再用 \code{shapviz}
-#' 包装为可绘图的 \code{shapviz} 对象。SHAP 把每个个体的预测值分解为
-#' 「基线值 + 各协变量的贡献」之和，且贡献满足可加性：
+#' Compute exact Kernel SHAP values with \code{kernelshap}, then wrap them into a
+#' plottable \code{shapviz} object with \code{shapviz}. SHAP decomposes each
+#' individual's prediction into the sum of "a baseline value + each covariate's
+#' contribution", and the contributions are additive:
 #' \deqn{\hat\tau(x) = \phi_0 + \sum_j \phi_j(x)}
-#' 与置换重要性相比，SHAP 同时给出**方向**（该变量把 CATE 推高还是压低）
-#' 与**局部性**（这一个体身上贡献多少），这是 PDP 做不到的。
+#' Compared with permutation importance, SHAP additionally provides the
+#' **direction** (whether the variable pushes CATE up or down) and the
+#' **locality** (how much it contributes for this particular individual), which PDP
+#' cannot do.
 #'
-#' 协变量数 p 不大时 Kernel SHAP 走精确枚举（\eqn{2^p} 个联盟），
-#' p 较大时由 kernelshap 自动切换到采样近似。
+#' When the number of covariates p is small, Kernel SHAP uses exact enumeration
+#' (\eqn{2^p} coalitions); when p is large, kernelshap automatically switches to
+#' sampling approximation.
 #'
-#' @param object \code{\link{hte_explainer}} 的结果，或任何带
-#'   \code{$predict(newX)} 的对象。
-#' @param X 需要计算 SHAP 的样本；默认为解释器里的 \code{X}。
-#' @param bg_X 背景数据（用于估计联盟的边际期望）；默认从 \code{X} 中
-#'   随机抽 \code{n_background} 行。背景集越大越稳定但越慢。
-#' @param n_background 背景样本量，默认 100。
-#' @param seed 随机种子（用于抽背景集）。
-#' @param verbose 是否显示 kernelshap 的进度条，默认 \code{FALSE}。
-#' @param ... 传给 \code{kernelshap::kernelshap} 的其他参数。
-#' @return \code{shapviz} 对象，可交给 \code{\link{plot_hte_shap}} 或
-#'   \code{shapviz} 自带的 \code{sv_*()} 函数。
+#' @param object The result of \code{\link{hte_explainer}}, or any object with
+#'   \code{$predict(newX)}.
+#' @param X The sample for which SHAP is computed; defaults to \code{X} in the
+#'   explainer.
+#' @param bg_X Background data (used to estimate the marginal expectation of
+#'   coalitions); by default \code{n_background} rows are randomly drawn from
+#'   \code{X}. A larger background set is more stable but slower.
+#' @param n_background The background sample size, default 100.
+#' @param seed Random seed (used to draw the background set).
+#' @param verbose Whether to show the kernelshap progress bar, default
+#'   \code{FALSE}.
+#' @param ... Additional arguments passed to \code{kernelshap::kernelshap}.
+#' @return A \code{shapviz} object, which can be passed to \code{\link{plot_hte_shap}}
+#'   or to the \code{sv_*()} functions provided by \code{shapviz}.
 #' @references
 #' Lundberg SM, Lee SI. A Unified Approach to Interpreting Model Predictions.
 #' \emph{NeurIPS}, 2017.
@@ -394,13 +430,15 @@ hte_shap <- function(object, X = NULL, bg_X = NULL, n_background = 100L,
   shapviz::shapviz(ks, X = X)
 }
 
-#' 把 shapviz 对象摊平为长表数据
+#' Flatten a shapviz object into long-format data
 #'
-#' @description 便于把 SHAP 值导出为 CSV 或自行用 ggplot2 重画。
-#' @param sv \code{\link{hte_shap}} 返回的 \code{shapviz} 对象。
-#' @return data.frame：\code{id}（样本序号）/ \code{variable} /
-#'   \code{value}（该样本该变量的取值）/ \code{shap}（SHAP 值）。
-#'   基线值 \eqn{\phi_0} 放在属性 \code{baseline} 里。
+#' @description Convenient for exporting SHAP values to CSV or redrawing with
+#'   ggplot2 on your own.
+#' @param sv The \code{shapviz} object returned by \code{\link{hte_shap}}.
+#' @return A data.frame with \code{id} (sample index) / \code{variable} /
+#'   \code{value} (the covariate value for that sample) / \code{shap} (the SHAP
+#'   value). The baseline value \eqn{\phi_0} is stored in the \code{baseline}
+#'   attribute.
 #' @seealso \code{\link{hte_shap}}
 #' @export
 hte_shap_data <- function(sv) {
@@ -419,13 +457,14 @@ hte_shap_data <- function(sv) {
 }
 
 # 8 绘图 ---------------------------------------------------------------------
-#' 绘制 CATE 变量重要性
+#' Plot CATE variable importance
 #'
-#' @param importance \code{\link{hte_feature_importance}} 的返回 data.frame。
-#' @param metric 画哪一列，默认 \code{"dropout_pct"}（相对上升百分比）；
-#'   也可用 \code{"dropout"}（绝对上升）。
-#' @param fill 条形填充色。
-#' @return \code{ggplot} 对象，可直接 \code{print()} 或用 \code{+} 继续定制。
+#' @param importance The data.frame returned by \code{\link{hte_feature_importance}}.
+#' @param metric Which column to plot, default \code{"dropout_pct"} (relative
+#'   increase in percent); \code{"dropout"} (absolute increase) is also available.
+#' @param fill The bar fill color.
+#' @return A \code{ggplot} object, which can be directly \code{print()}ed or further
+#'   customized with \code{+}.
 #' @seealso \code{\link{hte_feature_importance}}
 #' @export
 plot_hte_importance <- function(importance, metric = c("dropout_pct", "dropout"),
@@ -448,12 +487,13 @@ plot_hte_importance <- function(importance, metric = c("dropout_pct", "dropout")
                    plot.title = ggplot2::element_text(face = "bold"))
 }
 
-#' 绘制 CATE 的偏依赖曲线
+#' Plot the partial dependence curves of the CATE model
 #'
-#' @param pdp \code{\link{hte_pdp}} 的返回 data.frame。
-#' @param color 线条颜色。
-#' @param free_y 是否让各分面使用各自的 y 轴刻度（不同变量的 CATE 量级差异大时建议 TRUE）。
-#' @return \code{ggplot} 对象。
+#' @param pdp The data.frame returned by \code{\link{hte_pdp}}.
+#' @param color The line color.
+#' @param free_y Whether each facet uses its own y-axis scale (recommended TRUE when
+#'   the CATE magnitudes of different variables differ substantially).
+#' @return A \code{ggplot} object.
 #' @seealso \code{\link{hte_pdp}}
 #' @export
 plot_hte_pdp <- function(pdp, color = "#1B6CA8", free_y = TRUE) {
@@ -473,24 +513,24 @@ plot_hte_pdp <- function(pdp, color = "#1B6CA8", free_y = TRUE) {
                    plot.title = ggplot2::element_text(face = "bold"))
 }
 
-#' 绘制 SHAP 解释图
+#' Plot SHAP explanation figures
 #'
 #' @description
-#' 四类常用视图，全部返回 \code{ggplot} 对象：
+#' Four common views, all returning a \code{ggplot} object:
 #' \describe{
-#'   \item{\code{"importance"}}{平均绝对 SHAP 值的条形图（全局重要性）}
-#'   \item{\code{"beeswarm"}}{逐样本 SHAP 值的蜂群图（重要性 + 方向 + 取值）}
-#'   \item{\code{"dependence"}}{单个变量的 SHAP 值对取值的散点图}
-#'   \item{\code{"waterfall"}}{单个样本的瀑布图（从基线到最终预测）}
+#'   \item{\code{"importance"}}{Bar plot of mean absolute SHAP values (global importance)}
+#'   \item{\code{"beeswarm"}}{Beeswarm plot of per-sample SHAP values (importance + direction + value)}
+#'   \item{\code{"dependence"}}{Scatter plot of a single variable's SHAP values against its values}
+#'   \item{\code{"waterfall"}}{Waterfall plot for a single sample (from baseline to final prediction)}
 #' }
 #'
-#' @param sv \code{\link{hte_shap}} 返回的 \code{shapviz} 对象。
-#' @param kind 视图类型，见上。
-#' @param variable \code{kind = "dependence"} 时指定变量名；
-#'   \code{kind = "waterfall"} 时指定样本行号。
-#' @param max_vars 最多显示多少个变量，默认 8。
-#' @param ... 传给对应的 \code{shapviz::sv_*()} 函数。
-#' @return \code{ggplot} 对象。
+#' @param sv The \code{shapviz} object returned by \code{\link{hte_shap}}.
+#' @param kind The view type, see above.
+#' @param variable For \code{kind = "dependence"} specify the variable name;
+#'   for \code{kind = "waterfall"} specify the sample row number.
+#' @param max_vars The maximum number of variables to display, default 8.
+#' @param ... Passed to the corresponding \code{shapviz::sv_*()} function.
+#' @return A \code{ggplot} object.
 #' @seealso \code{\link{hte_shap}}, \code{\link{hte_shap_data}}
 #' @export
 plot_hte_shap <- function(sv, kind = c("importance", "beeswarm", "dependence", "waterfall"),
