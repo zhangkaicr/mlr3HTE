@@ -1,0 +1,6 @@
+dataset,source_package,source_function,n,n_features,outcome_type,treatment_type,has_ground_truth,true_ate,description,columns
+grf_causal,grf,grf::generate_causal_data(),2000,10,continuous,binary,yes,0.0689,grf 内置合成因果数据（连续结局），真实 CATE 由生成器给出。用于评估连续 HTE 估计量。,"treatment,outcome,x1..x10,cate_true"
+grf_survival,grf,grf::generate_causal_survival_data(),2000,10,survival(time+event),binary,yes,0.6101,grf 内置合成生存因果数据（含删失），真实 CATE 为 t0 时点生存概率差。用于评估生存 HTE 估计量。,"treatment,time,event,x1..x10,cate_true"
+econml_ihdp,econml,econml.data.dgps.ihdp_surface_B(),747,26,continuous,binary,yes,4.2172,econml 的 IHDP 基准（婴儿健康与发展干预），真实 CATE 已知，是 HTE 文献最常用的基准之一。,"outcome,treatment,x1..x26,cate_true"
+causalml_uplift,causalml,causalml.dataset.classification.make_uplift_classification(),8000,19,binary,multinomial(control/treatment1-3),yes,0.0439,causalml 合成 uplift 数据，多处理组（control/treatment1-3），真实 uplift 已知，用于 uplift 建模评估。,"treatment_group_key,x1_informative..x19_increase_mix,conversion,cate_true"
+causalml_continuous,causalml,causalml.dataset.regression.synthetic_data(),5000,10,continuous,binary,yes,0.5003,causalml 合成连续结局数据（Hillstrom 邮件营销风格），真实 CATE 已知，并附 baseline 与 propensity。,"outcome,x1..x10,treatment,cate_true,baseline,propensity"

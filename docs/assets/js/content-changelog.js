@@ -9,8 +9,33 @@ window.SITE_PAGES.changelog = {
   /* ---------------- 中文 ---------------- */
   zh: {
     title: "更新日志",
-    lede: "mlr3HTE 的版本历史与重要变更。当前版本 v0.43。",
+    lede: "mlr3HTE 的版本历史与重要变更。当前版本 v0.44。",
     sections: [
+
+      {
+        id: "v044",
+        heading: "v0.44 · 2026-11-01",
+        body:
+          '<div class="callout ok"><div class="callout-title">新增跨包基准数据集（grf / econml / causalml），均带真实 CATE</div>' +
+          '<p>新增 <code>inst/extdata/benchmarks/</code> 基准数据集与配套读取函数，便于在 mlr3HTE 里直接评估各类 HTE 估计量。</p></div>' +
+          '<h3>1. 数据集来源（均含真实个体处理效应 <code>cate_true</code>）</h3>' +
+          '<ul>' +
+          '<li><strong>grf</strong>（R）：<code>generate_causal_data()</code> 连续结局、<code>generate_causal_survival_data()</code> 生存结局。</li>' +
+          '<li><strong>econml</strong>（Python 定制版 0.16.0）：<code>ihdp_surface_B</code>——IHDP 模拟基准；该环境无经典 <code>ihdp()/twins()/jobs()</code>，以此替代。</li>' +
+          '<li><strong>causalml</strong>（Python 定制版 0.15.5）：<code>make_uplift_classification</code>（上游 <code>make_uplift</code> 等价物）、<code>regression.synthetic_data</code>（上游 <code>make_continuous</code>/Hillstrom 等价物）。</li>' +
+          '</ul>' +
+          '<h3>2. 交付物</h3>' +
+          '<ul>' +
+          '<li>5 个标准 CSV + 每集 <code>*_README.md</code>；<code>benchmarks_meta.csv</code> 统一数据字典。</li>' +
+          '<li>生成脚本保留在 <code>dev/</code>（<code>_gen_grf.R</code>、<code>_gen_python.py</code>），可随时复现。</li>' +
+          '</ul>' +
+          '<h3>3. 读取函数（运行时无需 Python）</h3>' +
+          '<ul>' +
+          '<li><code>mlr3HTE_benchmark_data(name = NULL)</code>：取单集或全部（命名 list）。</li>' +
+          '<li><code>mlr3HTE_benchmark_meta()</code>：返回数据字典。</li>' +
+          '<li><code>mlr3HTE_benchmark_export(dest)</code>：把全部 CSV 复制到指定目录。</li>' +
+          '</ul>'
+      },
 
       {
         id: "v043",
@@ -691,8 +716,33 @@ window.SITE_PAGES.changelog = {
   /* ---------------- English ---------------- */
   en: {
     title: "Changelog",
-    lede: "Version history and notable changes for mlr3HTE. Current version: v0.43.",
+    lede: "Version history and notable changes for mlr3HTE. Current version: v0.44.",
     sections: [
+
+      {
+        id: "v044",
+        heading: "v0.44 · 2026-11-01",
+        body:
+          '<div class="callout ok"><div class="callout-title">New cross-package benchmark datasets (grf / econml / causalml) with ground-truth CATE</div>' +
+          '<p>Added <code>inst/extdata/benchmarks/</code> benchmark datasets and loader functions so HTE estimators can be evaluated directly inside mlr3HTE.</p></div>' +
+          '<h3>1. Data sources (all carry a ground-truth <code>cate_true</code> column)</h3>' +
+          '<ul>' +
+          '<li><strong>grf</strong> (R): <code>generate_causal_data()</code> (continuous) and <code>generate_causal_survival_data()</code> (survival).</li>' +
+          '<li><strong>econml</strong> (custom 0.16.0): <code>ihdp_surface_B</code> — IHDP simulation; this build has no classic <code>ihdp()/twins()/jobs()</code>, so this substitutes.</li>' +
+          '<li><strong>causalml</strong> (custom 0.15.5): <code>make_uplift_classification</code> (upstream <code>make_uplift</code> equivalent), <code>regression.synthetic_data</code> (upstream <code>make_continuous</code>/Hillstrom equivalent).</li>' +
+          '</ul>' +
+          '<h3>2. Deliverables</h3>' +
+          '<ul>' +
+          '<li>5 standard CSVs + per-dataset <code>*_README.md</code>; <code>benchmarks_meta.csv</code> as a unified data dictionary.</li>' +
+          '<li>Generator scripts kept in <code>dev/</code> (<code>_gen_grf.R</code>, <code>_gen_python.py</code>) for reproducibility.</li>' +
+          '</ul>' +
+          '<h3>3. Loader functions (no Python needed at runtime)</h3>' +
+          '<ul>' +
+          '<li><code>mlr3HTE_benchmark_data(name = NULL)</code>: one dataset or a named list of all.</li>' +
+          '<li><code>mlr3HTE_benchmark_meta()</code>: returns the data dictionary.</li>' +
+          '<li><code>mlr3HTE_benchmark_export(dest)</code>: copies all CSVs to a target directory.</li>' +
+          '</ul>'
+      },
 
       {
         id: "v043",

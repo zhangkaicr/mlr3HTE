@@ -15,6 +15,28 @@
 - `0.21` 之前的历史批次沿用旧编号折算（`0.1.0` → `0.10`，10-21 那批观察性指标 →
   `0.11`，`0.2.0` → `0.20`）；`0.21` 起严格执行上面的 +0.01。
 
+## [0.44] — 2026-11-01（新增跨包基准数据集：grf / econml / causalml，含真实 CATE）
+
+新增 `inst/extdata/benchmarks/` 基准数据集与配套读取函数，便于在 mlr3HTE 里直接评估各类 HTE 估计量。
+
+### 1. 数据集来源（均带真实个体处理效应 `cate_true`）
+
+- **grf**（R）：`generate_causal_data()` 连续结局、`generate_causal_survival_data()` 生存结局——grf 自带的合成测试生成器，真实 CATE 由生成器给出。
+- **econml**（Python，定制版 0.16.0）：`ihdp_surface_B`——IHDP 模拟基准（响应曲面 B，异质处理效应）。注：该环境 econml 无经典 `ihdp()/twins()/jobs()`，以此替代。
+- **causalml**（Python，定制版 0.15.5）：`make_uplift_classification`（合成 uplift 分类，上游 `make_uplift` 等价物）、`regression.synthetic_data`（合成连续型，上游 `make_continuous`/Hillstrom 等价物）。
+
+### 2. 交付物
+
+- 5 个标准 CSV：`grf_causal.csv`、`grf_survival.csv`、`econml_ihdp.csv`、`causalml_uplift.csv`、`causalml_continuous.csv`，每集另附 `*_README.md`。
+- `benchmarks_meta.csv`：统一数据字典（来源包 / 生成函数 / 样本量 / 特征数 / 结局与处理类型 / 是否含真值 / 真值 ATE / 字段说明）。
+- 生成脚本保留在 `dev/`：`_gen_grf.R`（R/grf）、`_gen_python.py`（Python/econml/causalml），可随时复现。
+
+### 3. 读取函数（运行时无需 Python）
+
+- `mlr3HTE_benchmark_data(name = NULL, path = NULL)`：取单集或返回全部（命名 list）。
+- `mlr3HTE_benchmark_meta(path = NULL)`：返回数据字典。
+- `mlr3HTE_benchmark_export(dest, path = NULL)`：把全部 CSV 复制到指定目录，便于包外使用或上传其它仓库。
+
 ## [0.43] — 2026-10-26（移除重采样权重，严格回归原始公式；修好生存 R-learner 偏差）
 
 按用户要求，把引擎里所有的「重要性重采样」（`.resample_by_weights`）彻底移除，**五种 meta-learner 的 τ 回归与结局模型一律无权重**，与 Künzel et al. 2019（X-learner）及 CausalML 的 BaseS/BaseT/BaseX/BaseR/BaseDR（`model_tau.fit(X, pseudo)` 无 `sample_weight`）一致。
