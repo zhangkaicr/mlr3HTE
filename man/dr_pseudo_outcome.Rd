@@ -10,6 +10,7 @@ dr_pseudo_outcome(
   Y,
   cross_fitting = TRUE,
   n_folds = 5L,
+  ps_bounds = c(0.01, 0.99),
   learner_ps = NULL,
   learner_base = NULL,
   seed = NULL,
@@ -30,6 +31,9 @@ model the censoring distribution (IPCW weights).}
 \code{TRUE}.}
 
 \item{n_folds}{The number of cross-fitting folds, default 5.}
+
+\item{ps_bounds}{Length-2 numeric bounds used to clip the propensity score before it
+enters the DR pseudo-outcome; default \code{c(0.01, 0.99)}. Must satisfy 0 < lo < hi < 1.}
 
 \item{learner_ps}{The propensity-score learner (classif), default
 \code{classif.log_reg}.}

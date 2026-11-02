@@ -204,16 +204,21 @@
 #     也等价于「治疗与协变量独立、不需要估倾向得分」的声明
 #   - 函数：用户自建的 g(newX)（例如用别的包估好、封成函数传进来）
 # predict_type 同样要在 $train() 之前切成 "prob"（见 .fit_classif 的说明）。
-# 截断到 [1e-3, 1-1e-3]：R/DR 的伪结果与 Robinson 中心化都以 (A - e) 为分母，
-# 不截断会在近 0/1 处炸开。
-.fit_ps <- function(X, A, ps) {
-  if (is.function(ps)) return(ps)
+# 截断到 ps_bounds（默认 [0.01, 0.99]）：R/DR 的伪结果与 Robinson 中心化都以 (A - e) 为分母，
+# 不截断会在近 0/1 处炸开；bounds 越紧越稳、但引入偏差。
+.fit_ps <- function(X, A, ps, ps_bounds = c(0.01, 0.99)) {
+  lo <- ps_bounds[1L]
+  hi <- ps_bounds[2L]
+  # 用户自建的 function(newX) 也统一截断——否则 R/DR 的伪结局会绕过保护直接炸开
+  if (is.function(ps)) {
+    return(function(newX) pmin(pmax(ps(as.data.frame(newX)), lo), hi))
+  }
   if (is.numeric(ps)) {
     if (length(ps) != 1L) {
       stop("learner_ps 为数值时只支持标量（常数倾向得分，如 RCT 的 0.5）；",
            "逐人的外部倾向得分请封装成 function(newX) 后传入。", call. = FALSE)
     }
-    p <- pmin(pmax(as.numeric(ps), 1e-3), 1 - 1e-3)
+    p <- pmin(pmax(as.numeric(ps), lo), hi)
     return(function(newX) rep(p, nrow(as.data.frame(newX))))
   }
   if (!inherits(ps, "Learner")) {
@@ -228,7 +233,7 @@
   l$train(task)
   function(newX) {
     p <- l$predict_newdata(as.data.frame(newX))$prob[, "yes"]
-    pmin(pmax(p, 1e-3), 1 - 1e-3)
+    pmin(pmax(p, lo), hi)
   }
 }
 
@@ -293,7 +298,8 @@
 # lb 支持 list(m1 = ..., m0 = ...) 让两个结局模型用不同算法；
 # lb_tau 支持 list(tau1 = ..., tau0 = ...) 让两个效应回归各自选用算法
 # （例如 tau1 用随机森林、tau0 用线性模型）。单 learner 则全部共用。
-.fit_X <- function(X, A, Y, lb, lb_tau, learner_ps, w_cens, t0, outcome, effect) {
+.fit_X <- function(X, A, Y, lb, lb_tau, learner_ps, w_cens, t0, outcome, effect,
+                   ps_bounds = c(0.01, 0.99)) {
   lb      <- .resolve_learner_spec(lb, c("m1", "m0"))
   lb_tau  <- .resolve_learner_spec(lb_tau, c("tau1", "tau0"))
   i1 <- A == 1L
@@ -301,7 +307,7 @@
   w1 <- if (is.null(w_cens)) NULL else w_cens[i1]
   w0 <- if (is.null(w_cens)) NULL else w_cens[i0]
   Yv <- .analysis_outcome(Y, outcome, t0, effect, X)
-  g_fn <- .fit_ps(X, A, learner_ps)
+  g_fn <- .fit_ps(X, A, learner_ps, ps_bounds)
 
   m1 <- .fit_outcome(X[i1, , drop = FALSE], .subset_Y(Y, i1), lb[["m1"]], w1, t0, outcome, effect)
   m0 <- .fit_outcome(X[i0, , drop = FALSE], .subset_Y(Y, i0), lb[["m0"]], w0, t0, outcome, effect)
@@ -324,14 +330,15 @@
 # 再无权重回归 Robinson 伪结局 (Y - mu)/(A - e) 得 tau（Nie & Wager 2021）。
 # (A-e)² 只是 R-loss 的代数等价重写（展开相消），并非真实回归权重；
 # 倾向得分是 Robinson 中心化的必需输入，不是可开关的加权开关。
-.fit_R <- function(X, A, Y, lb, lb_tau, learner_ps, w_cens, t0, outcome, effect) {
+.fit_R <- function(X, A, Y, lb, lb_tau, learner_ps, w_cens, t0, outcome, effect,
+                   ps_bounds = c(0.01, 0.99)) {
   mu <- .fit_outcome(X, Y, lb, w_cens, t0, outcome, effect)
   mu_hat <- mu$predict(as.data.frame(X))
   # R-Learner 的 Robinson 伪结局还要除以 (A-e)，与 survdiff 的 1/G 构成双重倒数，
   # 会把方差放大到 τ 回归无法消化；故 R-Learner 的生存伪结局退回原始指示 I(T>t0)，
   # 删失由 censoring-aware 的结局模型 mu 承担（生存 R-Learner 的标准做法）。
   Yv <- .analysis_outcome(Y, outcome, t0, effect, X, ipcw_bake = FALSE)
-  g_fn <- .fit_ps(X, A, learner_ps)
+  g_fn <- .fit_ps(X, A, learner_ps, ps_bounds)
   e <- g_fn(as.data.frame(X))
   tildeA <- A - e
   target <- (Yv - mu_hat) / tildeA
@@ -343,7 +350,8 @@
 # 15 DR-Learner：双重稳健伪结果 ------------------------------------------------
 # psi = mu1 - mu0 + A(Y - mu1)/e - (1 - A)(Y - mu0)/(1 - e)，
 # 只要 (mu1, mu0) 或 e 之一正确，ATE 估计就一致（Kennedy 2020）。
-.fit_DR <- function(X, A, Y, lb, lb_tau, learner_ps, w_cens, t0, outcome, effect) {
+.fit_DR <- function(X, A, Y, lb, lb_tau, learner_ps, w_cens, t0, outcome, effect,
+                    ps_bounds = c(0.01, 0.99)) {
   i1 <- A == 1L
   i0 <- A == 0L
   w1 <- if (is.null(w_cens)) NULL else w_cens[i1]
@@ -354,7 +362,7 @@
   m0 <- .fit_outcome(X[i0, , drop = FALSE], .subset_Y(Y, i0), lb, w0, t0, outcome, effect)
   mu1 <- m1$predict(as.data.frame(X))
   mu0 <- m0$predict(as.data.frame(X))
-  g_fn <- .fit_ps(X, A, learner_ps)
+  g_fn <- .fit_ps(X, A, learner_ps, ps_bounds)
   e <- g_fn(as.data.frame(X))
   psi <- mu1 - mu0 + A * (Yv - mu1) / e - (1 - A) * (Yv - mu0) / (1 - e)
   tau <- .fit_regr(X, psi, lb_tau)
@@ -379,7 +387,7 @@
 
 # R-Learner 的交叉拟合版
 .fit_R_cf <- function(X, A, Y, lb, lb_tau, learner_ps, w_cens,
-                      t0, outcome, effect, folds) {
+                      t0, outcome, effect, folds, ps_bounds = c(0.01, 0.99)) {
   n <- nrow(X)
   # R-Learner 交叉拟合：生存伪结局同样退回原始指示（见 .fit_R 的说明），避免 1/G×1/(A-e) 双倒数
   Yv <- .analysis_outcome(Y, outcome, t0, effect, X, ipcw_bake = FALSE)
@@ -389,11 +397,11 @@
     w_tr <- if (is.null(w_cens)) NULL else w_cens[tr]
     mu <- .fit_outcome(X[tr, , drop = FALSE], .subset_Y(Y, tr), lb, w_tr,
                        t0, outcome, effect)
-    g_k <- .fit_ps(X[tr, , drop = FALSE], A[tr], learner_ps)
+    g_k <- .fit_ps(X[tr, , drop = FALSE], A[tr], learner_ps, ps_bounds)
     target[f] <- (Yv[f] - mu$predict(X[f, , drop = FALSE])) /
                  (A[f] - g_k(X[f, , drop = FALSE]))
   }
-  g_all <- .fit_ps(X, A, learner_ps)
+  g_all <- .fit_ps(X, A, learner_ps, ps_bounds)
   tildeA <- A - g_all(X)
   # 无权重回归 Robinson 伪结局（见 .fit_R：R-loss 的 (A-e)² 是代数等价项，不加权）
   tau <- .fit_regr(X, target, lb_tau)
@@ -403,7 +411,7 @@
 
 # DR-Learner 的交叉拟合版
 .fit_DR_cf <- function(X, A, Y, lb, lb_tau, learner_ps, w_cens,
-                      t0, outcome, effect, folds) {
+                      t0, outcome, effect, folds, ps_bounds = c(0.01, 0.99)) {
   n <- nrow(X)
   Yv <- .analysis_outcome(Y, outcome, t0, effect, X)
   psi <- numeric(n)
@@ -418,7 +426,7 @@
     m0 <- .fit_outcome(X[i0, , drop = FALSE], .subset_Y(Y, i0), lb, w0, t0, outcome, effect)
     mu1 <- m1$predict(X[f, , drop = FALSE])
     mu0 <- m0$predict(X[f, , drop = FALSE])
-    g_k <- .fit_ps(X[tr, , drop = FALSE], A[tr], learner_ps)
+    g_k <- .fit_ps(X[tr, , drop = FALSE], A[tr], learner_ps, ps_bounds)
     e <- g_k(X[f, , drop = FALSE])
     psi[f] <- mu1 - mu0 + A[f] * (Yv[f] - mu1) / e -
               (1 - A[f]) * (Yv[f] - mu0) / (1 - e)
@@ -435,10 +443,20 @@ ml_fit <- function(type, X, A, Y, learner_base = NULL, learner_tau = NULL,
                    t0 = NULL, outcome = "auto",
                    effect = c("survdiff", "rmst"),
                    cross_fitting = FALSE, n_folds = 5L,
+                   ps_bounds = c(0.01, 0.99),
                    engine = c("native", "survlearners")) {
   type <- match.arg(type, c("S", "T", "X", "R", "DR"))
   effect <- match.arg(effect)
   engine <- match.arg(engine)
+  # 倾向得分截断区间：R/DR 的伪结果与 X 的融合权重都以 (A - e) 或 e 为分母，
+  # 极端 PS 会把这些量放大到 τ 回归无法消化（实测 econml_ihdp 上 R 的 ATE 冲 18.9）。
+  # 收紧到 [0.01, 0.99]（更保守可用 [0.05, 0.95]）能把放大倍数从 ~117x 压到 ~100x/~20x。
+  if (!is.numeric(ps_bounds) || length(ps_bounds) != 2L ||
+      !all(is.finite(ps_bounds)) || ps_bounds[1L] <= 0 ||
+      ps_bounds[2L] >= 1 || ps_bounds[1L] >= ps_bounds[2L]) {
+    stop("ps_bounds 必须是长度 2 的数值向量，满足 0 < lo < hi < 1（例如 c(0.01, 0.99)）。",
+         call. = FALSE)
+  }
   if (is.null(learner_base)) learner_base <- mlr3::lrn("regr.ranger")
   if (cross_fitting && !type %in% c("R", "DR")) {
     warning("交叉拟合目前只对 R / DR 学习器实现；其他 learner 忽略该参数。")
@@ -538,15 +556,16 @@ ml_fit <- function(type, X, A, Y, learner_base = NULL, learner_tau = NULL,
     folds <- .cv_folds(n, n_folds)
     cf_args <- list(X = X, A = A, Y = Y, lb = learner_base, lb_tau = learner_tau,
                     learner_ps = learner_ps, w_cens = w_cens, t0 = t0,
-                    outcome = outcome, effect = effect, folds = folds)
+                    outcome = outcome, effect = effect, folds = folds,
+                    ps_bounds = ps_bounds)
     res <- if (type == "R") do.call(.fit_R_cf, cf_args) else do.call(.fit_DR_cf, cf_args)
   } else {
     res <- switch(type,
       S  = .fit_S(X, A, Y, learner_base, learner_tau, learner_ps, w_cens, t0, outcome, effect),
       T  = .fit_T(X, A, Y, learner_base, learner_tau, learner_ps, w_cens, t0, outcome, effect),
-      X  = .fit_X(X, A, Y, learner_base, learner_tau, learner_ps, w_cens, t0, outcome, effect),
-      R  = .fit_R(X, A, Y, learner_base, learner_tau, learner_ps, w_cens, t0, outcome, effect),
-      DR = .fit_DR(X, A, Y, learner_base, learner_tau, learner_ps, w_cens, t0, outcome, effect)
+      X  = .fit_X(X, A, Y, learner_base, learner_tau, learner_ps, w_cens, t0, outcome, effect, ps_bounds),
+      R  = .fit_R(X, A, Y, learner_base, learner_tau, learner_ps, w_cens, t0, outcome, effect, ps_bounds),
+      DR = .fit_DR(X, A, Y, learner_base, learner_tau, learner_ps, w_cens, t0, outcome, effect, ps_bounds)
     )
   }
 

@@ -17,6 +17,7 @@ metalearner(
   effect = "survdiff",
   cross_fitting = FALSE,
   n_folds = 5L,
+  ps_bounds = c(0.01, 0.99),
   engine = "native"
 )
 }
@@ -63,6 +64,11 @@ or "rmst" (restricted mean survival time difference at t0, RMST)}
 and pseudo-outcomes are computed on held-out folds); default FALSE}
 
 \item{n_folds}{Number of cross-fitting folds; default 5}
+
+\item{ps_bounds}{Length-2 numeric bounds used to clip the propensity score before it enters the
+R/DR pseudo-outcome (and the X-learner blending weight). Defaults to \code{c(0.01, 0.99)}.
+Tightening the bounds, e.g. \code{c(0.05, 0.95)}, stabilises the R/DR estimator on strongly
+confounded data with near-0/1 propensity scores, at the cost of some bias. Must satisfy 0 < lo < hi < 1.}
 
 \item{engine}{Estimation engine for survival outcomes: \code{"native"} (default, native coxph/ranger
 implementation, all five families supported, with RMST and arbitrary mlr3 base learners) or \code{"survlearners"}

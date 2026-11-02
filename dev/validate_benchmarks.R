@@ -1,149 +1,135 @@
-# 目的：用 mlr3HTE 自带的各类 metalearner（S/T/X/R/DR）去拟合随包分发的跨包基准数据集，
-#       把估计出的 ATE 与数据自带真值（true_ate / cate_true）对比，验证「用我们的方法
-#       能否像原包一样还原真实效应」。额外对 grf_causal 跑一次 grf::causal_forest 做直接对照。
-# 输入：inst/extdata/benchmarks/*（通过 mlr3HTE_benchmark_data 读取）
-# 输出：每种数据集 × 每种方法的 ATE 估计值、与真值的偏差、与 cate_true 的相关性
-# 依赖：mlr3HTE, mlr3learners, grf（仅 grf_causal 对照用）
-# 说明：本脚本只做验证、不写入包内；运行需先 pkgload::load_all(".") 或安装后 library(mlr3HTE)
+# 目的：用 mlr3HTE 的 S/T/X/R/DR 拟合随包分发的跨包基准数据集，同时核对
+#       ① ATE 是否还原真值；② CATE（个体效应）是否与真值/来源包一致（相关、RMSE、MAE）；
+#       ③ PS 截断 ps_bounds 对 R/DR 的影响；④ 与 grf::causal_forest 的直接对照。
+# 输入：inst/extdata/benchmarks/*（mlr3HTE_benchmark_data 读取）
+# 输出：控制台报表（每数据集×方法一行；另附 ps_bounds 敏感性与 grf 对照）
+# 依赖：mlr3HTE, mlr3learners, grf
+# 说明：只做验证、不写包内；运行前已 pkgload::load_all(".")
 
 # 0 环境与依赖 ----
 
 Sys.setlocale("LC_CTYPE", "en_US.UTF-8")
 pkgload::load_all(".", quiet = TRUE)
-library(mlr3HTE)
 library(mlr3learners)
 
 methods <- c("S", "T", "X", "R", "DR")
-lb_reg  <- lrn("regr.ranger", num.trees = 200)
-lb_cls  <- lrn("classif.ranger", num.trees = 200)
-tau_l  <- lrn("regr.ranger", num.trees = 200, min.node.size = 50)
+lb_reg  <- lrn("regr.ranger", num.trees = 150)
+lb_cls  <- lrn("classif.ranger", num.trees = 150)
+tau_l   <- lrn("regr.ranger", num.trees = 150, min.node.size = 50)
+DEF     <- c(0.01, 0.99)   # 新默认
+meta    <- mlr3HTE_benchmark_meta()
 
-results <- list()
+# 1 工具：CATE 级指标 + 单数据集评估 ----
 
-# 1 grf_causal：连续结局 / 二分类处理 ----
+cate_metrics <- function(chat, ctrue) {
+  ok <- is.finite(chat) & is.finite(ctrue)
+  c(cor  = stats::cor(chat[ok], ctrue[ok]),
+    rmse = sqrt(mean((chat[ok] - ctrue[ok])^2)),
+    mae  = mean(abs(chat[ok] - ctrue[ok])))
+}
 
+eval_ds <- function(nm, X, A, Y, true_ate, ctrue, base, outcome,
+                    t0 = NULL, effect = "survdiff") {
+  rows <- lapply(methods, function(tp) {
+    fit <- metalearner(tp, X, A, Y, learner_base = base, learner_tau = tau_l,
+                       outcome = outcome, t0 = t0, effect = effect,
+                       cross_fitting = TRUE, ps_bounds = DEF)
+    m <- cate_metrics(fit$cate_train, ctrue)
+    data.frame(dataset = nm, method = paste0("HTE-", tp),
+               est_ate = round(fit$ate, 4), ate_bias = round(fit$ate - true_ate, 4),
+               cate_cor = round(unname(m["cor"]), 3),
+               cate_rmse = round(unname(m["rmse"]), 4),
+               cate_mae = round(unname(m["mae"]), 4))
+  })
+  do.call(rbind, rows)
+}
+
+# 2 逐数据集评估（ATE + CATE）====
+
+report <- list()
+
+# 2.1 grf_causal（连续）
 d <- mlr3HTE_benchmark_data("grf_causal")
 X <- d[, grep("^x", names(d)), drop = FALSE]
-A <- d$treatment
-Y <- d$outcome
-true_ate <- mlr3HTE_benchmark_meta()$true_ate[1]
+report[["grf_causal"]] <- eval_ds("grf_causal", X, d$treatment, d$outcome,
+                                  meta$true_ate[1], d$cate_true, lb_reg, "continuous")
 
-row_grf <- data.frame(dataset = "grf_causal", method = "TRUE",
-                      est_ate = true_ate, bias = 0, cor_cate = 1, stringsAsFactors = FALSE)
-for (tp in methods) {
-  fit <- metalearner(tp, X, A, Y, learner_base = lb_reg, learner_tau = tau_l, outcome = "continuous", cross_fitting = TRUE)
-  est <- fit$ate
-  cc  <- cor(fit$cate_train, d$cate_true, use = "complete.obs")
-  row_grf <- rbind(row_grf, data.frame(dataset = "grf_causal", method = paste0("HTE-", tp),
-                                       est_ate = round(est, 4),
-                                       bias = round(est - true_ate, 4),
-                                       cor_cate = round(cc, 4), stringsAsFactors = FALSE))
-}
-# grf 原生 causal_forest 直接对照
-if (requireNamespace("grf", quietly = TRUE)) {
-  cf <- grf::causal_forest(as.matrix(X), Y, A, num.trees = 2000)
-  g  <- as.numeric(grf::average_treatment_effect(cf))[1]
-  row_grf <- rbind(row_grf, data.frame(dataset = "grf_causal", method = "grf::causal_forest",
-                                       est_ate = round(g, 4),
-                                       bias = round(g - true_ate, 4),
-                                       cor_cate = round(cor(grf:::predict.causal_forest(cf)$predictions, d$cate_true), 4),
-                                       stringsAsFactors = FALSE))
-}
-results[["grf_causal"]] <- row_grf
-print(row_grf)
-
-# 2 grf_survival：生存结局 / 二分类处理 ----
-
+# 2.2 grf_survival（生存）
 d <- mlr3HTE_benchmark_data("grf_survival")
 X <- d[, grep("^x", names(d)), drop = FALSE]
-A <- d$treatment
-Y <- survival::Surv(d$time, d$event)
-t0 <- median(d$time)
-true_ate <- mlr3HTE_benchmark_meta()$true_ate[2]
+report[["grf_survival"]] <- eval_ds("grf_survival", X, d$treatment,
+                                    survival::Surv(d$time, d$event),
+                                    meta$true_ate[2], d$cate_true, "coxph", "survival",
+                                    t0 = stats::median(d$time))
 
-row_surv <- data.frame(dataset = "grf_survival", method = "TRUE",
-                       est_ate = true_ate, bias = 0, cor_cate = 1, stringsAsFactors = FALSE)
-for (tp in methods) {
-  fit <- metalearner(tp, X, A, Y, learner_base = "coxph", learner_tau = tau_l,
-                     outcome = "survival", t0 = t0, effect = "survdiff", cross_fitting = TRUE)
-  est <- fit$ate
-  cc  <- cor(fit$cate_train, d$cate_true, use = "complete.obs")
-  row_surv <- rbind(row_surv, data.frame(dataset = "grf_survival", method = paste0("HTE-", tp),
-                                         est_ate = round(est, 4),
-                                         bias = round(est - true_ate, 4),
-                                         cor_cate = round(cc, 4), stringsAsFactors = FALSE))
-}
-results[["grf_survival"]] <- row_surv
-print(row_surv)
+# 2.3 econml_ihdp（连续，强混杂）
+d <- mlr3HTE_benchmark_data("econml_ihdp")
+X <- d[, grep("^x", names(d)), drop = FALSE]
+report[["econml_ihdp"]] <- eval_ds("econml_ihdp", X, d$treatment, d$outcome,
+                                   meta$true_ate[3], d$cate_true, lb_reg, "continuous")
 
-# 3 econml_ihdp：连续结局 / 二分类处理 ----
+# 2.4 causalml_uplift（二分类；control vs treatment1）
+d <- mlr3HTE_benchmark_data("causalml_uplift")
+sub <- d[d$treatment_group_key %in% c("control", "treatment1"), ]
+sub$A <- as.integer(sub$treatment_group_key == "treatment1")
+X <- sub[, grep("^x", names(sub)), drop = FALSE]
+true_ate <- mean(sub$cate_true[sub$A == 1]) - mean(sub$cate_true[sub$A == 0])
+report[["causalml_uplift"]] <- eval_ds("causalml_uplift", X, sub$A, sub$conversion,
+                                       true_ate, sub$cate_true, lb_cls, "binary")
+
+# 2.5 causalml_continuous（连续）
+d <- mlr3HTE_benchmark_data("causalml_continuous")
+X <- d[, grep("^x", names(d)), drop = FALSE]
+report[["causalml_continuous"]] <- eval_ds("causalml_continuous", X, d$treatment,
+                                           d$outcome, meta$true_ate[5],
+                                           d$cate_true, lb_reg, "continuous")
+
+main <- do.call(rbind, report)
+row.names(main) <- NULL
+print(main)
+
+# 3 ps_bounds 敏感性（只看强混杂 ihdp 上的 R / DR）====
 
 d <- mlr3HTE_benchmark_data("econml_ihdp")
 X <- d[, grep("^x", names(d)), drop = FALSE]
-A <- d$treatment
-Y <- d$outcome
-true_ate <- mlr3HTE_benchmark_meta()$true_ate[3]
-
-row_ihdp <- data.frame(dataset = "econml_ihdp", method = "TRUE",
-                       est_ate = true_ate, bias = 0, cor_cate = 1, stringsAsFactors = FALSE)
-for (tp in methods) {
-  fit <- metalearner(tp, X, A, Y, learner_base = lb_reg, learner_tau = tau_l, outcome = "continuous", cross_fitting = TRUE)
-  est <- fit$ate
-  cc  <- cor(fit$cate_train, d$cate_true, use = "complete.obs")
-  row_ihdp <- rbind(row_ihdp, data.frame(dataset = "econml_ihdp", method = paste0("HTE-", tp),
-                                        est_ate = round(est, 4),
-                                        bias = round(est - true_ate, 4),
-                                        cor_cate = round(cc, 4), stringsAsFactors = FALSE))
+sens <- list()
+for (tp in c("R", "DR")) {
+  for (b in list(c(0.001, 0.999), c(0.01, 0.99), c(0.05, 0.95))) {
+    fit <- metalearner(tp, X, d$treatment, d$outcome, learner_base = lb_reg,
+                       learner_tau = tau_l, outcome = "continuous",
+                       cross_fitting = TRUE, ps_bounds = b)
+    m <- cate_metrics(fit$cate_train, d$cate_true)
+    sens[[length(sens) + 1]] <- data.frame(
+      learner = tp, ps_bounds = paste(b, collapse = ","),
+      est_ate = round(fit$ate, 3), ate_bias = round(fit$ate - meta$true_ate[3], 3),
+      cate_cor = round(unname(m["cor"]), 3),
+      cate_rmse = round(unname(m["rmse"]), 4))
+  }
 }
-results[["econml_ihdp"]] <- row_ihdp
-print(row_ihdp)
+sens <- do.call(rbind, sens)
+cat("\n=== ps_bounds 敏感性（econml_ihdp，真值 ATE =", meta$true_ate[3], "）===\n")
+print(sens)
 
-# 4 causalml_uplift：二分类结局 / 多分类处理（取 control vs treatment1 做二分类对照）----
+# 4 与 grf::causal_forest 的 CATE 直接对照（grf_causal）====
 
-d <- mlr3HTE_benchmark_data("causalml_uplift")
-sub <- d[d$treatment_group_key %in% c("control", "treatment1"), ]
-sub$A <- ifelse(sub$treatment_group_key == "treatment1", 1, 0)
-X <- sub[, grep("^x", names(sub)), drop = FALSE]
-Y <- sub$conversion
-true_ate <- mean(sub$cate_true[sub$A == 1]) - mean(sub$cate_true[sub$A == 0])  # 该对照臂的真值 ATE
-
-row_up <- data.frame(dataset = "causalml_uplift", method = "TRUE",
-                    est_ate = round(true_ate, 4), bias = 0, cor_cate = 1, stringsAsFactors = FALSE)
-for (tp in methods) {
-  fit <- metalearner(tp, X, sub$A, Y, learner_base = lb_cls, learner_tau = tau_l, outcome = "binary", cross_fitting = TRUE)
-  est <- fit$ate
-  cc  <- cor(fit$cate_train, sub$cate_true, use = "complete.obs")
-  row_up <- rbind(row_up, data.frame(dataset = "causalml_uplift", method = paste0("HTE-", tp),
-                                     est_ate = round(est, 4),
-                                     bias = round(est - true_ate, 4),
-                                     cor_cate = round(cc, 4), stringsAsFactors = FALSE))
-}
-results[["causalml_uplift"]] <- row_up
-print(row_up)
-
-# 5 causalml_continuous：连续结局 / 二分类处理 ----
-
-d <- mlr3HTE_benchmark_data("causalml_continuous")
+d <- mlr3HTE_benchmark_data("grf_causal")
 X <- d[, grep("^x", names(d)), drop = FALSE]
-A <- d$treatment
-Y <- d$outcome
-true_ate <- mlr3HTE_benchmark_meta()$true_ate[5]
+cf <- grf::causal_forest(as.matrix(X), d$outcome, d$treatment, num.trees = 2000)
+cate_grf <- as.numeric(grf:::predict.causal_forest(cf)$predictions)
+mg <- cate_metrics(cate_grf, d$cate_true)
+cat("\n=== grf::causal_forest CATE（grf_causal）===\n")
+cat("est_ate =", round(as.numeric(grf::average_treatment_effect(cf))[1], 4),
+    " cate_cor =", round(unname(mg["cor"]), 3),
+    " cate_rmse =", round(unname(mg["rmse"]), 4), "\n")
 
-row_cc <- data.frame(dataset = "causalml_continuous", method = "TRUE",
-                     est_ate = true_ate, bias = 0, cor_cate = 1, stringsAsFactors = FALSE)
+# 与 mlr3HTE 各方法的 CATE 相关性（是否给出与 grf 一致的个人排序）
+cat("mlr3HTE 的 CATE 与 grf::causal_forest 的 CATE 相关：\n")
 for (tp in methods) {
-  fit <- metalearner(tp, X, A, Y, learner_base = lb_reg, learner_tau = tau_l, outcome = "continuous", cross_fitting = TRUE)
-  est <- fit$ate
-  cc  <- cor(fit$cate_train, d$cate_true, use = "complete.obs")
-  row_cc <- rbind(row_cc, data.frame(dataset = "causalml_continuous", method = paste0("HTE-", tp),
-                                     est_ate = round(est, 4),
-                                     bias = round(est - true_ate, 4),
-                                     cor_cate = round(cc, 4), stringsAsFactors = FALSE))
+  fit <- metalearner(tp, X, d$treatment, d$outcome, learner_base = lb_reg,
+                     learner_tau = tau_l, outcome = "continuous",
+                     cross_fitting = TRUE, ps_bounds = DEF)
+  cat(sprintf("  HTE-%s: cor(cate_hat, cate_grf) = %.3f\n", tp,
+              stats::cor(fit$cate_train, cate_grf)))
 }
-results[["causalml_continuous"]] <- row_cc
-print(row_cc)
 
 # 99 收尾 ----
-
-cat("\n=== 汇总：各数据集真值 ATE 与 mlr3HTE 各方法恢复值 ===\n")
-for (nm in names(results)) print(results[[nm]])

@@ -300,6 +300,8 @@ qini_coefficient <- function(cate, A, Y, propensity = NULL,
 #'   the median event time.
 #' @param effect The effect scale for survival outcomes, \code{"survdiff"} (default)
 #'   or \code{"rmst"}.
+#' @param ps_bounds Length-2 numeric bounds used to clip the propensity score before it
+#'   enters the DR pseudo-outcome; default \code{c(0.01, 0.99)}. Must satisfy 0 < lo < hi < 1.
 #' @return A list with \code{pseudo} (the DR pseudo-outcome vector), \code{mu1},
 #'   \code{mu0}, \code{propensity}, \code{ate} (\code{mean(pseudo)}), \code{t0},
 #'   \code{effect} (provided for survival outcomes, to align with the CATE scale).
@@ -318,6 +320,7 @@ qini_coefficient <- function(cate, A, Y, propensity = NULL,
 #' c_for_benefit(dr$mu1 - dr$mu0, d$A, d$Y,
 #'               propensity = dr$propensity, mu1 = dr$mu1, mu0 = dr$mu0)
 dr_pseudo_outcome <- function(X, A, Y, cross_fitting = TRUE, n_folds = 5L,
+                              ps_bounds = c(0.01, 0.99),
                               learner_ps = NULL, learner_base = NULL,
                               seed = NULL, t0 = NULL,
                               effect = c("survdiff", "rmst")) {
@@ -377,7 +380,7 @@ dr_pseudo_outcome <- function(X, A, Y, cross_fitting = TRUE, n_folds = 5L,
     te <- which(fold == k)
     tr <- which(fold != k)
     if (!length(tr)) { tr <- te }                 # 折数 >= n 时的兜底
-    e[te] <- .fit_ps(X[tr, , drop = FALSE], A[tr], learner_ps)(X[te, , drop = FALSE])
+    e[te] <- .fit_ps(X[tr, , drop = FALSE], A[tr], learner_ps, ps_bounds)(X[te, , drop = FALSE])
 
     tr1 <- tr[A[tr] == 1]
     tr0 <- tr[A[tr] == 0]

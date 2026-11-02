@@ -41,6 +41,10 @@
 #'   }
 #'   Note that the X-learner's \code{g(x)} blending, R's Robinson centering, and DR's AIPW pseudo-outcome
 #'   all treat \code{e(x)} as a required input defined by the algorithm -- they are **not** toggleable confounding weights.
+#' @param ps_bounds Length-2 numeric bounds used to clip the propensity score before it enters the
+#'   R/DR pseudo-outcome (and the X-learner blending weight). Defaults to \code{c(0.01, 0.99)}.
+#'   Tightening the bounds, e.g. \code{c(0.05, 0.95)}, stabilises the R/DR estimator on strongly
+#'   confounded data with near-0/1 propensity scores, at the cost of some bias. Must satisfy 0 < lo < hi < 1.
 #' @param t0 Effect evaluation time point for survival outcomes; defaults to the median event time
 #' @param outcome Outcome type: "auto"/"continuous"/"binary"/"survival"
 #' @param effect Effect measure for survival outcomes: "survdiff" (survival-probability difference at t0, default)
@@ -109,11 +113,13 @@ metalearner <- function(type, X, A, Y,
                         t0 = NULL, outcome = "auto",
                         effect = "survdiff",
                         cross_fitting = FALSE, n_folds = 5L,
+                        ps_bounds = c(0.01, 0.99),
                         engine = "native") {
   ml_fit(type = type, X = X, A = A, Y = Y,
          learner_base = learner_base, learner_tau = learner_tau,
          learner_ps = learner_ps, t0 = t0, outcome = outcome, effect = effect,
-         cross_fitting = cross_fitting, n_folds = n_folds, engine = engine)
+         cross_fitting = cross_fitting, n_folds = n_folds,
+         ps_bounds = ps_bounds, engine = engine)
 }
 
 #' Bootstrap confidence intervals for CATE / ATE

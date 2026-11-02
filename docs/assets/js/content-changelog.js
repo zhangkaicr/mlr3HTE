@@ -9,8 +9,20 @@ window.SITE_PAGES.changelog = {
   /* ---------------- 中文 ---------------- */
   zh: {
     title: "更新日志",
-    lede: "mlr3HTE 的版本历史与重要变更。当前版本 v0.45。",
+    lede: "mlr3HTE 的版本历史与重要变更。当前版本 v0.46。",
     sections: [
+
+      {
+        id: "v046",
+        heading: "v0.46 · 2026-11-02",
+        body:
+          '<div class="callout ok"><div class="callout-title">新增 ps_bounds：倾向得分截断可配置（默认 [0.01, 0.99]）</div>' +
+          '<ul>' +
+          '<li><code>metalearner()</code> / <code>dr_pseudo_outcome()</code> 新增 <code>ps_bounds</code> 参数（长度 2，0 &lt; lo &lt; hi &lt; 1），经 <code>...</code> 透传到快捷函数。</li>' +
+          '<li>默认由 <code>[1e-3, 1-1e-3]</code> 收紧到 <code>[0.01, 0.99]</code>；强混杂数据可用 <code>[0.05, 0.95]</code>。</li>' +
+          '<li><code>dev/validate_benchmarks.R</code> 增加 CATE 级指标（cor / RMSE / MAE）与 ps_bounds 敏感性表。</li>' +
+          '</ul></div>'
+      },
 
       {
         id: "v045",
@@ -729,8 +741,20 @@ window.SITE_PAGES.changelog = {
   /* ---------------- English ---------------- */
   en: {
     title: "Changelog",
-    lede: "Version history and notable changes for mlr3HTE. Current version: v0.45.",
+    lede: "Version history and notable changes for mlr3HTE. Current version: v0.46.",
     sections: [
+
+      {
+        id: "v046",
+        heading: "v0.46 · 2026-11-02",
+        body:
+          '<div class="callout ok"><div class="callout-title">New ps_bounds parameter: configurable propensity-score clipping (default [0.01, 0.99])</div>' +
+          '<ul>' +
+          '<li><code>metalearner()</code> / <code>dr_pseudo_outcome()</code> gain a <code>ps_bounds</code> argument (length 2, 0 &lt; lo &lt; hi &lt; 1), forwarded through <code>...</code> to the shortcut functions.</li>' +
+          '<li>The default is tightened from <code>[1e-3, 1-1e-3]</code> to <code>[0.01, 0.99]</code>; use <code>[0.05, 0.95]</code> on strongly confounded data.</li>' +
+          '<li><code>dev/validate_benchmarks.R</code> now reports CATE-level metrics (cor / RMSE / MAE) and a ps_bounds sensitivity table.</li>' +
+          '</ul></div>'
+      },
 
       {
         id: "v045",
