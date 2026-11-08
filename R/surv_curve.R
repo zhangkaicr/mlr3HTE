@@ -101,15 +101,15 @@ surv_effect_curve <- function(type, X, A, Y,
   n <- nrow(X)
 
   if (!inherits(Y, "Surv")) {
-    stop("surv_effect_curve() 只对生存结局有意义；Y 必须是 survival::Surv 对象。",
+    stop("surv_effect_curve() is meaningful only for survival outcomes; Y must be a survival::Surv object.",
          call. = FALSE)
   }
   if (length(A) != n) {
-    stop(sprintf("A 的长度（%d）与 X 的行数（%d）不一致。", length(A), n),
+    stop(sprintf("Length of A (%d) does not match the number of rows in X (%d).", length(A), n),
          call. = FALSE)
   }
   if (nrow(Y) != n) {
-    stop(sprintf("Y 的行数（%d）与 X 的行数（%d）不一致。", nrow(Y), n),
+    stop(sprintf("Number of rows in Y (%d) does not match the number of rows in X (%d).", nrow(Y), n),
          call. = FALSE)
   }
 
@@ -130,14 +130,14 @@ surv_effect_curve <- function(type, X, A, Y,
     times <- sort(unique(as.numeric(times)))
   }
   if (length(times) < 2L) {
-    stop("至少需要 2 个时点才能构成曲线。", call. = FALSE)
+    stop("At least 2 time points are required to form a curve.", call. = FALSE)
   }
 
   # 超出随访范围的时点不会报错，但 S(t) 只能靠模型外推，提醒一句。
   max_obs <- max(as.numeric(Y[, 1L]))
   if (max(times) > max_obs) {
     warning(sprintf(
-      "有 %d 个时点超过最长随访时间 %.3g，这些点上的效应是模型外推值，请谨慎解释。",
+      "%d time point(s) exceed the longest follow-up time %.3g; effects at these points are model extrapolations, interpret with caution.",
       sum(times > max_obs), max_obs), call. = FALSE)
   }
 
@@ -146,7 +146,7 @@ surv_effect_curve <- function(type, X, A, Y,
   # 警告放大 G 倍，所以这里提前拦一次、改成单次警告后关掉。
   dots <- list(...)
   if (isTRUE(dots$cross_fitting) && !type %in% c("R", "DR")) {
-    warning("交叉拟合目前只对 R / DR 学习器实现；为避免逐点重复警告，已在本函数中关闭。",
+    warning("Cross-fitting is currently implemented only for R / DR learners; to avoid repeating this warning at every time point, it has been disabled in this function.",
             call. = FALSE)
     dots$cross_fitting <- FALSE
   }
@@ -156,7 +156,7 @@ surv_effect_curve <- function(type, X, A, Y,
   ate <- numeric(G)
   cate <- matrix(NA_real_, nrow = nrow(newX), ncol = G)
 
-  cli::cli_progress_bar("逐点重拟合 metalearner", total = G, type = "iterator")
+  cli::cli_progress_bar("Refitting metalearner pointwise", total = G, type = "iterator")
   for (g in seq_len(G)) {
     fit <- do.call(
       metalearner,
@@ -214,7 +214,7 @@ surv_effect_curve <- function(type, X, A, Y,
 plot_surv_effect_curve <- function(curve, ribbon = TRUE, main = NULL,
                                    color = "#1B6CA8", ...) {
   if (!inherits(curve, "mlr3HTE_surv_effect_curve")) {
-    stop("curve 必须是 surv_effect_curve() 的返回值。", call. = FALSE)
+    stop("curve must be the return value of surv_effect_curve().", call. = FALSE)
   }
 
   d <- as.data.frame(curve)

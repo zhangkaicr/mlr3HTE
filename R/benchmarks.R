@@ -59,8 +59,8 @@ mlr3HTE_benchmark_data <- function(name = NULL, path = NULL) {
   } else {
     bad <- setdiff(name, all_names)
     if (length(bad) > 0) {
-      stop("未知数据集: ", paste(bad, collapse = ", "),
-           "。可用名称见 mlr3HTE_benchmark_meta()$dataset", call. = FALSE)
+      stop("Unknown dataset: ", paste(bad, collapse = ", "),
+           ". Available names are listed in mlr3HTE_benchmark_meta()$dataset", call. = FALSE)
     }
   }
   out <- lapply(name, function(nm) {
@@ -73,7 +73,7 @@ mlr3HTE_benchmark_data <- function(name = NULL, path = NULL) {
     }
     csv <- .benchmark_file(nm, "csv", path)
     if (is.null(csv)) {
-      stop("找不到数据集 ", nm, " 的 .RData 或 .csv 文件。", call. = FALSE)
+      stop("Could not find dataset ", nm, ": .RData or .csv file not found.", call. = FALSE)
     }
     readr::read_csv(csv, show_col_types = FALSE)
   })

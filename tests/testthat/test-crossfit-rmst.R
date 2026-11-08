@@ -32,7 +32,7 @@ test_that("交叉拟合只对 R / DR 生效，其他 learner 给出警告并忽�
   expect_warning(
     metalearner("T", d$X, d$A, d$Y, learner_base = mlr3::lrn("regr.lm"),
                 cross_fitting = TRUE),
-    "交叉拟合"
+    "Cross-fitting"
   )
 })
 

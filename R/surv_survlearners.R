@@ -37,9 +37,9 @@
 .survlearners_require <- function() {
   if (!requireNamespace("survlearners", quietly = TRUE)) {
     stop(
-      'engine = "survlearners" 需要 survlearners 包（只发布在 GitHub，不在 CRAN）：\n',
+      'engine = "survlearners" requires the survlearners package (GitHub only, not on CRAN):\n',
       '  remotes::install_github("som-shahlab/survlearners", subdir = "r-package/survlearners")\n',
-      '或改用 engine = "native"（原生 coxph/ranger 引擎，无需额外安装）。'
+      'or use engine = "native" (the native coxph/ranger engine, no extra installation needed).'
     )
   }
   invisible(TRUE)
@@ -61,9 +61,9 @@
     if (!is.null(k)) return(k)
   }
   stop(
-    'engine = "survlearners" 的基学习器只支持字符串 "coxph" / "grf" / "lasso"',
-    '（"ranger" 是 "grf" 的别名）；survlearners 不接受任意 mlr3 learner。',
-    '要用 mlr3 基学习器请换回 engine = "native"。'
+    'engine = "survlearners" base learners support only the strings "coxph" / "grf" / "lasso"',
+    ' ("ranger" is an alias for "grf"); survlearners does not accept arbitrary mlr3 learners. ',
+    'Use engine = "native" to work with mlr3 base learners.'
   )
 }
 
@@ -94,8 +94,8 @@
 .fit_survlearners <- function(type, X, A, Y, kind, t0, W.hat, w_cens) {
   # survlearners 的 X-learner 只有 grf / lasso 两种实现，没有 coxph 版
   if (identical(type, "X") && identical(kind, "coxph")) {
-    stop('survlearners 的 X-learner 只有 "grf" 与 "lasso" 两种基学习器，没有 coxph 版；',
-         '请把 learner_base 换成 "grf" 或 "lasso"，或换用 S / T / R。')
+    stop('survlearners X-learner has only "grf" and "lasso" base learners, no coxph version; ',
+         'set learner_base to "grf" or "lasso", or switch to S / T / R.')
   }
   sl <- asNamespace("survlearners")
   Xm  <- as.matrix(X)
@@ -141,13 +141,13 @@
   .survlearners_require()
   if (!type %in% c("S", "T", "X", "R")) {
     stop(sprintf(
-      'survlearners 引擎未实现 "%s"-learner（该包只提供 S/T/X/R/M，没有 DR）。',
+      'The survlearners engine does not implement a "%s"-learner (the package provides only S/T/X/R/M, no DR). ',
       type[1L]),
-      '生存场景的 DR 请用 engine = "native"。')
+      'For DR in survival settings use engine = "native".')
   }
   if (!identical(effect, "survdiff")) {
-    stop('engine = "survlearners" 只实现 S(t0) 差一种效应尺度，不支持 effect = "rmst"；',
-         'RMST 请用 engine = "native"。')
+    stop('engine = "survlearners" implements only the S(t0) difference effect scale and does not support effect = "rmst"; ',
+         'use engine = "native" for RMST.')
   }
   kind <- .survlearners_kind(learner_base)
   X <- as.data.frame(X)
@@ -155,7 +155,7 @@
   if (is.null(t0)) {
     tt <- Y[, 1L][Y[, 2L] == 1L]
     t0 <- if (length(tt)) stats::median(tt) else stats::median(Y[, 1L])
-    message("t0 未指定，默认取事件时间中位数：", signif(t0, 4))
+    message("t0 not specified; defaulting to the median event time: ", signif(t0, 4))
   }
 
   # W.hat：survlearners 的 X/R 族按个体倾向得分做处理校正。
@@ -177,7 +177,7 @@
   # 删矢 IPCW 对这两个组合不起作用（S-coxph 有 weights，X/R 族有 W.hat）。
   if (identical(type, "S") && !identical(kind, "coxph")) {
     cli::cli_alert_warning(
-      "survlearners 的 S-learner 只有 coxph 版接受 weights；S-{kind} 已忽略删矢 IPCW。"
+      "In survlearners only the coxph version of the S-learner accepts weights; S-{kind} has ignored the censoring IPCW."
     )
   }
 

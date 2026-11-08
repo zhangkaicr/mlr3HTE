@@ -9,8 +9,28 @@ window.SITE_PAGES.changelog = {
   /* ---------------- 中文 ---------------- */
   zh: {
     title: "更新日志",
-    lede: "mlr3HTE 的版本历史与重要变更。当前版本 v0.47。",
+    lede: "mlr3HTE 的版本历史与重要变更。当前版本 v0.48。",
     sections: [
+
+      {
+        id: "v048",
+        heading: "v0.48 · 2026-11-08",
+        body:
+          '<div class="callout ok"><div class="callout-title">指南页示例全部可运行 + R6 五算法 Qini 对比 + 运行时消息英文化</div>' +
+          '<ul>' +
+          '<li>删除指南页第 4 节开头关于 v0.40 移除 <code>weighting</code> / <code>weights</code> / <code>stabilize</code> 的说明段（中英双语）。</li>' +
+          '<li>指南页 5 个 R 代码块全部改为自带测试数据，并由 <code>dev/_check_guide_examples.py</code> 自动抽出逐段实跑，5/5 通过。</li>' +
+          '<li>R6 示例重写：一次 <code>benchmark()</code> 并行比较 S/T/X/R/DR，取样本外 CATE 计算 Qini 与真值对账，按 Qini 降序返回对比表，实测输出随页贴出。</li>' +
+          '<li>新增警示：<code>ml_task()</code> 目标是 <code>Y</code>、R6 <code>$predict()</code> 返回 CATE，' +
+          '<code>bmr$score(msr("regr.mse"))</code> 把两者相减（本例约 34.6），无真值参照，不能用于选算法。</li>' +
+          '<li>14 个 <code>R/*.R</code> 的运行时消息（stop / warning / message / cli_alert）共 107 条改为英文；测试断言同步。</li>' +
+          '<li>新增 <code>R/demo.R</code> 三个统一门面 <code>mlr3HTE_demo_continuous()</code> / ' +
+          '<code>mlr3HTE_demo_binary()</code> / <code>mlr3HTE_demo_surv()</code>：' +
+          '用 <code>setting</code> / <code>source</code> / <code>scenario</code> / <code>design</code> ' +
+          '把 RCT 与观察性 DGP、结构场景、打包基准、DAG 与跨包基准数据统一路由；' +
+          '旧入口本批仍导出以保证全站示例可运行，Stage 2 再移除。</li>' +
+          '</ul></div>'
+      },
 
       {
         id: "v047",
@@ -752,8 +772,29 @@ window.SITE_PAGES.changelog = {
   /* ---------------- English ---------------- */
   en: {
     title: "Changelog",
-    lede: "Version history and notable changes for mlr3HTE. Current version: v0.47.",
+    lede: "Version history and notable changes for mlr3HTE. Current version: v0.48.",
     sections: [
+
+      {
+        id: "v048",
+        heading: "v0.48 · 2026-11-08",
+        body:
+          '<div class="callout ok"><div class="callout-title">Runnable guide examples + five-learner R6 Qini comparison + English runtime messages</div>' +
+          '<ul>' +
+          '<li>Removed the v0.40 <code>weighting</code> / <code>weights</code> / <code>stabilize</code> note at the start of guide section 4 (both languages).</li>' +
+          '<li>All five R code blocks on the guide page now ship their own test data; <code>dev/_check_guide_examples.py</code> extracts and runs each block automatically, 5/5 passing.</li>' +
+          '<li>Rewrote the R6 example: one <code>benchmark()</code> compares S/T/X/R/DR in parallel; out-of-fold CATE yields a Qini and ground-truth comparison table sorted by Qini, with real output shown inline.</li>' +
+          '<li>New warning: <code>ml_task()</code> targets <code>Y</code> while the R6 <code>$predict()</code> returns CATE, so ' +
+          '<code>bmr$score(msr("regr.mse"))</code> subtracts one from the other (about 34.6 here) and has no ground-truth reference — do not use it for model selection.</li>' +
+          '<li>107 runtime messages (stop / warning / message / cli_alert) across 14 <code>R/*.R</code> files converted to English; test expectations updated.</li>' +
+          '<li>Added <code>R/demo.R</code> with three unified entry points ' +
+          '<code>mlr3HTE_demo_continuous()</code> / <code>mlr3HTE_demo_binary()</code> / ' +
+          '<code>mlr3HTE_demo_surv()</code>. The <code>setting</code> / <code>source</code> / ' +
+          '<code>scenario</code> / <code>design</code> arguments route RCT and observational DGPs, ' +
+          'structural scenarios, the bundled grid, DAG tables and cross-package benchmarks. ' +
+          'Legacy entry points stay exported this batch so all site examples keep running; Stage 2 removes them.</li>' +
+          '</ul></div>'
+      },
 
       {
         id: "v047",

@@ -2,7 +2,7 @@
    content-home.js —— 导航定义 + 站点元信息 + 首页（中英双语）
    ===================================================================== */
 
-window.SITE_META = { version: "0.47", date: "2026-11-08" };
+window.SITE_META = { version: "0.48", date: "2026-11-08" };
 
 window.SITE_NAV = [
   { id: "home",      zh: "首页",           en: "Home"                    },

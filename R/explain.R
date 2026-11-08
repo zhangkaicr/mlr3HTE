@@ -33,7 +33,7 @@ utils::globalVariables(".data")
 
 .need <- function(pkg, why) {
   if (!requireNamespace(pkg, quietly = TRUE)) {
-    stop(sprintf("%s 需要 %s 包，请先安装：install.packages('%s')", why, pkg, pkg), call. = FALSE)
+    stop(sprintf("%s requires the %s package. Please install it first: install.packages('%s')", why, pkg, pkg), call. = FALSE)
   }
 }
 
@@ -44,7 +44,7 @@ utils::globalVariables(".data")
   if (is.list(x) && is.function(x$predict)) {
     return(function(newdata) as.numeric(x$predict(as.data.frame(newdata))))
   }
-  stop("需要一个带 $predict(newX) 的 metalearner 对象、hte_surrogate() 结果，或预测函数。",
+  stop("Requires a metalearner object with $predict(newX), the result of hte_surrogate(), or a prediction function.",
        call. = FALSE)
 }
 
@@ -106,13 +106,13 @@ utils::globalVariables(".data")
 hte_explainer <- function(fit, X, A = NULL, Y = NULL, pseudo = NULL,
                           t0 = NULL, effect = c("survdiff", "rmst"),
                           label = NULL, verbose = FALSE, ...) {
-  .need("DALEX", "构造 CATE 解释器")
+  .need("DALEX", "Constructing the CATE explainer")
   effect <- match.arg(effect)
   X <- as.data.frame(X)
 
   if (is.null(pseudo)) {
     if (is.null(A) || is.null(Y)) {
-      stop("请提供 pseudo，或同时提供 A 与 Y 以便计算双重稳健伪结局。", call. = FALSE)
+      stop("Please provide pseudo, or both A and Y to compute the doubly robust pseudo-outcome.", call. = FALSE)
     }
     dr <- dr_pseudo_outcome(X, A, Y, t0 = t0, effect = effect, ...)
     pseudo <- dr$pseudo
@@ -120,7 +120,7 @@ hte_explainer <- function(fit, X, A = NULL, Y = NULL, pseudo = NULL,
   }
   pseudo <- as.numeric(pseudo)
   if (length(pseudo) != nrow(X)) {
-    stop("pseudo 的长度与 X 的行数不一致。", call. = FALSE)
+    stop("The length of pseudo does not match the number of rows in X.", call. = FALSE)
   }
 
   pred <- .as_cate_predictor(fit)
@@ -152,7 +152,7 @@ hte_explainer <- function(fit, X, A = NULL, Y = NULL, pseudo = NULL,
 .as_dalex <- function(x) {
   if (inherits(x, "hte_explainer")) return(x$explainer)
   if (inherits(x, "explainer")) return(x)
-  stop("请传入 hte_explainer() 的结果或 DALEX 解释器。", call. = FALSE)
+  stop("Please pass the result of hte_explainer() or a DALEX explainer.", call. = FALSE)
 }
 
 # 4 代理模型：用任意 mlr3 学习器重拟合 CATE 曲面 -------------------------------
@@ -187,7 +187,7 @@ hte_surrogate <- function(X, tau_hat,
                                               min.node.size = 20, seed = 1)) {
   X <- as.data.frame(X)
   tau_hat <- as.numeric(tau_hat)
-  if (length(tau_hat) != nrow(X)) stop("tau_hat 的长度与 X 的行数不一致。", call. = FALSE)
+  if (length(tau_hat) != nrow(X)) stop("The length of tau_hat does not match the number of rows in X.", call. = FALSE)
 
   d <- data.frame(X, .tau = tau_hat, check.names = FALSE)
   task <- mlr3::as_task_regr(d, target = ".tau")
@@ -244,7 +244,7 @@ hte_surrogate <- function(X, tau_hat,
 #' }
 hte_feature_importance <- function(explainer, loss = "rmse", B = 10L,
                                    variables = NULL, seed = NULL, N = NULL) {
-  .need("DALEX", "计算变量重要性")
+  .need("DALEX", "Computing variable importance")
   e <- .as_dalex(explainer)
   if (!is.null(seed)) set.seed(seed)
 
@@ -258,7 +258,7 @@ hte_feature_importance <- function(explainer, loss = "rmse", B = 10L,
     switch(loss,
       rmse = DALEX::loss_root_mean_square,
       mse  = DALEX::loss_sum_of_squares,
-      stop("loss 只支持 function 或 \"rmse\" / \"mse\"（DALEX 2.5 未提供 MAE）。",
+      stop("loss only supports a function or \"rmse\" / \"mse\" (MAE is not available in DALEX 2.5).",
            call. = FALSE)
     )
   }
@@ -325,7 +325,7 @@ hte_feature_importance <- function(explainer, loss = "rmse", B = 10L,
 #' }
 hte_pdp <- function(explainer, variables = NULL, grid_points = 101L,
                     type = c("partial", "accumulated"), center = FALSE, ...) {
-  .need("DALEX", "计算偏依赖")
+  .need("DALEX", "Computing partial dependence")
   type <- match.arg(type)
   e <- .as_dalex(explainer)
   if (is.null(variables)) variables <- names(e$data)
@@ -398,13 +398,13 @@ hte_pdp <- function(explainer, variables = NULL, grid_points = 101L,
 #' }
 hte_shap <- function(object, X = NULL, bg_X = NULL, n_background = 100L,
                      seed = NULL, verbose = FALSE, ...) {
-  .need("kernelshap", "计算 SHAP 值")
-  .need("shapviz", "包装 SHAP 结果")
+  .need("kernelshap", "Computing SHAP values")
+  .need("shapviz", "Wrapping SHAP results")
 
   pred <- .as_cate_predictor(if (inherits(object, "hte_explainer")) object$fit else object)
   if (is.null(X)) {
     if (!inherits(object, "hte_explainer")) {
-      stop("未提供 X 时必须传入 hte_explainer() 的结果。", call. = FALSE)
+      stop("When X is not provided, the result of hte_explainer() must be passed.", call. = FALSE)
     }
     X <- object$X
   }
@@ -442,7 +442,7 @@ hte_shap <- function(object, X = NULL, bg_X = NULL, n_background = 100L,
 #' @seealso \code{\link{hte_shap}}
 #' @export
 hte_shap_data <- function(sv) {
-  if (!inherits(sv, "shapviz")) stop("请传入 hte_shap() 返回的 shapviz 对象。", call. = FALSE)
+  if (!inherits(sv, "shapviz")) stop("Please pass the shapviz object returned by hte_shap().", call. = FALSE)
   S <- as.matrix(sv$S)
   X <- as.data.frame(sv$X)
   out <- data.frame(
@@ -472,7 +472,7 @@ plot_hte_importance <- function(importance, metric = c("dropout_pct", "dropout")
   metric <- match.arg(metric)
   d <- as.data.frame(importance)
   if (!all(c("variable", metric) %in% names(d))) {
-    stop("importance 必须是 hte_feature_importance() 的返回值。", call. = FALSE)
+    stop("importance must be the return value of hte_feature_importance().", call. = FALSE)
   }
   d$variable <- stats::reorder(d$variable, d[[metric]])
   lab <- if (metric == "dropout_pct") "Loss increase (%)" else "Loss increase"
@@ -499,7 +499,7 @@ plot_hte_importance <- function(importance, metric = c("dropout_pct", "dropout")
 plot_hte_pdp <- function(pdp, color = "#1B6CA8", free_y = TRUE) {
   d <- as.data.frame(pdp)
   if (!all(c("variable", "x", "yhat") %in% names(d))) {
-    stop("pdp 必须是 hte_pdp() 的返回值。", call. = FALSE)
+    stop("pdp must be the return value of hte_pdp().", call. = FALSE)
   }
   ggplot2::ggplot(d, ggplot2::aes(x = .data$x, y = .data$yhat)) +
     ggplot2::geom_line(linewidth = 1.05, color = color) +
@@ -535,18 +535,18 @@ plot_hte_pdp <- function(pdp, color = "#1B6CA8", free_y = TRUE) {
 #' @export
 plot_hte_shap <- function(sv, kind = c("importance", "beeswarm", "dependence", "waterfall"),
                           variable = NULL, max_vars = 8L, ...) {
-  .need("shapviz", "绘制 SHAP 图")
-  if (!inherits(sv, "shapviz")) stop("请传入 hte_shap() 返回的 shapviz 对象。", call. = FALSE)
+  .need("shapviz", "Plotting SHAP figures")
+  if (!inherits(sv, "shapviz")) stop("Please pass the shapviz object returned by hte_shap().", call. = FALSE)
   kind <- match.arg(kind)
   g <- switch(kind,
     importance = shapviz::sv_importance(sv, kind = "bar", max_display = max_vars, ...),
     beeswarm   = shapviz::sv_importance(sv, kind = "beeswarm", max_display = max_vars, ...),
     dependence = {
-      if (is.null(variable)) stop('kind = "dependence" 需要指定 variable。', call. = FALSE)
+      if (is.null(variable)) stop('kind = "dependence" requires specifying variable.', call. = FALSE)
       shapviz::sv_dependence(sv, v = variable, ...)
     },
     waterfall  = {
-      if (is.null(variable)) stop('kind = "waterfall" 需要指定 variable（样本行号）。', call. = FALSE)
+      if (is.null(variable)) stop('kind = "waterfall" requires specifying variable (sample row number).', call. = FALSE)
       shapviz::sv_waterfall(sv, row_id = as.integer(variable), ...)
     }
   )

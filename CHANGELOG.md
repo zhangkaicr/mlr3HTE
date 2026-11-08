@@ -15,6 +15,32 @@
 - `0.21` 之前的历史批次沿用旧编号折算（`0.1.0` → `0.10`，10-21 那批观察性指标 →
   `0.11`，`0.2.0` → `0.20`）；`0.21` 起严格执行上面的 +0.01。
 
+## [0.48] — 2026-11-08（指南页全量可运行示例 + R6 五算法 Qini 对比 + 运行时消息英文化）
+
+- **指南页红框清理**：删除第 4 节开头关于 v0.40 移除 `weighting` / `weights` / `stabilize`
+  的文献说明段（中英双语）；方法学背景仍保留在更新日志、指南其余段落与函数文档中。
+- **本页代码全部自带数据、复制即可运行**：新增 `dev/_check_guide_examples.py` +
+  `dev/_audit/guide_runner.R`，自动抽出页面代码块逐段实跑，5/5 通过。
+  函数式 / R6 / 倾向得分 / 生存 / 调参五段均改用随包 `mlr3HTE_demo_*()` 造数据；
+  自定义倾向得分示例补上 `my_ps_model`；生存 R 示例补 `learner_base = "coxph"` 与交叉拟合。
+- **R6 示例重写**：一次 `benchmark()` 并行比较 S / T / X / R / DR 五种 R6 Learner，
+  从 `bmr$resample_results` 取样本外 CATE，返回按 Qini 降序的对比表
+  （Qini / 归一化 Qini / 与真值 tau 的 RMSE / 相关 / 估计 ATE），实测输出随页贴出。
+- **澄清误导性 MSE**：新增警示——`ml_task()` 目标是 `Y` 而 R6 Learner 的 `$predict()`
+  返回 CATE，`bmr$score(msr("regr.mse"))` 把两者相减（本例约 34.6），没有真值参照，
+  不能用于选算法；应选 Qini / TOC / c-for-benefit，或在模拟数据里与 `tau` 对 RMSE。
+- **运行时消息全面英文化**：14 个 `R/*.R` 的 `stop` / `warning` / `message` /
+  `cli_alert_*` 共 107 条改为英文（中文行内注释按既有约定保留）；
+  testthat 里 13 处按中文正则匹配错误消息的断言同步改为英文。
+- **模拟数据生成入口收敛（Stage 1）**：新增 `R/demo.R`，提供
+  `mlr3HTE_demo_continuous()` / `mlr3HTE_demo_binary()` / `mlr3HTE_demo_surv()`
+  三个统一门面。通过 `setting = c("rct","obs")`、`source = c("simulated","bundled","benchmark")`、
+  `scenario`、`design`、`catalog`、`export_to` 把 RCT / 观察性 DGP、10 个结构场景、
+  随包打包基准数据、DAG 节点边表、跨包基准数据集以及数据字典/导出全部路由进这三个函数。
+  原 `mlr3HTE_demo_binary` / `mlr3HTE_demo_surv` 的 RCT 实现转为内部
+  `.demo_binary_rct` / `.demo_surv_rct`。为保证全站 44 个实测示例、18 个教程脚本与
+  测试继续可运行，旧入口本批仍导出；Stage 2 再移除旧导出并全量替换调用。
+
 ## [0.47] — 2026-11-08（首页状态表更新 + 移除过时的 v0.40 加权说明段）
 
 - **首页内容清理**：移除「六格矩阵」下方关于 v0.40 移除 `weighting` / `weights` / `stabilize`

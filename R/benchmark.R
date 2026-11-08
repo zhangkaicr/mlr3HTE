@@ -100,13 +100,13 @@ hte_benchmark <- function(X, A, Y, t0 = NULL,
   metrics <- match.arg(metrics, c("qini", "toc", "c_for_benefit"), several.ok = TRUE)
   learners <- match.arg(learners, c("S", "T", "X", "R", "DR"), several.ok = TRUE)
   n_folds <- as.integer(n_folds)
-  if (n_folds < 2L) stop("n_folds 至少为 2。", call. = FALSE)
+  if (n_folds < 2L) stop("n_folds must be at least 2.", call. = FALSE)
 
   X <- as.data.frame(X)
   A <- as.integer(A)
   n <- nrow(X)
-  if (length(A) != n) stop("A 的长度必须与 X 的行数一致。", call. = FALSE)
-  if (n < 4L) stop("样本量太小，做不了交叉拟合。", call. = FALSE)
+  if (length(A) != n) stop("The length of A must match the number of rows in X.", call. = FALSE)
+  if (n < 4L) stop("Sample size too small for cross-fitting.", call. = FALSE)
 
   # 结局类型判定：Surv 对象或两列矩阵都算生存
   is_surv <- inherits(Y, "Surv") || (is.matrix(Y) && ncol(Y) == 2L)
@@ -130,7 +130,7 @@ hte_benchmark <- function(X, A, Y, t0 = NULL,
   }
 
   if (!is.null(tau) && length(tau) != n) {
-    stop("tau 的长度必须与 X 的行数一致。", call. = FALSE)
+    stop("The length of tau must match the number of rows in X.", call. = FALSE)
   }
 
   # 折的划分：按处理组分层，保证每折里两个臂都有样本。
@@ -140,7 +140,7 @@ hte_benchmark <- function(X, A, Y, t0 = NULL,
   for (a in sort(unique(A))) {
     ii <- which(A == a)
     if (length(ii) < n_folds) {
-      stop(sprintf("处理组 A = %d 只有 %d 个观测，凑不齐 %d 折。",
+      stop(sprintf("Treatment arm A = %d has only %d observations, not enough observations to form %d folds.",
                    a, length(ii), n_folds), call. = FALSE)
     }
     fold_id[ii] <- sample(rep_len(seq_len(n_folds), length(ii)))
@@ -163,7 +163,7 @@ hte_benchmark <- function(X, A, Y, t0 = NULL,
       cate_oof[te] <- fit$predict(X[te, , drop = FALSE])
     }
     if (anyNA(cate_oof)) {
-      stop(sprintf("%s-learner 有 %d 个观测没拿到留出预测，请检查数据。",
+      stop(sprintf("%s-learner: %d observations did not receive a held-out prediction; please check the data.",
                    tp, sum(is.na(cate_oof))), call. = FALSE)
     }
     cate_list[[tp]] <- cate_oof
@@ -251,7 +251,7 @@ hte_benchmark_data <- function(x, metric = c("qini", "toc"), min_fraction = 0.05
   metric <- match.arg(metric)
   curves <- x$curves[[metric]]
   if (is.null(curves)) {
-    stop(sprintf("hte_benchmark 没有算 %s（metrics 参数里没选它）。", metric),
+    stop(sprintf("hte_benchmark: %s was not computed (it was not selected in the metrics argument).", metric),
          call. = FALSE)
   }
   nms <- names(curves)

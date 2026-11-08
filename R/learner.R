@@ -120,7 +120,7 @@ LearnerRegrMetalearner <- R6::R6Class("LearnerRegrMetalearner",
       drop_cols <- unique(c(tc, if (identical(outcome, "survival")) sc))
       cov_cols <- setdiff(task$feature_names, drop_cols)
       if (!tc %in% names(task$data())) {
-        stop(sprintf("Task 里找不到处理列 '%s'；请用 ml_task() 构造 Task。", tc))
+        stop(sprintf("Cannot find treatment column '%s' in the Task; please construct the Task with ml_task().", tc))
       }
 
       X <- as.data.frame(task$data(cols = cov_cols))
@@ -157,7 +157,7 @@ LearnerRegrMetalearner <- R6::R6Class("LearnerRegrMetalearner",
     # truth 必须取自预测任务，否则 measure 的 assert_regr 会失败
     .predict = function(task) {
       fit <- .metalearner_registry[[self$model_id]]
-      if (is.null(fit)) stop("模型尚未训练（或登记处已丢失），请先 $train()。")
+      if (is.null(fit)) stop("The model has not been trained (or the registry entry was lost); please call $train() first.")
       ctx <- private$.ml_ctx(task)
       cate <- as.numeric(fit$predict(ctx$X))
       mlr3::PredictionRegr$new(

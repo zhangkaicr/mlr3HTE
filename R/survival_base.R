@@ -81,7 +81,7 @@
     }
   } else {
     if (!requireNamespace("ranger", quietly = TRUE)) {
-      stop("kind = 'ranger' 需要安装 ranger 包；或改用默认的 kind = \"coxph\"。")
+      stop("kind = 'ranger' requires the ranger package to be installed; or use the default kind = \"coxph\".")
     }
     fit <- ranger::ranger(
       survival::Surv(.time, .status) ~ .,

@@ -83,20 +83,51 @@ window.SITE_PAGES.guide = {
           '<td>要进 <code>resample</code> / <code>benchmark</code> / <code>tune</code></td></tr>' +
           '</tbody></table></div>' +
           '<h3>函数式</h3>' +
-          '<pre><code class="language-r">fit &lt;- metalearner("T", X, A, Y, learner_base = lrn("regr.ranger"))\n' +
+          '<pre><code class="language-r">d &lt;- mlr3HTE_demo_data(n = 600, seed = 1)   # 随包自带的模拟数据\n' +
+          'fit &lt;- metalearner("T", d$X, d$A, d$Y, learner_base = lrn("regr.ranger"))\n' +
           'fit$ate          # 平均治疗效应\n' +
           'fit$cate_train   # 逐人 CATE\n' +
-          'fit$predict(newX)</code></pre>' +
-          '<h3>R6 Learner（进 mlr3 工作流）</h3>' +
-          '<pre><code class="language-r">library(mlr3)                     # resample()/benchmark()/rsmp() 来自 mlr3\n' +
-          'task &lt;- ml_task(X, A, Y)          # 三类结局统一编码\n' +
-          'l    &lt;- lrn("regr.metalearner", metalearner = "T")\n' +
-          'l$learner_base &lt;- lrn("regr.ranger")\n\n' +
-          'resample(task, l, rsmp("cv", folds = 5))\n' +
-          'benchmark(benchmark_grid(task,\n' +
-          '  list(lrn("regr.metalearner", id = "a", metalearner = "T"),\n' +
-          '       lrn("regr.metalearner", id = "b", metalearner = "X")),\n' +
-          '  rsmp("cv", folds = 5)))</code></pre>' +
+          'fit$predict(d$X[1:5, ])</code></pre>' +
+          '<h3>R6 Learner（mlr3 工作流：一次比较五种算法）</h3>' +
+          '<pre><code class="language-r">library(mlr3); library(mlr3learners); library(dplyr)\n\n' +
+          '# 随包自带的模拟数据：含真实 CATE（tau），复制即可运行\n' +
+          'd &lt;- mlr3HTE_demo_data(n = 600, seed = 1)\n' +
+          'task &lt;- ml_task(d$X, d$A, d$Y)\n\n' +
+          '# 五种 metalearner 放进同一个 benchmark，一次并行比较\n' +
+          'types &lt;- c("S", "T", "X", "R", "DR")\n' +
+          'learners &lt;- lapply(types, function(tp)\n' +
+          '  lrn("regr.metalearner", id = tp, metalearner = tp,\n' +
+          '      learner_base = lrn("regr.ranger", num.trees = 100, seed = 1L)))\n' +
+          'set.seed(1)\n' +
+          'bmr &lt;- benchmark(benchmark_grid(task, learners, rsmp("cv", folds = 3)))\n\n' +
+          '# 每个 learner 的样本外 CATE -&gt; Qini + 真值对账，按 Qini 降序返回\n' +
+          'rr &lt;- bmr$resample_results$resample_result\n' +
+          'tab &lt;- bind_rows(lapply(seq_along(types), function(k) {\n' +
+          '  p &lt;- rr[[k]]$prediction()\n' +
+          '  ord &lt;- order(p$row_ids); cate &lt;- as.numeric(p$response)[ord]; idx &lt;- p$row_ids[ord]\n' +
+          '  q &lt;- qini_coefficient(cate, d$A[idx], d$Y[idx])\n' +
+          '  tibble(learner = types[k],\n' +
+          '         qini = round(q$qini_coefficient, 3),\n' +
+          '         qini_norm = round(q$qini_normalized, 3),\n' +
+          '         rmse_tau = round(sqrt(mean((cate - d$tau[idx])^2)), 3),\n' +
+          '         cor_tau = round(cor(cate, d$tau[idx]), 3),\n' +
+          '         ate_hat = round(mean(cate), 3))\n' +
+          '})) |&gt; arrange(desc(qini))\n' +
+          'print(as.data.frame(tab), row.names = FALSE)</code></pre>' +
+          '<pre><code class="r-out"> learner  qini qini_norm rmse_tau cor_tau ate_hat\n' +
+          '       T 0.504     0.921    0.543   0.864   1.136\n' +
+          '      DR 0.495     0.904    0.412   0.917   1.139\n' +
+          '       R 0.479     0.875    0.859   0.848   0.493\n' +
+          '       S 0.470     0.859    0.471   0.886   1.018\n' +
+          '       X 0.451     0.824    0.444   0.927   1.135\n' +
+          '# 真实 ATE = 1.042；按 qini 排序即可选算法</code></pre>' +
+          '<div class="callout warn">' +
+          '<div class="callout-title">别用 bmr$score(msr("regr.mse")) 选算法</div>' +
+          '<p><code>ml_task()</code> 的目标列是 <code>Y</code>，但 R6 Learner 的 <code>$predict()</code> 返回的是 <strong>CATE</strong>。' +
+          'mlr3 的通用回归分数会把两者相减（本例约 34.6），既不是结局预测误差、也不是效应估计误差，' +
+          '<strong>没有真值参照</strong>。比较 meta-learner 请用 Qini / TOC / c-for-benefit，' +
+          '或在模拟数据里与 <code>tau</code> 对 RMSE；上表的 <code>qini_norm</code> 是归一化 Qini，可跨数据集比。</p>' +
+          '</div>' +
           '<div class="callout warn">' +
           '<div class="callout-title">ml_task() 的编码约定</div>' +
           '<p>mlr3 的 Task 目标列装不下 <code>Surv</code> 对象，所以：</p>' +
@@ -113,11 +144,6 @@ window.SITE_PAGES.guide = {
         id: "confounding",
         heading: "4. 倾向得分与去混杂",
         body:
-          '<p>v0.40 起移除了 <code>weighting</code> / <code>weights</code> / <code>stabilize</code>。' +
-          '理由是经典 metalearner 文献（Künzel et al. 2019 PNAS 的 X-learner、CausalML 的 ' +
-          'BaseS / BaseT / BaseX）<strong>从不给 S/T/X 的结局模型套逆概率权重</strong>；' +
-          '而一个只会重估结局模型的「单稳健」加权既不是文献做法，也无法单独去混杂' +
-          '（漏掉混杂因子时偏倚与朴素估计相同）。</p>' +
           '<div class="table-wrap"><table>' +
           '<thead><tr><th>Learner</th><th>倾向得分用在哪</th><th>去混杂靠什么</th></tr></thead>' +
           '<tbody>' +
@@ -126,13 +152,17 @@ window.SITE_PAGES.guide = {
           '<tr><td>R</td><td>Robinson 中心化 <code>A − e(x)</code></td><td>残差化本身</td></tr>' +
           '<tr><td>DR</td><td>AIPW 伪结果的分母</td><td>双重稳健：结局模型或倾向得分其一正确即一致</td></tr>' +
           '</tbody></table></div>' +
-          '<pre><code class="language-r"># 观察性：DR 默认内部拟合倾向得分（classif.log_reg），双重稳健\n' +
+          '<pre><code class="language-r"># 随包自带的观察性模拟数据（含混杂）与 RCT 数据，复制即可运行\n' +
+          'd &lt;- mlr3HTE_demo_obs(n = 600, seed = 1)\n' +
+          'd_rct &lt;- mlr3HTE_demo_data(n = 600, seed = 1)\n' +
+          'my_ps_model &lt;- glm(A ~ ., data = cbind(A = d$A, d$X), family = binomial())\n\n' +
+          '# 观察性：DR 默认内部拟合倾向得分（classif.log_reg），双重稳健\n' +
           'fit &lt;- metalearner("DR", d$X, d$A, d$Y, cross_fitting = TRUE)\n\n' +
-          '# RCT 已知随机化概率 0.5：直接给常数，免掉拟计入的噪声\n' +
-          'fit &lt;- metalearner("X", d$X, d$A, d$Y, learner_ps = 0.5)\n\n' +
+          '# RCT 已知随机化概率 0.5：直接给常数，免掉拟合引入的噪声\n' +
+          'fit &lt;- metalearner("X", d_rct$X, d_rct$A, d_rct$Y, learner_ps = 0.5)\n\n' +
           '# 自己算好的倾向得分，封成函数传进来\n' +
           'fit &lt;- metalearner("R", d$X, d$A, d$Y,\n' +
-          '                learner_ps = function(nx) predict(my_ps_model, newdata = nx))</code></pre>' +
+          '     learner_ps = function(nx) predict(my_ps_model, newdata = nx, type = "response"))</code></pre>' +
           '<div class="callout warn">' +
           '<div class="callout-title">X-learner 的 g(x) 不是去混杂工具</div>' +
           '<p>它只在两组样本悬殊时给样本少的那侧插补更高权重以稳定融合，' +
@@ -160,7 +190,7 @@ window.SITE_PAGES.guide = {
           '权重截断在 <code>[0.01, 1]</code> 防止极端值搅坏估计。' +
           '这是估计量对删矢的标准处理（Hernán 体系），<strong>不是</strong>用户可开关的加权选项；' +
           '<code>effect = "rmst"</code> 时个体结局本身已含 IPCW，不再额外乘。</p>' +
-          '<pre><code class="language-r">d &lt;- mlr3HTE_demo_surv(n = 4000, t0 = 2)\n' +
+          '<pre><code class="language-r">d &lt;- mlr3HTE_demo_surv(n = 600, t0 = 2, seed = 1)\n' +
           'fit &lt;- metalearner("T", d$X, d$A, d$Y, learner_base = "coxph", t0 = 2)\n' +
           'fit$ate   # 平均 S₁(2) - S₀(2)\n\n' +
           '# t0 缺省时取事件时间中位数\n' +
@@ -183,8 +213,11 @@ window.SITE_PAGES.guide = {
           '</tbody></table></div>' +
           '<p>引擎在 <code>learner_tau = NULL</code> 时<strong>不沿用</strong> <code>learner_base</code>，' +
           '而是单独建 <code>regr.ranger(num.trees = 500, min.node.size = 50)</code>。要覆盖：</p>' +
-          '<pre><code class="language-r">metalearner("R", X, A, Y, learner_tau = lrn("regr.ranger", min.node.size = 20))\n' +
-          'metalearner("R", X, A, Y, learner_tau = lrn("regr.lm"))   # 生存 R/DR 常常更好</code></pre>' +
+          '<pre><code class="language-r">d &lt;- mlr3HTE_demo_surv(n = 600, t0 = 2, seed = 1)   # 随包自带的生存数据\n' +
+          'metalearner("R", d$X, d$A, d$Y, t0 = 2, learner_base = "coxph", cross_fitting = TRUE,\n' +
+          '            learner_tau = lrn("regr.ranger", min.node.size = 20))\n' +
+          'metalearner("R", d$X, d$A, d$Y, t0 = 2, learner_base = "coxph", cross_fitting = TRUE,\n' +
+          '            learner_tau = lrn("regr.lm"))  # 生存 R/DR 常常更好</code></pre>' +
           '</div>' +
           '<div class="callout warn">' +
           '<div class="callout-title">生存 R/DR 的 CATE 可能越出 [-1, 1]</div>' +
@@ -280,20 +313,53 @@ window.SITE_PAGES.guide = {
           '<td>You need <code>resample</code> / <code>benchmark</code> / <code>tune</code></td></tr>' +
           '</tbody></table></div>' +
           '<h3>Functional</h3>' +
-          '<pre><code class="language-r">fit &lt;- metalearner("T", X, A, Y, learner_base = lrn("regr.ranger"))\n' +
+          '<pre><code class="language-r">d &lt;- mlr3HTE_demo_data(n = 600, seed = 1)   # simulated data shipped with the package\n' +
+          'fit &lt;- metalearner("T", d$X, d$A, d$Y, learner_base = lrn("regr.ranger"))\n' +
           'fit$ate          # average treatment effect\n' +
           'fit$cate_train   # CATE per unit\n' +
-          'fit$predict(newX)</code></pre>' +
-          '<h3>R6 Learner (mlr3 workflows)</h3>' +
-          '<pre><code class="language-r">library(mlr3)                     # resample() / benchmark() / rsmp() live in mlr3\n' +
-          'task &lt;- ml_task(X, A, Y)          # uniform encoding for all outcome types\n' +
-          'l    &lt;- lrn("regr.metalearner", metalearner = "T")\n' +
-          'l$learner_base &lt;- lrn("regr.ranger")\n\n' +
-          'resample(task, l, rsmp("cv", folds = 5))\n' +
-          'benchmark(benchmark_grid(task,\n' +
-          '  list(lrn("regr.metalearner", id = "a", metalearner = "T"),\n' +
-          '       lrn("regr.metalearner", id = "b", metalearner = "X")),\n' +
-          '  rsmp("cv", folds = 5)))</code></pre>' +
+          'fit$predict(d$X[1:5, ])</code></pre>' +
+          '<h3>R6 Learner (mlr3 workflows: compare five learners at once)</h3>' +
+          '<pre><code class="language-r">library(mlr3); library(mlr3learners); library(dplyr)\n\n' +
+          '# Simulated data shipped with the package, with the true CATE (tau)\n' +
+          'd &lt;- mlr3HTE_demo_data(n = 600, seed = 1)\n' +
+          'task &lt;- ml_task(d$X, d$A, d$Y)\n\n' +
+          '# Five meta-learners in a single mlr3 benchmark\n' +
+          'types &lt;- c("S", "T", "X", "R", "DR")\n' +
+          'learners &lt;- lapply(types, function(tp)\n' +
+          '  lrn("regr.metalearner", id = tp, metalearner = tp,\n' +
+          '      learner_base = lrn("regr.ranger", num.trees = 100, seed = 1L)))\n' +
+          'set.seed(1)\n' +
+          'bmr &lt;- benchmark(benchmark_grid(task, learners, rsmp("cv", folds = 3)))\n\n' +
+          '# Out-of-fold CATE per learner -&gt; Qini + truth check, sorted for model selection\n' +
+          'rr &lt;- bmr$resample_results$resample_result\n' +
+          'tab &lt;- bind_rows(lapply(seq_along(types), function(k) {\n' +
+          '  p &lt;- rr[[k]]$prediction()\n' +
+          '  ord &lt;- order(p$row_ids); cate &lt;- as.numeric(p$response)[ord]; idx &lt;- p$row_ids[ord]\n' +
+          '  q &lt;- qini_coefficient(cate, d$A[idx], d$Y[idx])\n' +
+          '  tibble(learner = types[k],\n' +
+          '         qini = round(q$qini_coefficient, 3),\n' +
+          '         qini_norm = round(q$qini_normalized, 3),\n' +
+          '         rmse_tau = round(sqrt(mean((cate - d$tau[idx])^2)), 3),\n' +
+          '         cor_tau = round(cor(cate, d$tau[idx]), 3),\n' +
+          '         ate_hat = round(mean(cate), 3))\n' +
+          '})) |&gt; arrange(desc(qini))\n' +
+          'print(as.data.frame(tab), row.names = FALSE)</code></pre>' +
+          '<pre><code class="r-out"> learner  qini qini_norm rmse_tau cor_tau ate_hat\n' +
+          '       T 0.504     0.921    0.543   0.864   1.136\n' +
+          '      DR 0.495     0.904    0.412   0.917   1.139\n' +
+          '       R 0.479     0.875    0.859   0.848   0.493\n' +
+          '       S 0.470     0.859    0.471   0.886   1.018\n' +
+          '       X 0.451     0.824    0.444   0.927   1.135\n' +
+          '# true ATE = 1.042; sort by qini to pick a learner</code></pre>' +
+          '<div class="callout warn">' +
+          '<div class="callout-title">Do not select learners with bmr$score(msr("regr.mse"))</div>' +
+          '<p><code>ml_task()</code> stores <code>Y</code> as the target, while the R6 Learner\'s ' +
+          '<code>$predict()</code> returns <strong>CATE</strong>. A generic mlr3 regression measure subtracts ' +
+          'one from the other (about 34.6 here) — that is neither an outcome prediction error nor an effect ' +
+          'estimation error, and it has <strong>no ground-truth reference</strong>. Compare meta-learners with ' +
+          'Qini / TOC / c-for-benefit, or against <code>tau</code> via RMSE on simulated data. ' +
+          '<code>qini_norm</code> above is the normalised Qini, comparable across datasets.</p>' +
+          '</div>' +
           '<div class="callout warn">' +
           '<div class="callout-title">ml_task() encoding convention</div>' +
           '<p>An mlr3 Task target column cannot hold a <code>Surv</code> object, so:</p>' +
@@ -312,12 +378,6 @@ window.SITE_PAGES.guide = {
         id: "confounding",
         heading: "4. Propensity scores and deconfounding",
         body:
-          '<p>v0.40 removed <code>weighting</code> / <code>weights</code> / <code>stabilize</code>. ' +
-          'The reason: the classic meta-learner literature (Künzel et al. 2019 PNAS; CausalML ' +
-          'BaseS / BaseT / BaseX) <strong>never applies inverse-probability weights to the S/T/X ' +
-          'outcome models</strong>, and a "singly robust" weighting that only re-fits the outcome ' +
-          'model is neither standard practice nor able to deconfound on its own (leave a confounder ' +
-          'out and the bias equals the naive estimate).</p>' +
           '<div class="table-wrap"><table>' +
           '<thead><tr><th>Learner</th><th>Where the propensity score is used</th><th>What deconfounds</th></tr></thead>' +
           '<tbody>' +
@@ -326,13 +386,17 @@ window.SITE_PAGES.guide = {
           '<tr><td>R</td><td>Robinson centring <code>A − e(x)</code></td><td>The residualisation itself</td></tr>' +
           '<tr><td>DR</td><td>The denominator of the AIPW pseudo-outcome</td><td>Double robustness: consistent if either the outcome models or the propensity score is right</td></tr>' +
           '</tbody></table></div>' +
-          '<pre><code class="language-r"># Observational: DR fits the propensity score internally (classif.log_reg)\n' +
+          '<pre><code class="language-r"># Simulated data shipped with the package: observational (confounded) and RCT\n' +
+          'd &lt;- mlr3HTE_demo_obs(n = 600, seed = 1)\n' +
+          'd_rct &lt;- mlr3HTE_demo_data(n = 600, seed = 1)\n' +
+          'my_ps_model &lt;- glm(A ~ ., data = cbind(A = d$A, d$X), family = binomial())\n\n' +
+          '# Observational: DR fits the propensity score internally (classif.log_reg)\n' +
           'fit &lt;- metalearner("DR", d$X, d$A, d$Y, cross_fitting = TRUE)\n\n' +
           '# RCT with a known randomisation probability of 0.5: pass the constant\n' +
-          'fit &lt;- metalearner("X", d$X, d$A, d$Y, learner_ps = 0.5)\n\n' +
+          'fit &lt;- metalearner("X", d_rct$X, d_rct$A, d_rct$Y, learner_ps = 0.5)\n\n' +
           '# Your own propensity score, wrapped in a function\n' +
           'fit &lt;- metalearner("R", d$X, d$A, d$Y,\n' +
-          '                learner_ps = function(nx) predict(my_ps_model, newdata = nx))</code></pre>' +
+          '     learner_ps = function(nx) predict(my_ps_model, newdata = nx, type = "response"))</code></pre>' +
           '<div class="callout warn">' +
           '<div class="callout-title">The X-learner\'s g(x) is not a deconfounding tool</div>' +
           '<p>It only gives the imputation from the smaller arm a higher weight when the arms are ' +
@@ -363,7 +427,7 @@ window.SITE_PAGES.guide = {
           'estimator (Hernán\'s framework), <strong>not</strong> a user-switchable weighting option; ' +
           'with <code>effect = "rmst"</code> the individual outcome already contains IPCW and ' +
           'nothing extra is multiplied.</p>' +
-          '<pre><code class="language-r">d &lt;- mlr3HTE_demo_surv(n = 4000, t0 = 2)\n' +
+          '<pre><code class="language-r">d &lt;- mlr3HTE_demo_surv(n = 600, t0 = 2, seed = 1)\n' +
           'fit &lt;- metalearner("T", d$X, d$A, d$Y, learner_base = "coxph", t0 = 2)\n' +
           'fit$ate   # mean S₁(2) - S₀(2)\n\n' +
           '# If t0 is omitted, the median event time is used\n' +
@@ -388,8 +452,11 @@ window.SITE_PAGES.guide = {
           '<p>When <code>learner_tau = NULL</code> the engine <strong>does not reuse</strong> ' +
           '<code>learner_base</code>; it builds a separate ' +
           '<code>regr.ranger(num.trees = 500, min.node.size = 50)</code>. To override:</p>' +
-          '<pre><code class="language-r">metalearner("R", X, A, Y, learner_tau = lrn("regr.ranger", min.node.size = 20))\n' +
-          'metalearner("R", X, A, Y, learner_tau = lrn("regr.lm"))   # often better for survival R/DR</code></pre>' +
+          '<pre><code class="language-r">d &lt;- mlr3HTE_demo_surv(n = 600, t0 = 2, seed = 1)   # survival data shipped with the package\n' +
+          'metalearner("R", d$X, d$A, d$Y, t0 = 2, learner_base = "coxph", cross_fitting = TRUE,\n' +
+          '            learner_tau = lrn("regr.ranger", min.node.size = 20))\n' +
+          'metalearner("R", d$X, d$A, d$Y, t0 = 2, learner_base = "coxph", cross_fitting = TRUE,\n' +
+          '            learner_tau = lrn("regr.lm"))  # often better for survival R/DR</code></pre>' +
           '</div>' +
           '<div class="callout warn">' +
           '<div class="callout-title">Survival R/DR CATEs can fall outside [-1, 1]</div>' +

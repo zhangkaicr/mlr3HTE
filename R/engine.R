@@ -69,16 +69,16 @@
 .lb_kind <- function(lb) {
   if (is.character(lb)) {
     if (length(lb) != 1L || !lb %in% c("coxph", "ranger")) {
-      stop('生存结局的基学习器只支持 "coxph" 与 "ranger"（原生实现，不依赖 mlr3proba）。')
+      stop('Survival outcomes support only "coxph" and "ranger" as base learners (native implementation, no mlr3proba dependency).')
     }
     return("surv_native")
   }
   if (inherits(lb, "LearnerRegr"))    return("regr")
   if (inherits(lb, "LearnerClassif")) return("classif")
   if (inherits(lb, "LearnerSurv")) {
-    stop('生存结局请用原生基学习器 "coxph" 或 "ranger"；mlr3 的 lrn("surv.*") 需要 mlr3proba，本包不依赖它。')
+    stop('For survival outcomes use the native base learner "coxph" or "ranger"; mlr3 lrn("surv.*") requires mlr3proba, which this package does not depend on.')
   }
-  stop('learner_base 必须是 mlr3 Learner（regr/classif），或生存结局的原生基学习器名字符串（"coxph"/"ranger"）。')
+  stop('learner_base must be a single mlr3 Learner (regr/classif), or a native base-learner name string for survival outcomes ("coxph"/"ranger").')
 }
 
 # 2 结局类型判定 ---------------------------------------------------------------
@@ -87,7 +87,7 @@
   if (outcome != "auto") return(outcome)
   if (inherits(Y, "Surv")) return("survival")
   if (is.factor(Y)) {
-    if (nlevels(Y) != 2L) stop("二分类结局的因子必须恰好两个水平。")
+    if (nlevels(Y) != 2L) stop("A factor outcome for binary classification must have exactly two levels.")
     return("binary")
   }
   yv <- suppressWarnings(as.numeric(Y))
@@ -104,7 +104,7 @@
   )
   if (!isTRUE(ok)) {
     stop(sprintf(
-      '结局类型 "%s" 与基学习器种类 "%s" 不匹配：连续结局用 regr.*，二分类用 classif.*，生存结局用 "coxph" 或 "ranger"。',
+      'Outcome type "%s" does not match the base-learner kind "%s": use regr.* for continuous outcomes, classif.* for binary outcomes, and "coxph" or "ranger" for survival outcomes.',
       outcome, kind
     ))
   }
@@ -121,22 +121,22 @@
   }
   if (is.list(spec)) {
     if (is.null(names(spec))) {
-      stop(sprintf("按角色指定的 learner 必须是命名 list；期望角色：%s。",
+      stop(sprintf("Learners specified by role must be a named list; expected roles: %s.",
                    paste(roles, collapse = ", ")))
     }
     extra   <- setdiff(names(spec), roles)
     missing <- setdiff(roles, names(spec))
     if (length(extra)) {
-      stop(sprintf("未知的 learner 角色：%s。允许的角色只有：%s。",
+      stop(sprintf("Unknown learner role(s): %s. Allowed roles are: %s.",
                    paste(extra, collapse = ", "), roles))
     }
     if (length(missing)) {
-      stop(sprintf("缺少必需的 learner 角色：%s（请用命名 list 一次性给全）。",
+      stop(sprintf("Missing required learner role(s): %s (provide all of them at once in a named list).",
                    paste(missing, collapse = ", ")))
     }
     return(spec[roles])   # 按 roles 顺序重排，保证确定性
   }
-  stop("learner_base / learner_tau 必须是单个 mlr3 learner（或生存原生字符串），或按角色命名的 list。")
+  stop("learner_base / learner_tau must be a single mlr3 learner (or a native survival string), or a list named by role.")
 }
 
 # 4 分析尺度的结局数值（X/R/DR 的个体尺度结局）---------------------------------
@@ -215,14 +215,14 @@
   }
   if (is.numeric(ps)) {
     if (length(ps) != 1L) {
-      stop("learner_ps 为数值时只支持标量（常数倾向得分，如 RCT 的 0.5）；",
-           "逐人的外部倾向得分请封装成 function(newX) 后传入。", call. = FALSE)
+      stop("When learner_ps is numeric only a scalar is supported (a constant propensity score, e.g. 0.5 in an RCT); ",
+           "wrap per-person external propensity scores into function(newX) before passing them in.", call. = FALSE)
     }
     p <- pmin(pmax(as.numeric(ps), lo), hi)
     return(function(newX) rep(p, nrow(as.data.frame(newX))))
   }
   if (!inherits(ps, "Learner")) {
-    stop('learner_ps 必须是 mlr3 分类学习器、常数倾向得分（标量），或 function(newX)。',
+    stop('learner_ps must be an mlr3 classification learner, a constant propensity score (scalar), or function(newX).',
          call. = FALSE)
   }
   l <- ps$clone(deep = TRUE)
@@ -454,12 +454,12 @@ ml_fit <- function(type, X, A, Y, learner_base = NULL, learner_tau = NULL,
   if (!is.numeric(ps_bounds) || length(ps_bounds) != 2L ||
       !all(is.finite(ps_bounds)) || ps_bounds[1L] <= 0 ||
       ps_bounds[2L] >= 1 || ps_bounds[1L] >= ps_bounds[2L]) {
-    stop("ps_bounds 必须是长度 2 的数值向量，满足 0 < lo < hi < 1（例如 c(0.01, 0.99)）。",
+    stop("ps_bounds must be a numeric vector of length 2 satisfying 0 < lo < hi < 1 (e.g. c(0.01, 0.99)).",
          call. = FALSE)
   }
   if (is.null(learner_base)) learner_base <- mlr3::lrn("regr.ranger")
   if (cross_fitting && !type %in% c("R", "DR")) {
-    warning("交叉拟合目前只对 R / DR 学习器实现；其他 learner 忽略该参数。")
+    warning("Cross-fitting is currently implemented only for R / DR learners; other learners ignore this argument.")
     cross_fitting <- FALSE
   }
   # R/DR 的伪结果含「同一批数据上拟合的干扰参数」。R-Learner 尤其敏感：
@@ -469,8 +469,8 @@ ml_fit <- function(type, X, A, Y, learner_base = NULL, learner_tau = NULL,
   # 因此这里显式提示，但不静默改默认值——用户可为速度自行承担该后果。
   if (!cross_fitting && type %in% c("R", "DR")) {
     cli::cli_alert_warning(
-      "{type}-Learner 未启用交叉拟合：干扰参数（mu / m1 / m0 / e）与伪结果同批数据，\\
-      高弹性学习器会把 tau 系统性衰减。建议 cross_fitting = TRUE。"
+      "{type}-Learner is not cross-fitted: nuisance parameters (mu / m1 / m0 / e) and the pseudo-outcome use the same data,\\
+      flexible learners will systematically shrink tau. Set cross_fitting = TRUE."
     )
   }
 
@@ -486,7 +486,7 @@ ml_fit <- function(type, X, A, Y, learner_base = NULL, learner_tau = NULL,
   # 与原生引擎的 "coxph"/"ranger" 不是同一套取值。
   if (identical(engine, "survlearners")) {
     if (!identical(outcome, "survival")) {
-      stop('engine = "survlearners" 只支持生存结局；连续 / 二分类请用 engine = "native"。')
+      stop('engine = "survlearners" supports only survival outcomes; use engine = "native" for continuous / binary outcomes.')
     }
     return(.ml_fit_survlearners(type, X, A, Y, learner_base, learner_ps, t0, effect))
   }
@@ -496,10 +496,10 @@ ml_fit <- function(type, X, A, Y, learner_base = NULL, learner_tau = NULL,
   # list  -> 交给 .fit_T / .fit_X 内部按角色逐个校验，这里只做「类型 / 引擎」层面的放行。
   if (is.list(learner_base)) {
     if (engine == "survlearners") {
-      stop('按角色命名的 learner_base 列表暂不支持 survlearners 引擎；该引擎请传单个 learner（"coxph"/"grf"/"lasso"）。')
+      stop('A role-named learner_base list is not supported by the survlearners engine; pass a single learner ("coxph"/"grf"/"lasso") for that engine.')
     }
     if (!type %in% c("T", "X")) {
-      stop("按角色命名的 learner_base 列表只支持 T-Learner（list(treated=, control=)）与 X-Learner（list(m1=, m0=)）；S / R / DR 请传单个 learner。")
+      stop("A role-named learner_base list is supported only by T-Learner (list(treated=, control=)) and X-Learner (list(m1=, m0=)); S / R / DR take a single learner.")
     }
     kind <- NULL
   } else {
@@ -508,11 +508,11 @@ ml_fit <- function(type, X, A, Y, learner_base = NULL, learner_tau = NULL,
   }
   # learner_tau 的 list 形式（tau1 / tau0 分阶段）只对 X-Learner 有意义
   if (is.list(learner_tau) && type != "X") {
-    stop("按角色命名的 learner_tau 列表（list(tau1=, tau0=)）只对 X-Learner 有意义；其余 learner 请传单个 learner。")
+    stop("A role-named learner_tau list (list(tau1=, tau0=)) is meaningful only for X-Learner; all other learners take a single learner.")
   }
   # RMST 只在生存结局下有定义（必须在 outcome 解析之后检查）
   if (!identical(outcome, "survival") && identical(effect, "rmst")) {
-    stop('effect = "rmst" 只对生存结局有意义。')
+    stop('effect = "rmst" is meaningful only for survival outcomes.')
   }
 
   # 效应阶段的回归学习器：X/R/DR 要对「伪结果」做回归，噪声结构与结局模型
@@ -529,7 +529,7 @@ ml_fit <- function(type, X, A, Y, learner_base = NULL, learner_tau = NULL,
   if (outcome == "survival" && is.null(t0)) {
     tt <- Y[, 1L][Y[, 2L] == 1L]
     t0 <- if (length(tt)) stats::median(tt) else stats::median(Y[, 1L])
-    message("t0 未指定，默认取事件时间中位数：", signif(t0, 4))
+    message("t0 not specified; defaulting to the median event time: ", signif(t0, 4))
   }
 
   # 倾向得分：X 的 g(x) 融合、R 的 Robinson 中心化、DR 的伪结果都要求 e(x)。

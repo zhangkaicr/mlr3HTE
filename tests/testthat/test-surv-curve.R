@@ -48,27 +48,27 @@ test_that("非生存结局明确报错", {
   dc <- mlr3HTE_demo_data(n = 200, seed = 101)
   expect_error(
     surv_effect_curve("T", dc$X, dc$A, dc$Y),
-    "只对生存结局有意义"
+    "meaningful only for survival outcomes"
   )
 })
 
 test_that("时点少于 2 个时报错", {
   expect_error(
     surv_effect_curve("T", d$X, d$A, d$Y, times = 1.5),
-    "至少需要 2 个时点"
+    "At least 2 time points"
   )
 })
 
 test_that("超出随访范围的时点给出外推提醒", {
   expect_warning(
     surv_effect_curve("T", d$X, d$A, d$Y, times = c(1, max(d$Y[, 1L]) * 5)),
-    "模型外推"
+    "model extrapolations"
   )
 })
 
 test_that("A 或 Y 与 X 行数不符时报错", {
-  expect_error(surv_effect_curve("T", d$X, d$A[-1], d$Y), "不一致")
-  expect_error(surv_effect_curve("T", d$X, d$A, d$Y[-1, ]), "不一致")
+  expect_error(surv_effect_curve("T", d$X, d$A[-1], d$Y), "does not match")
+  expect_error(surv_effect_curve("T", d$X, d$A, d$Y[-1, ]), "does not match")
 })
 
 test_that("plot_surv_effect_curve 返回 ggplot，且拒绝非本函数产物", {
@@ -76,7 +76,7 @@ test_that("plot_surv_effect_curve 返回 ggplot，且拒绝非本函数产物", 
   expect_s3_class(plot_surv_effect_curve(cv), "ggplot")
   expect_s3_class(plot_surv_effect_curve(cv, ribbon = FALSE), "ggplot")
   expect_error(plot_surv_effect_curve(data.frame(time = 1, ate = 0)),
-               "必须是 surv_effect_curve")
+               "must be the return value")
 })
 
 test_that("newX 只影响逐点 CATE，不影响 ate 曲线", {

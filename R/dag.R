@@ -231,7 +231,7 @@ mlr3HTE_dag <- function(design = c("rct", "obs"),
   design <- match.arg(design)
   outcome <- match.arg(outcome)
   if (!requireNamespace("ggplot2", quietly = TRUE)) {
-    stop("绘制 DAG 需要 ggplot2，请先安装：install.packages('ggplot2')")
+    stop("Drawing the DAG requires ggplot2. Please install it first: install.packages('ggplot2')")
   }
   dd <- mlr3HTE_dag_data(design, outcome)
   nodes <- dd$nodes

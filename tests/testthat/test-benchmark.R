@@ -103,9 +103,9 @@ test_that("固定种子可复现，换种子会变", {
 
 test_that("参数校验：折数、单臂样本量、tau 长度", {
   d <- mlr3HTE_demo_data(n = 200, seed = 110)
-  expect_error(hte_benchmark(d$X, d$A, d$Y, n_folds = 1L), "至少为 2")
-  expect_error(hte_benchmark(d$X, d$A, d$Y, n_folds = 500L), "凑不齐")
-  expect_error(hte_benchmark(d$X, d$A, d$Y, tau = d$tau[-1]), "的长度必须与")
+  expect_error(hte_benchmark(d$X, d$A, d$Y, n_folds = 1L), "at least 2")
+  expect_error(hte_benchmark(d$X, d$A, d$Y, n_folds = 500L), "not enough observations")
+  expect_error(hte_benchmark(d$X, d$A, d$Y, tau = d$tau[-1]), "must match")
 })
 
 test_that("观察性数据：传 DR 三件套即可", {
@@ -129,5 +129,5 @@ test_that("plot_hte_benchmark 能出图", {
   # 只算 qini 时 toc 曲线不存在，应明确报错
   bm2 <- hte_benchmark(d$X, d$A, d$Y, learners = "S", metrics = "qini",
                        n_folds = 2L, seed = 7)
-  expect_error(plot_hte_benchmark(bm2, "toc"), "没有算 toc")
+  expect_error(plot_hte_benchmark(bm2, "toc"), "was not computed")
 })

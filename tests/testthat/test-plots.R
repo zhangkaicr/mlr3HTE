@@ -54,5 +54,5 @@ test_that("hte_benchmark_data 对未计算的指标报错", {
   bm <- hte_benchmark(d$X, d$A, d$Y, learners = "S",
                       learner_base = mlr3::lrn("regr.lm"),
                       metrics = "qini", n_folds = 2, seed = 1)
-  expect_error(hte_benchmark_data(bm, "toc"), "没有算 toc")
+  expect_error(hte_benchmark_data(bm, "toc"), "was not computed")
 })

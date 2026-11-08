@@ -84,7 +84,7 @@ test_that("二分类与生存结局的真值落在合法区间", {
 })
 
 test_that("未知场景 id 报错", {
-  expect_error(mlr3HTE_scenario("no_such_id", "continuous"), "未知场景 id")
+  expect_error(mlr3HTE_scenario("no_such_id", "continuous"), "Unknown scenario id")
 })
 
 test_that("随包基准数据可读且索引完整", {

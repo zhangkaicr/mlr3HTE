@@ -93,7 +93,7 @@
 .hte_surv_note <- function(oc) {
   if (!identical(oc$kind, "survival")) return(invisible(NULL))
   cli::cli_alert_info(
-    "生存结局：效应标尺 = {oc$effect}，t0 = {signif(oc$t0, 4)}；删失用完整病例 IPCW 校正。"
+    "Survival outcome: effect scale = {oc$effect}, t0 = {signif(oc$t0, 4)}; censoring corrected with complete-case IPCW."
   )
 }
 
@@ -653,7 +653,7 @@ c_for_benefit <- function(cate, A, Y, caliper = NULL,
 #' class(p)
 plot_qini <- function(curve, main = "Qini curve", color = "#1B6CA8", ...) {
   if (!all(c("fraction", "qini") %in% names(curve))) {
-    stop("curve 必须是 qini_curve() 的返回 data.frame。", call. = FALSE)
+    stop("curve must be the data.frame returned by qini_curve().", call. = FALSE)
   }
   d <- as.data.frame(curve)
   q_full <- d$qini[nrow(d)]

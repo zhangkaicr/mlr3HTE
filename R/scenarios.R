@@ -210,7 +210,7 @@ mlr3HTE_scenario <- function(id, outcome = c("continuous", "binary", "survival")
   outcome <- match.arg(outcome)
   cat_df  <- .scen_catalog()
   if (!id %in% cat_df$id) {
-    stop(sprintf("未知场景 id：%s。可用取值见 mlr3HTE_scenarios()。", id))
+    stop(sprintf("Unknown scenario id: %s. See mlr3HTE_scenarios() for valid values.", id))
   }
   spec <- cat_df[cat_df$id == id, , drop = FALSE]
 
@@ -316,7 +316,7 @@ mlr3HTE_bench <- function(id, outcome = c("continuous", "binary", "survival")) {
 mlr3HTE_bench_index <- function() {
   obj <- .bench_bundle()
   if (is.null(obj)) {
-    stop("未找到 mlr3hte_bench_data 数据对象，请重新安装本包。")
+    stop("The mlr3hte_bench_data data object was not found. Please reinstall the package.")
   }
   data.frame(
     key     = names(obj),

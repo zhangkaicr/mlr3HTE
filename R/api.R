@@ -279,9 +279,9 @@ dr_learner <- function(X, A, Y, learner_base = mlr3::lrn("regr.ranger"), ...) {
 ml_task <- function(X, A, Y, t0 = NULL, id = "ml_hte", treatment_col = "A") {
   X <- as.data.frame(X)
   A <- as.integer(A)
-  if (nrow(X) != length(A)) stop("X 的行数与 A 的长度不一致。")
+  if (nrow(X) != length(A)) stop("The number of rows in X is inconsistent with the length of A.")
   if (treatment_col %in% names(X)) {
-    stop(sprintf("协变量里已经有名为 '%s' 的列，请换个 treatment_col。", treatment_col))
+    stop(sprintf("The covariates already contain a column named '%s'; please choose a different treatment_col.", treatment_col))
   }
 
   outcome <- .resolve_outcome("auto", Y)
@@ -339,17 +339,8 @@ mlr3HTE_demo_data <- function(n = 4000, treat_frac = 0.5, seed = 1201) {
 # logit P(Y=1|A=0) = -1.2 + 0.5*z1 + 0.4*z2 + 0.1*(age-60)/12 + 0.2*sex
 # 治疗在对数几率尺度上加 tau_logit = 0.6 + 0.5*z1 - 0.4*z2；
 # 风险差尺度的真实 CATE 按基线概率逐一换算，随数据一并返回。
-#' Demo data: binary-outcome RCT
-#'
-#' @description Generate RCT demo data with a binary outcome (no confounding). The treatment applies a
-#'   heterogeneous effect on the log-odds scale; the true CATE on the risk-difference scale is converted from the baseline
-#'   probabilities individually and returned with the data.
-#' @param n sample size; default 4000
-#' @param treat_frac treated-group proportion; default 0.5
-#' @param seed random seed
-#' @return a list: X, A, Y, tau (true CATE on the risk-difference scale), ate (true ATE)
-#' @export
-mlr3HTE_demo_binary <- function(n = 4000, treat_frac = 0.5, seed = 1202) {
+# Internal: RCT binary DGP, called by mlr3HTE_demo_binary()
+.demo_binary_rct <- function(n = 4000, treat_frac = 0.5, seed = 1202) {
   set.seed(seed)
   age   <- rnorm(n, 60, 12)
   lac   <- rnorm(n, 2.5, 1.2)
@@ -370,19 +361,8 @@ mlr3HTE_demo_binary <- function(n = 4000, treat_frac = 0.5, seed = 1202) {
 # 3 生存结局 RCT 演示数据 ------------------------------------------------------
 # 指数基线风险，治疗把风险乘以 exp(-tau)，tau 随协变量变化；
 # 效应度量 = t0 时点生存概率差。含随机关闭，删失比例约 15%。
-#' Demo data: survival-outcome RCT
-#'
-#' @description Generate RCT demo data with a survival outcome (exponential baseline hazard, with about 15% independent censoring).
-#'   The default effect measure is the survival-probability difference at t0, S1(t0) - S0(t0); the RMST version of the true effect
-#'   is also returned (tau_rmst / ate_rmst).
-#' @param n sample size; default 4000
-#' @param treat_frac treated-group proportion; default 0.5
-#' @param t0 effect evaluation time point; default 2
-#' @param seed random seed
-#' @return a list: X, A, Y (Surv object), tau (true CATE on the survival-probability-difference scale), ate,
-#'   t0, tau_rmst, ate_rmst
-#' @export
-mlr3HTE_demo_surv <- function(n = 4000, treat_frac = 0.5, t0 = 2, seed = 1203) {
+# Internal: RCT survival DGP, called by mlr3HTE_demo_surv()
+.demo_surv_rct <- function(n = 4000, treat_frac = 0.5, t0 = 2, seed = 1203) {
   set.seed(seed)
   age   <- rnorm(n, 60, 12)
   lac   <- rnorm(n, 2.5, 1.2)

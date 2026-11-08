@@ -139,7 +139,7 @@ test_that("learner_ps 传逐人数值向量时给出明确报错", {
   d <- mlr3HTE_demo_data(n = 100, seed = 108)
   expect_error(
     metalearner("DR", d$X, d$A, d$Y, learner_ps = rep(0.5, nrow(d$X))),
-    "标量"
+    "scalar"
   )
 })
 
