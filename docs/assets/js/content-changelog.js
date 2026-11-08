@@ -9,8 +9,19 @@ window.SITE_PAGES.changelog = {
   /* ---------------- 中文 ---------------- */
   zh: {
     title: "更新日志",
-    lede: "mlr3HTE 的版本历史与重要变更。当前版本 v0.46。",
+    lede: "mlr3HTE 的版本历史与重要变更。当前版本 v0.47。",
     sections: [
+
+      {
+        id: "v047",
+        heading: "v0.47 · 2026-11-08",
+        body:
+          '<div class="callout ok"><div class="callout-title">首页状态表更新 + 移除过时的 v0.40 加权说明段</div>' +
+          '<ul>' +
+          '<li>首页「六格矩阵」下方关于 <code>weighting</code> / <code>weights</code> / <code>stabilize</code> 的说明段与「未测量混杂 / 可交换性」警告框已移除（中英双语）；方法学背景仍保留在更新日志、指南与函数文档中。</li>' +
+          '<li>「当前状态」表三项 ⏳ 待办改为 ✅ 已实现并验证：<code>R CMD check</code> / roxygen2 生成 man/（46 个 <code>.Rd</code>）、R/DR 交叉拟合、生存 RMST 效应选项。</li>' +
+          '</ul></div>'
+      },
 
       {
         id: "v046",
@@ -741,8 +752,19 @@ window.SITE_PAGES.changelog = {
   /* ---------------- English ---------------- */
   en: {
     title: "Changelog",
-    lede: "Version history and notable changes for mlr3HTE. Current version: v0.46.",
+    lede: "Version history and notable changes for mlr3HTE. Current version: v0.47.",
     sections: [
+
+      {
+        id: "v047",
+        heading: "v0.47 · 2026-11-08",
+        body:
+          '<div class="callout ok"><div class="callout-title">Current-status table updated; stale v0.40 weighting note removed</div>' +
+          '<ul>' +
+          '<li>Removed the note on <code>weighting</code> / <code>weights</code> / <code>stabilize</code> and the "unmeasured confounding / exchangeability" warning callout below the 6-cell matrix on the home page (both languages). The methodological background remains in the changelog, guide and function reference.</li>' +
+          '<li>Three long-standing "Pending" rows in the Current status table are now "Implemented &amp; verified": <code>R CMD check</code> / roxygen2 man pages (46 <code>.Rd</code> files), cross-fitting for R/DR, and the RMST effect option for survival.</li>' +
+          '</ul></div>'
+      },
 
       {
         id: "v046",

@@ -2,7 +2,7 @@
    content-home.js —— 导航定义 + 站点元信息 + 首页（中英双语）
    ===================================================================== */
 
-window.SITE_META = { version: "0.46", date: "2026-11-02" };
+window.SITE_META = { version: "0.47", date: "2026-11-08" };
 
 window.SITE_NAV = [
   { id: "home",      zh: "首页",           en: "Home"                    },
@@ -89,16 +89,7 @@ window.SITE_PAGES.home = {
           '<li><strong>R</strong> — Robinson 残差化：结局与处理都对 <code>X</code> 取残差后回归。</li>' +
           '<li><strong>DR</strong> — AIPW 双重稳健：只要结局模型或倾向得分之一设定正确就一致，' +
           '观察性数据下最稳健。</li>' +
-          '</ul>' +
-          '<p class="note">v0.40 起移除了 <code>weighting</code> / <code>weights</code> / ' +
-          '<code>stabilize</code>：经典 metalearner 文献（Künzel et al. 2019 PNAS、CausalML 的 ' +
-          'BaseS/BaseT/BaseX）从不给 S/T/X 的结局模型套逆概率权重；一个只会重估结局模型的' +
-          '「单稳健」加权既不是文献做法，也无法单独去混杂。</p>' +
-          '<div class="callout warn">' +
-          '<div class="callout-title">这是设计层面的区别</div>' +
-          '<p>观察性数据里如果存在<strong>未测量</strong>的混杂，任何条件化、加权或双重稳健都救不回来。' +
-          '代码技巧无法补救设计缺陷——需要先论证可交换性。</p>' +
-          '</div>'
+          '</ul>'
       },
 
       {
@@ -166,9 +157,9 @@ window.SITE_PAGES.home = {
           '<tr><td>R6 Learner 接入 <code>resample</code> / <code>benchmark</code></td><td>✅ 已实现并验证</td></tr>' +
           '<tr><td>testthat 测试</td><td>✅ 119 个，全部通过</td></tr>' +
           '<tr><td>配套教程（6 格 × 可运行脚本）</td><td>✅ 主文档 + 8 个脚本</td></tr>' +
-          '<tr><td><code>R CMD check</code> / roxygen2 生成 man/</td><td>⏳ 待办</td></tr>' +
-          '<tr><td>R / DR 的交叉拟合（cross-fitting）</td><td>⏳ 待办</td></tr>' +
-          '<tr><td>生存分支的 RMST 效应选项</td><td>⏳ 待办</td></tr>' +
+          '<tr><td><code>R CMD check</code> / roxygen2 生成 man/</td><td>✅ 已通过；46 个 man 页</td></tr>' +
+          '<tr><td>R / DR 的交叉拟合（cross-fitting）</td><td>✅ 已实现并验证</td></tr>' +
+          '<tr><td>生存分支的 RMST 效应选项</td><td>✅ 已实现并验证</td></tr>' +
           '<tr><td>HTE 评价指标（Qini 曲线/系数 · c-for-benefit · TOC）</td><td>✅ 连续 / 二分类</td></tr>' +
           '</tbody></table></div>'
       }
@@ -210,17 +201,7 @@ window.SITE_PAGES.home = {
           'residualised treatment.</li>' +
           '<li><strong>DR</strong> — AIPW doubly robust: consistent if either the outcome models or ' +
           'the propensity score is correct; the most robust choice for observational data.</li>' +
-          '</ul>' +
-          '<p class="note">v0.40 removed <code>weighting</code> / <code>weights</code> / ' +
-          '<code>stabilize</code>: the classic meta-learner literature (Künzel et al. 2019 PNAS; ' +
-          'CausalML BaseS/BaseT/BaseX) never applies inverse-probability weights to the S/T/X outcome ' +
-          'models, and a "singly robust" weighting that only re-fits the outcome model is neither ' +
-          'standard practice nor able to deconfound on its own.</p>' +
-          '<div class="callout warn">' +
-          '<div class="callout-title">This is a design-level difference</div>' +
-          '<p>If <strong>unmeasured</strong> confounding is present, no conditioning, no weighting and no double ' +
-          'robustness can save you. Code cannot fix a design flaw — exchangeability must be argued first.</p>' +
-          '</div>'
+          '</ul>'
       },
 
       {
@@ -290,9 +271,9 @@ window.SITE_PAGES.home = {
           '<tr><td>R6 Learner in <code>resample</code> / <code>benchmark</code></td><td>✅ Implemented &amp; verified</td></tr>' +
           '<tr><td>testthat suite</td><td>✅ 119 tests, all passing</td></tr>' +
           '<tr><td>Tutorial (6 cells × runnable scripts)</td><td>✅ Main doc + 8 scripts</td></tr>' +
-          '<tr><td><code>R CMD check</code> / roxygen2 man pages</td><td>⏳ Pending</td></tr>' +
-          '<tr><td>Cross-fitting for R / DR learners</td><td>⏳ Pending</td></tr>' +
-          '<tr><td>RMST effect option for survival</td><td>⏳ Pending</td></tr>' +
+          '<tr><td><code>R CMD check</code> / roxygen2 man pages</td><td>✅ Passed; 46 man pages</td></tr>' +
+          '<tr><td>Cross-fitting for R / DR learners</td><td>✅ Implemented &amp; verified</td></tr>' +
+          '<tr><td>RMST effect option for survival</td><td>✅ Implemented &amp; verified</td></tr>' +
           '<tr><td>HTE evaluation metrics (Qini curve/coef · c-for-benefit · TOC)</td><td>✅ Continuous / binary</td></tr>' +
           '</tbody></table></div>'
       }
