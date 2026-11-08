@@ -119,12 +119,12 @@ not a user-toggleable option.
 
 \examples{
 # RCT: defaults suffice; no weighting needed
-d <- mlr3HTE_demo_data(n = 500, seed = 1)
+d <- mlr3HTE_demo_continuous(n = 500, seed = 1)
 fit <- metalearner("T", d$X, d$A, d$Y, learner_base = mlr3::lrn("regr.lm"))
 cor(fit$cate_train, d$tau)
 
 # Observational data: the DR-Learner fits the propensity score internally by default (doubly robust)
-dobs <- mlr3HTE_demo_obs(n = 800, seed = 1)
+dobs <- mlr3HTE_demo_continuous(setting = "obs", n = 800, seed = 1)
 fit_obs <- metalearner("DR", dobs$X, dobs$A, dobs$Y)
 fit_obs$ate                     # compare against dobs$ate (true ATE)
 

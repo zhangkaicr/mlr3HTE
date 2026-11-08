@@ -39,7 +39,7 @@ each run refits the model, so the cost is non-trivial for large B (try a small B
 }
 \examples{
 \donttest{
-d <- mlr3HTE_demo_data(n = 800, seed = 1)
+d <- mlr3HTE_demo_continuous(n = 800, seed = 1)
 ci <- cate_ci("T", d$X, d$A, d$Y, B = 50, seed = 1)
 mean(ci$cate_mean); c(ci$ate_lo, ci$ate_hi)
 }

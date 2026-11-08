@@ -2,7 +2,7 @@
    content-home.js —— 导航定义 + 站点元信息 + 首页（中英双语）
    ===================================================================== */
 
-window.SITE_META = { version: "0.48", date: "2026-11-08" };
+window.SITE_META = { version: "0.49", date: "2026-11-08" };
 
 window.SITE_NAV = [
   { id: "home",      zh: "首页",           en: "Home"                    },
@@ -33,19 +33,19 @@ window.SITE_NAV = [
       { id: "apimltask",      zh: "ml_task()",                            en: "ml_task()"                               },
       { id: "apilearner",     zh: "learner_base / learner_tau",           en: "learner_base / learner_tau"              },
       { id: "apisurvcurve",   zh: "surv_effect_curve() 效应—时间曲线",   en: "surv_effect_curve() effect over time"    },
-      { id: "apidemo",        zh: "mlr3HTE_demo_*() 演示数据",     en: "mlr3HTE_demo_*() datasets"               },
+      { id: "apidemo",        zh: "三个数据门面 · 总览",           en: "Three data facades · Overview"           },
       { id: "apimetrics",     zh: "HTE 评价指标",                 en: "HTE evaluation metrics"                  },
       { id: "apibenchmark",  zh: "RCT 基准测试",                en: "RCT benchmark"                         },
       { id: "apihelpers",     zh: "辅助函数",                       en: "Helpers"                                 },
       { id: "apiexplain",     zh: "CATE 可解释性 · 总览",          en: "CATE interpretability · Overview"        },
       { id: "apisim",         zh: "模拟数据 · 总览",               en: "Simulation data · Overview"             },
-      { id: "apiscenarios",   zh: "mlr3HTE_scenarios()",            en: "mlr3HTE_scenarios()"                  },
-      { id: "apiscenario",    zh: "mlr3HTE_scenario()",             en: "mlr3HTE_scenario()"                   },
-      { id: "apibench",       zh: "mlr3HTE_bench()",                en: "mlr3HTE_bench()"                      },
-      { id: "apibenchindex",  zh: "mlr3HTE_bench_index()",          en: "mlr3HTE_bench_index()"                },
-      { id: "apibenchdata",   zh: "hte_benchmark_data()",           en: "hte_benchmark_data()"                 },
-      { id: "apibenchmarkdata", zh: "跨包基准数据集",                 en: "Cross-package benchmark datasets"      },
-      { id: "apidagdata",     zh: "mlr3HTE_dag_data()",             en: "mlr3HTE_dag_data()"                   }
+      { id: "apiscenarios",   zh: "结构场景索引 · catalog",        en: "Scenario index · catalog"                 },
+      { id: "apiscenario",    zh: "按场景生成 · scenario",         en: "Generate by scenario"                    },
+      { id: "apibench",       zh: "随包基准网格 · bundled",        en: "Bundled benchmark grid"                  },
+      { id: "apibenchindex",  zh: "基准网格索引",                   en: "Benchmark grid index"                    },
+      { id: "apibenchdata",   zh: "hte_benchmark_data()",           en: "hte_benchmark_data()"                    },
+      { id: "apibenchmarkdata", zh: "跨包基准数据集",               en: "Cross-package benchmark datasets"        },
+      { id: "apidagdata",     zh: "DAG 节点与边表 · design",        en: "DAG nodes and edges · design"            }
     ]
   },
   { id: "changelog", zh: "更新日志",      en: "Changelog"                 },
@@ -125,7 +125,7 @@ window.SITE_PAGES.home = {
         body:
           '<pre><code class="language-r">library(mlr3); library(mlr3learners); library(mlr3HTE)\n\n' +
           '# 连续结局 · RCT\n' +
-          'd &lt;- mlr3HTE_demo_data(n = 4000)\n' +
+          'd &lt;- mlr3HTE_demo_continuous(n = 4000)\n' +
           'fit &lt;- metalearner("T", d$X, d$A, d$Y,\n' +
           '                   learner_base = lrn("regr.ranger", num.trees = 300, seed = 1))\n\n' +
           'fit$ate          # ATE 估计\n' +
@@ -238,7 +238,7 @@ window.SITE_PAGES.home = {
         body:
           '<pre><code class="language-r">library(mlr3); library(mlr3learners); library(mlr3HTE)\n\n' +
           '# Continuous outcome, RCT\n' +
-          'd &lt;- mlr3HTE_demo_data(n = 4000)\n' +
+          'd &lt;- mlr3HTE_demo_continuous(n = 4000)\n' +
           'fit &lt;- metalearner("T", d$X, d$A, d$Y,\n' +
           '                   learner_base = lrn("regr.ranger", num.trees = 300, seed = 1))\n\n' +
           'fit$ate          # ATE estimate\n' +

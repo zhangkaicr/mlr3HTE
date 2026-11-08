@@ -9,23 +9,23 @@ out <- function(tag, code) {
 }
 
 out("bench_c", {
-  b <- mlr3HTE_bench("rct_lin", "continuous")
+  b <- mlr3HTE_demo_continuous(source = "bundled", dataset = "rct_lin")
   c(n = nrow(b$X), ate = b$ate, half = all(b$ps_true == 0.5))
 })
 
 out("scenario_two", {
-  s <- mlr3HTE_scenario("obs_nonlin_nonlin_sharedT", "survival", n = 300, seed = 2)
+  s <- mlr3HTE_demo_surv(scenario = "obs_nonlin_nonlin_sharedT", n = 300, seed = 2)
   c(ate = s$ate, ate_rmst = s$ate_rmst)
 })
 
 out("bench_index", {
-  idx <- mlr3HTE_bench_index()
+  idx <- mlr3HTE_demo_continuous(catalog = TRUE, source = "bundled")
   print(dim(idx))
   print(utils::head(idx, 4))
 })
 
 out("benchdata", {
-  d <- mlr3HTE_scenario("rct_lin", "continuous", n = 400, seed = 1)
+  d <- mlr3HTE_demo_continuous(scenario = "rct_lin", n = 400, seed = 1)
   bm <- hte_benchmark(d$X, d$A, d$Y, learners = c("S", "T"),
                       learner_base = mlr3::lrn("regr.lm"), n_folds = 2, seed = 1)
   qd <- hte_benchmark_data(bm, "qini")
@@ -34,7 +34,7 @@ out("benchdata", {
 })
 
 out("shap_sv", {
-  d <- mlr3HTE_scenario("rct_nonlin", "continuous", n = 400, seed = 1)
+  d <- mlr3HTE_demo_continuous(scenario = "rct_nonlin", n = 400, seed = 1)
   fit <- metalearner("T", d$X, d$A, d$Y, learner_base = mlr3::lrn("regr.ranger", num.trees = 200))
   ex <- hte_explainer(fit, d$X, d$A, d$Y, seed = 1)
   sv <- hte_shap(ex, n_background = 50, seed = 1)

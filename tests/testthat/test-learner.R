@@ -8,7 +8,7 @@
 
 # 1 三类结局的 train / predict -------------------------------------------------
 test_that("R6 Learner 三类结局均可训练与预测", {
-  dc <- mlr3HTE_demo_data(n = 400, seed = 301)
+  dc <- mlr3HTE_demo_continuous(n = 400, seed = 301)
   db <- mlr3HTE_demo_binary(n = 400, seed = 302)
   ds <- mlr3HTE_demo_surv(n = 400, t0 = 2, seed = 303)
 
@@ -37,7 +37,7 @@ test_that("R6 Learner 三类结局均可训练与预测", {
 
 # 2 打分可用（曾因 truth=NULL 崩溃）--------------------------------------------
 test_that("预测结果可以打分", {
-  dc <- mlr3HTE_demo_data(n = 300, seed = 304)
+  dc <- mlr3HTE_demo_continuous(n = 300, seed = 304)
   task <- ml_task(dc$X, dc$A, dc$Y)
   l <- mlr3::lrn("regr.metalearner", metalearner = "T")
   l$learner_base <- mlr3::lrn("regr.ranger", num.trees = 50, seed = 1)
@@ -48,7 +48,7 @@ test_that("预测结果可以打分", {
 
 # 3 resample 三类结局 ---------------------------------------------------------
 test_that("resample 在三类结局下都能跑完并给出分数", {
-  dc <- mlr3HTE_demo_data(n = 300, seed = 305)
+  dc <- mlr3HTE_demo_continuous(n = 300, seed = 305)
   db <- mlr3HTE_demo_binary(n = 300, seed = 306)
   ds <- mlr3HTE_demo_surv(n = 300, t0 = 2, seed = 307)
 
@@ -75,7 +75,7 @@ test_that("resample 在三类结局下都能跑完并给出分数", {
 
 # 4 benchmark 需要唯一 id -----------------------------------------------------
 test_that("benchmark_grid 中多个 metalearner 需给不同 id", {
-  dc <- mlr3HTE_demo_data(n = 200, seed = 308)
+  dc <- mlr3HTE_demo_continuous(n = 200, seed = 308)
   task <- ml_task(dc$X, dc$A, dc$Y)
   lb <- mlr3::lrn("regr.ranger", num.trees = 30, seed = 1)
   expect_error(

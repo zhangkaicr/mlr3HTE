@@ -2,7 +2,7 @@ Sys.setlocale("LC_CTYPE", "en_US.UTF-8")
 pkgload::load_all(".", quiet = TRUE)
 
 set.seed(1)
-d <- mlr3HTE_bench("obs_nonlin_nonlin_sharedT", "continuous")
+d <- mlr3HTE_demo_continuous(source = "bundled", dataset = "obs_nonlin_nonlin_sharedT")
 
 cli::cli_h1("cross-fitting: R / DR")
 for (L in c("R", "DR")) {
@@ -18,7 +18,7 @@ for (L in c("R", "DR")) {
 }
 
 cli::cli_h1("RMST vs survdiff: survival")
-s <- mlr3HTE_bench("obs_nonlin_lin_sharedT", "survival")
+s <- mlr3HTE_demo_surv(source = "bundled", dataset = "obs_nonlin_lin_sharedT")
 for (ef in c("survdiff", "rmst")) {
   fit <- metalearner("T", s$X, s$A, s$Y, learner_base = "coxph",
                      weighting = "iptw", t0 = s$t0, effect = ef)

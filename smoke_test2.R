@@ -37,7 +37,7 @@ for (tp in c("S", "T", "X", "R", "DR")) {
 }
 
 # 3 观察性数据 ---------------------------------------------------------------
-do <- mlr3HTE_demo_obs(n = 3000, seed = 44)
+do <- mlr3HTE_demo_continuous(setting = "obs", n = 3000, seed = 44)
 naive <- mean(do$Y[do$A == 1]) - mean(do$Y[do$A == 0])
 cat("\n== 观察性（连续结局）：真实 ATE=", sprintf("%.4f", do$ate), "==\n")
 cat(sprintf("  未调整差分会   = %+.4f（偏差 %+.4f）\n", naive, naive - do$ate))

@@ -54,7 +54,7 @@ under randomization).
 }
 \examples{
 \donttest{
-d <- mlr3HTE_scenario("rct_nonlin", "continuous", n = 600, seed = 1)
+d <- mlr3HTE_demo_continuous(scenario = "rct_nonlin", n = 600, seed = 1)
 fit <- metalearner("T", d$X, d$A, d$Y, learner_base = mlr3::lrn("regr.ranger"))
 ex <- hte_explainer(fit, d$X, d$A, d$Y, seed = 1)
 hte_feature_importance(ex, B = 5)

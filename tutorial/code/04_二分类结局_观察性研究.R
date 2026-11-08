@@ -1,7 +1,7 @@
 # =====================================================================
 # 04_二分类结局_观察性研究.R
 # 目的：二分类结局 + 混杂。对照未调整风险差、混杂全进 X 条件化、漏掉混杂因子三种情形。
-# 输入：无（数据由 mlr3HTE_demo_obs_binary() 现场生成，含真实 ATE 与逐人风险差）
+# 输入：无（数据由 mlr3HTE_demo_binary(setting = "obs") 现场生成，含真实 ATE 与逐人风险差）
 # 输出：DAG、真值卡、基线表、偏倚对照表、偏倚柱状图、估计 vs 真实风险差散点图
 # 依赖：mlr3, mlr3learners, mlr3HTE, dplyr, ggplot2, cli
 # 运行：在 mlr3HTE/ 目录下执行 Rscript tutorial/code/04_二分类结局_观察性研究.R
@@ -35,7 +35,7 @@ if (!interactive()) {
 print(mlr3HTE_dag("obs", "binary"))
 
 ## 1.1 生成数据 ----
-d <- mlr3HTE_demo_obs_binary(n = 4000, seed = 1205)
+d <- mlr3HTE_demo_binary(setting = "obs", n = 4000, seed = 1205)
 
 ## 1.2 组间基线差异（tidyverse）----
 d$X |>

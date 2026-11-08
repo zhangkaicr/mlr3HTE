@@ -8,7 +8,7 @@
 
 # 1 连续/二分类编码 ------------------------------------------------------------
 test_that("连续与二分类：目标列即结局，协变量含处理列", {
-  dc <- mlr3HTE_demo_data(n = 80, seed = 201)
+  dc <- mlr3HTE_demo_continuous(n = 80, seed = 201)
   t1 <- ml_task(dc$X, dc$A, dc$Y)
   expect_s3_class(t1, "TaskRegr")
   expect_equal(t1$target_names, ".outcome")
@@ -36,7 +36,7 @@ test_that("生存：目标列为时间，另设 .status 列，t0 记入 extra_ar
 
 # 3 自定义处理列名 ------------------------------------------------------------
 test_that("自定义 treatment_col 被记录且可从协变量中区分", {
-  dc <- mlr3HTE_demo_data(n = 60, seed = 204)
+  dc <- mlr3HTE_demo_continuous(n = 60, seed = 204)
   t <- ml_task(dc$X, dc$A, dc$Y, treatment_col = "trt")
   expect_equal(t$extra_args$ml_treatment_col, "trt")
   expect_true("trt" %in% t$feature_names)
@@ -44,7 +44,7 @@ test_that("自定义 treatment_col 被记录且可从协变量中区分", {
 
 # 4 处理列名冲突报错 ----------------------------------------------------------
 test_that("treatment_col 与协变量列重名时报错", {
-  dc <- mlr3HTE_demo_data(n = 60, seed = 205)
+  dc <- mlr3HTE_demo_continuous(n = 60, seed = 205)
   dc$X$A <- 1
   # 用 ASCII 的 treatment_col 标记做 locale-proof 匹配（非 UTF-8 locale 下中文会被转义）
   expect_error(ml_task(dc$X, dc$A, dc$Y), "treatment_col")

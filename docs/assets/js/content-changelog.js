@@ -9,8 +9,29 @@ window.SITE_PAGES.changelog = {
   /* ---------------- 中文 ---------------- */
   zh: {
     title: "更新日志",
-    lede: "mlr3HTE 的版本历史与重要变更。当前版本 v0.48。",
+    lede: "mlr3HTE 的版本历史与重要变更。当前版本 v0.49。",
     sections: [
+
+      {
+        id: "v049",
+        heading: "v0.49 · 2026-11-08",
+        body:
+          '<div class="callout ok"><div class="callout-title">模拟数据生成只导出三个函数 · Stage 2 完成</div>' +
+          '<ul>' +
+          '<li>公开 API 收敛为 <code>mlr3HTE_demo_continuous()</code> / <code>mlr3HTE_demo_binary()</code> / <code>mlr3HTE_demo_surv()</code>；' +
+          '12 个旧的单用途数据函数转为包内实现，不再导出（NAMESPACE 46 → 34，man/ 删除 12 页）。</li>' +
+          '<li>全站 420 处旧调用按语义改写为三函数门面的参数路由：' +
+          '<code>setting</code> / <code>source</code> / <code>scenario</code> / <code>design</code> / ' +
+          '<code>catalog</code> / <code>export_to</code>，覆盖帮助文档示例、测试、教程脚本、官网与 README。</li>' +
+          '<li>默认种子按「结局 × 设计」复原旧版 1201–1206，替换调用后实测数值逐位不变；新增回归断言钉住这一点。</li>' +
+          '<li><code>source = "benchmark"</code> 返回统一 list 并附 <code>raw</code> 原始表，' +
+          '结局类型按每份数据自身的列推断，一次加载全部 5 份不再报错。</li>' +
+          '<li>官网 API 分组表与函数详情页同步重写；导航标签保留全部页面 id，锚链零改动。</li>' +
+          '<li>GitHub 仓库落地页 <code>README.md</code> 改为完整英文版，中文版保留为 <code>README_ZH.md</code>；' +
+          '官网 <code>&lt;html lang&gt;</code> / <code>&lt;title&gt;</code> 同步改英文，语言切换功能不变。</li>' +
+          '<li>新增 <code>dev/_check_tutorials.py</code>，逐个实跑全部 18 个教程脚本；此前只验证了指南页。</li>' +
+          '</ul></div>'
+      },
 
       {
         id: "v048",
@@ -772,8 +793,32 @@ window.SITE_PAGES.changelog = {
   /* ---------------- English ---------------- */
   en: {
     title: "Changelog",
-    lede: "Version history and notable changes for mlr3HTE. Current version: v0.48.",
+    lede: "Version history and notable changes for mlr3HTE. Current version: v0.49.",
     sections: [
+
+      {
+        id: "v049",
+        heading: "v0.49 · 2026-11-08",
+        body:
+          '<div class="callout ok"><div class="callout-title">Only three data facades exported - Stage 2 complete</div>' +
+          '<ul>' +
+          '<li>The public API now has three data facades: <code>mlr3HTE_demo_continuous()</code> / ' +
+          '<code>mlr3HTE_demo_binary()</code> / <code>mlr3HTE_demo_surv()</code>. Twelve legacy ' +
+          'single-purpose generators became unexported internals (NAMESPACE 46 to 34, 12 man pages removed).</li>' +
+          '<li>420 legacy calls were rewritten by argument semantics, not by blind string replacement: ' +
+          '<code>setting</code> / <code>source</code> / <code>scenario</code> / <code>design</code> / ' +
+          '<code>catalog</code> / <code>export_to</code>, across help examples, tests, tutorials, the site and both READMEs.</li>' +
+          '<li>Default seeds reproduce the legacy 1201-1206 values by outcome and design, so documented ' +
+          'outputs stay bit-for-bit identical; new regression assertions pin this down.</li>' +
+          '<li><code>source = "benchmark"</code> returns a unified list plus the untouched <code>raw</code> ' +
+          'table and infers each outcome type from that dataset\'s own columns; loading all five at once no longer fails.</li>' +
+          '<li>API index tables and function detail pages were rewritten; nav labels keep every page id, so anchors are unchanged.</li>' +
+          '<li>The GitHub landing page <code>README.md</code> is now English; the Chinese version is kept as ' +
+          '<code>README_ZH.md</code>. The site <code>&lt;html lang&gt;</code> / <code>&lt;title&gt;</code> are English too; ' +
+          'the language toggle is unchanged.</li>' +
+          '<li>Added <code>dev/_check_tutorials.py</code> to run all 18 tutorial scripts; previously only the guide page was checked.</li>' +
+          '</ul></div>'
+      },
 
       {
         id: "v048",

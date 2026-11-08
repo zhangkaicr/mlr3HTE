@@ -43,7 +43,7 @@ score_row <- function(fit, tau) {
 }
 
 # 2 连续结局 × RCT（DAG: rct / continuous）----
-dc <- mlr3HTE_demo_data(n = 3000, seed = 1201)
+dc <- mlr3HTE_demo_continuous(n = 3000, seed = 1201)
 lb_c <- lrn("regr.ranger", num.trees = 300, seed = 1)
 tab_c <- bind_rows(lapply(types, function(tp) {
   cli::cli_alert_info("连续结局：拟合 {tp}-learner ...")
@@ -113,7 +113,7 @@ ggplot(plot_tab, aes(x = 方法, y = 结局类型, fill = 值)) +
 
 # 7 观察性：混杂全进 X 下的横向对比（连续 + 二分类 + 生存）----
 ## 7.1 连续观察性 ----
-do_c <- mlr3HTE_demo_obs(n = 3000, seed = 1204)
+do_c <- mlr3HTE_demo_continuous(setting = "obs", n = 3000, seed = 1204)
 tab_oc <- bind_rows(lapply(types, function(tp)
   metalearner(tp, do_c$X, do_c$A, do_c$Y, learner_base = lb_c,
               cross_fitting = tp %in% c("R", "DR")) |> score_row(do_c$tau))) |>
@@ -122,7 +122,7 @@ cli::cli_h1("连续结局 × 观察性（混杂全进 X；真实 ATE = {round(do
 print(tab_oc |> mutate(across(c(平均CATE, 与真相关, 估计SD, RMSE), \(x) round(x, 4))))
 
 ## 7.2 二分类观察性 ----
-do_b <- mlr3HTE_demo_obs_binary(n = 3000, seed = 1205)
+do_b <- mlr3HTE_demo_binary(setting = "obs", n = 3000, seed = 1205)
 tab_ob <- bind_rows(lapply(types, function(tp)
   metalearner(tp, do_b$X, do_b$A, do_b$Y, learner_base = lb_b,
               cross_fitting = tp %in% c("R", "DR")) |> score_row(do_b$tau))) |>
@@ -131,7 +131,7 @@ cli::cli_h1("二分类结局 × 观察性（混杂全进 X；真实 ATE = {round
 print(tab_ob |> mutate(across(c(平均CATE, 与真相关, 估计SD, RMSE), \(x) round(x, 4))))
 
 ## 7.3 生存观察性 ----
-do_s <- mlr3HTE_demo_obs_surv(n = 3000, t0 = t0, seed = 1206)
+do_s <- mlr3HTE_demo_surv(setting = "obs", n = 3000, t0 = t0, seed = 1206)
 tab_os <- bind_rows(lapply(types, function(tp)
   metalearner(tp, do_s$X, do_s$A, do_s$Y, learner_base = "coxph",
               cross_fitting = tp %in% c("R", "DR"), t0 = t0) |> score_row(do_s$tau))) |>

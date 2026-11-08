@@ -1,5 +1,5 @@
 # 目的：把 HTE 评价指标（Qini / TOC / c-for-benefit）在三类结局上各跑一遍并互相对账
-# 输入：mlr3HTE_demo_data() / mlr3HTE_demo_binary() / mlr3HTE_demo_surv()
+# 输入：mlr3HTE_demo_continuous() / mlr3HTE_demo_binary() / mlr3HTE_demo_surv()
 # 输出：tutorial/output/12_metrics_three_outcomes.md（对账表，脚本自动生成）
 # 依赖：mlr3HTE（pkgload::load_all）、survival、ranger
 #
@@ -75,12 +75,12 @@ summarise_layers <- function(m, label, ate) {
 
 # 2 连续结局 ---------------------------------------------------------------
 m_c <- rep_layers(
-  gen = function(r) mlr3HTE_demo_data(n = 2400, seed = 100 + r),
+  gen = function(r) mlr3HTE_demo_continuous(n = 2400, seed = 100 + r),
   fit_fun = function(d, idx) metalearner(
     "T", d$X[idx, ], d$A[idx], d$Y[idx],
     learner_base = lrn("regr.ranger", num.trees = 300, seed = 1))
 )
-row_c <- summarise_layers(m_c, "连续", mlr3HTE_demo_data(n = 2400)$ate)
+row_c <- summarise_layers(m_c, "连续", mlr3HTE_demo_continuous(n = 2400)$ate)
 
 # 3 二分类结局 -------------------------------------------------------------
 m_b <- rep_layers(
@@ -158,7 +158,7 @@ leak_tab <- data.frame(
 print(leak_tab)
 
 # 7 单次读数为什么不能比模型：model 挑的人真 tau 更低，IPW 评分却更高 --------
-dd <- mlr3HTE_demo_data(n = 3000)
+dd <- mlr3HTE_demo_continuous(n = 3000)
 n <- length(dd$A)
 set.seed(4242)
 te2 <- sample(n, floor(n / 3))

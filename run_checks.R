@@ -25,7 +25,8 @@ library(mlr3HTE)
 # 不在 ls(asNamespace(pkg)) 自身环境里——必须用 get(..., inherits=TRUE) 真正取一次，
 # 这样既覆盖导入符号，又能在懒加载库损坏时（get 抛错）抓到问题。
 ns <- asNamespace("mlr3HTE")
-needed <- c("mlr3HTE_dag", "mlr3HTE_demo_data", "metalearner", "lrn")
+needed <- c("mlr3HTE_dag", "mlr3HTE_demo_continuous", "mlr3HTE_demo_binary",
+           "mlr3HTE_demo_surv", "metalearner", "lrn")
 missing <- c()
 for (x in needed) {
   ok <- tryCatch({

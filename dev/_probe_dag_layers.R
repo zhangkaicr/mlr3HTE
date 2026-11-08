@@ -15,7 +15,7 @@ for (ds in c("rct", "obs")) {
     geoms <- vapply(p$layers, function(l) class(l$geom)[1], character(1))
     print(sprintf("%-5s / %-11s : %d 层 -> %s",
                   ds, oc, length(p$layers), paste(geoms, collapse = ", ")))
-    ed <- mlr3HTE_dag_data(ds, oc)$edges
+    ed <- mlr3HTE_demo_continuous(design = ds)$edges
     print(ed[, c("from", "to", "curve")])
   }
 }

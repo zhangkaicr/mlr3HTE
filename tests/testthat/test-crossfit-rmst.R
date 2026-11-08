@@ -3,7 +3,7 @@
 
 # 1 交叉拟合 -------------------------------------------------------------------
 test_that("R / DR 支持 cross_fitting 且结果可复现", {
-  d <- mlr3HTE_scenario("obs_lin_lin_sharedT", "continuous", n = 600, seed = 4)
+  d <- mlr3HTE_demo_continuous(scenario = "obs_lin_lin_sharedT", n = 600, seed = 4)
   for (L in c("R", "DR")) {
     set.seed(1)
     a <- metalearner(L, d$X, d$A, d$Y, cross_fitting = TRUE, n_folds = 4)
@@ -19,7 +19,7 @@ test_that("交叉拟合对 R-Learner 的 in-fold 过拟合有矫正作用", {
   # R-Learner 的目标是 (Y-mu)/(A-e)，分母接近 0 时放大噪声；
   # 干扰参数在同一批数据上拟合会让 mu_hat 过拟合、残差被系统性压缩，
   # 表现为 ATE 被大幅低估。交叉拟合应把偏差拉回来。
-  d <- mlr3HTE_scenario("obs_nonlin_nonlin_sharedT", "continuous", n = 1500, seed = 1)
+  d <- mlr3HTE_demo_continuous(scenario = "obs_nonlin_nonlin_sharedT", n = 1500, seed = 1)
   set.seed(1)
   f_in  <- metalearner("R", d$X, d$A, d$Y, cross_fitting = FALSE)
   set.seed(1)
@@ -28,7 +28,7 @@ test_that("交叉拟合对 R-Learner 的 in-fold 过拟合有矫正作用", {
 })
 
 test_that("交叉拟合只对 R / DR 生效，其他 learner 给出警告并忽略", {
-  d <- mlr3HTE_scenario("rct_lin", "continuous", n = 300, seed = 2)
+  d <- mlr3HTE_demo_continuous(scenario = "rct_lin", n = 300, seed = 2)
   expect_warning(
     metalearner("T", d$X, d$A, d$Y, learner_base = mlr3::lrn("regr.lm"),
                 cross_fitting = TRUE),
@@ -37,7 +37,7 @@ test_that("交叉拟合只对 R / DR 生效，其他 learner 给出警告并忽�
 })
 
 test_that("n_folds 非法取值会被夹到合法范围", {
-  d <- mlr3HTE_scenario("rct_lin", "continuous", n = 200, seed = 2)
+  d <- mlr3HTE_demo_continuous(scenario = "rct_lin", n = 200, seed = 2)
   # n_folds 大于样本量时应退化为「每折一个观测」而不是报错
   expect_silent(
     metalearner("DR", d$X, d$A, d$Y, learner_base = mlr3::lrn("regr.lm"),
@@ -47,7 +47,7 @@ test_that("n_folds 非法取值会被夹到合法范围", {
 
 # 2 RMST -----------------------------------------------------------------------
 test_that("生存结局的 RMST 尺度可估计并接近真值", {
-  s <- mlr3HTE_scenario("rct_lin", "survival", n = 1500, seed = 6, t0 = 2)
+  s <- mlr3HTE_demo_surv(scenario = "rct_lin", n = 1500, seed = 6, t0 = 2)
   set.seed(1)
   fit <- metalearner("T", s$X, s$A, s$Y, learner_base = "coxph", t0 = s$t0,
                      effect = "rmst")
@@ -58,7 +58,7 @@ test_that("生存结局的 RMST 尺度可估计并接近真值", {
 })
 
 test_that("RMST 与生存概率差是两个不同的尺度", {
-  s <- mlr3HTE_scenario("rct_lin", "survival", n = 800, seed = 6, t0 = 2)
+  s <- mlr3HTE_demo_surv(scenario = "rct_lin", n = 800, seed = 6, t0 = 2)
   set.seed(1)
   f_s <- metalearner("T", s$X, s$A, s$Y, learner_base = "coxph", t0 = s$t0,
                      effect = "survdiff")
@@ -70,7 +70,7 @@ test_that("RMST 与生存概率差是两个不同的尺度", {
 })
 
 test_that("effect = 'rmst' 用在非生存结局上直接报错", {
-  d <- mlr3HTE_scenario("rct_lin", "continuous", n = 200, seed = 2)
+  d <- mlr3HTE_demo_continuous(scenario = "rct_lin", n = 200, seed = 2)
   expect_error(
     metalearner("T", d$X, d$A, d$Y, learner_base = mlr3::lrn("regr.lm"),
                 effect = "rmst"),
@@ -79,7 +79,7 @@ test_that("effect = 'rmst' 用在非生存结局上直接报错", {
 })
 
 test_that("评价指标也接受 RMST 尺度", {
-  s <- mlr3HTE_scenario("rct_lin", "survival", n = 600, seed = 8, t0 = 2)
+  s <- mlr3HTE_demo_surv(scenario = "rct_lin", n = 600, seed = 8, t0 = 2)
   set.seed(1)
   fit <- metalearner("T", s$X, s$A, s$Y, learner_base = "coxph", t0 = s$t0,
                      effect = "rmst")

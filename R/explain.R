@@ -98,7 +98,7 @@ utils::globalVariables(".data")
 #' @export
 #' @examples
 #' \donttest{
-#' d <- mlr3HTE_scenario("obs_lin_lin_sharedT", "continuous", n = 600, seed = 1)
+#' d <- mlr3HTE_demo_continuous(scenario = "obs_lin_lin_sharedT", n = 600, seed = 1)
 #' fit <- metalearner("T", d$X, d$A, d$Y, learner_base = mlr3::lrn("regr.ranger"))
 #' ex <- hte_explainer(fit, d$X, d$A, d$Y, seed = 1)
 #' hte_feature_importance(ex, B = 5)
@@ -177,7 +177,7 @@ hte_explainer <- function(fit, X, A = NULL, Y = NULL, pseudo = NULL,
 #' @export
 #' @examples
 #' \donttest{
-#' d <- mlr3HTE_scenario("rct_lin", "continuous", n = 500, seed = 1)
+#' d <- mlr3HTE_demo_continuous(scenario = "rct_lin", n = 500, seed = 1)
 #' fit <- metalearner("T", d$X, d$A, d$Y, learner_base = mlr3::lrn("regr.ranger"))
 #' sur <- hte_surrogate(d$X, fit$predict(d$X))
 #' cor(sur$predict(d$X), d$tau)
@@ -237,7 +237,7 @@ hte_surrogate <- function(X, tau_hat,
 #' @export
 #' @examples
 #' \donttest{
-#' d <- mlr3HTE_scenario("rct_nonlin", "continuous", n = 600, seed = 1)
+#' d <- mlr3HTE_demo_continuous(scenario = "rct_nonlin", n = 600, seed = 1)
 #' fit <- metalearner("T", d$X, d$A, d$Y, learner_base = mlr3::lrn("regr.ranger"))
 #' ex <- hte_explainer(fit, d$X, d$A, d$Y, seed = 1)
 #' hte_feature_importance(ex, B = 5)
@@ -318,7 +318,7 @@ hte_feature_importance <- function(explainer, loss = "rmse", B = 10L,
 #' @export
 #' @examples
 #' \donttest{
-#' d <- mlr3HTE_scenario("rct_nonlin", "continuous", n = 600, seed = 1)
+#' d <- mlr3HTE_demo_continuous(scenario = "rct_nonlin", n = 600, seed = 1)
 #' fit <- metalearner("T", d$X, d$A, d$Y, learner_base = mlr3::lrn("regr.ranger"))
 #' ex <- hte_explainer(fit, d$X, d$A, d$Y, seed = 1)
 #' head(hte_pdp(ex, variables = "lac"))
@@ -390,7 +390,7 @@ hte_pdp <- function(explainer, variables = NULL, grid_points = 101L,
 #' @export
 #' @examples
 #' \donttest{
-#' d <- mlr3HTE_scenario("rct_nonlin", "continuous", n = 400, seed = 1)
+#' d <- mlr3HTE_demo_continuous(scenario = "rct_nonlin", n = 400, seed = 1)
 #' fit <- metalearner("T", d$X, d$A, d$Y, learner_base = mlr3::lrn("regr.ranger"))
 #' ex <- hte_explainer(fit, d$X, d$A, d$Y, seed = 1)
 #' sv <- hte_shap(ex, n_background = 50, seed = 1)

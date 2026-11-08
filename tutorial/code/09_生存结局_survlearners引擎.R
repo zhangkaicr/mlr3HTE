@@ -184,7 +184,7 @@ if (has_sl) {
 # （与 v0.40 移除的 IPTW 加权选项无关），W.hat 由它自带的 PS 模型估计。
 # 本包要做的只是把全部混杂变量放进 X，让后门路径被条件化阻断。
 if (has_sl) {
-  dobs <- mlr3HTE_demo_obs_surv(n = n_used, t0 = t0, seed = 1206)
+  dobs <- mlr3HTE_demo_surv(setting = "obs", n = n_used, t0 = t0, seed = 1206)
 
   obs_res <- tibble(tp = c("X", "R")) |>
     mutate(

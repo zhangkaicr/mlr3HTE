@@ -35,15 +35,15 @@ if (!interactive()) {
 #   HTE 形式   linear（CATE 是协变量的线性函数）/ nonlinear（含 sin 与二次项）
 #   共用变量   shared = TRUE 表示某变量既进入处理分配模型又进入 CATE，
 #              即"混杂因子兼效应修饰因子"
-mlr3HTE_scenarios()
+mlr3HTE_demo_continuous(catalog = TRUE)
 
 # 2 预生成数据的索引 ----
-idx <- mlr3HTE_bench_index()
+idx <- mlr3HTE_demo_continuous(catalog = TRUE, source = "bundled")
 dim(idx)
 utils::head(idx, 6)
 
 # 3 取一份数据：真值齐备 ----
-b <- mlr3HTE_bench("obs_nonlin_nonlin_sharedT", "continuous")
+b <- mlr3HTE_demo_continuous(source = "bundled", dataset = "obs_nonlin_nonlin_sharedT")
 names(b)
 c(n = nrow(b$X), ate = b$ate,
   cor_tau_lac = round(cor(b$tau, b$X$lac), 3),
@@ -57,7 +57,7 @@ grid_ids <- c("rct_lin", "rct_nonlin",
               "obs_lin_lin_sharedF", "obs_lin_lin_sharedT",
               "obs_nonlin_lin_sharedF", "obs_nonlin_lin_sharedT")
 bias_tab <- dplyr::bind_rows(lapply(grid_ids, function(id) {
-  bb <- mlr3HTE_bench(id, "continuous")
+  bb <- mlr3HTE_demo_continuous(source = "bundled", dataset = id)
   data.frame(id = id,
              ate_true = bb$ate,
              naive = naive(bb),
@@ -87,7 +87,7 @@ ggplot2::ggsave("tutorial/figures/16_confounding_bias.png", p_bias,
 # 这里显式做 70/30 划分，只在测试集上比较。
 cmp <- dplyr::bind_rows(lapply(c("obs_nonlin_lin_sharedT", "obs_nonlin_nonlin_sharedT"),
   function(id) {
-    bb <- mlr3HTE_bench(id, "continuous")
+    bb <- mlr3HTE_demo_continuous(source = "bundled", dataset = id)
     tr <- sample(seq_len(nrow(bb$X)), size = floor(0.7 * nrow(bb$X)))
     te <- setdiff(seq_len(nrow(bb$X)), tr)
     fit_one <- function(lb) {
@@ -105,9 +105,9 @@ cmp$cor <- round(cmp$cor, 3)
 cmp
 
 # 6 生存结局额外提供 RMST 尺度的真值 ----
-s <- mlr3HTE_bench("obs_nonlin_nonlin_sharedT", "survival")
+s <- mlr3HTE_demo_surv(source = "bundled", dataset = "obs_nonlin_nonlin_sharedT")
 c(ate_survdiff = s$ate, ate_rmst = s$ate_rmst, t0 = s$t0)
 
 # 7 使用约定 ----
-cli::cli_alert_info("方法学比较请统一使用 mlr3HTE_bench()，不要各自重新模拟")
-cli::cli_alert_info("需要真值以外的结构时，用 mlr3HTE_scenario() 按同一生成器扩展")
+cli::cli_alert_info("方法学比较请统一使用 mlr3HTE_demo_continuous()，不要各自重新模拟")
+cli::cli_alert_info("需要真值以外的结构时，用 mlr3HTE_demo_continuous() 按同一生成器扩展")

@@ -28,7 +28,7 @@ set.seed(2026)
 #   生存：目标列 .outcome = 随访时间，另加特征列 .status = 事件指示
 # 结局类型 / 状态列名 / t0 都记在 task$extra_args 里
 ## 1.1 三种结局各建一个 Task ----
-dc <- mlr3HTE_demo_data(n = 1500, seed = 1201)
+dc <- mlr3HTE_demo_continuous(n = 1500, seed = 1201)
 db <- mlr3HTE_demo_binary(n = 1500, seed = 1202)
 ds <- mlr3HTE_demo_surv(n = 1500, t0 = 2, seed = 1203)
 

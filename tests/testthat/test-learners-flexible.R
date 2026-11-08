@@ -3,7 +3,7 @@
 
 test_that("T-Learner 支持按组指定不同学习器", {
   set.seed(1)
-  d <- mlr3HTE_demo_data(n = 1500)
+  d <- mlr3HTE_demo_continuous(n = 1500)
 
   # 单 learner（向后兼容）应当跑通
   fit_single <- metalearner("T", d$X, d$A, d$Y,
@@ -24,7 +24,7 @@ test_that("T-Learner 支持按组指定不同学习器", {
 
 test_that("X-Learner 支持 m1/m0 与 tau1/tau0 各自指定", {
   set.seed(2)
-  d <- mlr3HTE_demo_data(n = 1500)
+  d <- mlr3HTE_demo_continuous(n = 1500)
 
   fit <- metalearner("X", d$X, d$A, d$Y,
                      learner_base = list(
@@ -42,7 +42,7 @@ test_that("X-Learner 支持 m1/m0 与 tau1/tau0 各自指定", {
 
 test_that("缺失角色 / 未知角色应给出明确报错", {
   set.seed(3)
-  d <- mlr3HTE_demo_data(n = 800)
+  d <- mlr3HTE_demo_continuous(n = 800)
   expect_error(
     metalearner("T", d$X, d$A, d$Y, learner_base = list(treated = lrn("regr.lm"))),
     "control"
@@ -59,7 +59,7 @@ test_that("缺失角色 / 未知角色应给出明确报错", {
 
 test_that("S / R / DR 拒绝按角色命名的 learner_base", {
   set.seed(4)
-  d <- mlr3HTE_demo_data(n = 800)
+  d <- mlr3HTE_demo_continuous(n = 800)
   lb <- list(treated = lrn("regr.lm"), control = lrn("regr.lm"))
   for (tp in c("S", "R", "DR")) {
     expect_error(metalearner(tp, d$X, d$A, d$Y, learner_base = lb),
@@ -69,7 +69,7 @@ test_that("S / R / DR 拒绝按角色命名的 learner_base", {
 
 test_that("tau1/tau0 的 list 只接受 X-Learner", {
   set.seed(5)
-  d <- mlr3HTE_demo_data(n = 800)
+  d <- mlr3HTE_demo_continuous(n = 800)
   lt <- list(tau1 = lrn("regr.lm"), tau0 = lrn("regr.lm"))
   expect_error(metalearner("R", d$X, d$A, d$Y, learner_tau = lt),
                "X-Learner")
@@ -89,7 +89,7 @@ test_that("生存 X-Learner 可用原生字符串按组指定", {
 
 test_that("R6 Learner 透传命名 list 同样生效", {
   set.seed(7)
-  d <- mlr3HTE_demo_data(n = 1200)
+  d <- mlr3HTE_demo_continuous(n = 1200)
   task <- ml_task(d$X, d$A, d$Y)
   lr <- lrn("regr.metalearner", metalearner = "T")
   lr$learner_base <- list(

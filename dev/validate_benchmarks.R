@@ -1,7 +1,9 @@
 # 目的：用 mlr3HTE 的 S/T/X/R/DR 拟合随包分发的跨包基准数据集，同时核对
 #       ① ATE 是否还原真值；② CATE（个体效应）是否与真值/来源包一致（相关、RMSE、MAE）；
 #       ③ PS 截断 ps_bounds 对 R/DR 的影响；④ 与 grf::causal_forest 的直接对照。
-# 输入：inst/extdata/benchmarks/*（mlr3HTE_benchmark_data 读取）
+# 输入：inst/extdata/benchmarks/*（由三函数门面的 source = "benchmark" 读取）。
+#       门面返回统一 list；这里需要来源包的原始列名（uplift 多臂标签、生存 time/event），
+#       所以取 $raw 继续按原始 data.frame 处理。
 # 输出：控制台报表（每数据集×方法一行；另附 ps_bounds 敏感性与 grf 对照）
 # 依赖：mlr3HTE, mlr3learners, grf
 # 说明：只做验证、不写包内；运行前已 pkgload::load_all(".")
@@ -17,7 +19,7 @@ lb_reg  <- lrn("regr.ranger", num.trees = 150)
 lb_cls  <- lrn("classif.ranger", num.trees = 150)
 tau_l   <- lrn("regr.ranger", num.trees = 150, min.node.size = 50)
 DEF     <- c(0.01, 0.99)   # 新默认
-meta    <- mlr3HTE_benchmark_meta()
+meta    <- mlr3HTE_demo_continuous(catalog = TRUE, source = "benchmark")
 
 # 1 工具：CATE 级指标 + 单数据集评估 ----
 
@@ -49,13 +51,13 @@ eval_ds <- function(nm, X, A, Y, true_ate, ctrue, base, outcome,
 report <- list()
 
 # 2.1 grf_causal（连续）
-d <- mlr3HTE_benchmark_data("grf_causal")
+d <- mlr3HTE_demo_continuous(source = "benchmark", dataset = "grf_causal")$raw
 X <- d[, grep("^x", names(d)), drop = FALSE]
 report[["grf_causal"]] <- eval_ds("grf_causal", X, d$treatment, d$outcome,
                                   meta$true_ate[1], d$cate_true, lb_reg, "continuous")
 
 # 2.2 grf_survival（生存）
-d <- mlr3HTE_benchmark_data("grf_survival")
+d <- mlr3HTE_demo_continuous(source = "benchmark", dataset = "grf_survival")$raw
 X <- d[, grep("^x", names(d)), drop = FALSE]
 report[["grf_survival"]] <- eval_ds("grf_survival", X, d$treatment,
                                     survival::Surv(d$time, d$event),
@@ -63,13 +65,13 @@ report[["grf_survival"]] <- eval_ds("grf_survival", X, d$treatment,
                                     t0 = stats::median(d$time))
 
 # 2.3 econml_ihdp（连续，强混杂）
-d <- mlr3HTE_benchmark_data("econml_ihdp")
+d <- mlr3HTE_demo_continuous(source = "benchmark", dataset = "econml_ihdp")$raw
 X <- d[, grep("^x", names(d)), drop = FALSE]
 report[["econml_ihdp"]] <- eval_ds("econml_ihdp", X, d$treatment, d$outcome,
                                    meta$true_ate[3], d$cate_true, lb_reg, "continuous")
 
 # 2.4 causalml_uplift（二分类；control vs treatment1）
-d <- mlr3HTE_benchmark_data("causalml_uplift")
+d <- mlr3HTE_demo_continuous(source = "benchmark", dataset = "causalml_uplift")$raw
 sub <- d[d$treatment_group_key %in% c("control", "treatment1"), ]
 sub$A <- as.integer(sub$treatment_group_key == "treatment1")
 X <- sub[, grep("^x", names(sub)), drop = FALSE]
@@ -78,7 +80,7 @@ report[["causalml_uplift"]] <- eval_ds("causalml_uplift", X, sub$A, sub$conversi
                                        true_ate, sub$cate_true, lb_cls, "binary")
 
 # 2.5 causalml_continuous（连续）
-d <- mlr3HTE_benchmark_data("causalml_continuous")
+d <- mlr3HTE_demo_continuous(source = "benchmark", dataset = "causalml_continuous")$raw
 X <- d[, grep("^x", names(d)), drop = FALSE]
 report[["causalml_continuous"]] <- eval_ds("causalml_continuous", X, d$treatment,
                                            d$outcome, meta$true_ate[5],
@@ -90,7 +92,7 @@ print(main)
 
 # 3 ps_bounds 敏感性（只看强混杂 ihdp 上的 R / DR）====
 
-d <- mlr3HTE_benchmark_data("econml_ihdp")
+d <- mlr3HTE_demo_continuous(source = "benchmark", dataset = "econml_ihdp")$raw
 X <- d[, grep("^x", names(d)), drop = FALSE]
 sens <- list()
 for (tp in c("R", "DR")) {
@@ -112,7 +114,7 @@ print(sens)
 
 # 4 与 grf::causal_forest 的 CATE 直接对照（grf_causal）====
 
-d <- mlr3HTE_benchmark_data("grf_causal")
+d <- mlr3HTE_demo_continuous(source = "benchmark", dataset = "grf_causal")$raw
 X <- d[, grep("^x", names(d)), drop = FALSE]
 cf <- grf::causal_forest(as.matrix(X), d$outcome, d$treatment, num.trees = 2000)
 cate_grf <- as.numeric(grf:::predict.causal_forest(cf)$predictions)

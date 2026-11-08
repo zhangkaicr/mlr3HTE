@@ -5,7 +5,7 @@ skip_if_not_installed("kernelshap")
 skip_if_not_installed("shapviz")
 
 .make_fit <- function(n = 300, seed = 1) {
-  d <- mlr3HTE_scenario("obs_lin_lin_sharedT", "continuous", n = n, seed = seed)
+  d <- mlr3HTE_demo_continuous(scenario = "obs_lin_lin_sharedT", n = n, seed = seed)
   fit <- metalearner("T", d$X, d$A, d$Y,
                      learner_base = mlr3::lrn("regr.ranger", num.trees = 120),
                      )

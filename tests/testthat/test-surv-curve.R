@@ -45,7 +45,7 @@ test_that("rmst 尺度的曲线随时间累积上升", {
 })
 
 test_that("非生存结局明确报错", {
-  dc <- mlr3HTE_demo_data(n = 200, seed = 101)
+  dc <- mlr3HTE_demo_continuous(n = 200, seed = 101)
   expect_error(
     surv_effect_curve("T", dc$X, dc$A, dc$Y),
     "meaningful only for survival outcomes"

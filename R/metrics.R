@@ -314,7 +314,7 @@ qini_coefficient <- function(cate, A, Y, propensity = NULL,
 #' @export
 #' @examples
 #' set.seed(1)
-#' d <- mlr3HTE_demo_obs(n = 800)
+#' d <- mlr3HTE_demo_continuous(setting = "obs", n = 800)
 #' dr <- dr_pseudo_outcome(d$X, d$A, d$Y, seed = 1)
 #' dr$ate
 #' c_for_benefit(dr$mu1 - dr$mu0, d$A, d$Y,
@@ -509,14 +509,14 @@ dr_pseudo_outcome <- function(X, A, Y, cross_fitting = TRUE, n_folds = 5L,
 #'
 #' # Observational data: use the cross-fitted DR pseudo-outcome as the observed benefit
 #' set.seed(1)
-#' d <- mlr3HTE_demo_obs(n = 800)
+#' d <- mlr3HTE_demo_continuous(setting = "obs", n = 800)
 #' dr <- dr_pseudo_outcome(d$X, d$A, d$Y, seed = 1)
 #' c_for_benefit(dr$mu1 - dr$mu0, d$A, d$Y,
 #'               propensity = dr$propensity, mu1 = dr$mu1, mu0 = dr$mu0)
 #'
 #' # Observational data: the DR-Learner fits the propensity score internally by default (doubly robust)
 #' set.seed(1)
-#' d <- mlr3HTE_demo_obs(n = 800)
+#' d <- mlr3HTE_demo_continuous(setting = "obs", n = 800)
 #' fit <- metalearner("DR", d$X, d$A, d$Y)
 #' dr <- dr_pseudo_outcome(d$X, d$A, d$Y, seed = 1)
 #' c_for_benefit(fit$cate_train, d$A, d$Y,

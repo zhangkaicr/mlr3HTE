@@ -42,15 +42,17 @@ source of heterogeneous treatment effects (HTE).
 
 In the diagram there is only one directed edge between any two nodes; if an edge
 would pass through a third node, curvature is added automatically to route around
-it (see the \code{curve} column of \code{\link{mlr3HTE_dag_data}}).
+it (see the \code{curve} column returned by \code{design} in
+\code{\link{mlr3HTE_demo_continuous}}).
 }
 \examples{
 if (requireNamespace("ggplot2", quietly = TRUE)) {
   p <- mlr3HTE_dag("rct", "continuous")
   class(p)
-  head(mlr3HTE_dag_data("obs", "survival")$edges)
+  head(mlr3HTE_demo_surv(design = "obs")$edges)
 }
 }
 \seealso{
-\code{\link{mlr3HTE_dag_data}}
+\code{\link{mlr3HTE_demo_continuous}} (the \code{design} route returns
+the node and edge tables used by this plot).
 }

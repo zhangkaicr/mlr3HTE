@@ -22,37 +22,9 @@
   if (file.exists(f)) f else NULL
 }
 
-#' Load causal-inference benchmark datasets
-#'
-#' Load the benchmark datasets shipped with the package (test/synthetic data from
-#' \pkg{grf}, \pkg{econml}, and \pkg{causalml}). Every dataset carries a true
-#' individual treatment-effect column \code{cate_true}, which is useful for
-#' evaluating any HTE estimator. The data are distributed in both \code{.RData}
-#' and \code{.csv} formats (installed into the local library at install time);
-#' this function prefers \code{.RData} (preserves column types, faster to load)
-#' and falls back to \code{.csv} when needed.
-#'
-#' @param name Dataset name(s); see the \code{dataset} column of
-#'   \code{\link{mlr3HTE_benchmark_meta}}. \code{NULL} (default) returns all
-#'   datasets; a single name or a vector of names returns the corresponding
-#'   data.
-#' @param path Benchmark data directory. Defaults to the package's
-#'   \code{inst/extdata/benchmarks} located via \code{system.file}.
-#' @return A single \code{data.frame} when one dataset is requested, or a named
-#'   \code{list} of \code{data.frame}s when several or all are requested.
-#' @export
-#' @examples
-#' \dontrun{
-#' # list all available benchmark datasets
-#' mlr3HTE_benchmark_meta()
-#' # load a single dataset
-#' d <- mlr3HTE_benchmark_data("grf_causal")
-#' # load all datasets as a named list
-#' all <- mlr3HTE_benchmark_data()
-#' }
-mlr3HTE_benchmark_data <- function(name = NULL, path = NULL) {
+.demo_benchmark_data <- function(name = NULL, path = NULL) {
   path <- .benchmarks_dir(path)
-  meta <- mlr3HTE_benchmark_meta(path)
+  meta <- .demo_benchmark_meta(path)
   all_names <- meta$dataset
   if (is.null(name)) {
     name <- all_names
@@ -60,7 +32,7 @@ mlr3HTE_benchmark_data <- function(name = NULL, path = NULL) {
     bad <- setdiff(name, all_names)
     if (length(bad) > 0) {
       stop("Unknown dataset: ", paste(bad, collapse = ", "),
-           ". Available names are listed in mlr3HTE_benchmark_meta()$dataset", call. = FALSE)
+           ". Available names are listed in .demo_benchmark_meta()$dataset", call. = FALSE)
     }
   }
   out <- lapply(name, function(nm) {
@@ -81,23 +53,7 @@ mlr3HTE_benchmark_data <- function(name = NULL, path = NULL) {
   if (length(out) == 1L) out[[1L]] else out
 }
 
-#' Load benchmark dataset metadata (data dictionary)
-#'
-#' Returns a table describing each benchmark dataset: source package, generator
-#' function, sample size, number of features, outcome/treatment type, whether a
-#' true treatment effect is included, the true ATE, and field descriptions.
-#' Prefers \code{benchmarks_meta.RData} and falls back to
-#' \code{benchmarks_meta.csv}.
-#'
-#' @param path Benchmark data directory. Defaults to the package's
-#'   \code{inst/extdata/benchmarks} located via \code{system.file}.
-#' @return A \code{tibble} with one row per dataset.
-#' @export
-#' @examples
-#' \dontrun{
-#' mlr3HTE_benchmark_meta()
-#' }
-mlr3HTE_benchmark_meta <- function(path = NULL) {
+.demo_benchmark_meta <- function(path = NULL) {
   path <- .benchmarks_dir(path)
   rda <- file.path(path, "benchmarks_meta.RData")
   if (file.exists(rda)) {
@@ -106,22 +62,7 @@ mlr3HTE_benchmark_meta <- function(path = NULL) {
   readr::read_csv(file.path(path, "benchmarks_meta.csv"), show_col_types = FALSE)
 }
 
-#' Export benchmark datasets to a directory
-#'
-#' Copy all benchmark datasets (RData + CSV) and the metadata file from the
-#' installed package to a user-specified directory, for use outside the package
-#' or upload to another repository.
-#'
-#' @param dest Destination directory; created recursively if it does not exist.
-#' @param path Benchmark data directory. Defaults to the package's
-#'   \code{inst/extdata/benchmarks} located via \code{system.file}.
-#' @return (Invisibly) the file paths that were copied.
-#' @export
-#' @examples
-#' \dontrun{
-#' mlr3HTE_benchmark_export("~/benchmarks")
-#' }
-mlr3HTE_benchmark_export <- function(dest, path = NULL) {
+.demo_benchmark_export <- function(dest, path = NULL) {
   path <- .benchmarks_dir(path)
   if (!dir.exists(dest)) dir.create(dest, recursive = TRUE)
   files <- list.files(path, pattern = "\\.(csv|RData)$", full.names = TRUE)

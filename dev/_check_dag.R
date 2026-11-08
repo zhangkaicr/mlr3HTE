@@ -2,7 +2,7 @@ Sys.setlocale("LC_CTYPE", "en_US.UTF-8")
 suppressMessages(pkgload::load_all(".", quiet = TRUE))
 
 for (ds in c("rct", "obs")) {
-  dd <- mlr3HTE_dag_data(ds, "continuous")
+  dd <- mlr3HTE_demo_continuous(design = ds)
   cli::cli_h2("{ds}")
   print(dd$edges[, c("from", "to", "type", "curve")], row.names = FALSE)
   # 任意两节点之间不能有多条边

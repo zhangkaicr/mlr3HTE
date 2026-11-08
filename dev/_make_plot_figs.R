@@ -1,5 +1,5 @@
 # 目的：为六个绘图函数各生成实跑 PNG，供 API 文档页与教程页内嵌。
-# 输入：无（全部用 mlr3HTE_bench() 的固定基准数据现场拟合）。
+# 输入：无（全部用 mlr3HTE_demo_continuous(source = "bundled") 的固定基准数据现场拟合）。
 # 输出：docs/assets/img/explain/*.png、docs/assets/img/metrics/qini_curve.png
 # 依赖：pkgload::load_all()、ggplot2、ggsave；需 en_US.UTF-8 区域（图形标题为英文，
 #       但 ggsave 设备与字体回退仍受区域影响）。
@@ -20,7 +20,7 @@ save <- function(p, path, w = 8, h = 5) {
 }
 
 # 1 可解释性三件套 ----
-d <- mlr3HTE_bench("rct_lin", "continuous")
+d <- mlr3HTE_demo_continuous(source = "bundled", dataset = "rct_lin")
 fit <- metalearner("T", d$X, d$A, d$Y,
                    learner_base = lrn("regr.ranger", num.trees = 300))
 ex <- hte_explainer(fit, d$X, d$A, d$Y, seed = 1)

@@ -2,7 +2,7 @@ Sys.setlocale("LC_CTYPE", "en_US.UTF-8")
 pkgload::load_all(".", quiet = TRUE)
 
 set.seed(1)
-d <- mlr3HTE_scenario("obs_lin_lin_sharedT", "continuous", n = 800, seed = 1)
+d <- mlr3HTE_demo_continuous(scenario = "obs_lin_lin_sharedT", n = 800, seed = 1)
 fit <- metalearner("T", d$X, d$A, d$Y, learner_base = mlr3::lrn("regr.ranger"),
                    weighting = "iptw")
 

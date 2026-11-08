@@ -10,7 +10,7 @@ pkgload::load_all(".", quiet = TRUE)
 cat("== R6 Learner：三类结局直接 train / predict ==\n")
 
 # 1 连续结局
-dc <- mlr3HTE_demo_data(n = 1500, seed = 41)
+dc <- mlr3HTE_demo_continuous(n = 1500, seed = 41)
 task_c <- mlr3HTE::ml_task(dc$X, dc$A, dc$Y)
 l_c <- mlr3::lrn("regr.metalearner", metalearner = "T")
 l_c$learner_base <- mlr3::lrn("regr.ranger", num.trees = 200, seed = 1)
@@ -40,7 +40,7 @@ cat(sprintf("  生存   ATE=%+.4f（真实 %+.4f）\n",
             mean(p_s$response), ds$ate))
 
 # 4 观察性（IPTW）
-do <- mlr3HTE_demo_obs(n = 1500, seed = 44)
+do <- mlr3HTE_demo_continuous(setting = "obs", n = 1500, seed = 44)
 task_o <- mlr3HTE::ml_task(do$X, do$A, do$Y)
 l_o <- mlr3::lrn("regr.metalearner", metalearner = "X", weighting = "iptw")
 l_o$train(task_o)

@@ -1,175 +1,184 @@
-<p align="center"><a href="README_EN.md">🌐 English version</a> · <a href="README.md">🇨🇳 简体中文</a></p>
+<p align="center"><a href="README.md">🌐 English</a> · <a href="README_ZH.md">🇨🇳 简体中文</a></p>
 
 <p align="center">
-  <img src="docs/assets/img/social-preview.png" alt="mlr3HTE 封面：潜在结局重合后按治疗与对照发散" width="720">
+  <img src="docs/assets/img/social-preview.png" alt="mlr3HTE cover: potential outcomes converge then diverge by treatment vs control" width="720">
 </p>
 
-# mlr3HTE <a href="https://zhangkaicr.github.io/mlr3HTE/"><img src="docs/assets/img/logo.png" alt="mlr3HTE 包图标" align="right" height="138" /></a>
+# mlr3HTE <a href="https://zhangkaicr.github.io/mlr3HTE/"><img src="docs/assets/img/logo.png" alt="mlr3HTE package logo" align="right" height="138" /></a>
 
 <p>
   <a href="https://github.com/zhangkaicr/mlr3HTE/actions/workflows/R-CMD-check.yaml"><img src="https://github.com/zhangkaicr/mlr3HTE/actions/workflows/R-CMD-check.yaml/badge.svg" alt="R-CMD-check" height="20" /></a>
-  <a href="https://zhangkaicr.github.io/mlr3HTE/"><img src="https://img.shields.io/badge/docs-GitHub%20Pages-blue.svg" alt="双语文档站" height="20" /></a>
-  <img src="https://img.shields.io/badge/lifecycle-experimental-orange.svg" alt="生命周期：实验性" height="20" />
-  <img src="https://img.shields.io/badge/outcomes-continuous%20%2F%20binary%20%2F%20survival-brightgreen.svg" alt="结局类型：连续 / 二分类 / 生存" height="20" />
+  <a href="https://zhangkaicr.github.io/mlr3HTE/"><img src="https://img.shields.io/badge/docs-GitHub%20Pages-blue.svg" alt="Bilingual docs site" height="20" /></a>
+  <img src="https://img.shields.io/badge/lifecycle-experimental-orange.svg" alt="Lifecycle: experimental" height="20" />
+  <img src="https://img.shields.io/badge/outcomes-continuous%20%2F%20binary%20%2F%20survival-brightgreen.svg" alt="Outcome types: continuous / binary / survival" height="20" />
 </p>
 
-> **仓库**：<https://github.com/zhangkaicr/mlr3HTE>
-> **双语教程站（含搜索 / 中英切换 / 明暗主题）**：<https://zhangkaicr.github.io/mlr3HTE/>
+> **Repository**: <https://github.com/zhangkaicr/mlr3HTE>
+> **Bilingual tutorial site (with search / language toggle / light-dark theme)**: <https://zhangkaicr.github.io/mlr3HTE/>
 
-`mlr3HTE` 是一个基于 **mlr3** 的异质性治疗效应（HTE / CATE）估计包，把课程模块三里的
-S- / T- / X- / R- / DR-learner 做成了正规可安装的 mlr3 学习器。
+`mlr3HTE` is an mlr3-based package for estimating heterogeneous treatment effects (HTE / CATE).
+It turns the S- / T- / X- / R- / DR-learners from Course Module 3 into properly installable mlr3 learners.
 
-**覆盖范围**
+**Coverage**
 
-| 维度 | 支持 |
+| Dimension | Supported |
 |---|---|
-| 结局类型 | 连续（均值差）、二分类（风险差）、生存（t0 时点生存概率差） |
-| 数据类型 | 随机化试验（RCT）、观察性数据（混杂进 X 条件化，或 R / DR） |
-| metalearner | S、T、X、R、DR 五种 |
-| 接口 | 函数式 API + mlr3 R6 Learner（可进 `resample` / `benchmark` / `tune`） |
+| Outcome type | Continuous (mean difference), binary (risk difference), survival (survival-probability difference at t0) |
+| Data type | Randomized trial (RCT), observational data (confounders in X, or R / DR) |
+| metalearner | S, T, X, R, DR (five families) |
+| Interface | Functional API + mlr3 R6 Learner (plugs into `resample` / `benchmark` / `tune`) |
 
-引擎只有一套：五种 metalearner 的公式与结局类型无关，它们统一通过「结局模型」打交道——
-`predict(newX)` 对连续结局返回 `E[Y|X]`、对二分类返回 `P(Y=1|X)`、对生存返回 `S(t0|X)`。
+There is only one engine: the formulas of the five metalearners are outcome-agnostic — they all talk to
+each other through an "outcome model": `predict(newX)` returns `E[Y|X]` for continuous outcomes,
+`P(Y=1|X)` for binary outcomes, and `S(t0|X)` for survival outcomes.
 
-> **为什么基于 mlr3？——基学习器想换就换。**
-> 五种 metalearner 只是「配方」，真正干活的是基学习器。因为 `metalearner()` 直接吃 `lrn()` 对象，
-> **把随机森林换成 XGBoost、GLMnet、kNN、SVM……只是一行 `learner_base = lrn("regr.xgboost")` 的事**，
-> 其余代码、接口、工作流原样不动：
+> **Why build on mlr3? — swap the base learner whenever you like.**
+> The five metalearners are just "recipes"; the real work is done by the base learner. Because
+> `metalearner()` consumes `lrn()` objects directly, **switching from random forest to XGBoost,
+> GLMnet, kNN, SVM … is a one-liner — `learner_base = lrn("regr.xgboost")` — and every other line
+> of code, the interface, and the workflow stay untouched**:
 >
 > ```r
-> fit <- metalearner("T", X, A, Y, learner_base = lrn("regr.ranger"))   # 随机森林
+> fit <- metalearner("T", X, A, Y, learner_base = lrn("regr.ranger"))   # random forest
 > fit <- metalearner("T", X, A, Y, learner_base = lrn("regr.xgboost"))  # XGBoost
 > fit <- metalearner("T", X, A, Y, learner_base = lrn("regr.glmnet"))   # Lasso
-> fit <- metalearner("T", X, A, Y, learner_base = lrn("regr.lm"))       # 线性回归
+> fit <- metalearner("T", X, A, Y, learner_base = lrn("regr.lm"))       # linear regression
 > ```
 >
-> mlr3 自带的全套 learner（`ranger` / `xgboost` / `glmnet` / `kknn` / `svm` / `nnet` / `rpart` / `lm` …）
-> 与调参、重采样、基准对比工作流（`tune` / `resample` / `benchmark`）也一并免费继承。
-> 这正是用 mlr3 体系而非自写训练管道的核心收益——详见教程「[换基学习器：mlr3 生态随便挑](https://zhangkaicr.github.io/mlr3HTE/#/tutorial)」。
+> The full set of mlr3 learners (`ranger` / `xgboost` / `glmnet` / `kknn` / `svm` / `nnet` / `rpart` / `lm` …)
+> and the tuning / resampling / benchmarking workflows (`tune` / `resample` / `benchmark`) come along for free.
+> This is the core payoff of building on mlr3 instead of hand-rolling a training pipeline — see the tutorial
+> section ["Swap base learners: pick any algorithm from the mlr3 ecosystem"](https://zhangkaicr.github.io/mlr3HTE/#/tutorial).
 
 ---
 
-## 1 安装与加载
+## 1 Installation and loading
 
-从 GitHub 安装（推荐 `pak`，会自动解析并装齐全部依赖；`remotes` 也行）：
+Install from GitHub (recommended: `pak`, which resolves and installs all dependencies automatically;
+`remotes` also works):
 
 ```r
-# 方式一：pak（依赖求解快、并行下载，推荐）
+# Option 1: pak (fast dependency resolution, parallel downloads — recommended)
 pak::pak("zhangkaicr/mlr3HTE")
 
-# 方式二：remotes
+# Option 2: remotes
 remotes::install_github("zhangkaicr/mlr3HTE")
 ```
 
-开发期也可直接加载源码：
+During development you can also load the source directly:
 
 ```r
-pkgload::load_all(".")      # 开发期
-# 或安装后
+pkgload::load_all(".")      # development
+# or, after installation
 library(mlr3HTE)
 ```
 
-> **`lrn()` 已经能从 `mlr3HTE` 直接用**——本包把 `mlr3::lrn()` 再导出了，
-> 所以下面所有示例只需 `library(mlr3HTE)` 一行，不用再 `library(mlr3)`。
-> 但 `resample()` / `benchmark()` / `rsmp()` 这些 mlr3 工作流函数没有再导出，
-> 走 R6 Learner 那条路时要自己加 `library(mlr3)`。
+> **`lrn()` is already available directly from `mlr3HTE`** — this package re-exports `mlr3::lrn()`,
+> so every example below only needs `library(mlr3HTE)` and no extra `library(mlr3)`.
+> However, the mlr3 workflow functions `resample()` / `benchmark()` / `rsmp()` are NOT re-exported;
+> when using the R6 Learner path you must add `library(mlr3)` yourself.
 
-依赖（均已列入 `DESCRIPTION` 的 `Imports`，安装时自动装齐，无需手动补）：
-`mlr3`、`mlr3learners`、`paradox`、`R6`、`survival`、`ranger`、`dplyr`、`cli`。
-其中 **`ranger` 是必需依赖**——包的默认基学习器就是 `regr.ranger`，且所有教程都用到它
-（早期文档称“ranger 可选”已更正）。`testthat` 在 `Suggests`，仅运行测试时需要。
+Dependencies (all listed in `DESCRIPTION` → `Imports`, installed automatically, no manual step needed):
+`mlr3`, `mlr3learners`, `paradox`, `R6`, `survival`, `ranger`, `dplyr`, `cli`.
+Of these **`ranger` is a required dependency** — the package's default base learner is `regr.ranger`,
+and every tutorial uses it (earlier docs saying "ranger is optional" have been corrected).
+`testthat` is in `Suggests` and only needed to run the tests.
 
-> **生存分支完全不依赖 mlr3proba。** 基学习器用字符串指定：`"coxph"`
-> （默认，`survival::coxph`）或 `"ranger"`（`ranger` 包已随 `Imports` 安装）。
-> 传 `lrn("surv.*")` 会被明确拒绝并提示——那需要 mlr3proba，本包不引入这个依赖。
+> **The survival branch has zero `mlr3proba` dependency.** Base learners are specified as strings:
+> `"coxph"` (default, `survival::coxph`) or `"ranger"` (the `ranger` package, already installed via `Imports`).
+> Passing `lrn("surv.*")` is explicitly rejected with a clear message — that would require mlr3proba,
+> which this package does not pull in.
 
 ---
 
-## 2 函数式 API
+## 2 Functional API
 
-### 2.1 连续结局（RCT）
+### 2.1 Continuous outcome (RCT)
 
 ```r
 set.seed(1)
-d <- mlr3HTE_demo_data(n = 4000)
+d <- mlr3HTE_demo_continuous(n = 4000)
 
 fit <- metalearner("T", d$X, d$A, d$Y,
                    learner_base = lrn("regr.ranger", num.trees = 300, seed = 1))
-fit$ate            # ATE 估计
-fit$cate_train     # 训练集上每个人的 CATE
-fit$predict(d$X)   # 新数据上的 CATE
+fit$ate            # ATE estimate
+fit$cate_train     # CATE for each training observation
+fit$predict(d$X)   # CATE on new data
 ```
 
-### 2.2 二分类结局（风险差尺度）
+### 2.2 Binary outcome (risk-difference scale)
 
 ```r
 db <- mlr3HTE_demo_binary(n = 4000)
 
 fit <- metalearner("T", db$X, db$A, db$Y,
                    learner_base = lrn("classif.ranger", num.trees = 300, seed = 1))
-fit$ate            # 平均风险差
+fit$ate            # average risk difference
 ```
 
-### 2.3 生存结局（t0 时点生存概率差）
+### 2.3 Survival outcome (survival-probability difference at t0)
 
 ```r
 ds <- mlr3HTE_demo_surv(n = 4000, t0 = 2)
 
 fit <- metalearner("T", ds$X, ds$A, ds$Y,
-                   learner_base = "coxph",   # 或 "ranger"，均为原生实现
+                   learner_base = "coxph",   # or "ranger", both native implementations
                    t0 = 2)
-fit$ate            # 平均 S1(2) - S0(2)
+fit$ate            # average S1(2) - S0(2)
 ```
 
-`t0` 缺省时取事件时间中位数。删失由两部分处理：S/T 的生存模型自身已在似然中正确处理；
-X/R/DR 需要个体尺度结局（用 `I(T > t0)`），此时会乘上删失 IPCW 权重。
+When `t0` is omitted it defaults to the median event time. Censoring is handled in two parts:
+the survival models of S/T already handle it correctly in the likelihood; X/R/DR need individual-scale
+outcomes (using `I(T > t0)`) and then multiply by the censoring IPCW weight.
 
-生存结局有两套引擎（`engine` 参数，默认 `"native"`，行为零变化）：
+Survival outcomes have two engines (`engine` argument, default `"native"`, zero behavioral change):
 
 ```r
-# 引擎二：survlearners（GitHub 包，需先安装；只支持 S/T/X/R 与 S(t0) 差）
+# Engine 2: survlearners (a GitHub package, install first; supports only S/T/X/R and S(t0) difference)
 remotes::install_github("som-shahlab/survlearners", subdir = "r-package/survlearners")
 fit <- metalearner("X", ds$X, ds$A, ds$Y, learner_base = "grf",
                    t0 = 2, engine = "survlearners")
 ```
 
-| | `"native"`（默认） | `"survlearners"` |
+| | `"native"` (default) | `"survlearners"` |
 |---|---|---|
-| metalearner | S/T/X/R/DR 五族 | S/T/X/R（无 DR） |
-| 效应尺度 | S(t0) 差 + RMST 差 | 仅 S(t0) 差 |
-| 基学习器 | `"coxph"`/`"ranger"` + 任意 mlr3 learner | `"coxph"`/`"grf"`/`"lasso"`（`"ranger"` 是 grf 别名） |
-| 依赖 | 零额外 | 需装 survlearners（已列入 Suggests） |
+| metalearner | S/T/X/R/DR (five families) | S/T/X/R (no DR) |
+| Effect scale | S(t0) diff + RMST diff | S(t0) diff only |
+| Base learner | `"coxph"`/`"ranger"` + any mlr3 learner | `"coxph"`/`"grf"`/`"lasso"` (`"ranger"` is a grf alias) |
+| Dependency | zero extra | requires survlearners (listed in Suggests) |
 
-注意 survlearners 的 `T-coxph` 组合实测有系统性偏差（把未中心化的基线累积危险与
-中心化的 `predict(type="risk")` 相乘），详见教程 09；要 Cox 做 T-learner 请用原生引擎。
+Note: survlearners' `T-coxph` combination has a systematic bias in practice (it multiplies the
+uncentered baseline cumulative hazard by the centered `predict(type="risk")`). See tutorial 09 for details;
+to use Cox for a T-learner, prefer the native engine.
 
-### 2.4 观察性数据
+### 2.4 Observational data
 
 ```r
-do <- mlr3HTE_demo_obs(n = 4000)
+do <- mlr3HTE_demo_continuous(n = 4000, setting = "obs")
 
-# 去混杂的主路径：把全部混杂变量放进 X，让结局模型条件化
-# （S/T/X 靠 E[Y|A,X]，R 靠残差化，DR 两者都做）
+# Main route: put every confounder in X and condition
+# (S/T/X through E[Y|A,X], R residualises, DR does both)
 fit <- metalearner("X", do$X, do$A, do$Y,
-                   learner_base = lrn("regr.ranger"),
-                   cross_fitting = FALSE)
+                   learner_base = lrn("regr.ranger"))
 
-# R / DR 自带倾向得分 e(X)，且必须开交叉拟合，否则 tau 被衰减
+# R / DR carry their own propensity score and must cross-fit
 fit <- metalearner("DR", do$X, do$A, do$Y, cross_fitting = TRUE)
 
-# RCT 里倾向得分是常数 0.5，可以直接告诉引擎
+# In an RCT the propensity score is the constant 0.5 - tell the engine so
 fit <- metalearner("DR", do$X, do$A, do$Y, learner_ps = 0.5)
 ```
 
-> **v0.40 起没有 IPTW 加权选项。** Künzel et al. 2019 *PNAS* 与 CausalML 的
-> BaseS/BaseT/BaseX 都不给结局模型套 IPTW；本包早期提供的 `weighting = "iptw"` /
-> `"external"` / `stabilize` 本质是「加权结局回归」，属单稳健，已整体移除。
-> 保留的两类权重都是估计量/算法定义的组成部分，不是可选开关：
-> R-learner 的 Robinson 权重 `(A-e)^2`、生存分支的删矢 IPCW。
+> **No IPTW weighting option since v0.40.** Kunzel et al. 2019 *PNAS* and CausalML's
+> BaseS/BaseT/BaseX never fit outcome models under IPTW; the `weighting = "iptw"` /
+> `"external"` / `stabilize` options this package once offered were a "weighted outcome
+> regression", i.e. singly robust, and have been removed entirely.
+> The two kinds of weight that remain are parts of the estimator / algorithm definition,
+> not switchable options: the R-learner's Robinson weight `(A-e)^2`, and the
+> censoring IPCW of the survival branch.
 
-### 2.5 便捷封装
+### 2.5 Convenience wrappers
 
-`*_learner()` 系列与课程脚本同款签名，直接返回训练集 CATE 向量：
+The `*_learner()` family mirrors the course-script signatures and returns the training-set CATE vector directly:
 
 ```r
 s_learner(X, A, Y, learner_base = lrn("regr.ranger"))
@@ -179,19 +188,19 @@ x_learner(...); r_learner(...); dr_learner(...)
 
 ---
 
-## 3 R6 Learner（接入 mlr3 工作流）
+## 3 R6 Learner (plug into the mlr3 workflow)
 
-用 `ml_task()` 把原始数据编码成 Task，再交给 `lrn("regr.metalearner")`：
+Use `ml_task()` to encode the raw data into a Task, then hand it to `lrn("regr.metalearner")`:
 
 ```r
-task <- ml_task(d$X, d$A, d$Y)                  # 连续/二分类/生存通吃
+task <- ml_task(d$X, d$A, d$Y)                  # continuous / binary / survival, all in one
 l    <- lrn("regr.metalearner", metalearner = "T")
 l$learner_base <- lrn("regr.ranger", num.trees = 300, seed = 1)
 
 l$train(task)
 l$predict(task)$response                       # CATE
 
-# 接入 mlr3 工作流
+# Plug into the mlr3 workflow
 resample(task, l, rsmp("cv", folds = 5))
 benchmark(benchmark_grid(task,
            list(lrn("regr.metalearner", id = "T", metalearner = "T"),
@@ -199,181 +208,178 @@ benchmark(benchmark_grid(task,
            rsmp("cv", folds = 5)))
 ```
 
-`ml_task()` 的编码约定（因为 mlr3 的 Task 目标列装不下 `Surv` 对象）：
+Encoding conventions of `ml_task()` (because an mlr3 Task's target column cannot hold a `Surv` object):
 
-| 结局 | 目标列 `.outcome` | 附带列 |
+| Outcome | Target column `.outcome` | Extra column |
 |---|---|---|
-| 连续 / 二分类 | `Y`（二分类取 0/1） | — |
-| 生存 | 随访时间 | `.status` = 事件指示 |
+| Continuous / binary | `Y` (binary takes 0/1) | — |
+| Survival | Follow-up time | `.status` = event indicator |
 
-结局类型、状态列名与 `t0` 记录在 `task$extra_args` 里。该字段经实测在
-`clone(deep = TRUE)$filter()` 与 `serialize()/unserialize()` 之后都保留，
-所以 `resample()` 分折时元数据不会丢。
+The outcome type, status-column name, and `t0` are recorded in `task$extra_args`. This field was
+verified to survive `clone(deep = TRUE)$filter()` and `serialize()/unserialize()`, so metadata is not
+lost when `resample()` splits into folds.
 
-**可调字段**（不是 param，因为 paradox 的 `p_uty` 存不下 Learner 对象）：
+**Mutable fields** (not params, because paradox's `p_uty` cannot hold a Learner object):
 
-| 字段 | 说明 |
+| Field | Description |
 |---|---|
-| `learner_base` | 结局模型基学习器，类型须与结局匹配 |
-| `learner_tau` | 效应阶段回归学习器；`NULL` 时用引擎的正则化默认值 |
-| `learner_ps` | 倾向得分：mlr3 分类学习器 / 常数标量（如 RCT 的 `0.5`）/ `function(newX)` |
-| `treatment_col` | 处理列名，默认 `"A"` |
-| `t0` | 生存效应时点 |
+| `learner_base` | Outcome-model base learner; type must match the outcome |
+| `learner_tau` | Second-stage effect-regression learner; `NULL` uses the engine's regularized default |
+| `learner_ps` | Propensity score: an mlr3 classification learner / a constant scalar (e.g. `0.5` for an RCT) / a `function(newX)` |
+| `treatment_col` | Treatment column name, default `"A"` |
+| `t0` | Survival effect time point |
 
-**可调参数**（`param_set`，可用于 `tune()`）：`metalearner`（S/T/X/R/DR）。
+**Tunable params** (`param_set`, usable in `tune()`): `metalearner` (S/T/X/R/DR).
 
 ---
 
-## 4 方法学要点
+## 4 Methodological notes
 
-| Learner | 公式 | 备注 |
+| Learner | Formula | Remarks |
 |---|---|---|
-| S | 一个结局模型含 `A`，反事实预测相减 | 最省数据，但基学习器若不建模交互则 CATE 近常数 |
-| T | 两组各拟合一个结局模型，预测相减 | 简单稳健；两组样本量减半 |
-| X | 插补个体效应后按 `g(X)` 融合 | 两组样本不均时表现好（Künzel et al. 2019） |
-| R | Robinson 残差化 `(Y - m(X))/(A - e(X))`，以 `(A-e)^2` 加权回归 | Nie & Wager 2021 |
-| DR | 伪结果 `psi = m1 - m0 + A(Y-m1)/e - (1-A)(Y-m0)/(1-e)` 后回归 | 双重稳健（Kennedy 2020） |
+| S | One outcome model containing `A`, subtract counterfactual predictions | Most data-efficient, but if the base learner does not model interactions the CATE is near-constant |
+| T | Fit one outcome model per arm, subtract predictions | Simple and robust; halves the sample size per arm |
+| X | Impute individual effects, then fuse by `g(X)` | Performs well when the two arms are unbalanced (Künzel et al. 2019) |
+| R | Robinson residualization `(Y - m(X))/(A - e(X))`, weighted regression by `(A-e)^2` | Nie & Wager 2021 |
+| DR | Pseudo-outcome `psi = m1 - m0 + A(Y-m1)/e - (1-A)(Y-m0)/(1-e)`, then regress | Doubly robust (Kennedy 2020) |
 
-**关于 `learner_tau` 的默认值**：X/R/DR 的第二阶段是对**伪结果**做回归，噪声结构与
-结局模型完全不同（R/DR 的目标含 `1/(A-e)` 放大）。ranger 回归默认
-`min.node.size = 5`，树会长得很深、把伪结果里的噪声也拟合进去——实测会让 R/DR 的
-CATE 相关从 0.9 掉到 0.2。因此引擎在 `learner_tau = NULL` 时**不沿用** `learner_base`，
-而是单独建一个 `min.node.size = 50` 的 ranger。需要更强的灵活性可自行覆盖；
-在生存 R/DR 上，`learner_tau = lrn("regr.lm")` 往往更好（伪结果噪声大、真值近线性时，
-线性模型更稳）。
+**On the default `learner_tau`**: the second stage of X/R/DR regresses on a **pseudo-outcome** whose
+noise structure is completely different from the outcome model (R/DR targets contain a `1/(A-e)` amplification).
+ranger regression defaults to `min.node.size = 5`, which grows very deep trees and fits the pseudo-outcome's
+noise too — empirically this drops R/DR CATE correlation from 0.9 to 0.2. Therefore, when
+`learner_tau = NULL` the engine does **not** reuse `learner_base`; it builds a separate ranger with
+`min.node.size = 50`. Override it for more flexibility; on survival R/DR, `learner_tau = lrn("regr.lm")`
+is often better (large pseudo-outcome noise, near-linear truth → linear model is more stable).
 
-**已知局限**
+**Known limitations**
 
-- 生存 R/DR 的 CATE 是二阶段回归的结果，**不受 `[-1, 1]` 概率尺度约束**，个别点可能越界；
-  S/T 的 CATE 是两个生存概率之差，严格有界。
-- 权重通过**重要性重采样**落地（mlr3 1.8 的 Task/Learner 没有 case weights API），
-  会引入蒙特卡洛噪声，需要复现结果时请在调用前 `set.seed()`。
-- 生存分支默认 `coxph` 是线性预测结构，S-learner 因此难以捕捉异质性（T/X 不受此限）。
+- Survival R/DR CATE is the result of a two-stage regression and is **not bounded by the `[-1, 1]` probability
+  scale**; individual points may go out of range. S/T CATE is the difference of two survival probabilities and is
+  strictly bounded.
+- Weights are implemented via **importance resampling** (mlr3 1.8's Task/Learner has no case-weights API),
+  which introduces Monte-Carlo noise; call `set.seed()` before fitting if you need reproducible results.
+- The survival branch's default `coxph` is a linear-prediction structure, so the S-learner struggles to capture
+  heterogeneity (T/X are unaffected).
 
 ---
 
-## 5 脚本与文件
+## 5 Scripts and files
 
 ```
 R/
-  aaa.R            .onLoad 注册 + .metalearner_registry 模型登记处
-  survival_base.R  原生生存基学习器（coxph/ranger）+ 删失 IPCW
-  engine.R         引擎：结局模型抽象 + 五种 metalearner + 调度器
-  api.R            函数式 API + ml_task() + 4 个演示数据集
+  aaa.R            .onLoad registration + .metalearner_registry model registry
+  survival_base.R  native survival base learners (coxph/ranger) + censoring IPCW
+  engine.R         engine: outcome-model abstraction + five metalearners + dispatcher
+  api.R            functional API + ml_task() + 4 demo datasets
   learner.R        R6 Learner lrn("regr.metalearner")
-  scenarios.R      基准模拟数据网格（10 设计）+ mlr3HTE_bench() 取数
-  explain.R        CATE 可解释性（DALEX / kernelshap / shapviz）
-  dag.R            因果结构图：边去重 + Bezier 绕行路由
-  data.R           随包发布的基准数据文档（data/mlr3hte_bench_data.rda）
-smoke_test.R       连续结局 RCT 冒烟测试
-smoke_test2.R      二分类/生存/观察性冒烟测试
-smoke_test3.R      R6 Learner 三类结局 + resample 冒烟测试
-tests/testthat/   14 个测试文件，全量实跑 FAIL 0 / PASS 505
+smoke_test.R       continuous-outcome RCT smoke test
+smoke_test2.R      binary / survival / observational smoke test
+smoke_test3.R      R6 Learner three outcomes + resample smoke test
+tests/testthat/   119 tests
 ```
 
-演示数据集（`*_obs_*` 为观察性版本，含真实 PS）：
+All simulated data come from three facades, one per outcome type. `setting = "obs"` switches to an observational design with measured confounding and additionally returns the true propensity score:
 
-| 函数 | 结局 | 数据 | 真值随数据返回 |
-|---|---|---|---|
-| `mlr3HTE_demo_data()` | 连续 | RCT | `tau`, `ate` |
-| `mlr3HTE_demo_binary()` | 二分类 | RCT | `tau`, `ate` |
-| `mlr3HTE_demo_surv()` | 生存 | RCT | `tau`, `ate`, `t0` |
-| `mlr3HTE_demo_obs()` | 连续 | 观察性 | `tau`, `ate`, `ps_true` |
-| `mlr3HTE_demo_obs_binary()` | 二分类 | 观察性 | `tau`, `ate`, `ps_true` |
-| `mlr3HTE_demo_obs_surv()` | 生存 | 观察性 | `tau`, `ate`, `ps_true` |
+| Function | Outcome | `setting = "rct"` | `setting = "obs"` | Truth returned with data |
+|---|---|---|---|---|
+| `mlr3HTE_demo_continuous()` | Continuous | Default | `ps_true` | `tau`, `ate` |
+| `mlr3HTE_demo_binary()` | Binary | Default | `ps_true` | `tau`, `ate` on the risk-difference scale |
+| `mlr3HTE_demo_surv()` | Survival | Default | `ps_true` | `tau`, `ate`, `t0`, `tau_rmst`, `ate_rmst` |
 
-每个都返回真实的 `tau`，方便直接对账——这是教学时最有用的部分。
+All three share the same data-access arguments: `scenario = <id>` for one of ten structural designs, `source = "bundled"` for the 30 shipped benchmark datasets, `source = "benchmark"` for the grf / econml / causalml datasets, `catalog = TRUE` for the corresponding index table, `export_to = <dir>` to copy benchmark files, and `design = "rct" | "obs"` for the DAG node and edge tables.
 
-## 5.5 配套教程
+Each returns the true `tau`, which makes direct reconciliation easy — the most useful part for teaching.
 
-**在线双语文档站**：<https://zhangkaicr.github.io/mlr3HTE/>
-（全局搜索、中英切换、明暗主题；内容与本 README 同步）
+```r
+mlr3HTE_demo_continuous(catalog = TRUE)                       # ten structural designs
+mlr3HTE_demo_continuous(source = "bundled", dataset = "rct_lin")
+mlr3HTE_demo_surv(source = "benchmark", dataset = "grf_survival")$ate
+```
 
-`tutorial/` 下是完整教程，覆盖**三类结局 × 随机/观察性**共 6 种组合：
+## 5.5 Companion tutorial
 
-- `tutorial/00_教程.md` — 主文档：统一架构、6 格矩阵、五种 learner 公式与选用、
-  调参避坑（含目录与对照表）
-- `tutorial/code/01..16_*.R` — 16 个配套脚本，每个自带章节目录，可独立运行
+**Online bilingual docs site**: <https://zhangkaicr.github.io/mlr3HTE/>
+(global search, language toggle, light-dark theme; content kept in sync with this README)
 
-运行方式（在 `mlr3HTE/` 目录下）：
+Under `tutorial/` is the full tutorial, covering **three outcome types × randomized/observational** = 6 combinations:
+
+- `tutorial/00_教程.md` — main document: unified architecture, 6-cell matrix, the five learner formulas and when to use which, tuning pitfalls (with table of contents and cross-reference tables)
+- `tutorial/code/01..08_*.R` — 8 companion scripts, each with its own section outline, runnable independently
+
+Run (from inside the `mlr3HTE/` directory):
 
 ```r
 Rscript tutorial/code/01_连续结局_随机化RCT.R
 ```
 
-| 脚本 | 内容 |
+| Script | Content |
 |---|---|
-| `01_连续结局_随机化RCT.R` | 连续 + RCT，五种 learner 对账 |
-| `02_连续结局_观察性研究.R` | 连续 + 观察性，混杂全进 X vs 漏掉混杂因子 |
-| `03_二分类结局_随机化RCT.R` | 二分类 + RCT，风险差尺度 |
-| `04_二分类结局_观察性研究.R` | 二分类 + 观察性，混杂全进 X vs 漏掉混杂因子 |
-| `05_生存结局_随机化RCT.R` | 生存 + RCT，t0 生存概率差 |
-| `06_生存结局_观察性研究.R` | 生存 + 观察性，条件化 + 引擎内部三类权重 |
-| `07_五种metalearner横向对比.R` | 三种结局 × 五种 learner 对比表 |
+| `01_连续结局_随机化RCT.R` | Continuous + RCT, five-learner reconciliation |
+| `02_连续结局_观察性研究.R` | Continuous + observational, all confounders in X vs dropping one |
+| `03_二分类结局_随机化RCT.R` | Binary + RCT, risk-difference scale |
+| `04_二分类结局_观察性研究.R` | Binary + observational |
+| `05_生存结局_随机化RCT.R` | Survival + RCT, t0 survival-probability difference |
+| `06_生存结局_观察性研究.R` | Survival + observational, conditioning + the three internal weights |
+| `07_五种metalearner横向对比.R` | Three outcomes × five learners comparison table |
 | `08_mlr3工作流集成.R` | `ml_task` + `resample` + `benchmark` |
-| `09_生存结局_survlearners引擎.R` | 生存第二套引擎 `engine = "survlearners"`，与原生引擎同题对比 |
-| `10_HTE评价指标.R` | Qini / c-for-benefit / TOC：模型判别力评价，附随机排序对照 |
-| `11_评价指标真值对账.R` | 用已知真 `tau` 当标尺：误差拆成排序损失与估计噪声，c-for-benefit 闭式上界 |
-| `12_三类结局评价指标.R` | 三个指标在连续 / 二分类 / 生存上各跑一遍；生存要 IPCW，并演示「先拟合后切分」的泄漏 |
-| `13_换基学习器_基准对比.R` | **用 mlr3 体系的核心收益**：基学习器一行互换（ranger / xgboost / glmnet / rpart / lm），并复用 `benchmark()` 横向比 |
-| `14_RCT基准测试_Qini指标.R` | **不依赖真 tau 的现实 RCT 基准测试**：Qini 系数 / TOC 增益 / c-for-benefit，折按处理组分层做交叉拟合 |
-| `15_CATE模型可解释性_DALEX与SHAP.R` | **可解释性模块全链路**：代理模型、置换重要性、PDP/ALE、Kernel SHAP 四视图；响应变量是双重稳健伪结局而非原始结局 |
-| `16_基准模拟数据网格.R` | **基准数据网格**：10 个设计 × 3 类结局的混杂强度梯度、共用变量效应、线性 / 非线性 CATE 可估性对照 |
+| `09_生存结局_survlearners引擎.R` | Survival's second engine `engine = "survlearners"`, side-by-side with the native engine |
+| `10_HTE评价指标.R` | Qini / c-for-benefit / TOC: model discrimination evaluation, with random-ordering control |
+| `11_评价指标真值对账.R` | Use the known true `tau` as a ruler: decompose error into ranking loss and estimation noise; closed-form upper bound for c-for-benefit |
+| `12_三类结局评价指标.R` | Run all three metrics on continuous / binary / survival; survival needs IPCW, and demonstrates the "fit-then-split" leakage |
+| `13_换基学习器_基准对比.R` | **The core payoff of the mlr3 ecosystem**: swap base learners in one line (ranger / xgboost / glmnet / rpart / lm), and reuse `benchmark()` for side-by-side comparison |
 
 ---
 
-## 6 依赖与运行环境
+## 6 Dependencies and runtime environment
 
-复现本仓库全部教程与测试结果所需的**依赖包版本**与**测试环境**细节如下（版本均为 2026-10-21 抓取的当前测试环境真实取值）。
+The **dependency package versions** and **test environment** needed to reproduce every tutorial and test
+result in this repository are detailed below (versions are the real values captured from the test
+environment on 2026-10-21).
 
-### 6.1 测试环境
+### 6.1 Test environment
 
-| 项目 | 取值 |
+| Item | Value |
 |---|---|
-| R 版本 | 4.5.1 (2025-06-13 ucrt) |
-| 平台 | x86_64-w64-mingw32/x64 |
-| 操作系统 | Windows 11 x64 (build 26200) |
-| 语言环境 | 需 `en_US.UTF-8`（LC_CTYPE）——R 在 `LC_CTYPE=C` 下解析含 UTF-8 字节的源码会改写字符串常量，本项目实测有此坑 |
-| 测试命令 | `Rscript -e 'Sys.setlocale("LC_CTYPE","en_US.UTF-8"); pkgload::load_all("."); testthat::test_local()'` |
-| 测试规模 | 8 个测试文件 / 58 个 `test_that` 块 / 293 个期望，全部通过 |
-| 持续集成 | GitHub Actions `R-CMD-check.yaml`，运行于 `ubuntu-latest` |
+| R version | 4.5.1 (2025-06-13 ucrt) |
+| Platform | x86_64-w64-mingw32/x64 |
+| OS | Windows 11 x64 (build 26200) |
+| Locale | Requires `en_US.UTF-8` (LC_CTYPE) — under `LC_CTYPE=C`, R rewrites string constants when parsing source files containing UTF-8 bytes; this was a real pitfall encountered in this project |
+| Test command | `Rscript -e 'Sys.setlocale("LC_CTYPE","en_US.UTF-8"); pkgload::load_all("."); testthat::test_local()'` |
+| Test scale | 8 test files / 58 `test_that` blocks / 293 expectations, all passing |
+| CI | GitHub Actions `R-CMD-check.yaml`, running on `ubuntu-latest` |
 
-### 6.2 直接依赖（DESCRIPTION · Imports）
+### 6.2 Direct dependencies (DESCRIPTION · Imports)
 
-安装 mlr3HTE 时由 `pak` / `remotes` 自动解析装齐，无需手动补。
+Resolved and installed automatically by `pak` / `remotes` when installing mlr3HTE; no manual step needed.
 
-| 包 | 版本 | 角色 |
+| Package | Version | Role |
 |---|---|---|
-| `mlr3` | 1.8.0 | 核心框架：Task / Learner / resample / benchmark |
-| `mlr3learners` | 0.16.0 | 基学习器注册表（ranger、xgboost、glmnet、lm…） |
-| `paradox` | 1.0.1 | 参数空间与调参（tune） |
-| `R6` | 2.6.1 | 面向对象（Learner 子类） |
-| `survival` | 3.8-3 | 生存分析基础（coxph、survfit） |
-| `ranger` | 0.18.0 | 默认基学习器（随机森林，含生存分支） |
-| `dplyr` | 1.2.1 | 数据整理 |
-| `cli` | 3.6.6 | 运行信息与告警 |
-| `ggplot2` | 4.0.3 | 结果可视化 |
+| `mlr3` | 1.8.0 | Core framework: Task / Learner / resample / benchmark |
+| `mlr3learners` | 0.16.0 | Base-learner registry (ranger, xgboost, glmnet, lm…) |
+| `paradox` | 1.0.1 | Parameter space and tuning (tune) |
+| `R6` | 2.6.1 | Object orientation (Learner subclass) |
+| `survival` | 3.8-3 | Survival analysis basics (coxph, survfit) |
+| `ranger` | 0.18.0 | Default base learner (random forest, with survival branch) |
+| `dplyr` | 1.2.1 | Data wrangling |
+| `cli` | 3.6.6 | Runtime messages and warnings |
+| `ggplot2` | 4.0.3 | Result visualization |
 
-### 6.3 建议依赖（DESCRIPTION · Suggests）
+### 6.3 Suggested dependencies (DESCRIPTION · Suggests)
 
-仅运行测试、绘图或教程演示时需要。
+Only needed to run tests, plot, or demonstrate in tutorials.
 
-| 包 | 版本 | 角色 |
+| Package | Version | Role |
 |---|---|---|
-| `testthat` | 3.3.2 | 单元测试（14 个测试文件；全量实跑 FAIL 0 / PASS 505） |
-| `patchwork` | 1.3.2 | 多图拼接 |
-| `ggdag` | 0.2.13 | DAG 绘图（教程示意图） |
-| `survlearners` | 0.0.1 | 生存 learner 演示（可选） |
-| `DALEX` | 2.5.2 | CATE 可解释性：置换重要性、PDP / ALE（`R/explain.R`） |
-| `kernelshap` | 0.5.0 | Kernel SHAP 值计算（`hte_shap()`） |
-| `shapviz` | 0.10.0 | SHAP 可视化对象（`hte_shap()` / `plot_hte_shap()`） |
-| `ingredients` | 2.4.0 | PDP / ALE 计算后端（`hte_pdp()`） |
-| `rcmdcheck` | （CI 提供） | R CMD check；当前环境未安装，由 GitHub Actions 提供 |
+| `testthat` | 3.3.2 | Unit testing (8 files / 58 blocks / 293 expectations) |
+| `patchwork` | 1.3.2 | Multi-plot layout |
+| `ggdag` | 0.2.13 | DAG plotting (tutorial diagrams) |
+| `survlearners` | 0.0.1 | Survival-learner demo (optional) |
+| `rcmdcheck` | (provided by CI) | R CMD check; not installed in the current environment, provided by GitHub Actions |
 
-### 6.4 完整递归依赖清单（89 个）
+### 6.4 Full recursive dependency list (89 packages)
 
 <details>
-<summary>展开全部 89 个包（pkg@version）</summary>
+<summary>Expand all 89 packages (pkg@version)</summary>
 
 - MASS@7.3-65
 - Matrix@1.7-3
@@ -467,33 +473,33 @@ Rscript tutorial/code/01_连续结局_随机化RCT.R
 
 </details>
 
-### 6.5 复现与版本锁定
+### 6.5 Reproduction and version locking
 
-- **版本锁定**：仓库根目录的 `renv.lock` 记录了全部依赖的精确版本；先 `renv::restore()` 再 `pkgload::load_all('.')` 即可回到本节所列环境。
-- **实时核对**：在 R 里运行 `sessionInfo()` 可打印当前加载的全部包版本。
-- **生存分支无 `mlr3proba` 依赖**：基学习器用字符串 `"coxph"` / `"ranger"` 指定，不引入额外包。
+- **Version locking**: `renv.lock` at the repository root records the exact versions of all dependencies;
+  run `renv::restore()` then `pkgload::load_all('.')` to return to the environment listed in this section.
+- **Live check**: run `sessionInfo()` in R to print the versions of all currently loaded packages.
+- **Survival branch has no `mlr3proba` dependency**: base learners are specified as strings `"coxph"` / `"ranger"`, pulling in no extra packages.
 
-### 6.6 版本号规则：每次推送 +0.01
+### 6.6 Version-number rule: +0.01 on every push
 
-版本号是**两位小数的批次计数**，不是语义化三段式：`0.20` → `0.21` → `0.22` → …，
-每推送一次更新就加 `0.01`（功能、修复、纯文档一视同仁）。
+The version number is a **two-decimal batch counter**, not a semantic three-part number: `0.20` → `0.21` → `0.22` → …,
+each pushed update adds `0.01` (features, fixes, and pure docs are all treated alike).
 
-发布一个批次时，四处必须同步：
+When shipping a batch, four places must stay in sync:
 
-| 位置 | 内容 |
+| Location | Content |
 |---|---|
-| `DESCRIPTION` | `Version: 0.24` |
-| `CHANGELOG.md` | 顶部新增 `## [0.24]` 小节 |
-| `docs/assets/js/content-home.js` | `SITE_META.version`（页脚读它） |
-| `docs/assets/js/content-changelog.js` | `lede` 的「当前版本」与当前小节 `heading` |
+| `DESCRIPTION` | `Version: 0.22` |
+| `CHANGELOG.md` | New `## [0.22]` section at the top |
+| `docs/assets/js/content-home.js` | `SITE_META.version` (read by the footer) |
+| `docs/assets/js/content-changelog.js` | `lede`'s "current version" and the current section's `heading` |
 
-前两处的机器部分交给脚本，后两处的文字仍要人写：
+The mechanical parts of the first two are handled by a script; the latter two still need a human:
 
 ```r
-# 在包根目录执行：改 DESCRIPTION 与 SITE_META，并列出还引用旧版本号的文件
-Rscript dev/bump_version.R 0.24
+# Run at the package root: edits DESCRIPTION and SITE_META, and lists files still referencing the old version
+Rscript dev/bump_version.R 0.22
 ```
 
-`tests/testthat/test-version.R` 会断言 `DESCRIPTION` 与 `SITE_META.version` 一致、
-更新日志页中英 lede 都标了当前版本——版本号再漂移，CI 直接红。
-
+`tests/testthat/test-version.R` asserts that `DESCRIPTION` and `SITE_META.version` agree and that both the
+Chinese and English changelog ledes show the current version — if the version drifts again, CI goes red.

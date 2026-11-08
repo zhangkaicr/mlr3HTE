@@ -13,15 +13,21 @@
 pkgload::load_all(".", quiet = TRUE)
 
 # 1 生成 30 个数据集 ----
-ids <- mlr3HTE_scenarios()$id
+ids <- mlr3HTE_demo_continuous(catalog = TRUE)$id
 outcomes <- c("continuous", "binary", "survival")
 
 mlr3hte_bench_data <- list()
 for (id in ids) {
   for (oc in outcomes) {
+    # 按结局类型选门面；scenario 分支不显式给 seed，沿用场景生成器
+    # 按 id + outcome 派生的固定种子，保证这份 .rda 与旧版逐位一致。
     # n = 2000 是精度与包体积的折中：足够稳定地估计 ATE 与 CATE 相关，
     # 30 个数据集压缩后仍在几 MB 以内。
-    mlr3hte_bench_data[[paste(id, oc, sep = ".")]] <- mlr3HTE_scenario(id, oc, n = 2000)
+    gen <- switch(oc,
+      continuous = mlr3HTE_demo_continuous,
+      binary     = mlr3HTE_demo_binary,
+      survival   = mlr3HTE_demo_surv)
+    mlr3hte_bench_data[[paste(id, oc, sep = ".")]] <- gen(scenario = id, n = 2000)
   }
 }
 

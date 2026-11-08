@@ -1,4 +1,4 @@
-<p align="center"><a href="README.md">🇨🇳 简体中文</a> · <a href="README_EN.md">🌐 English</a></p>
+<p align="center"><a href="README.md">🌐 English</a> · <a href="README_ZH.md">🇨🇳 简体中文</a></p>
 
 <p align="center">
   <img src="docs/assets/img/social-preview.png" alt="mlr3HTE cover: potential outcomes converge then diverge by treatment vs control" width="720">
@@ -97,7 +97,7 @@ and every tutorial uses it (earlier docs saying "ranger is optional" have been c
 
 ```r
 set.seed(1)
-d <- mlr3HTE_demo_data(n = 4000)
+d <- mlr3HTE_demo_continuous(n = 4000)
 
 fit <- metalearner("T", d$X, d$A, d$Y,
                    learner_base = lrn("regr.ranger", num.trees = 300, seed = 1))
@@ -154,7 +154,7 @@ to use Cox for a T-learner, prefer the native engine.
 ### 2.4 Observational data
 
 ```r
-do <- mlr3HTE_demo_obs(n = 4000)
+do <- mlr3HTE_demo_continuous(n = 4000, setting = "obs")
 
 # Main route: put every confounder in X and condition
 # (S/T/X through E[Y|A,X], R residualises, DR does both)
@@ -278,18 +278,23 @@ smoke_test3.R      R6 Learner three outcomes + resample smoke test
 tests/testthat/   119 tests
 ```
 
-Demo datasets (`*_obs_*` are observational versions with a true PS):
+All simulated data come from three facades, one per outcome type. `setting = "obs"` switches to an observational design with measured confounding and additionally returns the true propensity score:
 
-| Function | Outcome | Data | Truth returned with data |
-|---|---|---|---|
-| `mlr3HTE_demo_data()` | Continuous | RCT | `tau`, `ate` |
-| `mlr3HTE_demo_binary()` | Binary | RCT | `tau`, `ate` |
-| `mlr3HTE_demo_surv()` | Survival | RCT | `tau`, `ate`, `t0` |
-| `mlr3HTE_demo_obs()` | Continuous | Observational | `tau`, `ate`, `ps_true` |
-| `mlr3HTE_demo_obs_binary()` | Binary | Observational | `tau`, `ate`, `ps_true` |
-| `mlr3HTE_demo_obs_surv()` | Survival | Observational | `tau`, `ate`, `ps_true` |
+| Function | Outcome | `setting = "rct"` | `setting = "obs"` | Truth returned with data |
+|---|---|---|---|---|
+| `mlr3HTE_demo_continuous()` | Continuous | Default | `ps_true` | `tau`, `ate` |
+| `mlr3HTE_demo_binary()` | Binary | Default | `ps_true` | `tau`, `ate` on the risk-difference scale |
+| `mlr3HTE_demo_surv()` | Survival | Default | `ps_true` | `tau`, `ate`, `t0`, `tau_rmst`, `ate_rmst` |
+
+All three share the same data-access arguments: `scenario = <id>` for one of ten structural designs, `source = "bundled"` for the 30 shipped benchmark datasets, `source = "benchmark"` for the grf / econml / causalml datasets, `catalog = TRUE` for the corresponding index table, `export_to = <dir>` to copy benchmark files, and `design = "rct" | "obs"` for the DAG node and edge tables.
 
 Each returns the true `tau`, which makes direct reconciliation easy — the most useful part for teaching.
+
+```r
+mlr3HTE_demo_continuous(catalog = TRUE)                       # ten structural designs
+mlr3HTE_demo_continuous(source = "bundled", dataset = "rct_lin")
+mlr3HTE_demo_surv(source = "benchmark", dataset = "grf_survival")$ate
+```
 
 ## 5.5 Companion tutorial
 

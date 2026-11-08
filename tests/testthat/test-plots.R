@@ -28,7 +28,7 @@ test_that("plot_qini 可继续叠加图层", {
 })
 
 test_that("hte_benchmark_data 导出绘图数据与参考线", {
-  d <- mlr3HTE_scenario("rct_lin", "continuous", n = 400, seed = 1)
+  d <- mlr3HTE_demo_continuous(scenario = "rct_lin", n = 400, seed = 1)
   bm <- hte_benchmark(d$X, d$A, d$Y, learners = c("S", "T"),
                       learner_base = mlr3::lrn("regr.ranger", num.trees = 100),
                       n_folds = 3, seed = 1)
@@ -50,7 +50,7 @@ test_that("hte_benchmark_data 导出绘图数据与参考线", {
 })
 
 test_that("hte_benchmark_data 对未计算的指标报错", {
-  d <- mlr3HTE_scenario("rct_lin", "continuous", n = 300, seed = 1)
+  d <- mlr3HTE_demo_continuous(scenario = "rct_lin", n = 300, seed = 1)
   bm <- hte_benchmark(d$X, d$A, d$Y, learners = "S",
                       learner_base = mlr3::lrn("regr.lm"),
                       metrics = "qini", n_folds = 2, seed = 1)

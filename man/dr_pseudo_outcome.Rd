@@ -89,7 +89,7 @@ cross-fitting.
 
 \examples{
 set.seed(1)
-d <- mlr3HTE_demo_obs(n = 800)
+d <- mlr3HTE_demo_continuous(setting = "obs", n = 800)
 dr <- dr_pseudo_outcome(d$X, d$A, d$Y, seed = 1)
 dr$ate
 c_for_benefit(dr$mu1 - dr$mu0, d$A, d$Y,

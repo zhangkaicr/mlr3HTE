@@ -37,7 +37,7 @@
 # =====================================================================
 
 # 1 场景清单 -------------------------------------------------------------------
-# 10 个设计 id。字段全部是「结构标签」，供 mlr3HTE_scenarios() 展示与筛选。
+# 10 个设计 id。字段全部是「结构标签」，供 .demo_scenarios() 展示与筛选。
 .scen_catalog <- function() {
   out <- data.frame(
     id = c("rct_lin", "rct_nonlin",
@@ -57,29 +57,7 @@
   out
 }
 
-#' List of benchmark simulation scenarios
-#'
-#' @description
-#' List the 10 benchmark designs supported by \code{\link{mlr3HTE_scenario}} and
-#' their structural labels. The four dimensions are: study design (\code{design}),
-#' the functional form of the confounding mechanism (\code{confounding}), the
-#' functional form of the true CATE (\code{hte}), and whether a covariate exists
-#' that **simultaneously affects treatment assignment and the treatment effect**
-#' (\code{shared}).
-#'
-#' This set of scenarios is for methodology comparison: by fixing the other
-#' structures and changing only one dimension, you can isolate the effect of
-#' "nonlinear confounding", "nonlinear effect modification", and "confounding and
-#' effect modification sharing a variable" on the estimator, without mixing biases
-#' from multiple sources.
-#'
-#' @return A data.frame with one row per design and columns \code{id} / \code{design}
-#'   / \code{confounding} / \code{hte} / \code{shared}.
-#' @seealso \code{\link{mlr3HTE_scenario}}, \code{\link{mlr3HTE_bench}}
-#' @export
-#' @examples
-#' mlr3HTE_scenarios()
-mlr3HTE_scenarios <- function() {
+.demo_scenarios <- function() {
   .scen_catalog()
 }
 
@@ -166,51 +144,12 @@ mlr3HTE_scenarios <- function() {
 }
 
 # 7 单个场景生成器 -------------------------------------------------------------
-#' Generate a benchmark simulation scenario
-#'
-#' @description
-#' Generate a simulation dataset with a known truth according to the structural
-#' labels in \code{\link{mlr3HTE_scenarios}}. The same \code{id} + \code{outcome} +
-#' \code{n} + \code{seed} combination is fully reproducible, so it can be used
-#' directly as a fixed benchmark for methodology comparison.
-#'
-#' The definition of the truth \code{tau} varies with the outcome scale: for
-#' continuous outcomes it is the **mean difference**, for binary outcomes the
-#' **risk difference** (converted per individual, not a constant on the log-odds
-#' scale), and for survival outcomes the \strong{survival probability difference at
-#' t0}; survival outcomes also return the RMST-scale truth \code{tau_rmst}. The ATE
-#' is the sample mean of \code{tau}.
-#'
-#' @param id The scenario id, see \code{\link{mlr3HTE_scenarios}}.
-#' @param outcome The outcome type: \code{"continuous"} (default) / \code{"binary"} /
-#'   \code{"survival"}.
-#' @param n The sample size, default 2000.
-#' @param seed The random seed; when \code{NULL} (default), a fixed seed is derived
-#'   from \code{id} and \code{outcome}, ensuring different scenarios are distinct from
-#'   each other yet each reproducible.
-#' @param t0 The effect evaluation time point for survival outcomes, default 2.
-#' @return A list:
-#'   \itemize{
-#'     \item \code{X} A data.frame of covariates (age / lac / tumor / sex)
-#'     \item \code{A} Treatment indicator (0/1)
-#'     \item \code{Y} Outcome (a \code{Surv} object for survival outcomes)
-#'     \item \code{tau} Per-individual true CATE (on the current outcome scale)
-#'     \item \code{ate} True ATE = \code{mean(tau)}
-#'     \item \code{ps_true} True propensity score (always 0.5 for RCT scenarios)
-#'     \item \code{tau_rmst} / \code{ate_rmst} RMST-scale truth for survival outcomes
-#'     \item \code{meta} The scenario's structural labels and parameters
-#'   }
-#' @seealso \code{\link{mlr3HTE_scenarios}}, \code{\link{mlr3HTE_bench}}
-#' @export
-#' @examples
-#' d <- mlr3HTE_scenario("obs_nonlin_nonlin_sharedT", "continuous", n = 500, seed = 1)
-#' c(ate = d$ate, n = nrow(d$X), share_confounder = d$meta$shared)
-mlr3HTE_scenario <- function(id, outcome = c("continuous", "binary", "survival"),
+.demo_scenario <- function(id, outcome = c("continuous", "binary", "survival"),
                              n = 2000, seed = NULL, t0 = 2) {
   outcome <- match.arg(outcome)
   cat_df  <- .scen_catalog()
   if (!id %in% cat_df$id) {
-    stop(sprintf("Unknown scenario id: %s. See mlr3HTE_scenarios() for valid values.", id))
+    stop(sprintf("Unknown scenario id: %s. See .demo_scenarios() for valid values.", id))
   }
   spec <- cat_df[cat_df$id == id, , drop = FALSE]
 
@@ -260,38 +199,12 @@ mlr3HTE_scenario <- function(id, outcome = c("continuous", "binary", "survival")
 }
 
 # 8 随包发布的基准数据 ---------------------------------------------------------
-#' Benchmark simulation data shipped with the package (.rda)
-#'
-#' @description
-#' \code{\link{mlr3HTE_scenario}} has been pre-generated for all 10 designs x 3
-#' outcome types, packaged with \code{n = 2000} and a fixed seed in
-#' \code{data/mlr3hte_bench_data.rda} and shipped with the package. Methodology
-#' comparisons should uniformly use this one dataset to avoid conclusions becoming
-#' incomparable due to each analysis re-simulating on its own.
-#'
-#' Each element has the same structure as the return value of
-#' \code{mlr3HTE_scenario()}; the keys of the collection itself are
-#' \code{<scenario id>.<outcome>}, e.g. \code{"obs_nonlin_nonlin_sharedT.survival"}.
-#' The full list of keys is available from \code{mlr3HTE_bench_index()}.
-#'
-#' @param id The scenario id, see \code{\link{mlr3HTE_scenarios}}.
-#' @param outcome The outcome type.
-#' @return The same list as \code{\link{mlr3HTE_scenario}}; if that combination was
-#'   not pre-generated, it is recomputed on the fly from the on-disk scenario
-#'   generator (the result is identical, just slower).
-#' @seealso \code{\link{mlr3HTE_scenarios}}, \code{\link{mlr3HTE_scenario}}
-#' @export
-#' @examples
-#' \donttest{
-#' d <- mlr3HTE_bench("obs_nonlin_nonlin_sharedT", "survival")
-#' c(ate = d$ate, t0 = d$t0)
-#' }
-mlr3HTE_bench <- function(id, outcome = c("continuous", "binary", "survival")) {
+.demo_bench <- function(id, outcome = c("continuous", "binary", "survival")) {
   outcome <- match.arg(outcome)
   key <- paste(id, outcome, sep = ".")
   obj <- .bench_bundle()
   if (!is.null(obj) && key %in% names(obj)) return(obj[[key]])
-  mlr3HTE_scenario(id, outcome, n = 2000)
+  .demo_scenario(id, outcome, n = 2000)
 }
 
 # 取随包发布的基准数据对象。用 get() 而不是直接引用对象名，
@@ -305,15 +218,7 @@ mlr3HTE_bench <- function(id, outcome = c("continuous", "binary", "survival")) {
   NULL
 }
 
-#' Index of the packaged benchmark data
-#'
-#' @description List the keys that actually exist in
-#'   \code{data/mlr3hte_bench_data.rda}, convenient for batch looping.
-#' @return A data.frame with \code{key} / \code{id} / \code{outcome} / \code{ate} /
-#'   \code{n}.
-#' @seealso \code{\link{mlr3HTE_bench}}
-#' @export
-mlr3HTE_bench_index <- function() {
+.demo_bench_index <- function() {
   obj <- .bench_bundle()
   if (is.null(obj)) {
     stop("The mlr3hte_bench_data data object was not found. Please reinstall the package.")

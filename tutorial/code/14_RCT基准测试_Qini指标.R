@@ -41,7 +41,7 @@ cli::cli_alert_info("三个指标都建立在随机化带来的可交换性上�
 # 没有标尺就没法判断一个指标值是好是坏。两条标尺：
 #   随机 CATE  -> 指标应贴近 0（Qini）/ 0.5（c-for-benefit）
 #   真实 tau   -> 指标的上界参考
-d <- mlr3HTE_demo_data(n = 1500, seed = 1201)
+d <- mlr3HTE_demo_continuous(n = 1500, seed = 1201)
 n <- nrow(d$X)
 
 set.seed(2)
@@ -117,7 +117,7 @@ print(plot_hte_benchmark(bm_s, "qini"))
 # 随机化不再成立，必须把倾向得分和结局模型一起交进来（DR 三件套）。
 # 三个指标的算法不变，只是"观测获益"换成交叉拟合的 DR 伪结局。
 cli::cli_alert_info("观察性数据：先算 DR 三件套，再交给 hte_benchmark")
-do <- mlr3HTE_demo_obs(n = 1500, seed = 1204)
+do <- mlr3HTE_demo_continuous(setting = "obs", n = 1500, seed = 1204)
 dr <- dr_pseudo_outcome(do$X, do$A, do$Y, seed = 1)
 bm_o <- hte_benchmark(do$X, do$A, do$Y, learners = c("S", "X", "DR"),
                       propensity = dr$propensity, mu1 = dr$mu1, mu0 = dr$mu0,

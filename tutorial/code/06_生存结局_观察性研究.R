@@ -4,7 +4,7 @@
 #       (a) 删矢 IPCW —— 处理信息删矢，估计量的组成部分，自动计算，不可选；
 #       (b) R/DR 的倾向得分 —— 算法定义的一部分（tildeA = A - e），也不可选。
 #       去混杂的主路径仍然是：把混杂变量放进 X 条件化。
-# 输入：无（数据由 mlr3HTE_demo_obs_surv() 现场生成，含真实 ATE）
+# 输入：无（数据由 mlr3HTE_demo_surv(setting = "obs") 现场生成，含真实 ATE）
 # 输出：DAG、真值卡、偏倚对照表、引擎内部三类权重分布表、散点图
 # 依赖：mlr3, mlr3learners, mlr3HTE, survival, dplyr, ggplot2, cli
 # 运行：在 mlr3HTE/ 目录下执行 Rscript tutorial/code/06_生存结局_观察性研究.R
@@ -41,7 +41,7 @@ print(mlr3HTE_dag("obs", "survival"))
 
 ## 1.1 生成数据 ----
 t0 <- 2
-d <- mlr3HTE_demo_obs_surv(n = 4000, t0 = t0, seed = 1206)
+d <- mlr3HTE_demo_surv(setting = "obs", n = 4000, t0 = t0, seed = 1206)
 
 ## 1.2 组间基线差异与删矢情况（tidyverse）----
 d$X |>

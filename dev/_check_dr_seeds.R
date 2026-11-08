@@ -1,7 +1,7 @@
 # 多种子对照：观察性二分类上，DR 三件套 vs 未调整差值，哪个更接近真值。
 Sys.setlocale("LC_CTYPE", "en_US.UTF-8")
 suppressMessages(pkgload::load_all(".", quiet = TRUE))
-o <- mlr3HTE_bench("obs_lin_lin_sharedF", "binary")
+o <- mlr3HTE_demo_binary(source = "bundled", dataset = "obs_lin_lin_sharedF")
 rows <- lapply(1:8, function(sd) {
   dr <- dr_pseudo_outcome(o$X, o$A, o$Y, seed = sd)
   data.frame(seed = sd,

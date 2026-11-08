@@ -2,7 +2,7 @@ Sys.setlocale("LC_CTYPE", "en_US.UTF-8")
 suppressMessages(pkgload::load_all(".", quiet = TRUE))
 
 set.seed(1)
-dv <- mlr3HTE_scenario("rct_nonlin", "continuous", n = 400, seed = 1)
+dv <- mlr3HTE_demo_continuous(scenario = "rct_nonlin", n = 400, seed = 1)
 fit <- metalearner("T", dv$X, dv$A, dv$Y,
                    learner_base = mlr3::lrn("regr.ranger", num.trees = 200))
 cate <- as.numeric(fit$predict(dv$X))

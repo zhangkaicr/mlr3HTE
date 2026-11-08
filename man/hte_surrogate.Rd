@@ -33,7 +33,7 @@ distillation} approach in Explanatory Model Analysis.
 }
 \examples{
 \donttest{
-d <- mlr3HTE_scenario("rct_lin", "continuous", n = 500, seed = 1)
+d <- mlr3HTE_demo_continuous(scenario = "rct_lin", n = 500, seed = 1)
 fit <- metalearner("T", d$X, d$A, d$Y, learner_base = mlr3::lrn("regr.ranger"))
 sur <- hte_surrogate(d$X, fit$predict(d$X))
 cor(sur$predict(d$X), d$tau)

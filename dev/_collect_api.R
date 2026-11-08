@@ -16,26 +16,26 @@ tag <- function(name, expr) {
   invisible(NULL)
 }
 
-tag("scenarios", print(mlr3HTE_scenarios()))
+tag("scenarios", print(mlr3HTE_demo_continuous(catalog = TRUE)))
 
 tag("scenario", {
-  s <- mlr3HTE_scenario("obs_nonlin_nonlin_sharedT", "survival", n = 300, seed = 2)
+  s <- mlr3HTE_demo_surv(scenario = "obs_nonlin_nonlin_sharedT", n = 300, seed = 2)
   c(ate = s$ate, ate_rmst = s$ate_rmst)
 })
 
 tag("bench", {
-  b <- mlr3HTE_bench("rct_lin", "continuous")
+  b <- mlr3HTE_demo_continuous(source = "bundled", dataset = "rct_lin")
   list(n = nrow(b$X), ate = b$ate, all_ps_half = all(b$ps_true == 0.5))
 })
 
 tag("benchindex", {
-  idx <- mlr3HTE_bench_index()
+  idx <- mlr3HTE_demo_continuous(catalog = TRUE, source = "bundled")
   cat("dim:", dim(idx), "\n")
   print(head(idx, 4))
 })
 
 # 下面几页共用同一份数据
-d  <- mlr3HTE_scenario("rct_nonlin", "continuous", n = 400, seed = 1)
+d  <- mlr3HTE_demo_continuous(scenario = "rct_nonlin", n = 400, seed = 1)
 fit <- metalearner("T", d$X, d$A, d$Y,
                    learner_base = lrn("regr.ranger", num.trees = 200))
 ex  <- hte_explainer(fit, d$X, d$A, d$Y, seed = 1)
@@ -87,12 +87,12 @@ tag("plotshap", {
 })
 
 tag("dagdata", {
-  dd <- mlr3HTE_dag_data("rct", "continuous")
+  dd <- mlr3HTE_demo_continuous(design = "rct")
   print(dd$edges[, c("from", "to", "type", "curve")])
 })
 
 tag("benchdata", {
-  db <- mlr3HTE_scenario("rct_lin", "continuous", n = 400, seed = 1)
+  db <- mlr3HTE_demo_continuous(scenario = "rct_lin", n = 400, seed = 1)
   bm <- hte_benchmark(db$X, db$A, db$Y, learners = c("S", "T"),
                       learner_base = lrn("regr.lm"), n_folds = 2, seed = 1)
   qd <- hte_benchmark_data(bm, "qini")

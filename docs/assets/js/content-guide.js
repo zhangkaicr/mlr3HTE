@@ -83,7 +83,7 @@ window.SITE_PAGES.guide = {
           '<td>要进 <code>resample</code> / <code>benchmark</code> / <code>tune</code></td></tr>' +
           '</tbody></table></div>' +
           '<h3>函数式</h3>' +
-          '<pre><code class="language-r">d &lt;- mlr3HTE_demo_data(n = 600, seed = 1)   # 随包自带的模拟数据\n' +
+          '<pre><code class="language-r">d &lt;- mlr3HTE_demo_continuous(n = 600, seed = 1)   # 随包自带的模拟数据\n' +
           'fit &lt;- metalearner("T", d$X, d$A, d$Y, learner_base = lrn("regr.ranger"))\n' +
           'fit$ate          # 平均治疗效应\n' +
           'fit$cate_train   # 逐人 CATE\n' +
@@ -91,7 +91,7 @@ window.SITE_PAGES.guide = {
           '<h3>R6 Learner（mlr3 工作流：一次比较五种算法）</h3>' +
           '<pre><code class="language-r">library(mlr3); library(mlr3learners); library(dplyr)\n\n' +
           '# 随包自带的模拟数据：含真实 CATE（tau），复制即可运行\n' +
-          'd &lt;- mlr3HTE_demo_data(n = 600, seed = 1)\n' +
+          'd &lt;- mlr3HTE_demo_continuous(n = 600, seed = 1)\n' +
           'task &lt;- ml_task(d$X, d$A, d$Y)\n\n' +
           '# 五种 metalearner 放进同一个 benchmark，一次并行比较\n' +
           'types &lt;- c("S", "T", "X", "R", "DR")\n' +
@@ -153,8 +153,8 @@ window.SITE_PAGES.guide = {
           '<tr><td>DR</td><td>AIPW 伪结果的分母</td><td>双重稳健：结局模型或倾向得分其一正确即一致</td></tr>' +
           '</tbody></table></div>' +
           '<pre><code class="language-r"># 随包自带的观察性模拟数据（含混杂）与 RCT 数据，复制即可运行\n' +
-          'd &lt;- mlr3HTE_demo_obs(n = 600, seed = 1)\n' +
-          'd_rct &lt;- mlr3HTE_demo_data(n = 600, seed = 1)\n' +
+          'd &lt;- mlr3HTE_demo_continuous(setting = "obs", n = 600, seed = 1)\n' +
+          'd_rct &lt;- mlr3HTE_demo_continuous(n = 600, seed = 1)\n' +
           'my_ps_model &lt;- glm(A ~ ., data = cbind(A = d$A, d$X), family = binomial())\n\n' +
           '# 观察性：DR 默认内部拟合倾向得分（classif.log_reg），双重稳健\n' +
           'fit &lt;- metalearner("DR", d$X, d$A, d$Y, cross_fitting = TRUE)\n\n' +
@@ -313,7 +313,7 @@ window.SITE_PAGES.guide = {
           '<td>You need <code>resample</code> / <code>benchmark</code> / <code>tune</code></td></tr>' +
           '</tbody></table></div>' +
           '<h3>Functional</h3>' +
-          '<pre><code class="language-r">d &lt;- mlr3HTE_demo_data(n = 600, seed = 1)   # simulated data shipped with the package\n' +
+          '<pre><code class="language-r">d &lt;- mlr3HTE_demo_continuous(n = 600, seed = 1)   # simulated data shipped with the package\n' +
           'fit &lt;- metalearner("T", d$X, d$A, d$Y, learner_base = lrn("regr.ranger"))\n' +
           'fit$ate          # average treatment effect\n' +
           'fit$cate_train   # CATE per unit\n' +
@@ -321,7 +321,7 @@ window.SITE_PAGES.guide = {
           '<h3>R6 Learner (mlr3 workflows: compare five learners at once)</h3>' +
           '<pre><code class="language-r">library(mlr3); library(mlr3learners); library(dplyr)\n\n' +
           '# Simulated data shipped with the package, with the true CATE (tau)\n' +
-          'd &lt;- mlr3HTE_demo_data(n = 600, seed = 1)\n' +
+          'd &lt;- mlr3HTE_demo_continuous(n = 600, seed = 1)\n' +
           'task &lt;- ml_task(d$X, d$A, d$Y)\n\n' +
           '# Five meta-learners in a single mlr3 benchmark\n' +
           'types &lt;- c("S", "T", "X", "R", "DR")\n' +
@@ -387,8 +387,8 @@ window.SITE_PAGES.guide = {
           '<tr><td>DR</td><td>The denominator of the AIPW pseudo-outcome</td><td>Double robustness: consistent if either the outcome models or the propensity score is right</td></tr>' +
           '</tbody></table></div>' +
           '<pre><code class="language-r"># Simulated data shipped with the package: observational (confounded) and RCT\n' +
-          'd &lt;- mlr3HTE_demo_obs(n = 600, seed = 1)\n' +
-          'd_rct &lt;- mlr3HTE_demo_data(n = 600, seed = 1)\n' +
+          'd &lt;- mlr3HTE_demo_continuous(setting = "obs", n = 600, seed = 1)\n' +
+          'd_rct &lt;- mlr3HTE_demo_continuous(n = 600, seed = 1)\n' +
           'my_ps_model &lt;- glm(A ~ ., data = cbind(A = d$A, d$X), family = binomial())\n\n' +
           '# Observational: DR fits the propensity score internally (classif.log_reg)\n' +
           'fit &lt;- metalearner("DR", d$X, d$A, d$Y, cross_fitting = TRUE)\n\n' +

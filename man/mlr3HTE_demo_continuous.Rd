@@ -9,7 +9,7 @@ mlr3HTE_demo_continuous(
   setting = c("rct", "obs"),
   strength = 1,
   treat_frac = 0.5,
-  seed = 1201,
+  seed = NULL,
   source = c("simulated", "bundled", "benchmark"),
   dataset = NULL,
   scenario = NULL,
@@ -28,14 +28,19 @@ mlr3HTE_demo_continuous(
 
 \item{treat_frac}{Treated proportion under \code{setting = "rct"}.}
 
-\item{seed}{Random seed.}
+\item{seed}{Random seed. \code{NULL} (default) reproduces the legacy generator's
+seed for this outcome type and design (1201-1206).}
 
 \item{source}{\code{"simulated"} (default), \code{"bundled"} (the shipped 10-design grid)
 or \code{"benchmark"} (the grf / econml / causalml datasets).}
 
-\item{dataset}{Dataset key for \code{source = "bundled"} or name for \code{source = "benchmark"}.}
+\item{dataset}{Dataset key for \code{source = "bundled"} or name for \code{source = "benchmark"}.
+\code{NULL} under \code{source = "benchmark"} loads every dataset as a named list.
+For cross-package benchmarks the outcome type is inferred from each dataset's own
+columns (time/event, multi-arm conversion, or continuous outcome), so all three
+facades return the same structure for this source.}
 
-\item{scenario}{Structural scenario id, forwarded to the internal scenario generator.}
+\item{scenario}{Structural scenario id; see \code{catalog = TRUE}.}
 
 \item{design}{DAG design (\code{"rct"} / \code{"obs"}); returns node and edge tables.}
 
@@ -43,19 +48,40 @@ or \code{"benchmark"} (the grf / econml / causalml datasets).}
 
 \item{export_to}{Optional destination directory; copies all bundled benchmark files there.}
 
-\item{...}{Extra arguments forwarded to the internal scenario generator.}
+\item{...}{Extra arguments forwarded to the internal scenario generator (e.g. \code{t0}).}
 }
 \value{
 A list with \code{X}, \code{A}, \code{Y}, \code{tau} (true CATE), \code{ate};
-observational data also carry \code{ps_true}, survival data \code{t0}.
+observational data also carry \code{ps_true}, survival data \code{t0},
+\code{tau_rmst} and \code{ate_rmst}. Data read from
+\code{source = "benchmark"} additionally carry \code{raw} (the untouched
+source table). Catalogue and DAG requests return their own structures.
 }
 \description{
 The single entry point for continuous-outcome data. It covers the RCT and
 observational DGPs, the ten structural scenarios, the bundled benchmark grid, the
 DAG node/edge tables and the cross-package benchmark datasets shipped in
 \code{inst/extdata/benchmarks}.
+
+Use \code{setting = "obs"} for measured confounding, \code{scenario = <id>} for one
+of the ten structural designs, \code{source = "bundled"} for the pre-generated
+benchmark grid, and \code{source = "benchmark"} for the grf / econml / causalml
+datasets. \code{catalog = TRUE} returns the corresponding index table and
+\code{export_to = <dir>} copies all benchmark files to disk.
+
+Together with \code{\link{mlr3HTE_demo_binary}} and
+\code{\link{mlr3HTE_demo_surv}}, these three functions replace the older
+collection of single-purpose data generators.
 }
 \examples{
 d <- mlr3HTE_demo_continuous(n = 500, seed = 1)
 mean(d$tau)
+# index of the ten structural scenarios
+head(mlr3HTE_demo_continuous(catalog = TRUE))
+# observational data with measured confounding
+d_obs <- mlr3HTE_demo_continuous(n = 500, setting = "obs")
+mean(d_obs$ps_true)
+# a cross-package benchmark dataset
+b <- mlr3HTE_demo_continuous(source = "benchmark", dataset = "grf_causal")
+b$ate
 }

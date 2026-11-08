@@ -5,7 +5,7 @@
 pkgload::load_all(".", quiet = TRUE)
 
 message("== 载入演示数据（与课程模块三同款 DGP）==")
-d <- mlr3HTE_demo_data(n = 4000, treat_frac = 0.5, seed = 1201)
+d <- mlr3HTE_demo_continuous(n = 4000, treat_frac = 0.5, seed = 1201)
 message(sprintf("真实 ATE = %.4f；真实 tau 标准差 = %.4f", d$ate, sd(d$tau)))
 
 # 基学习器：随机森林（与课程默认一致），固定种子保证可复现

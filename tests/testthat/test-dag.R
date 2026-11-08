@@ -1,4 +1,4 @@
-# 目的：钉住 mlr3HTE_dag() / mlr3HTE_dag_data() 的接口契约
+# 目的：钉住 mlr3HTE_dag() / mlr3HTE_demo_continuous(design = "rct") 的接口契约
 #       （输入校验、可渲染、每对节点只有一条箭头、边不穿节点）
 # 输入：无（纯函数测试）
 # 输出：testthat 报告
@@ -7,7 +7,7 @@
 test_that("dag 拒绝非法输入", {
   expect_error(mlr3HTE_dag("weird", "continuous"), '"rct", "obs"')      # design 不合法
   expect_error(mlr3HTE_dag("rct", "weird"), '"continuous", "binary"')   # outcome 不合法
-  expect_error(mlr3HTE_dag_data("weird", "continuous"), '"rct", "obs"')
+  expect_error(mlr3HTE_demo_continuous(design = "weird"), '"rct", "obs"')
 })
 
 test_that("dag 六种组合都返回 ggplot 对象", {
@@ -33,7 +33,7 @@ test_that("任意两个节点之间只有一条有向边", {
   # 成因有两类：(1) 同一对 (from, to) 被重复写进边表；
   #            (2) 某条边从第三个节点身上穿过，视觉上像多出一条。
   for (dsgn in c("rct", "obs")) {
-    dd <- mlr3HTE_dag_data(dsgn, "continuous")
+    dd <- mlr3HTE_demo_continuous(design = dsgn)
     key <- paste(dd$edges$from, dd$edges$to, sep = "->")
     expect_false(any(duplicated(key)))
     # 也不允许同一对节点双向都有边（无向意义上仍算两条）
@@ -45,7 +45,7 @@ test_that("任意两个节点之间只有一条有向边", {
 test_that("边的终点回退到标签盒外，起点仍在源节点中心", {
   shrink <- 0.55
   for (dsgn in c("rct", "obs")) {
-    dd  <- mlr3HTE_dag_data(dsgn, "continuous")
+    dd  <- mlr3HTE_demo_continuous(design = dsgn)
     seg <- dd$edges
     lab <- dd$nodes
 
@@ -74,7 +74,7 @@ test_that("边不从第三个节点身上穿过", {
           (1 - t)^2 * y0 + 2 * (1 - t) * t * cyp + t^2 * y1)
   }
   for (dsgn in c("rct", "obs")) {
-    dd <- mlr3HTE_dag_data(dsgn, "continuous")
+    dd <- mlr3HTE_demo_continuous(design = dsgn)
     for (i in seq_len(nrow(dd$edges))) {
       e <- dd$edges[i, ]
       pts <- bezier(e$xs, e$ys, e$xe, e$ye, e$curve)
@@ -90,7 +90,7 @@ test_that("边不从第三个节点身上穿过", {
 })
 
 test_that("dag_data 返回结构完整", {
-  dd <- mlr3HTE_dag_data("obs", "binary")
+  dd <- mlr3HTE_demo_binary(design = "obs")
   expect_named(dd, c("nodes", "edges", "subtitle", "outcome_zh", "outcome_en"))
   expect_true(all(c("id", "x", "y", "label", "role") %in% names(dd$nodes)))
   expect_true(all(c("from", "to", "type", "xs", "ys", "xe", "ye", "curve") %in%
@@ -99,5 +99,5 @@ test_that("dag_data 返回结构完整", {
   expect_true("e" %in% dd$nodes$id)
   expect_equal(sum(dd$edges$type == "conf"), 2L)
   # rct 图不允许有混杂边
-  expect_equal(sum(mlr3HTE_dag_data("rct", "binary")$edges$type == "conf"), 0L)
+  expect_equal(sum(mlr3HTE_demo_binary(design = "rct")$edges$type == "conf"), 0L)
 })

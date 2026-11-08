@@ -20,7 +20,7 @@ suppressWarnings({library(mlr3); library(mlr3learners); library(ggplot2)})
 set.seed(2024)
 
 # 1 生成带真值的演示数据，并切分训练 / 测试集 -------------------------------
-d <- mlr3HTE_demo_data(n = 4000, seed = 1)
+d <- mlr3HTE_demo_continuous(n = 4000, seed = 1)
 n <- nrow(d$X)
 idx <- sample.int(n, size = n %/% 2)
 tr  <- setdiff(seq_len(n), idx)          # 训练下标
@@ -101,7 +101,7 @@ if (requireNamespace("cli", quietly = TRUE)) {
 # 不同，这个差被混杂污染。三指标的两条修正路径：
 #   Qini / TOC  —— 传 propensity，IPW 估计式自己去混杂；
 #   c-for-benefit —— 传 propensity + mu1 + mu0，用双重稳健伪结局当观测获益。
-d_obs <- mlr3HTE_demo_obs(n = 4000, seed = 11)
+d_obs <- mlr3HTE_demo_continuous(setting = "obs", n = 4000, seed = 11)
 dr    <- dr_pseudo_outcome(d_obs$X, d_obs$A, d_obs$Y, seed = 1)
 cate_obs <- dr$mu1 - dr$mu0
 

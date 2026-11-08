@@ -55,7 +55,7 @@ toc_truth <- function(score, tau) {
 # 2 RCT：把模型得分拆成排序损失与估计噪声 -----------------------------------
 
 ## 2.1 数据、模型与测试集 CATE ----
-d     <- mlr3HTE_demo_data(n = 4000, seed = 1)
+d     <- mlr3HTE_demo_continuous(n = 4000, seed = 1)
 n     <- nrow(d$X)
 idx   <- sample.int(n, size = n %/% 2)
 Xte   <- d$X[idx, ]; Ate <- d$A[idx]; Yte <- d$Y[idx]; tau_te <- d$tau[idx]
@@ -177,7 +177,7 @@ if (requireNamespace("cli", quietly = TRUE)) {
 # 4 观察性：不传 propensity 是偏差，传了只剩噪声 ----------------------------
 
 ## 4.1 真值标尺与三层估计 ----
-d_obs <- mlr3HTE_demo_obs(n = 4000, seed = 11)
+d_obs <- mlr3HTE_demo_continuous(setting = "obs", n = 4000, seed = 11)
 dr    <- dr_pseudo_outcome(d_obs$X, d_obs$A, d_obs$Y, seed = 1)
 cate_obs <- dr$mu1 - dr$mu0
 

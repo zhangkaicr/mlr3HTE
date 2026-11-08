@@ -1,6 +1,6 @@
 # 目的：演示「基于 mlr3 体系」最直接的收益——基学习器一行就能换，
 #       而且整个 mlr3 工作流（resample / benchmark）原样可复用。
-# 输入：mlr3HTE_demo_data() 生成的连续 RCT 模拟数据（带真值 tau）
+# 输入：mlr3HTE_demo_continuous() 生成的连续 RCT 模拟数据（带真值 tau）
 # 输出：控制台对比表 + tutorial/output/13_swap_base_learners.md
 # 依赖：mlr3HTE（含 mlr3 / mlr3learners）、dplyr、cli
 
@@ -12,7 +12,7 @@ library(dplyr)
 
 # 1 准备数据 -------------------------------------------------------------
 set.seed(1)
-d <- mlr3HTE_demo_data(n = 4000)   # 返回 X / A / Y / tau(真值) / ate(真值)
+d <- mlr3HTE_demo_continuous(n = 4000)   # 返回 X / A / Y / tau(真值) / ate(真值)
 cat("真值 ATE =", signif(d$ate, 4), "\n")
 
 # 2 一行换基学习器：同一套 T-learner 配方，换不同算法 ------------------

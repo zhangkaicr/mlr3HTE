@@ -95,12 +95,12 @@
 #' @export
 #' @examples
 #' # RCT: defaults suffice; no weighting needed
-#' d <- mlr3HTE_demo_data(n = 500, seed = 1)
+#' d <- mlr3HTE_demo_continuous(n = 500, seed = 1)
 #' fit <- metalearner("T", d$X, d$A, d$Y, learner_base = mlr3::lrn("regr.lm"))
 #' cor(fit$cate_train, d$tau)
 #'
 #' # Observational data: the DR-Learner fits the propensity score internally by default (doubly robust)
-#' dobs <- mlr3HTE_demo_obs(n = 800, seed = 1)
+#' dobs <- mlr3HTE_demo_continuous(setting = "obs", n = 800, seed = 1)
 #' fit_obs <- metalearner("DR", dobs$X, dobs$A, dobs$Y)
 #' fit_obs$ate                     # compare against dobs$ate (true ATE)
 #'
@@ -145,7 +145,7 @@ metalearner <- function(type, X, A, Y,
 #' @export
 #' @examples
 #' \donttest{
-#' d <- mlr3HTE_demo_data(n = 800, seed = 1)
+#' d <- mlr3HTE_demo_continuous(n = 800, seed = 1)
 #' ci <- cate_ci("T", d$X, d$A, d$Y, B = 50, seed = 1)
 #' mean(ci$cate_mean); c(ci$ate_lo, ci$ate_hi)
 #' }
@@ -310,16 +310,7 @@ ml_task <- function(X, A, Y, t0 = NULL, id = "ml_hte", treatment_col = "A") {
 # 1 连续结局 RCT 演示数据（与课程模块三同款 DGP）------------------------------
 # 真实 CATE: tau = 1.0 + 0.8*z1 - 0.5*z2 + 0.6*(z1>1 & z2<0)
 # 真实基线均值: mu = 6 + 0.4*z1 + 0.5*z2 - 0.02*(age-60) + 0.3*sex
-#' Demo data: continuous-outcome RCT
-#'
-#' @description Generate RCT demo data with a continuous outcome (by default treatment A is independent of covariates X, no confounding).
-#'   The true CATE and ATE are returned alongside the data, for assessing the metalearner's fit quality.
-#' @param n sample size; default 4000
-#' @param treat_frac treated-group proportion; default 0.5
-#' @param seed random seed
-#' @return a list: X (covariates), A (treatment), Y (outcome), tau (true CATE vector), ate (true ATE)
-#' @export
-mlr3HTE_demo_data <- function(n = 4000, treat_frac = 0.5, seed = 1201) {
+.demo_continuous_rct <- function(n = 4000, treat_frac = 0.5, seed = 1201) {
   set.seed(seed)
   age   <- rnorm(n, 60, 12)
   lac   <- rnorm(n, 2.5, 1.2)
@@ -396,20 +387,7 @@ mlr3HTE_demo_data <- function(n = 4000, treat_frac = 0.5, seed = 1201) {
 # 处理概率依赖协变量（confounding by indication）：病情越重越容易接受处理，
 # 因此未调整的差分会偏离真实 ATE。强度由 strength 控制：0 = 与 RCT 等价
 # （处理与协变量独立），越大混杂越强。
-#' Demo data: continuous outcome + observational (confounding)
-#'
-#' @description Generate **observational** demo data with a continuous outcome, where the treatment probability depends on covariates
-#'   (the sicker the patient, the more likely to be treated = confounding by indication), so the unadjusted difference deviates from the true ATE.
-#'   The proper way to deconfound under observational data: S/T/X put the confounders into \code{X} and condition on them via the outcome model,
-#'   the R-Learner uses Robinson residualization, and the DR-Learner uses AIPW doubly-robust estimation (most robust).
-#'   The true propensity score \code{ps_true} is also returned for inspection.
-#' @param n sample size; default 4000
-#' @param strength confounding strength; default 1. When \code{0} the treatment probability is independent of covariates (equivalent to an RCT),
-#'   larger values mean stronger confounding; used to scan estimator performance under varying confounding strength
-#' @param seed random seed
-#' @return a list: X, A, Y, tau (true CATE), ate (true ATE), ps_true (true propensity score)
-#' @export
-mlr3HTE_demo_obs <- function(n = 4000, strength = 1, seed = 1204) {
+.demo_continuous_obs <- function(n = 4000, strength = 1, seed = 1204) {
   set.seed(seed)
   age   <- rnorm(n, 60, 12)
   lac   <- rnorm(n, 2.5, 1.2)
@@ -427,19 +405,10 @@ mlr3HTE_demo_obs <- function(n = 4000, strength = 1, seed = 1204) {
 }
 
 # 5 观察性数据（二分类结局 + 混杂）---------------------------------------------
-# 与 mlr3HTE_demo_obs 同一套混杂结构（病情越重越容易接受处理），
+# 与 .demo_continuous_obs 同一套混杂结构（病情越重越容易接受处理），
 # 结局换成二分类：治疗在对数几率尺度上加 tau_logit，
 # 风险差尺度的真实 CATE 按基线概率逐一换算。
-#' Demo data: binary outcome + observational (confounding)
-#'
-#' @description Same confounding structure as \code{\link{mlr3HTE_demo_obs}} (the sicker the patient, the more likely to be treated),
-#'   but with a binary outcome. The true CATE on the risk-difference scale is returned with the data, along with \code{ps_true}.
-#' @param n sample size; default 4000
-#' @param strength confounding strength; default 1; \code{0} is equivalent to an RCT
-#' @param seed random seed
-#' @return a list: X, A, Y, tau (true CATE on the risk-difference scale), ate (true ATE), ps_true
-#' @export
-mlr3HTE_demo_obs_binary <- function(n = 4000, strength = 1, seed = 1205) {
+.demo_binary_obs <- function(n = 4000, strength = 1, seed = 1205) {
   set.seed(seed)
   age   <- rnorm(n, 60, 12)
   lac   <- rnorm(n, 2.5, 1.2)
@@ -460,18 +429,7 @@ mlr3HTE_demo_obs_binary <- function(n = 4000, strength = 1, seed = 1205) {
 
 # 6 观察性数据（生存结局 + 混杂）-----------------------------------------------
 # 同一套混杂结构，结局换成生存时间；效应度量 = t0 时点生存概率差。
-#' Demo data: survival outcome + observational (confounding)
-#'
-#' @description Same confounding structure as \code{\link{mlr3HTE_demo_obs}}, but with a survival-time outcome.
-#'   The default effect measure is the survival-probability difference at t0; the RMST version of the true effect and \code{ps_true} are also returned.
-#' @param n sample size; default 4000
-#' @param t0 effect evaluation time point; default 2
-#' @param strength confounding strength; default 1; \code{0} is equivalent to an RCT
-#' @param seed random seed
-#' @return a list: X, A, Y (Surv object), tau (true CATE on the survival-probability-difference scale), ate, t0,
-#'   ps_true, tau_rmst, ate_rmst
-#' @export
-mlr3HTE_demo_obs_surv <- function(n = 4000, t0 = 2, strength = 1, seed = 1206) {
+.demo_surv_obs <- function(n = 4000, t0 = 2, strength = 1, seed = 1206) {
   set.seed(seed)
   age   <- rnorm(n, 60, 12)
   lac   <- rnorm(n, 2.5, 1.2)

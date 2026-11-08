@@ -10,7 +10,7 @@ mlr3HTE_demo_surv(
   strength = 1,
   treat_frac = 0.5,
   t0 = 2,
-  seed = 1203,
+  seed = NULL,
   source = c("simulated", "bundled", "benchmark"),
   dataset = NULL,
   scenario = NULL,
@@ -31,14 +31,19 @@ mlr3HTE_demo_surv(
 
 \item{t0}{Effect evaluation time point; default 2.}
 
-\item{seed}{Random seed.}
+\item{seed}{Random seed. \code{NULL} (default) reproduces the legacy generator's
+seed for this outcome type and design (1201-1206).}
 
 \item{source}{\code{"simulated"} (default), \code{"bundled"} (the shipped 10-design grid)
 or \code{"benchmark"} (the grf / econml / causalml datasets).}
 
-\item{dataset}{Dataset key for \code{source = "bundled"} or name for \code{source = "benchmark"}.}
+\item{dataset}{Dataset key for \code{source = "bundled"} or name for \code{source = "benchmark"}.
+\code{NULL} under \code{source = "benchmark"} loads every dataset as a named list.
+For cross-package benchmarks the outcome type is inferred from each dataset's own
+columns (time/event, multi-arm conversion, or continuous outcome), so all three
+facades return the same structure for this source.}
 
-\item{scenario}{Structural scenario id, forwarded to the internal scenario generator.}
+\item{scenario}{Structural scenario id; see \code{catalog = TRUE}.}
 
 \item{design}{DAG design (\code{"rct"} / \code{"obs"}); returns node and edge tables.}
 
@@ -46,16 +51,20 @@ or \code{"benchmark"} (the grf / econml / causalml datasets).}
 
 \item{export_to}{Optional destination directory; copies all bundled benchmark files there.}
 
-\item{...}{Extra arguments forwarded to the internal scenario generator.}
+\item{...}{Extra arguments forwarded to the internal scenario generator (e.g. \code{t0}).}
 }
 \value{
-A list with \code{X}, \code{A}, \code{Y}, \code{tau}, \code{ate}, \code{t0}.
+A list with \code{X}, \code{A}, \code{Y}, \code{tau}, \code{ate}, \code{t0},
+\code{tau_rmst}, \code{ate_rmst}; observational data also carry \code{ps_true}.
 }
 \description{
 Survival-outcome counterpart of \code{\link{mlr3HTE_demo_continuous}}.
 \code{Y} is a \code{survival::Surv} object and \code{t0} is the effect evaluation time.
+The same \code{setting} / \code{source} / \code{scenario} routing applies.
 }
 \examples{
 d <- mlr3HTE_demo_surv(n = 500, seed = 1)
-mean(d$tau)
+c(ate = d$ate, t0 = d$t0)
+d_obs <- mlr3HTE_demo_surv(n = 500, setting = "obs")
+inherits(d_obs$Y, "Surv")
 }

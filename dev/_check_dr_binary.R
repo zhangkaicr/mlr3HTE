@@ -2,7 +2,7 @@
 Sys.setlocale("LC_CTYPE", "en_US.UTF-8")
 suppressMessages(pkgload::load_all(".", quiet = TRUE))
 for (id in c("rct_lin", "rct_nonlin")) {
-  b <- mlr3HTE_bench(id, "binary")
+  b <- mlr3HTE_demo_binary(source = "bundled", dataset = id)
   unadj <- mean(b$Y[b$A == 1]) - mean(b$Y[b$A == 0])
   dr <- dr_pseudo_outcome(b$X, b$A, b$Y, seed = 1)
   # 关掉交叉拟合再看一次

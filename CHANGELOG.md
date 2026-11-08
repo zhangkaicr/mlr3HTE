@@ -15,6 +15,37 @@
 - `0.21` 之前的历史批次沿用旧编号折算（`0.1.0` → `0.10`，10-21 那批观察性指标 →
   `0.11`，`0.2.0` → `0.20`）；`0.21` 起严格执行上面的 +0.01。
 
+## [0.49] — 2026-11-08（模拟数据生成只导出三个函数 · Stage 2 完成）
+
+- **公开 API 收敛到三个门面**：`mlr3HTE_demo_continuous()` / `mlr3HTE_demo_binary()` /
+  `mlr3HTE_demo_surv()` 成为唯一的模拟数据入口。原来 12 个单用途数据生成 / 索引 /
+  导出函数（`mlr3HTE_demo_data` / `demo_obs*` / `scenario` / `scenarios` / `bench` /
+  `bench_index` / `dag_data` / `benchmark_data` / `benchmark_meta` / `benchmark_export`）
+  全部转为包内 `.demo_*` 实现，不再导出；`NAMESPACE` 导出数 46 → 34，`man/` 删掉 12 页旧的 `.Rd`。
+  `hte_benchmark_data()` 是 `hte_benchmark()` 的结果整理函数、不是数据生成器，保持导出。
+- **全站调用替换**：`dev/_stage2_convert.py` 按调用语义（而不只是字符串）把 420 处旧调用
+  改写成三函数门面的参数路由，覆盖 `R/` roxygen 示例、15 个测试文件、16 个教程脚本、
+  官网 4 个 `content-*.js`、`README` 中英版、`dev/` 诊断与验证脚本。
+  `scenario` / `source = "bundled"` / `design` / `catalog` / `export_to` 各归其位；
+  两处循环变量结局的调用（`data-raw/bench.R`、`dev/_check_dr_obs.R`）按结局手工分派。
+- **数值逐位兼容**：门面默认 `seed = NULL`，由 `.demo_default_seed()` 按「结局 × 设计」
+  复原旧版六个 DGP 的种子 1201–1206；`scenario` 路由继续传 `NULL` 给场景生成器按
+  `id + outcome` 派生。新增回归测试直接比对门面与内部 DGP 的 `Y` / `ate` / `ps_true`，
+  保证替换调用后全站 44 个实测示例输出无需改动。
+- **跨包基准分支修好并统一**：`source = "benchmark"` 现在返回统一 list
+  （`X / A / Y / tau / ate`）并附 `raw` 原始表；结局类型按每份数据自身的列推断
+  （生存 `time/event`、多臂 `conversion`、连续 `outcome`），因此一次加载全部 5 份不会再因
+  列名不匹配报错。`dev/validate_benchmarks.R` 改用 `$raw` 继续按来源包字段名处理 uplift 多臂。
+- **官网函数文档同步**：API 索引页 9 大类里的 ⑤⑥⑧⑨ 分组表重写为三函数门面的参数路由，
+  补上 v0.49 收敛说明；`apiscenario` 参数表由旧的 `id` / `outcome` 改为 `scenario` + 门面选择；
+  `apibenchmarkdata` 的返回结构与示例代码改为 `d$raw`；导航标签收敛为短名且保留全部页面 id，
+  全站锚链零改动。修掉批量替换带入的 JS 未转义引号（2 个文件曾语法错误）。
+- **GitHub 首页改为英文**：仓库落地页 `README.md` 换成完整英文版，中文版完整保留为 `README_ZH.md`，`README_EN.md` 保留给旧书签；官网 `docs/index.html` 的 `<html lang>` / `<title>` / `og:title` 同步改英文（运行时语言切换不变，默认仍为 en）。
+- **教程可运行性补齐**：新增 `dev/_check_tutorials.py`，在独立 `Rscript` 进程里逐个实跑
+  `tutorial/code/*.R` 全部 18 个脚本；此前只验证了指南页的 5 个代码块。
+- 新增 `tests/testthat/test-benchmarks.R` 的 8 组断言（门面契约、seed 兼容、四种路由、
+  benchmark 三函数一致性、生存/多臂识别），并把旧的 data.frame 断言改为新契约。
+
 ## [0.48] — 2026-11-08（指南页全量可运行示例 + R6 五算法 Qini 对比 + 运行时消息英文化）
 
 - **指南页红框清理**：删除第 4 节开头关于 v0.40 移除 `weighting` / `weights` / `stabilize`

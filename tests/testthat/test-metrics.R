@@ -137,11 +137,11 @@ test_that("survival outcome rejects an mlr3 learner as the base learner", {
 
 # ---- 观察性数据：Qini / TOC 走 propensity，c-for-benefit 走 DR 伪结局 --------
 #
-# 这些用例用 mlr3HTE_demo_obs()（带真实倾向得分与真实 tau 的混杂数据）。
+# 这些用例用 mlr3HTE_demo_continuous(setting = "obs")（带真实倾向得分与真实 tau 的混杂数据）。
 # 基学习器刻意换成 regr.lm，保证测试跑得快。
 
 .setup_obs_dr <- function(n = 1500, seed = 7) {
-  d <- mlr3HTE_demo_obs(n = n, seed = seed)
+  d <- mlr3HTE_demo_continuous(setting = "obs", n = n, seed = seed)
   dr <- dr_pseudo_outcome(d$X, d$A, d$Y, seed = seed,
                           learner_base = mlr3::lrn("regr.lm"),
                           learner_ps = mlr3::lrn("classif.log_reg"))

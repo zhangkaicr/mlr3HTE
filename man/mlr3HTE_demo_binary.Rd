@@ -9,7 +9,7 @@ mlr3HTE_demo_binary(
   setting = c("rct", "obs"),
   strength = 1,
   treat_frac = 0.5,
-  seed = 1202,
+  seed = NULL,
   source = c("simulated", "bundled", "benchmark"),
   dataset = NULL,
   scenario = NULL,
@@ -28,14 +28,19 @@ mlr3HTE_demo_binary(
 
 \item{treat_frac}{Treated proportion under \code{setting = "rct"}.}
 
-\item{seed}{Random seed.}
+\item{seed}{Random seed. \code{NULL} (default) reproduces the legacy generator's
+seed for this outcome type and design (1201-1206).}
 
 \item{source}{\code{"simulated"} (default), \code{"bundled"} (the shipped 10-design grid)
 or \code{"benchmark"} (the grf / econml / causalml datasets).}
 
-\item{dataset}{Dataset key for \code{source = "bundled"} or name for \code{source = "benchmark"}.}
+\item{dataset}{Dataset key for \code{source = "bundled"} or name for \code{source = "benchmark"}.
+\code{NULL} under \code{source = "benchmark"} loads every dataset as a named list.
+For cross-package benchmarks the outcome type is inferred from each dataset's own
+columns (time/event, multi-arm conversion, or continuous outcome), so all three
+facades return the same structure for this source.}
 
-\item{scenario}{Structural scenario id, forwarded to the internal scenario generator.}
+\item{scenario}{Structural scenario id; see \code{catalog = TRUE}.}
 
 \item{design}{DAG design (\code{"rct"} / \code{"obs"}); returns node and edge tables.}
 
@@ -43,17 +48,20 @@ or \code{"benchmark"} (the grf / econml / causalml datasets).}
 
 \item{export_to}{Optional destination directory; copies all bundled benchmark files there.}
 
-\item{...}{Extra arguments forwarded to the internal scenario generator.}
+\item{...}{Extra arguments forwarded to the internal scenario generator (e.g. \code{t0}).}
 }
 \value{
-A list with \code{X}, \code{A}, \code{Y}, \code{tau} (true CATE on the
-risk-difference scale), \code{ate}; observational data also carry \code{ps_true}.
+A list with \code{X}, \code{A}, \code{Y}, \code{tau}, \code{ate};
+observational data also carry \code{ps_true}.
 }
 \description{
 Binary-outcome counterpart of \code{\link{mlr3HTE_demo_continuous}}.
 The same \code{setting} / \code{source} / \code{scenario} routing applies.
+\code{tau} is the true CATE on the risk-difference scale.
 }
 \examples{
 d <- mlr3HTE_demo_binary(n = 500, seed = 1)
 mean(d$tau)
+d_obs <- mlr3HTE_demo_binary(n = 500, setting = "obs")
+mean(d_obs$ate)
 }

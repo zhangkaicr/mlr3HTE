@@ -10,13 +10,13 @@ show <- function(name, value) {
   cat(paste(buf, collapse = "\n"), "\n", sep = "")
 }
 
-s <- mlr3HTE_scenario("obs_nonlin_nonlin_sharedT", "survival", n = 300, seed = 2)
+s <- mlr3HTE_demo_surv(scenario = "obs_nonlin_nonlin_sharedT", n = 300, seed = 2)
 show("scenario", c(ate = s$ate, ate_rmst = s$ate_rmst))
 
-b <- mlr3HTE_bench("rct_lin", "continuous")
+b <- mlr3HTE_demo_continuous(source = "bundled", dataset = "rct_lin")
 show("bench", list(n = nrow(b$X), ate = b$ate, all_ps_half = all(b$ps_true == 0.5)))
 
-d   <- mlr3HTE_scenario("rct_nonlin", "continuous", n = 400, seed = 1)
+d   <- mlr3HTE_demo_continuous(scenario = "rct_nonlin", n = 400, seed = 1)
 fit <- metalearner("T", d$X, d$A, d$Y,
                    learner_base = lrn("regr.ranger", num.trees = 200))
 ex  <- hte_explainer(fit, d$X, d$A, d$Y, seed = 1)

@@ -80,7 +80,7 @@
 #' \donttest{
 #' # Simulated data: can report the Qini triple as well as correlation / RMSE (because
 #' # a truth is available)
-#' d <- mlr3HTE_demo_data(n = 1500, seed = 1)
+#' d <- mlr3HTE_demo_continuous(n = 1500, seed = 1)
 #' bm <- hte_benchmark(d$X, d$A, d$Y, tau = d$tau, seed = 1)
 #' bm$table
 #'

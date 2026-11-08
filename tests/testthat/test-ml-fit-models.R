@@ -6,7 +6,7 @@
 #     list(kind, model, predict)，predict(newX) 直接可用；
 #   - 效应阶段回归（R/DR 的 tau；X 的 tau1/tau0）是裸的已训练 mlr3 Learner，
 #     需走 $predict_newdata()。两者都是真正的 mlr3 模型。
-# 输入：mlr3HTE_demo_data（RCT 连续结局）提供的 X/A/Y/tau
+# 输入：mlr3HTE_demo_continuous()（RCT 连续结局）提供的 X/A/Y/tau
 # 输出：断言（见各 test_that）
 # 依赖：mlr3HTE、mlr3、testthat
 
@@ -24,7 +24,7 @@
 }
 
 test_that("$models 里每个组件都是已训练的 mlr3 模型且能出预测", {
-  d <- mlr3HTE_demo_data(n = 800, seed = 1)
+  d <- mlr3HTE_demo_continuous(n = 800, seed = 1)
   lb <- mlr3::lrn("regr.ranger", num.trees = 100, seed = 1)
 
   for (type in c("S", "T", "X", "R", "DR")) {
@@ -54,7 +54,7 @@ test_that("$models 里每个组件都是已训练的 mlr3 模型且能出预测"
 })
 
 test_that("各 learner 的 $models 命名与文档 @@details 一致", {
-  d <- mlr3HTE_demo_data(n = 800, seed = 1)
+  d <- mlr3HTE_demo_continuous(n = 800, seed = 1)
   lb <- mlr3::lrn("regr.ranger", num.trees = 100, seed = 1)
 
   expect_named(metalearner("S", d$X, d$A, d$Y, learner_base = lb)$models, "m")
@@ -67,7 +67,7 @@ test_that("各 learner 的 $models 命名与文档 @@details 一致", {
 })
 
 test_that("S/T 的逐阶段模型直接复现 cate_train（演示这些模型就是 CATE 的来源）", {
-  d <- mlr3HTE_demo_data(n = 800, seed = 1)
+  d <- mlr3HTE_demo_continuous(n = 800, seed = 1)
   lb <- mlr3::lrn("regr.ranger", num.trees = 100, seed = 1)
 
   # S-Learner：一个模型，处理当普通特征，反事实相减
@@ -85,7 +85,7 @@ test_that("S/T 的逐阶段模型直接复现 cate_train（演示这些模型就
 })
 
 test_that("R/DR 的 tau 模型直接给出 cate_train", {
-  d <- mlr3HTE_demo_data(n = 800, seed = 1)
+  d <- mlr3HTE_demo_continuous(n = 800, seed = 1)
   lb <- mlr3::lrn("regr.ranger", num.trees = 100, seed = 1)
 
   fitR <- metalearner("R", d$X, d$A, d$Y, learner_base = lb)
@@ -96,7 +96,7 @@ test_that("R/DR 的 tau 模型直接给出 cate_train", {
 })
 
 test_that("按角色命名 list 时，各组/各阶段确实用了不同的 mlr3 学习器", {
-  d <- mlr3HTE_demo_data(n = 800, seed = 1)
+  d <- mlr3HTE_demo_continuous(n = 800, seed = 1)
 
   # T-Learner：治疗组用 lm，对照组用 ranger（m1/m0 是包装后的结局模型，取 $model$id）
   fitT <- metalearner("T", d$X, d$A, d$Y,

@@ -1,7 +1,7 @@
 Sys.setlocale("LC_CTYPE", "en_US.UTF-8")
 suppressMessages(pkgload::load_all(".", quiet = TRUE))
 
-d <- mlr3HTE_scenario("rct_lin", "continuous", n = 300, seed = 1)
+d <- mlr3HTE_demo_continuous(scenario = "rct_lin", n = 300, seed = 1)
 fit <- metalearner("T", d$X, d$A, d$Y, learner_base = mlr3::lrn("regr.lm"))
 ex <- hte_explainer(fit, d$X, pseudo = d$tau, label = "T")
 e <- ex$explainer

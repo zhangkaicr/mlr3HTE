@@ -2,7 +2,7 @@
 # 01_连续结局_随机化RCT.R
 # 目的：在连续结局的 RCT 数据上，用五种 meta-learner 估计 CATE，并与真实
 #       CATE 逐人对账（演示数据生成时已知真值）。效应度量 = 均值差。
-# 输入：无（数据由 mlr3HTE_demo_data() 现场生成）
+# 输入：无（数据由 mlr3HTE_demo_continuous() 现场生成）
 # 输出：DAG 图、真值卡、五种 learner 的对账表、估计 vs 真实 CATE 散点图
 # 依赖：mlr3, mlr3learners, mlr3HTE, dplyr, ggplot2, cli
 # 运行：在 mlr3HTE/ 目录下执行 Rscript tutorial/code/01_连续结局_随机化RCT.R
@@ -38,7 +38,7 @@ if (!interactive()) {
 print(mlr3HTE_dag("rct", "continuous"))
 
 ## 1.1 生成数据并打印真值卡 ----
-d <- mlr3HTE_demo_data(n = 4000, treat_frac = 0.5, seed = 1201)
+d <- mlr3HTE_demo_continuous(n = 4000, treat_frac = 0.5, seed = 1201)
 glimpse(d$X)
 
 tibble(

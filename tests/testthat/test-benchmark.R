@@ -2,7 +2,7 @@
 # 且交叉拟合真的把 in-fold 的虚高压了回来。
 
 test_that("随机 CATE 给出基线：Qini ≈ 0、c-for-benefit ≈ 0.5", {
-  d <- mlr3HTE_demo_data(n = 1500, seed = 101)
+  d <- mlr3HTE_demo_continuous(n = 1500, seed = 101)
   set.seed(2)
   rnd <- rnorm(nrow(d$X))
   # 随机排序的归一化 Qini 只是"约为 0"，样本量小时波动不小，阈值放宽
@@ -11,7 +11,7 @@ test_that("随机 CATE 给出基线：Qini ≈ 0、c-for-benefit ≈ 0.5", {
 })
 
 test_that("真实 tau 的 Qini 高于随机基线", {
-  d <- mlr3HTE_demo_data(n = 800, seed = 102)
+  d <- mlr3HTE_demo_continuous(n = 800, seed = 102)
   set.seed(3)
   rnd <- rnorm(nrow(d$X))
   q_truth <- qini_coefficient(d$tau, d$A, d$Y)$qini_normalized
@@ -20,7 +20,7 @@ test_that("真实 tau 的 Qini 高于随机基线", {
 })
 
 test_that("hte_benchmark 返回结构与口径", {
-  d <- mlr3HTE_demo_data(n = 600, seed = 103)
+  d <- mlr3HTE_demo_continuous(n = 600, seed = 103)
   bm <- hte_benchmark(d$X, d$A, d$Y, tau = d$tau, learners = c("S", "X"),
                       n_folds = 3L, seed = 7)
   # table：一行一个 learner，列名固定
@@ -40,7 +40,7 @@ test_that("hte_benchmark 返回结构与口径", {
 })
 
 test_that("不给 tau 时不出真值列（现实 RCT 数据的形态）", {
-  d <- mlr3HTE_demo_data(n = 600, seed = 104)
+  d <- mlr3HTE_demo_continuous(n = 600, seed = 104)
   bm <- hte_benchmark(d$X, d$A, d$Y, learners = c("S", "T"), n_folds = 3L, seed = 7)
   expect_false(any(c("tau_cor", "tau_rmse") %in% names(bm$table)))
   expect_null(bm$truth)
@@ -49,7 +49,7 @@ test_that("不给 tau 时不出真值列（现实 RCT 数据的形态）", {
 
 test_that("交叉拟合压住 in-fold 虚高：OOF 的 c-for-benefit 不超过真值表现", {
   skip_on_cran()
-  d <- mlr3HTE_demo_data(n = 900, seed = 105)
+  d <- mlr3HTE_demo_continuous(n = 900, seed = 105)
   lb <- lrn("regr.ranger", num.trees = 200, seed = 1L)
 
   infold <- metalearner("X", d$X, d$A, d$Y, learner_base = lb)$cate_train
@@ -68,7 +68,7 @@ test_that("交叉拟合压住 in-fold 虚高：OOF 的 c-for-benefit 不超过�
 
 test_that("三类结局都能跑", {
   # 连续
-  d1 <- mlr3HTE_demo_data(n = 500, seed = 106)
+  d1 <- mlr3HTE_demo_continuous(n = 500, seed = 106)
   b1 <- hte_benchmark(d1$X, d1$A, d1$Y, learners = c("S", "X"),
                       n_folds = 3L, seed = 7)
   expect_equal(nrow(b1$table), 2L)
@@ -92,7 +92,7 @@ test_that("三类结局都能跑", {
 })
 
 test_that("固定种子可复现，换种子会变", {
-  d <- mlr3HTE_demo_data(n = 500, seed = 109)
+  d <- mlr3HTE_demo_continuous(n = 500, seed = 109)
   a <- hte_benchmark(d$X, d$A, d$Y, learners = "S", n_folds = 3L, seed = 5)
   b <- hte_benchmark(d$X, d$A, d$Y, learners = "S", n_folds = 3L, seed = 5)
   c <- hte_benchmark(d$X, d$A, d$Y, learners = "S", n_folds = 3L, seed = 6)
@@ -102,14 +102,14 @@ test_that("固定种子可复现，换种子会变", {
 })
 
 test_that("参数校验：折数、单臂样本量、tau 长度", {
-  d <- mlr3HTE_demo_data(n = 200, seed = 110)
+  d <- mlr3HTE_demo_continuous(n = 200, seed = 110)
   expect_error(hte_benchmark(d$X, d$A, d$Y, n_folds = 1L), "at least 2")
   expect_error(hte_benchmark(d$X, d$A, d$Y, n_folds = 500L), "not enough observations")
   expect_error(hte_benchmark(d$X, d$A, d$Y, tau = d$tau[-1]), "must match")
 })
 
 test_that("观察性数据：传 DR 三件套即可", {
-  d <- mlr3HTE_demo_obs(n = 600, seed = 111)
+  d <- mlr3HTE_demo_continuous(setting = "obs", n = 600, seed = 111)
   dr <- dr_pseudo_outcome(d$X, d$A, d$Y, seed = 1)
   bm <- hte_benchmark(d$X, d$A, d$Y, learners = c("S", "X"), n_folds = 3L,
                       propensity = dr$propensity, mu1 = dr$mu1, mu0 = dr$mu0,
@@ -121,7 +121,7 @@ test_that("观察性数据：传 DR 三件套即可", {
 
 test_that("plot_hte_benchmark 能出图", {
   skip_if_not_installed("ggplot2")
-  d <- mlr3HTE_demo_data(n = 400, seed = 112)
+  d <- mlr3HTE_demo_continuous(n = 400, seed = 112)
   bm <- hte_benchmark(d$X, d$A, d$Y, learners = c("S", "T"),
                       metrics = c("qini", "toc"), n_folds = 2L, seed = 7)
   expect_s3_class(plot_hte_benchmark(bm, "qini"), "ggplot")

@@ -62,7 +62,7 @@ test_that("ranger 是 grf 的别名（换引擎不必改字符串）", {
 })
 
 test_that("观察性数据：真实倾向得分经 function 喂给 W.hat", {
-  d <- mlr3HTE_demo_obs_surv(n = 500L, t0 = 2, seed = 1206)
+  d <- mlr3HTE_demo_surv(setting = "obs", n = 500L, t0 = 2, seed = 1206)
   for (tp in c("X", "R")) {
     fit <- metalearner(tp, d$X, d$A, d$Y, learner_base = "grf", t0 = 2,
                        learner_ps = function(nx) d$ps_true,
@@ -73,7 +73,7 @@ test_that("观察性数据：真实倾向得分经 function 喂给 W.hat", {
 })
 
 test_that("观察性数据：默认自拟 PS 作为 W.hat", {
-  d <- mlr3HTE_demo_obs_surv(n = 500L, t0 = 2, seed = 1206)
+  d <- mlr3HTE_demo_surv(setting = "obs", n = 500L, t0 = 2, seed = 1206)
   fit <- metalearner("R", d$X, d$A, d$Y, learner_base = "grf", t0 = 2,
                      engine = "survlearners")
   expect_lt(abs(fit$ate - d$ate), 0.15)
@@ -94,7 +94,7 @@ test_that("不支持的能力给出明确报错", {
     "rmst"
   )
   # 非生存结局（消息是中文，按既有约定匹配 ASCII 标记 "native"）
-  dc <- mlr3HTE_demo_data(n = 300L, seed = 1)
+  dc <- mlr3HTE_demo_continuous(n = 300L, seed = 1)
   expect_error(
     metalearner("T", dc$X, dc$A, dc$Y, engine = "survlearners"),
     "native"

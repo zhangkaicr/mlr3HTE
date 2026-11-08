@@ -5,7 +5,7 @@
 #          confounding by indication". Pure ggplot2 implementation, without pulling
 #          in heavy dependencies such as ggdag.
 # Input:  design (rct / obs), outcome (continuous / binary / survival)
-# Output: mlr3HTE_dag() returns a ggplot; mlr3HTE_dag_data() returns nodes and edges
+# Output: mlr3HTE_dag() returns a ggplot; .demo_dag_data() returns nodes and edges
 # Depends on: ggplot2
 #
 # Key conventions about arrows (fixed in v0.34):
@@ -148,28 +148,7 @@ utils::globalVariables(c("x", "y", "xend", "yend", "label", "role",
 }
 
 # 3 对外接口：绘图数据 ---------------------------------------------------------
-#' Plotting data for the DAG (nodes and edges)
-#'
-#' @description
-#' The node table and edge table used by \code{\link{mlr3HTE_dag}} for plotting.
-#' Provided separately to facilitate redrawing with other tools (ggraph, DiagrammeR)
-#' or inspecting the routing result of each edge.
-#'
-#' @param design The study design, \code{"rct"} or \code{"obs"}.
-#' @param outcome The outcome type, which only affects the title text and does not
-#'   change the causal structure.
-#' @return A list:
-#'   \itemize{
-#'     \item \code{nodes}: \code{id} / \code{x} / \code{y} / \code{label} / \code{role}
-#'     \item \code{edges}: \code{from} / \code{to} / \code{type} (\code{"conf"} is the
-#'       confounding path drawn in red) / \code{x} \code{y} \code{xend} \code{yend}
-#'       (original endpoints) / \code{xs} \code{ys} \code{xe} \code{ye} (endpoints
-#'       after retreating, used for drawing) / \code{curve} (the edge's curvature; 0
-#'       means a straight line)
-#'   }
-#' @seealso \code{\link{mlr3HTE_dag}}
-#' @export
-mlr3HTE_dag_data <- function(design = c("rct", "obs"),
+.demo_dag_data <- function(design = c("rct", "obs"),
                              outcome = c("continuous", "binary", "survival")) {
   design  <- match.arg(design)
   outcome <- match.arg(outcome)
@@ -207,7 +186,8 @@ mlr3HTE_dag_data <- function(design = c("rct", "obs"),
 #'
 #' In the diagram there is only one directed edge between any two nodes; if an edge
 #' would pass through a third node, curvature is added automatically to route around
-#' it (see the \code{curve} column of \code{\link{mlr3HTE_dag_data}}).
+#' it (see the \code{curve} column returned by \code{design} in
+#' \code{\link{mlr3HTE_demo_continuous}}).
 #'
 #' @param design The study design, \code{"rct"} (randomized) or \code{"obs"}
 #'   (observational / with confounding).
@@ -217,14 +197,15 @@ mlr3HTE_dag_data <- function(design = c("rct", "obs"),
 #'
 #' @return A \code{ggplot} object, which can be further customized with \code{+} or
 #'   exported with \code{ggsave()}.
-#' @seealso \code{\link{mlr3HTE_dag_data}}
+#' @seealso \code{\link{mlr3HTE_demo_continuous}} (the \code{design} route returns
+#'   the node and edge tables used by this plot).
 #' @export
 #'
 #' @examples
 #' if (requireNamespace("ggplot2", quietly = TRUE)) {
 #'   p <- mlr3HTE_dag("rct", "continuous")
 #'   class(p)
-#'   head(mlr3HTE_dag_data("obs", "survival")$edges)
+#'   head(mlr3HTE_demo_surv(design = "obs")$edges)
 #' }
 mlr3HTE_dag <- function(design = c("rct", "obs"),
                         outcome = c("continuous", "binary", "survival")) {
@@ -233,7 +214,7 @@ mlr3HTE_dag <- function(design = c("rct", "obs"),
   if (!requireNamespace("ggplot2", quietly = TRUE)) {
     stop("Drawing the DAG requires ggplot2. Please install it first: install.packages('ggplot2')")
   }
-  dd <- mlr3HTE_dag_data(design, outcome)
+  dd <- .demo_dag_data(design, outcome)
   nodes <- dd$nodes
   edges <- dd$edges
   edges$col <- ifelse(edges$type == "conf", "#E45756", "#888888")

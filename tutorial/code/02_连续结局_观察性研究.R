@@ -2,7 +2,7 @@
 # 02_连续结局_观察性研究.R
 # 目的：演示观察性数据里的混杂偏倚，以及"把混杂变量放进 X 条件化"如何把它拉回来。
 #       核心对照：未调整差分（有偏） vs 混杂全进 X（无偏） vs 漏掉一个混杂因子（有偏）。
-# 输入：无（数据由 mlr3HTE_demo_obs() 现场生成，含真实 ATE 与逐人 CATE）
+# 输入：无（数据由 mlr3HTE_demo_continuous(setting = "obs") 现场生成，含真实 ATE 与逐人 CATE）
 # 输出：DAG、真值卡、基线不平衡表、偏倚对照表、估计 vs 真实 CATE 散点图
 # 依赖：mlr3, mlr3learners, mlr3HTE, dplyr, ggplot2, cli
 # 运行：在 mlr3HTE/ 目录下执行 Rscript tutorial/code/02_连续结局_观察性研究.R
@@ -36,7 +36,7 @@ if (!interactive()) {
 print(mlr3HTE_dag("obs", "continuous"))
 
 ## 1.1 生成数据 ----
-d <- mlr3HTE_demo_obs(n = 4000, seed = 1204)
+d <- mlr3HTE_demo_continuous(setting = "obs", n = 4000, seed = 1204)
 
 ## 1.2 真值卡 + 未调整差（tidyverse）----
 naive <- mean(d$Y[d$A == 1]) - mean(d$Y[d$A == 0])

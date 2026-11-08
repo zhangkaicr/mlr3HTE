@@ -8,7 +8,7 @@
 #       未调整差值作为参照线——它随强度线性变差，而五族 learner 在强度变化下
 #       只要把混杂因子放进了 X，就基本保持稳定。这正是「去混杂靠条件化，
 #       不靠给结局模型加权」的量化证据。
-# 输入：无（全部现场生成；mlr3HTE_demo_obs 的 strength 参数控制混杂强度）
+# 输入：无（全部现场生成；mlr3HTE_demo_continuous(setting = "obs") 的 strength 参数控制混杂强度）
 # 输出：tibble 形式的扫描结果；图 tutorial/figures/17_confounding_strength.png
 # 依赖：mlr3, mlr3learners, mlr3HTE, dplyr, ggplot2, tidyr, cli
 # 运行：在 mlr3HTE/ 目录下执行
@@ -55,7 +55,7 @@ cli::cli_alert_info("扫描设计：{length(strengths)} 档强度 × {length(lea
 # 返回 cor / ate / bias / rmse，cor 与 rmse 都在 30% 留出集上算。
 # 形参名与 expand.grid 的列名一致，pmap_dfr 才能按名对齐。
 one_run <- function(strength, learner, seed) {
-  d <- mlr3HTE_demo_obs(n = n_size, strength = strength, seed = seed)
+  d <- mlr3HTE_demo_continuous(setting = "obs", n = n_size, strength = strength, seed = seed)
   tr <- sample(seq_len(nrow(d$X)), size = floor(0.7 * nrow(d$X)))
   te <- setdiff(seq_len(nrow(d$X)), tr)
   need_cf <- learner %in% c("R", "DR")
@@ -81,10 +81,10 @@ res <- purrr::pmap_dfr(grid, one_run)
 # 未调整差值作为参照：它没有 CATE（只是单个 ATE），单独算。
 # 真值 ATE 与 strength 无关（Y 的生成式里 mu 与 tau 都不随强度变，只有 e 变），
 # 因此取 strength = 0 那份的 d$ate 作为共同真值。
-d0 <- mlr3HTE_demo_obs(n = n_size, strength = 0, seed = 1)
+d0 <- mlr3HTE_demo_continuous(setting = "obs", n = n_size, strength = 0, seed = 1)
 naive_tab <- purrr::map_dfr(strengths, function(s) {
   b <- purrr::map_dbl(seq_len(n_rep), function(k) {
-    d <- mlr3HTE_demo_obs(n = n_size, strength = s, seed = k)
+    d <- mlr3HTE_demo_continuous(setting = "obs", n = n_size, strength = s, seed = k)
     mean(d$Y[d$A == 1]) - mean(d$Y[d$A == 0])
   })
   data.frame(strength = s, learner = "未调整差值", bias = mean(b) - d0$ate)

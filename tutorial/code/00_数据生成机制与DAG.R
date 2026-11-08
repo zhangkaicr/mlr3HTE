@@ -69,7 +69,7 @@ true_card <- function(d, outcome_zh, label) {
 # 读 DAG：X 同时指向 tau 与 mu；A 无父节点（随机化）；tau、mu、A 都指向 Y。
 print(mlr3HTE_dag("rct", "continuous"))
 
-d1 <- mlr3HTE_demo_data(n = 4000, seed = 1201)
+d1 <- mlr3HTE_demo_continuous(n = 4000, seed = 1201)
 print(true_card(d1, "连续", "连续 × RCT"))
 
 # 效应修饰到底体现在哪？按 z1 分位 × z2 符号 看真实 CATE 的均值
@@ -120,7 +120,7 @@ cli::cli_alert_info("生存数据删失比例 = {round(mean(d3$Y[, 2] == 0), 3)}
 # 因果结构变了：X 多了一条指向 e 的边，e 指向 A。红色就是被打开的后门路径。
 print(mlr3HTE_dag("obs", "continuous"))
 
-d4 <- mlr3HTE_demo_obs(n = 4000, seed = 1204)
+d4 <- mlr3HTE_demo_continuous(setting = "obs", n = 4000, seed = 1204)
 print(true_card(d4, "连续", "连续 × 观察性"))
 
 # 混杂有多大？对比"未调整差"与"真实 ATE"
@@ -135,14 +135,14 @@ cli::cli_alert_warning("未调整差明显偏离真实 ATE——这就是混杂�
 # 同 3.4 的混杂结构（e 依赖 z1,z2），结局机制同 3.2。
 print(mlr3HTE_dag("obs", "binary"))
 
-d5 <- mlr3HTE_demo_obs_binary(n = 4000, seed = 1205)
+d5 <- mlr3HTE_demo_binary(setting = "obs", n = 4000, seed = 1205)
 print(true_card(d5, "二分类(风险差)", "二分类 × 观察性"))
 
 ## 3.6 生存结局 × 观察性（混杂）----
 # 同 3.4 的混杂结构，结局机制同 3.3。
 print(mlr3HTE_dag("obs", "survival"))
 
-d6 <- mlr3HTE_demo_obs_surv(n = 4000, t0 = 2, seed = 1206)
+d6 <- mlr3HTE_demo_surv(setting = "obs", n = 4000, t0 = 2, seed = 1206)
 print(true_card(d6, "生存(S(t0)差)", "生存 × 观察性"))
 
 # 4 六张真值卡拼成一张总表 ----

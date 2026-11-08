@@ -7,7 +7,7 @@
 
 # 1 连续结局 RCT --------------------------------------------------------------
 test_that("连续结局：五种 metalearner 的 ATE 都在真值附近", {
-  d <- mlr3HTE_demo_data(n = 600, seed = 101)
+  d <- mlr3HTE_demo_continuous(n = 600, seed = 101)
   lb <- mlr3::lrn("regr.ranger", num.trees = 100, seed = 1)
   for (tp in c("S", "T", "X", "R", "DR")) {
     fit <- metalearner(tp, d$X, d$A, d$Y, learner_base = lb)
@@ -93,7 +93,7 @@ test_that("生存结局：t0 缺省时取事件时间中位数", {
 # v0.40 起移除了 IPTW 加权选项：S/T/X 去混杂靠把混杂因子放进 X 由结局模型
 # 条件化，这是经典文献（Künzel 2019 PNAS、CausalML BaseS/T/X）的做法。
 test_that("观察性数据：条件化 X 把偏差拉回来", {
-  d <- mlr3HTE_demo_obs(n = 1200, seed = 105)
+  d <- mlr3HTE_demo_continuous(setting = "obs", n = 1200, seed = 105)
   naive <- mean(d$Y[d$A == 1]) - mean(d$Y[d$A == 0])
   lb <- mlr3::lrn("regr.ranger", num.trees = 100, seed = 1)
   fit <- metalearner("X", d$X, d$A, d$Y, learner_base = lb)
@@ -110,7 +110,7 @@ test_that("观察性数据：条件化 X 把偏差拉回来", {
 # v0.40 起 learner_ps 是 X/R/DR 的算法输入（g(x) 融合 / Robinson 中心化 /
 # AIPW 伪结果），可传学习器、常数标量或 function(newX)。
 test_that("倾向得分：学习器 / 常数 / function 三种形态都走通", {
-  d <- mlr3HTE_demo_obs(n = 800, seed = 106)
+  d <- mlr3HTE_demo_continuous(setting = "obs", n = 800, seed = 106)
   f_lrn <- metalearner("DR", d$X, d$A, d$Y,
                        learner_ps = mlr3::lrn("classif.log_reg"))
   f_con <- metalearner("DR", d$X, d$A, d$Y, learner_ps = 0.5)
@@ -127,7 +127,7 @@ test_that("倾向得分：学习器 / 常数 / function 三种形态都走通", 
 test_that("R/DR 在观察性数据下默认即用倾向得分校正混杂", {
   # v0.40 之前的 bug：weighting="none" 时 g_fn 退化为常数 mean(A)，
   # 观察性数据下 DR 的伪结果用的是常数倾向得分，混杂静默未被校正。
-  d <- mlr3HTE_demo_obs(n = 1200, seed = 109)
+  d <- mlr3HTE_demo_continuous(setting = "obs", n = 1200, seed = 109)
   naive <- mean(d$Y[d$A == 1]) - mean(d$Y[d$A == 0])
   fit <- metalearner("DR", d$X, d$A, d$Y, cross_fitting = TRUE, n_folds = 5)
   expect_true(abs(fit$ate - d$ate) < abs(naive - d$ate))
@@ -136,7 +136,7 @@ test_that("R/DR 在观察性数据下默认即用倾向得分校正混杂", {
 })
 
 test_that("learner_ps 传逐人数值向量时给出明确报错", {
-  d <- mlr3HTE_demo_data(n = 100, seed = 108)
+  d <- mlr3HTE_demo_continuous(n = 100, seed = 108)
   expect_error(
     metalearner("DR", d$X, d$A, d$Y, learner_ps = rep(0.5, nrow(d$X))),
     "scalar"
@@ -144,14 +144,14 @@ test_that("learner_ps 传逐人数值向量时给出明确报错", {
 })
 
 test_that("S/T 不使用倾向得分（learner_ps 被安全忽略）", {
-  d <- mlr3HTE_demo_data(n = 200, seed = 111)
+  d <- mlr3HTE_demo_continuous(n = 200, seed = 111)
   f <- metalearner("S", d$X, d$A, d$Y, learner_ps = mlr3::lrn("classif.log_reg"))
   expect_true(is.finite(f$ate))
 })
 
 # 7 输入校验 ------------------------------------------------------------------
 test_that("结局类型与基学习器不匹配时报错", {
-  d <- mlr3HTE_demo_data(n = 100, seed = 107)
+  d <- mlr3HTE_demo_continuous(n = 100, seed = 107)
   # 注：用 ASCII 的 learner 种类标记做匹配，避免非 UTF-8 locale 下中文报错被转成
   # <U+XXXX> 转义导致 grepl 字节不匹配（CI / 现代 R 无此问题，这里让测试在任意 locale 都稳过）。
   expect_error(
@@ -161,7 +161,7 @@ test_that("结局类型与基学习器不匹配时报错", {
 })
 
 test_that("外部权重参数已移除：旧调用直接报错", {
-  d <- mlr3HTE_demo_data(n = 100, seed = 108)
+  d <- mlr3HTE_demo_continuous(n = 100, seed = 108)
   expect_error(metalearner("T", d$X, d$A, d$Y, weighting = "iptw"), "weighting")
   expect_error(metalearner("T", d$X, d$A, d$Y, weights = rep(1, 100)), "weights")
   expect_error(metalearner("T", d$X, d$A, d$Y, stabilize = TRUE), "stabilize")
@@ -184,7 +184,7 @@ test_that("生存结局只接受 coxph / ranger，其他基学习器一律报错
 
 # 8 便捷封装 ------------------------------------------------------------------
 test_that("s_learner/t_learner/... 直接返回 CATE 向量", {
-  d <- mlr3HTE_demo_data(n = 300, seed = 109)
+  d <- mlr3HTE_demo_continuous(n = 300, seed = 109)
   lb <- mlr3::lrn("regr.ranger", num.trees = 50, seed = 1)
   for (fn in list(s_learner, t_learner, x_learner, r_learner, dr_learner)) {
     v <- fn(d$X, d$A, d$Y, learner_base = lb)

@@ -333,7 +333,7 @@ window.SITE_PAGES.apis = {
           '<p>下面的代码与输出都是<strong>真实跑出来的</strong>（n = 1500，seed = 1201，' +
           'ranger 300 树）。因为演示数据自带真值 <code>tau</code>，' +
           '所以可以把 ATE、CATE 相关、RMSE 三者一起报。</p>' +
-          '<pre><code class="language-r">d &lt;- mlr3HTE_demo_data(n = 1500, seed = 1201)\ncate &lt;- s_learner()(d$X, d$A, d$Y,\n             learner_base = lrn("regr.ranger", num.trees = 300, seed = 1L))\ntibble(ATE = mean(cate), 与真相关 = cor(cate, d$tau),\n       RMSE = sqrt(mean((cate - d$tau)^2)))</code></pre>' +
+          '<pre><code class="language-r">d &lt;- mlr3HTE_demo_continuous(n = 1500, seed = 1201)\ncate &lt;- s_learner()(d$X, d$A, d$Y,\n             learner_base = lrn("regr.ranger", num.trees = 300, seed = 1L))\ntibble(ATE = mean(cate), 与真相关 = cor(cate, d$tau),\n       RMSE = sqrt(mean((cate - d$tau)^2)))</code></pre>' +
           '<p>实测输出：</p>' +
           '<pre><code class="r-out"># A tibble: 1 × 3\n    ATE 与真相关  RMSE\n  &lt;dbl&gt;    &lt;dbl&gt; &lt;dbl&gt;\n1  1.05    0.862 0.527</code></pre>' +
           '<div class="callout"><div class="callout-title">怎么读这三个数</div>' +
@@ -388,7 +388,7 @@ window.SITE_PAGES.apis = {
           '<p>Both the code and the output below are <strong>actually run</strong> ' +
           '(n = 1500, seed = 1201, ranger with 300 trees). Because the demo data carries the ' +
           'true <code>tau</code>, ATE, CATE correlation and RMSE can all be reported together.</p>' +
-          '<pre><code class="language-r">d &lt;- mlr3HTE_demo_data(n = 1500, seed = 1201)\ncate &lt;- s_learner()(d$X, d$A, d$Y,\n             learner_base = lrn("regr.ranger", num.trees = 300, seed = 1L))\ntibble(ATE = mean(cate), 与真相关 = cor(cate, d$tau),\n       RMSE = sqrt(mean((cate - d$tau)^2)))</code></pre>' +
+          '<pre><code class="language-r">d &lt;- mlr3HTE_demo_continuous(n = 1500, seed = 1201)\ncate &lt;- s_learner()(d$X, d$A, d$Y,\n             learner_base = lrn("regr.ranger", num.trees = 300, seed = 1L))\ntibble(ATE = mean(cate), 与真相关 = cor(cate, d$tau),\n       RMSE = sqrt(mean((cate - d$tau)^2)))</code></pre>' +
           '<p>Output:</p>' +
           '<pre><code class="r-out"># A tibble: 1 × 3\n    ATE 与真相关  RMSE\n  &lt;dbl&gt;    &lt;dbl&gt; &lt;dbl&gt;\n1  1.05    0.862 0.527</code></pre>' +
           '<div class="callout"><div class="callout-title">How to read the three numbers</div>' +
@@ -447,7 +447,7 @@ window.SITE_PAGES.apit = {
           '<p>下面的代码与输出都是<strong>真实跑出来的</strong>（n = 1500，seed = 1201，' +
           'ranger 300 树）。因为演示数据自带真值 <code>tau</code>，' +
           '所以可以把 ATE、CATE 相关、RMSE 三者一起报。</p>' +
-          '<pre><code class="language-r">d &lt;- mlr3HTE_demo_data(n = 1500, seed = 1201)\ncate &lt;- t_learner()(d$X, d$A, d$Y,\n             learner_base = lrn("regr.ranger", num.trees = 300, seed = 1L))\ntibble(ATE = mean(cate), 与真相关 = cor(cate, d$tau),\n       RMSE = sqrt(mean((cate - d$tau)^2)))</code></pre>' +
+          '<pre><code class="language-r">d &lt;- mlr3HTE_demo_continuous(n = 1500, seed = 1201)\ncate &lt;- t_learner()(d$X, d$A, d$Y,\n             learner_base = lrn("regr.ranger", num.trees = 300, seed = 1L))\ntibble(ATE = mean(cate), 与真相关 = cor(cate, d$tau),\n       RMSE = sqrt(mean((cate - d$tau)^2)))</code></pre>' +
           '<p>实测输出：</p>' +
           '<pre><code class="r-out"># A tibble: 1 × 3\n    ATE 与真相关  RMSE\n  &lt;dbl&gt;    &lt;dbl&gt; &lt;dbl&gt;\n1  1.09    0.828 0.645</code></pre>' +
           '<div class="callout"><div class="callout-title">怎么读这三个数</div>' +
@@ -502,7 +502,7 @@ window.SITE_PAGES.apit = {
           '<p>Both the code and the output below are <strong>actually run</strong> ' +
           '(n = 1500, seed = 1201, ranger with 300 trees). Because the demo data carries the ' +
           'true <code>tau</code>, ATE, CATE correlation and RMSE can all be reported together.</p>' +
-          '<pre><code class="language-r">d &lt;- mlr3HTE_demo_data(n = 1500, seed = 1201)\ncate &lt;- t_learner()(d$X, d$A, d$Y,\n             learner_base = lrn("regr.ranger", num.trees = 300, seed = 1L))\ntibble(ATE = mean(cate), 与真相关 = cor(cate, d$tau),\n       RMSE = sqrt(mean((cate - d$tau)^2)))</code></pre>' +
+          '<pre><code class="language-r">d &lt;- mlr3HTE_demo_continuous(n = 1500, seed = 1201)\ncate &lt;- t_learner()(d$X, d$A, d$Y,\n             learner_base = lrn("regr.ranger", num.trees = 300, seed = 1L))\ntibble(ATE = mean(cate), 与真相关 = cor(cate, d$tau),\n       RMSE = sqrt(mean((cate - d$tau)^2)))</code></pre>' +
           '<p>Output:</p>' +
           '<pre><code class="r-out"># A tibble: 1 × 3\n    ATE 与真相关  RMSE\n  &lt;dbl&gt;    &lt;dbl&gt; &lt;dbl&gt;\n1  1.09    0.828 0.645</code></pre>' +
           '<div class="callout"><div class="callout-title">How to read the three numbers</div>' +
@@ -561,7 +561,7 @@ window.SITE_PAGES.apix = {
           '<p>下面的代码与输出都是<strong>真实跑出来的</strong>（n = 1500，seed = 1201，' +
           'ranger 300 树）。因为演示数据自带真值 <code>tau</code>，' +
           '所以可以把 ATE、CATE 相关、RMSE 三者一起报。</p>' +
-          '<pre><code class="language-r">d &lt;- mlr3HTE_demo_data(n = 1500, seed = 1201)\ncate &lt;- x_learner()(d$X, d$A, d$Y,\n             learner_base = lrn("regr.ranger", num.trees = 300, seed = 1L))\ntibble(ATE = mean(cate), 与真相关 = cor(cate, d$tau),\n       RMSE = sqrt(mean((cate - d$tau)^2)))</code></pre>' +
+          '<pre><code class="language-r">d &lt;- mlr3HTE_demo_continuous(n = 1500, seed = 1201)\ncate &lt;- x_learner()(d$X, d$A, d$Y,\n             learner_base = lrn("regr.ranger", num.trees = 300, seed = 1L))\ntibble(ATE = mean(cate), 与真相关 = cor(cate, d$tau),\n       RMSE = sqrt(mean((cate - d$tau)^2)))</code></pre>' +
           '<p>实测输出：</p>' +
           '<pre><code class="r-out"># A tibble: 1 × 3\n    ATE 与真相关  RMSE\n  &lt;dbl&gt;    &lt;dbl&gt; &lt;dbl&gt;\n1  1.09    0.950 0.340</code></pre>' +
           '<div class="callout"><div class="callout-title">怎么读这三个数</div>' +
@@ -616,7 +616,7 @@ window.SITE_PAGES.apix = {
           '<p>Both the code and the output below are <strong>actually run</strong> ' +
           '(n = 1500, seed = 1201, ranger with 300 trees). Because the demo data carries the ' +
           'true <code>tau</code>, ATE, CATE correlation and RMSE can all be reported together.</p>' +
-          '<pre><code class="language-r">d &lt;- mlr3HTE_demo_data(n = 1500, seed = 1201)\ncate &lt;- x_learner()(d$X, d$A, d$Y,\n             learner_base = lrn("regr.ranger", num.trees = 300, seed = 1L))\ntibble(ATE = mean(cate), 与真相关 = cor(cate, d$tau),\n       RMSE = sqrt(mean((cate - d$tau)^2)))</code></pre>' +
+          '<pre><code class="language-r">d &lt;- mlr3HTE_demo_continuous(n = 1500, seed = 1201)\ncate &lt;- x_learner()(d$X, d$A, d$Y,\n             learner_base = lrn("regr.ranger", num.trees = 300, seed = 1L))\ntibble(ATE = mean(cate), 与真相关 = cor(cate, d$tau),\n       RMSE = sqrt(mean((cate - d$tau)^2)))</code></pre>' +
           '<p>Output:</p>' +
           '<pre><code class="r-out"># A tibble: 1 × 3\n    ATE 与真相关  RMSE\n  &lt;dbl&gt;    &lt;dbl&gt; &lt;dbl&gt;\n1  1.09    0.950 0.340</code></pre>' +
           '<div class="callout"><div class="callout-title">How to read the three numbers</div>' +
@@ -675,7 +675,7 @@ window.SITE_PAGES.apir = {
           '<p>下面的代码与输出都是<strong>真实跑出来的</strong>（n = 1500，seed = 1201，' +
           'ranger 300 树）。因为演示数据自带真值 <code>tau</code>，' +
           '所以可以把 ATE、CATE 相关、RMSE 三者一起报。</p>' +
-          '<pre><code class="language-r">d &lt;- mlr3HTE_demo_data(n = 1500, seed = 1201)\ncate &lt;- r_learner()(d$X, d$A, d$Y,\n             learner_base = lrn("regr.ranger", num.trees = 300, seed = 1L))\ntibble(ATE = mean(cate), 与真相关 = cor(cate, d$tau),\n       RMSE = sqrt(mean((cate - d$tau)^2)))</code></pre>' +
+          '<pre><code class="language-r">d &lt;- mlr3HTE_demo_continuous(n = 1500, seed = 1201)\ncate &lt;- r_learner()(d$X, d$A, d$Y,\n             learner_base = lrn("regr.ranger", num.trees = 300, seed = 1L))\ntibble(ATE = mean(cate), 与真相关 = cor(cate, d$tau),\n       RMSE = sqrt(mean((cate - d$tau)^2)))</code></pre>' +
           '<p>实测输出：</p>' +
           '<pre><code class="r-out"># A tibble: 1 × 3\n    ATE 与真相关  RMSE\n  &lt;dbl&gt;    &lt;dbl&gt; &lt;dbl&gt;\n1 0.541    0.811 0.856</code></pre>' +
           '<div class="callout"><div class="callout-title">怎么读这三个数</div>' +
@@ -730,7 +730,7 @@ window.SITE_PAGES.apir = {
           '<p>Both the code and the output below are <strong>actually run</strong> ' +
           '(n = 1500, seed = 1201, ranger with 300 trees). Because the demo data carries the ' +
           'true <code>tau</code>, ATE, CATE correlation and RMSE can all be reported together.</p>' +
-          '<pre><code class="language-r">d &lt;- mlr3HTE_demo_data(n = 1500, seed = 1201)\ncate &lt;- r_learner()(d$X, d$A, d$Y,\n             learner_base = lrn("regr.ranger", num.trees = 300, seed = 1L))\ntibble(ATE = mean(cate), 与真相关 = cor(cate, d$tau),\n       RMSE = sqrt(mean((cate - d$tau)^2)))</code></pre>' +
+          '<pre><code class="language-r">d &lt;- mlr3HTE_demo_continuous(n = 1500, seed = 1201)\ncate &lt;- r_learner()(d$X, d$A, d$Y,\n             learner_base = lrn("regr.ranger", num.trees = 300, seed = 1L))\ntibble(ATE = mean(cate), 与真相关 = cor(cate, d$tau),\n       RMSE = sqrt(mean((cate - d$tau)^2)))</code></pre>' +
           '<p>Output:</p>' +
           '<pre><code class="r-out"># A tibble: 1 × 3\n    ATE 与真相关  RMSE\n  &lt;dbl&gt;    &lt;dbl&gt; &lt;dbl&gt;\n1 0.541    0.811 0.856</code></pre>' +
           '<div class="callout"><div class="callout-title">How to read the three numbers</div>' +
@@ -789,7 +789,7 @@ window.SITE_PAGES.apidr = {
           '<p>下面的代码与输出都是<strong>真实跑出来的</strong>（n = 1500，seed = 1201，' +
           'ranger 300 树）。因为演示数据自带真值 <code>tau</code>，' +
           '所以可以把 ATE、CATE 相关、RMSE 三者一起报。</p>' +
-          '<pre><code class="language-r">d &lt;- mlr3HTE_demo_data(n = 1500, seed = 1201)\ncate &lt;- dr_learner()(d$X, d$A, d$Y,\n             learner_base = lrn("regr.ranger", num.trees = 300, seed = 1L))\ntibble(ATE = mean(cate), 与真相关 = cor(cate, d$tau),\n       RMSE = sqrt(mean((cate - d$tau)^2)))</code></pre>' +
+          '<pre><code class="language-r">d &lt;- mlr3HTE_demo_continuous(n = 1500, seed = 1201)\ncate &lt;- dr_learner()(d$X, d$A, d$Y,\n             learner_base = lrn("regr.ranger", num.trees = 300, seed = 1L))\ntibble(ATE = mean(cate), 与真相关 = cor(cate, d$tau),\n       RMSE = sqrt(mean((cate - d$tau)^2)))</code></pre>' +
           '<p>实测输出：</p>' +
           '<pre><code class="r-out"># A tibble: 1 × 3\n    ATE 与真相关  RMSE\n  &lt;dbl&gt;    &lt;dbl&gt; &lt;dbl&gt;\n1  1.08    0.916 0.419</code></pre>' +
           '<div class="callout"><div class="callout-title">怎么读这三个数</div>' +
@@ -844,7 +844,7 @@ window.SITE_PAGES.apidr = {
           '<p>Both the code and the output below are <strong>actually run</strong> ' +
           '(n = 1500, seed = 1201, ranger with 300 trees). Because the demo data carries the ' +
           'true <code>tau</code>, ATE, CATE correlation and RMSE can all be reported together.</p>' +
-          '<pre><code class="language-r">d &lt;- mlr3HTE_demo_data(n = 1500, seed = 1201)\ncate &lt;- dr_learner()(d$X, d$A, d$Y,\n             learner_base = lrn("regr.ranger", num.trees = 300, seed = 1L))\ntibble(ATE = mean(cate), 与真相关 = cor(cate, d$tau),\n       RMSE = sqrt(mean((cate - d$tau)^2)))</code></pre>' +
+          '<pre><code class="language-r">d &lt;- mlr3HTE_demo_continuous(n = 1500, seed = 1201)\ncate &lt;- dr_learner()(d$X, d$A, d$Y,\n             learner_base = lrn("regr.ranger", num.trees = 300, seed = 1L))\ntibble(ATE = mean(cate), 与真相关 = cor(cate, d$tau),\n       RMSE = sqrt(mean((cate - d$tau)^2)))</code></pre>' +
           '<p>Output:</p>' +
           '<pre><code class="r-out"># A tibble: 1 × 3\n    ATE 与真相关  RMSE\n  &lt;dbl&gt;    &lt;dbl&gt; &lt;dbl&gt;\n1  1.08    0.916 0.419</code></pre>' +
           '<div class="callout"><div class="callout-title">How to read the three numbers</div>' +
@@ -873,7 +873,7 @@ window.SITE_PAGES.apidr = {
 window.SITE_PAGES.apidemodata = {
 
   zh: {
-    title: "mlr3HTE_demo_data()",
+    title: "mlr3HTE_demo_continuous()",
     lede: "随机化试验 + 连续结局的演示数据，自带真实 tau 与 ate。",
     sections: [
       {
@@ -881,8 +881,8 @@ window.SITE_PAGES.apidemodata = {
         heading: "返回什么",
         body:
           '<div class="fn">' +
-          '<div class="fn-name">mlr3HTE_demo_data()<span class="badge">demo data</span></div>' +
-          '<div class="fn-sig">mlr3HTE_demo_data()(n = 2000, seed = NULL)</div>' +
+          '<div class="fn-name">mlr3HTE_demo_continuous()<span class="badge">demo data</span></div>' +
+          '<div class="fn-sig">mlr3HTE_demo_continuous()(n = 2000, seed = NULL)</div>' +
           '<p>六种设计共用的基础版数据：处理完全随机化（A 与 X 独立），结局为连续型。没有混杂，算法间的差异等于方法本身的差异，适合做纯方法对比。</p>' +
           '<div class="table-wrap"><table>' +
           '<thead><tr><th>字段</th><th>内容</th></tr></thead><tbody>' +
@@ -901,7 +901,7 @@ window.SITE_PAGES.apidemodata = {
         heading: "实测示例",
         body:
           '<p>代码与输出均为<strong>真实跑出</strong>（n = 1200，seed 如代码所示）。</p>' +
-          '<pre><code class="language-r">d &lt;- mlr3HTE_demo_data(n = 1200, seed = 1201)\ncat("--- 数据卡 ---\\n")\ntibble(真实ATE = d$ate, CATE_SD = sd(d$tau), CATE_min = min(d$tau),\n       CATE_max = max(d$tau), 处理率 = mean(d$A))\ncat("\\n--- X 的列与前 3 行 ---\\n")\nnames(d$X)\nhead(d$X, 3)\ncat("\\n--- 结局类型 ---\\n")\nclass(d$Y)\nhead(d$Y, 3)</code></pre>' +
+          '<pre><code class="language-r">d &lt;- mlr3HTE_demo_continuous(n = 1200, seed = 1201)\ncat("--- 数据卡 ---\\n")\ntibble(真实ATE = d$ate, CATE_SD = sd(d$tau), CATE_min = min(d$tau),\n       CATE_max = max(d$tau), 处理率 = mean(d$A))\ncat("\\n--- X 的列与前 3 行 ---\\n")\nnames(d$X)\nhead(d$X, 3)\ncat("\\n--- 结局类型 ---\\n")\nclass(d$Y)\nhead(d$Y, 3)</code></pre>' +
           '<p>实测输出：</p>' +
           '<pre><code class="r-out">--- 数据卡 ---\n# A tibble: 1 × 5\n  真实ATE CATE_SD CATE_min CATE_max 处理率\n    &lt;dbl&gt;   &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;  &lt;dbl&gt;\n1    1.05    1.06    -2.73     4.64    0.5\n\n--- X 的列与前 3 行 ---\n[1] "age"   "lac"   "tumor" "sex"\n       age      lac    tumor sex\n1 38.60905 3.353193 3.876882   1\n2 55.35569 1.468101 5.906637   1\n3 50.67085 3.763216 3.162722   1\n\n--- 结局类型 ---\n[1] "numeric"\n[1] 8.416564 5.474692 9.719083</code></pre>' +
           '<div class="callout"><div class="callout-title">这份数据用来干什么</div>' +
@@ -917,7 +917,7 @@ window.SITE_PAGES.apidemodata = {
   },
 
   en: {
-    title: "mlr3HTE_demo_data()",
+    title: "mlr3HTE_demo_continuous()",
     lede: "Demo data for a randomized trial with a continuous outcome; carries true tau and ate.",
     sections: [
       {
@@ -925,8 +925,8 @@ window.SITE_PAGES.apidemodata = {
         heading: "What it returns",
         body:
           '<div class="fn">' +
-          '<div class="fn-name">mlr3HTE_demo_data()<span class="badge">demo data</span></div>' +
-          '<div class="fn-sig">mlr3HTE_demo_data()(n = 2000, seed = NULL)</div>' +
+          '<div class="fn-name">mlr3HTE_demo_continuous()<span class="badge">demo data</span></div>' +
+          '<div class="fn-sig">mlr3HTE_demo_continuous()(n = 2000, seed = NULL)</div>' +
           '<p>The base version shared by all six designs: treatment is fully randomized (A independent of X) and the outcome is continuous. With no confounding, any difference between estimators is purely methodological.</p>' +
           '<div class="table-wrap"><table>' +
           '<thead><tr><th>Field</th><th>Contents</th></tr></thead><tbody>' +
@@ -945,7 +945,7 @@ window.SITE_PAGES.apidemodata = {
         heading: "Worked example (real output)",
         body:
           '<p>Both code and output are <strong>actually run</strong> (n = 1200, seed as shown).</p>' +
-          '<pre><code class="language-r">d &lt;- mlr3HTE_demo_data(n = 1200, seed = 1201)\ncat("--- 数据卡 ---\\n")\ntibble(真实ATE = d$ate, CATE_SD = sd(d$tau), CATE_min = min(d$tau),\n       CATE_max = max(d$tau), 处理率 = mean(d$A))\ncat("\\n--- X 的列与前 3 行 ---\\n")\nnames(d$X)\nhead(d$X, 3)\ncat("\\n--- 结局类型 ---\\n")\nclass(d$Y)\nhead(d$Y, 3)</code></pre>' +
+          '<pre><code class="language-r">d &lt;- mlr3HTE_demo_continuous(n = 1200, seed = 1201)\ncat("--- 数据卡 ---\\n")\ntibble(真实ATE = d$ate, CATE_SD = sd(d$tau), CATE_min = min(d$tau),\n       CATE_max = max(d$tau), 处理率 = mean(d$A))\ncat("\\n--- X 的列与前 3 行 ---\\n")\nnames(d$X)\nhead(d$X, 3)\ncat("\\n--- 结局类型 ---\\n")\nclass(d$Y)\nhead(d$Y, 3)</code></pre>' +
           '<p>Output:</p>' +
           '<pre><code class="r-out">--- 数据卡 ---\n# A tibble: 1 × 5\n  真实ATE CATE_SD CATE_min CATE_max 处理率\n    &lt;dbl&gt;   &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;  &lt;dbl&gt;\n1    1.05    1.06    -2.73     4.64    0.5\n\n--- X 的列与前 3 行 ---\n[1] "age"   "lac"   "tumor" "sex"\n       age      lac    tumor sex\n1 38.60905 3.353193 3.876882   1\n2 55.35569 1.468101 5.906637   1\n3 50.67085 3.763216 3.162722   1\n\n--- 结局类型 ---\n[1] "numeric"\n[1] 8.416564 5.474692 9.719083</code></pre>' +
           '<div class="callout"><div class="callout-title">What this dataset is for</div>' +
@@ -974,7 +974,7 @@ window.SITE_PAGES.apidemobinary = {
           '<div class="fn">' +
           '<div class="fn-name">mlr3HTE_demo_binary()<span class="badge">demo data</span></div>' +
           '<div class="fn-sig">mlr3HTE_demo_binary()(n = 2000, seed = NULL)</div>' +
-          '<p>与 <code>mlr3HTE_demo_data()</code> 同一个 DGP，但结局改为二分类。这时 CATE 落在<strong>风险差</strong>尺度上（不是 log-odds）。</p>' +
+          '<p>与 <code>mlr3HTE_demo_continuous()</code> 同一个 DGP，但结局改为二分类。这时 CATE 落在<strong>风险差</strong>尺度上（不是 log-odds）。</p>' +
           '<div class="table-wrap"><table>' +
           '<thead><tr><th>字段</th><th>内容</th></tr></thead><tbody>' +
           '<tr><td><code>X</code></td><td>协变变 data.frame：cols = <code>age, lac, tumor, sex</code></td></tr>' +
@@ -1018,7 +1018,7 @@ window.SITE_PAGES.apidemobinary = {
           '<div class="fn">' +
           '<div class="fn-name">mlr3HTE_demo_binary()<span class="badge">demo data</span></div>' +
           '<div class="fn-sig">mlr3HTE_demo_binary()(n = 2000, seed = NULL)</div>' +
-          '<p>Same DGP as <code>mlr3HTE_demo_data()</code> but the outcome is binary. CATE now lives on the <strong>risk-difference</strong> scale (not log-odds).</p>' +
+          '<p>Same DGP as <code>mlr3HTE_demo_continuous()</code> but the outcome is binary. CATE now lives on the <strong>risk-difference</strong> scale (not log-odds).</p>' +
           '<div class="table-wrap"><table>' +
           '<thead><tr><th>Field</th><th>Contents</th></tr></thead><tbody>' +
           '<tr><td><code>X</code></td><td>Covariate data.frame: cols = <code>age, lac, tumor, sex</code></td></tr>' +
@@ -1055,7 +1055,7 @@ window.SITE_PAGES.apidemobinary = {
 window.SITE_PAGES.apidemoobs = {
 
   zh: {
-    title: "mlr3HTE_demo_obs()",
+    title: "mlr3HTE_demo_continuous(setting = 'obs')",
     lede: "观察性设计 + 连续结局的演示数据，含已测量混杂。",
     sections: [
       {
@@ -1063,8 +1063,8 @@ window.SITE_PAGES.apidemoobs = {
         heading: "返回什么",
         body:
           '<div class="fn">' +
-          '<div class="fn-name">mlr3HTE_demo_obs()<span class="badge">demo data</span></div>' +
-          '<div class="fn-sig">mlr3HTE_demo_obs()(n = 2000, seed = NULL)</div>' +
+          '<div class="fn-name">mlr3HTE_demo_continuous(setting = "obs")<span class="badge">demo data</span></div>' +
+          '<div class="fn-sig">mlr3HTE_demo_continuous(setting = "obs")(n = 2000, seed = NULL)</div>' +
           '<p>处理不再随机：<code>e = plogis(−0.5 + 0.8·z1 + 0.4·z2)</code>，病情越重越容易接受处理，而病情本身又影响结局。</p>' +
           '<div class="table-wrap"><table>' +
           '<thead><tr><th>字段</th><th>内容</th></tr></thead><tbody>' +
@@ -1083,7 +1083,7 @@ window.SITE_PAGES.apidemoobs = {
         heading: "实测示例",
         body:
           '<p>代码与输出均为<strong>真实跑出</strong>（n = 1200，seed 如代码所示）。</p>' +
-          '<pre><code class="language-r">d &lt;- mlr3HTE_demo_obs(n = 1200, seed = 1204)\ncat("--- 数据卡 ---\\n")\ntibble(真实ATE = d$ate, CATE_SD = sd(d$tau), 处理率 = mean(d$A))\ncat("\\n--- 两组基线差异（混杂的来源）---\\n")\nd$X |&gt; mutate(A = d$A) |&gt; group_by(A) |&gt;\n  summarise(across(where(is.numeric), mean), .groups = "drop")\ncat("\\n--- ps_true 范围 ---\\n")\nrange(d$ps_true)</code></pre>' +
+          '<pre><code class="language-r">d &lt;- mlr3HTE_demo_continuous(setting = "obs", n = 1200, seed = 1204)\ncat("--- 数据卡 ---\\n")\ntibble(真实ATE = d$ate, CATE_SD = sd(d$tau), 处理率 = mean(d$A))\ncat("\\n--- 两组基线差异（混杂的来源）---\\n")\nd$X |&gt; mutate(A = d$A) |&gt; group_by(A) |&gt;\n  summarise(across(where(is.numeric), mean), .groups = "drop")\ncat("\\n--- ps_true 范围 ---\\n")\nrange(d$ps_true)</code></pre>' +
           '<p>实测输出：</p>' +
           '<pre><code class="r-out">--- 数据卡 ---\n# A tibble: 1 × 3\n  真实ATE CATE_SD 处理率\n    &lt;dbl&gt;   &lt;dbl&gt;  &lt;dbl&gt;\n1    1.04    1.03    0.4\n\n--- 两组基线差异（混杂的来源）---\n# A tibble: 2 × 5\n      A   age   lac tumor   sex\n  &lt;int&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;\n1     0  59.7  2.17  4.77 0.431\n2     1  60.3  3.00  5.48 0.438\n\n--- ps_true 范围 ---\n[1] 0.01941862 0.94016139</code></pre>' +
           '<div class="callout"><div class="callout-title">这份数据用来干什么</div>' +
@@ -1099,7 +1099,7 @@ window.SITE_PAGES.apidemoobs = {
   },
 
   en: {
-    title: "mlr3HTE_demo_obs()",
+    title: "mlr3HTE_demo_continuous(setting = 'obs')",
     lede: "Demo data for an observational design with a continuous outcome and measured confounding.",
     sections: [
       {
@@ -1107,8 +1107,8 @@ window.SITE_PAGES.apidemoobs = {
         heading: "What it returns",
         body:
           '<div class="fn">' +
-          '<div class="fn-name">mlr3HTE_demo_obs()<span class="badge">demo data</span></div>' +
-          '<div class="fn-sig">mlr3HTE_demo_obs()(n = 2000, seed = NULL)</div>' +
+          '<div class="fn-name">mlr3HTE_demo_continuous(setting = "obs")<span class="badge">demo data</span></div>' +
+          '<div class="fn-sig">mlr3HTE_demo_continuous(setting = "obs")(n = 2000, seed = NULL)</div>' +
           '<p>Treatment is no longer random: <code>e = plogis(−0.5 + 0.8·z1 + 0.4·z2)</code>, so sicker patients are more likely to be treated and severity also affects the outcome.</p>' +
           '<div class="table-wrap"><table>' +
           '<thead><tr><th>Field</th><th>Contents</th></tr></thead><tbody>' +
@@ -1127,7 +1127,7 @@ window.SITE_PAGES.apidemoobs = {
         heading: "Worked example (real output)",
         body:
           '<p>Both code and output are <strong>actually run</strong> (n = 1200, seed as shown).</p>' +
-          '<pre><code class="language-r">d &lt;- mlr3HTE_demo_obs(n = 1200, seed = 1204)\ncat("--- 数据卡 ---\\n")\ntibble(真实ATE = d$ate, CATE_SD = sd(d$tau), 处理率 = mean(d$A))\ncat("\\n--- 两组基线差异（混杂的来源）---\\n")\nd$X |&gt; mutate(A = d$A) |&gt; group_by(A) |&gt;\n  summarise(across(where(is.numeric), mean), .groups = "drop")\ncat("\\n--- ps_true 范围 ---\\n")\nrange(d$ps_true)</code></pre>' +
+          '<pre><code class="language-r">d &lt;- mlr3HTE_demo_continuous(setting = "obs", n = 1200, seed = 1204)\ncat("--- 数据卡 ---\\n")\ntibble(真实ATE = d$ate, CATE_SD = sd(d$tau), 处理率 = mean(d$A))\ncat("\\n--- 两组基线差异（混杂的来源）---\\n")\nd$X |&gt; mutate(A = d$A) |&gt; group_by(A) |&gt;\n  summarise(across(where(is.numeric), mean), .groups = "drop")\ncat("\\n--- ps_true 范围 ---\\n")\nrange(d$ps_true)</code></pre>' +
           '<p>Output:</p>' +
           '<pre><code class="r-out">--- 数据卡 ---\n# A tibble: 1 × 3\n  真实ATE CATE_SD 处理率\n    &lt;dbl&gt;   &lt;dbl&gt;  &lt;dbl&gt;\n1    1.04    1.03    0.4\n\n--- 两组基线差异（混杂的来源）---\n# A tibble: 2 × 5\n      A   age   lac tumor   sex\n  &lt;int&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;\n1     0  59.7  2.17  4.77 0.431\n2     1  60.3  3.00  5.48 0.438\n\n--- ps_true 范围 ---\n[1] 0.01941862 0.94016139</code></pre>' +
           '<div class="callout"><div class="callout-title">What this dataset is for</div>' +
@@ -1146,7 +1146,7 @@ window.SITE_PAGES.apidemoobs = {
 window.SITE_PAGES.apidemoobsbinary = {
 
   zh: {
-    title: "mlr3HTE_demo_obs_binary()",
+    title: "mlr3HTE_demo_binary(setting = 'obs')",
     lede: "观察性设计 + 二分类结局的演示数据。",
     sections: [
       {
@@ -1154,9 +1154,9 @@ window.SITE_PAGES.apidemoobsbinary = {
         heading: "返回什么",
         body:
           '<div class="fn">' +
-          '<div class="fn-name">mlr3HTE_demo_obs_binary()<span class="badge">demo data</span></div>' +
-          '<div class="fn-sig">mlr3HTE_demo_obs_binary()(n = 2000, seed = NULL)</div>' +
-          '<p>与 <code>mlr3HTE_demo_obs()</code> 同一套混杂，结局改为二分类，效应尺度为风险差。</p>' +
+          '<div class="fn-name">mlr3HTE_demo_binary(setting = "obs")<span class="badge">demo data</span></div>' +
+          '<div class="fn-sig">mlr3HTE_demo_binary(setting = "obs")(n = 2000, seed = NULL)</div>' +
+          '<p>与 <code>mlr3HTE_demo_continuous(setting = "obs")</code> 同一套混杂，结局改为二分类，效应尺度为风险差。</p>' +
           '<div class="table-wrap"><table>' +
           '<thead><tr><th>字段</th><th>内容</th></tr></thead><tbody>' +
           '<tr><td><code>X</code></td><td>协变变 data.frame：cols = <code>age, lac, tumor, sex</code></td></tr>' +
@@ -1174,7 +1174,7 @@ window.SITE_PAGES.apidemoobsbinary = {
         heading: "实测示例",
         body:
           '<p>代码与输出均为<strong>真实跑出</strong>（n = 1200，seed 如代码所示）。</p>' +
-          '<pre><code class="language-r">d &lt;- mlr3HTE_demo_obs_binary(n = 1200, seed = 1204)\ntibble(真实ATE = d$ate, 处理率 = mean(d$A), 结局率 = mean(d$Y),\n       ps_true_min = min(d$ps_true), ps_true_max = max(d$ps_true))</code></pre>' +
+          '<pre><code class="language-r">d &lt;- mlr3HTE_demo_binary(setting = "obs", n = 1200, seed = 1204)\ntibble(真实ATE = d$ate, 处理率 = mean(d$A), 结局率 = mean(d$Y),\n       ps_true_min = min(d$ps_true), ps_true_max = max(d$ps_true))</code></pre>' +
           '<p>实测输出：</p>' +
           '<pre><code class="r-out"># A tibble: 1 × 5\n  真实ATE 处理率 结局率 ps_true_min ps_true_max\n    &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt;       &lt;dbl&gt;       &lt;dbl&gt;\n1   0.130    0.4  0.337      0.0194       0.940</code></pre>' +
           '<div class="callout"><div class="callout-title">这份数据用来干什么</div>' +
@@ -1190,7 +1190,7 @@ window.SITE_PAGES.apidemoobsbinary = {
   },
 
   en: {
-    title: "mlr3HTE_demo_obs_binary()",
+    title: "mlr3HTE_demo_binary(setting = 'obs')",
     lede: "Demo data for an observational design with a binary outcome.",
     sections: [
       {
@@ -1198,9 +1198,9 @@ window.SITE_PAGES.apidemoobsbinary = {
         heading: "What it returns",
         body:
           '<div class="fn">' +
-          '<div class="fn-name">mlr3HTE_demo_obs_binary()<span class="badge">demo data</span></div>' +
-          '<div class="fn-sig">mlr3HTE_demo_obs_binary()(n = 2000, seed = NULL)</div>' +
-          '<p>Same confounding as <code>mlr3HTE_demo_obs()</code> with a binary outcome; the effect scale is risk difference.</p>' +
+          '<div class="fn-name">mlr3HTE_demo_binary(setting = "obs")<span class="badge">demo data</span></div>' +
+          '<div class="fn-sig">mlr3HTE_demo_binary(setting = "obs")(n = 2000, seed = NULL)</div>' +
+          '<p>Same confounding as <code>mlr3HTE_demo_continuous(setting = "obs")</code> with a binary outcome; the effect scale is risk difference.</p>' +
           '<div class="table-wrap"><table>' +
           '<thead><tr><th>Field</th><th>Contents</th></tr></thead><tbody>' +
           '<tr><td><code>X</code></td><td>Covariate data.frame: cols = <code>age, lac, tumor, sex</code></td></tr>' +
@@ -1218,7 +1218,7 @@ window.SITE_PAGES.apidemoobsbinary = {
         heading: "Worked example (real output)",
         body:
           '<p>Both code and output are <strong>actually run</strong> (n = 1200, seed as shown).</p>' +
-          '<pre><code class="language-r">d &lt;- mlr3HTE_demo_obs_binary(n = 1200, seed = 1204)\ntibble(真实ATE = d$ate, 处理率 = mean(d$A), 结局率 = mean(d$Y),\n       ps_true_min = min(d$ps_true), ps_true_max = max(d$ps_true))</code></pre>' +
+          '<pre><code class="language-r">d &lt;- mlr3HTE_demo_binary(setting = "obs", n = 1200, seed = 1204)\ntibble(真实ATE = d$ate, 处理率 = mean(d$A), 结局率 = mean(d$Y),\n       ps_true_min = min(d$ps_true), ps_true_max = max(d$ps_true))</code></pre>' +
           '<p>Output:</p>' +
           '<pre><code class="r-out"># A tibble: 1 × 5\n  真实ATE 处理率 结局率 ps_true_min ps_true_max\n    &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt;       &lt;dbl&gt;       &lt;dbl&gt;\n1   0.130    0.4  0.337      0.0194       0.940</code></pre>' +
           '<div class="callout"><div class="callout-title">What this dataset is for</div>' +
@@ -1237,7 +1237,7 @@ window.SITE_PAGES.apidemoobsbinary = {
 window.SITE_PAGES.apidemoobssurv = {
 
   zh: {
-    title: "mlr3HTE_demo_obs_surv()",
+    title: "mlr3HTE_demo_surv(setting = 'obs')",
     lede: "观察性设计 + 生存结局的演示数据，含混杂与删失。",
     sections: [
       {
@@ -1245,8 +1245,8 @@ window.SITE_PAGES.apidemoobssurv = {
         heading: "返回什么",
         body:
           '<div class="fn">' +
-          '<div class="fn-name">mlr3HTE_demo_obs_surv()<span class="badge">demo data</span></div>' +
-          '<div class="fn-sig">mlr3HTE_demo_obs_surv()(n = 2000, seed = NULL)</div>' +
+          '<div class="fn-name">mlr3HTE_demo_surv(setting = "obs")<span class="badge">demo data</span></div>' +
+          '<div class="fn-sig">mlr3HTE_demo_surv(setting = "obs")(n = 2000, seed = NULL)</div>' +
           '<p>最复杂的一种：既有混杂（混杂因子须进 <code>X</code>），又有删矢（要 IPCW）。</p>' +
           '<div class="table-wrap"><table>' +
           '<thead><tr><th>字段</th><th>内容</th></tr></thead><tbody>' +
@@ -1265,7 +1265,7 @@ window.SITE_PAGES.apidemoobssurv = {
         heading: "实测示例",
         body:
           '<p>代码与输出均为<strong>真实跑出</strong>（n = 1200，seed 如代码所示）。</p>' +
-          '<pre><code class="language-r">d &lt;- mlr3HTE_demo_obs_surv(n = 1200, seed = 1205)\ntibble(真实ATE = d$ate, t0 = d$t0, 处理率 = mean(d$A),\n       删失比例 = 1 - mean(d$Y[, 2L]))\ncat("\\n--- Y 是 Surv 矩阵 ---\\n")\nclass(d$Y)\nhead(d$Y, 3)</code></pre>' +
+          '<pre><code class="language-r">d &lt;- mlr3HTE_demo_surv(setting = "obs", n = 1200, seed = 1205)\ntibble(真实ATE = d$ate, t0 = d$t0, 处理率 = mean(d$A),\n       删失比例 = 1 - mean(d$Y[, 2L]))\ncat("\\n--- Y 是 Surv 矩阵 ---\\n")\nclass(d$Y)\nhead(d$Y, 3)</code></pre>' +
           '<p>实测输出：</p>' +
           '<pre><code class="r-out"># A tibble: 1 × 4\n  真实ATE    t0 处理率 删失比例\n    &lt;dbl&gt; &lt;dbl&gt;  &lt;dbl&gt;    &lt;dbl&gt;\n1   0.151     2  0.387    0.292\n\n--- Y 是 Surv 矩阵 ---\n[1] "Surv"\n[1] 8.7075197+ 0.7079554  0.1362236</code></pre>' +
           '<div class="callout"><div class="callout-title">这份数据用来干什么</div>' +
@@ -1281,7 +1281,7 @@ window.SITE_PAGES.apidemoobssurv = {
   },
 
   en: {
-    title: "mlr3HTE_demo_obs_surv()",
+    title: "mlr3HTE_demo_surv(setting = 'obs')",
     lede: "Demo data for an observational design with a survival outcome, including confounding and censoring.",
     sections: [
       {
@@ -1289,8 +1289,8 @@ window.SITE_PAGES.apidemoobssurv = {
         heading: "What it returns",
         body:
           '<div class="fn">' +
-          '<div class="fn-name">mlr3HTE_demo_obs_surv()<span class="badge">demo data</span></div>' +
-          '<div class="fn-sig">mlr3HTE_demo_obs_surv()(n = 2000, seed = NULL)</div>' +
+          '<div class="fn-name">mlr3HTE_demo_surv(setting = "obs")<span class="badge">demo data</span></div>' +
+          '<div class="fn-sig">mlr3HTE_demo_surv(setting = "obs")(n = 2000, seed = NULL)</div>' +
           '<p>The hardest of the six: confounding (confounders must go into <code>X</code>) plus censoring (handled by IPCW).</p>' +
           '<div class="table-wrap"><table>' +
           '<thead><tr><th>Field</th><th>Contents</th></tr></thead><tbody>' +
@@ -1309,7 +1309,7 @@ window.SITE_PAGES.apidemoobssurv = {
         heading: "Worked example (real output)",
         body:
           '<p>Both code and output are <strong>actually run</strong> (n = 1200, seed as shown).</p>' +
-          '<pre><code class="language-r">d &lt;- mlr3HTE_demo_obs_surv(n = 1200, seed = 1205)\ntibble(真实ATE = d$ate, t0 = d$t0, 处理率 = mean(d$A),\n       删失比例 = 1 - mean(d$Y[, 2L]))\ncat("\\n--- Y 是 Surv 矩阵 ---\\n")\nclass(d$Y)\nhead(d$Y, 3)</code></pre>' +
+          '<pre><code class="language-r">d &lt;- mlr3HTE_demo_surv(setting = "obs", n = 1200, seed = 1205)\ntibble(真实ATE = d$ate, t0 = d$t0, 处理率 = mean(d$A),\n       删失比例 = 1 - mean(d$Y[, 2L]))\ncat("\\n--- Y 是 Surv 矩阵 ---\\n")\nclass(d$Y)\nhead(d$Y, 3)</code></pre>' +
           '<p>Output:</p>' +
           '<pre><code class="r-out"># A tibble: 1 × 4\n  真实ATE    t0 处理率 删失比例\n    &lt;dbl&gt; &lt;dbl&gt;  &lt;dbl&gt;    &lt;dbl&gt;\n1   0.151     2  0.387    0.292\n\n--- Y 是 Surv 矩阵 ---\n[1] "Surv"\n[1] 8.7075197+ 0.7079554  0.1362236</code></pre>' +
           '<div class="callout"><div class="callout-title">What this dataset is for</div>' +
@@ -1463,19 +1463,19 @@ window.SITE_PAGES.apidemo = {
 
   zh: {
     title: "演示数据集",
-    lede: "六个自带真实 tau 与 ate 的模拟数据集，覆盖「三类结局 × 随机化/观察性」。每个生成器一个独立页面。",
+    lede: "模拟数据只由三个门面生成，按结局类型划分；配合 setting = \"rct\" / \"obs\" 得到六种组合，每种都自带真实 tau 与 ate。",
     sections: [
       {
         id: "list",
         heading: "组内函数",
         body:
           '<ul class="article-list">' +
-          '<li><a href="#/apidemodata"><span class="art-num">1</span><span class="art-body"><strong>mlr3HTE_demo_data()</strong><em>随机化 + 连续结局；无混杂，适合纯方法对比。</em></span></a></li>' +
+          '<li><a href="#/apidemodata"><span class="art-num">1</span><span class="art-body"><strong>mlr3HTE_demo_continuous()</strong><em>随机化 + 连续结局；无混杂，适合纯方法对比。</em></span></a></li>' +
           '<li><a href="#/apidemobinary"><span class="art-num">2</span><span class="art-body"><strong>mlr3HTE_demo_binary()</strong><em>随机化 + 二分类；CATE 落在风险差尺度。</em></span></a></li>' +
-          '<li><a href="#/apidemoobs"><span class="art-num">3</span><span class="art-body"><strong>mlr3HTE_demo_obs()</strong><em>观察性 + 连续；含已测量混杂与真实 ps_true。</em></span></a></li>' +
-          '<li><a href="#/apidemoobsbinary"><span class="art-num">4</span><span class="art-body"><strong>mlr3HTE_demo_obs_binary()</strong><em>观察性 + 二分类；同一套混杂。</em></span></a></li>' +
-          '<li><a href="#/apidemoobssurv"><span class="art-num">5</span><span class="art-body"><strong>mlr3HTE_demo_obs_surv()</strong><em>观察性 + 生存：混杂与删失同时存在，两层权重相乘。</em></span></a></li>' +
-          '<li><a href="#/apidemosurv"><span class="art-num">6</span><span class="art-body"><strong>mlr3HTE_demo_surv()</strong><em>随机化 + 生存；有删失但无混杂，只需 IPCW。</em></span></a></li>' +
+          '<li><a href="#/apidemoobs"><span class="art-num">3</span><span class="art-body"><strong>mlr3HTE_demo_continuous(setting = "obs")</strong><em>观察性 + 连续；含已测量混杂与真实 ps_true。</em></span></a></li>' +
+          '<li><a href="#/apidemoobsbinary"><span class="art-num">4</span><span class="art-body"><strong>mlr3HTE_demo_binary(setting = "obs")</strong><em>观察性 + 二分类；同一套混杂。</em></span></a></li>' +
+          '<li><a href="#/apidemoobssurv"><span class="art-num">5</span><span class="art-body"><strong>mlr3HTE_demo_surv(setting = "obs")</strong><em>观察性 + 生存：已测量混杂与删失同时存在，真值另含 RMST 尺度效应。</em></span></a></li>' +
+          '<li><a href="#/apidemosurv"><span class="art-num">6</span><span class="art-body"><strong>mlr3HTE_demo_surv()</strong><em>随机化 + 生存；有删失但无混杂，适合单独检验删失处理。</em></span></a></li>' +
           '</ul>' +
           '<p>真值 <code>tau</code> 只有模拟数据才给得出。现实 RCT 数据评价排序能力，请用 <a href="#/apihtebenchmark">hte_benchmark()</a>。</p>'
       }
@@ -1484,19 +1484,19 @@ window.SITE_PAGES.apidemo = {
 
   en: {
     title: "Demo datasets",
-    lede: "Six simulated datasets carrying true tau and ate, covering three outcome types by randomized / observational. One page per generator.",
+    lede: "All simulated data come from three facades, one per outcome type. Combined with setting = \"rct\" / \"obs\" they give six combinations, each carrying true tau and ate.",
     sections: [
       {
         id: "list",
         heading: "Functions in this group",
         body:
           '<ul class="article-list">' +
-          '<li><a href="#/apidemodata"><span class="art-num">1</span><span class="art-body"><strong>mlr3HTE_demo_data()</strong><em>Randomized + continuous outcome; no confounding, ideal for clean method comparison.</em></span></a></li>' +
+          '<li><a href="#/apidemodata"><span class="art-num">1</span><span class="art-body"><strong>mlr3HTE_demo_continuous()</strong><em>Randomized + continuous outcome; no confounding, ideal for clean method comparison.</em></span></a></li>' +
           '<li><a href="#/apidemobinary"><span class="art-num">2</span><span class="art-body"><strong>mlr3HTE_demo_binary()</strong><em>Randomized + binary outcome; CATE on the risk-difference scale.</em></span></a></li>' +
-          '<li><a href="#/apidemoobs"><span class="art-num">3</span><span class="art-body"><strong>mlr3HTE_demo_obs()</strong><em>Observational + continuous; measured confounding plus the true ps_true.</em></span></a></li>' +
-          '<li><a href="#/apidemoobsbinary"><span class="art-num">4</span><span class="art-body"><strong>mlr3HTE_demo_obs_binary()</strong><em>Observational + binary; same confounding structure.</em></span></a></li>' +
-          '<li><a href="#/apidemoobssurv"><span class="art-num">5</span><span class="art-body"><strong>mlr3HTE_demo_obs_surv()</strong><em>Observational + survival: confounding and censoring together, two weight layers multiplied.</em></span></a></li>' +
-          '<li><a href="#/apidemosurv"><span class="art-num">6</span><span class="art-body"><strong>mlr3HTE_demo_surv()</strong><em>Randomized + survival: censoring but no confounding, IPCW only.</em></span></a></li>' +
+          '<li><a href="#/apidemoobs"><span class="art-num">3</span><span class="art-body"><strong>mlr3HTE_demo_continuous(setting = "obs")</strong><em>Observational + continuous; measured confounding plus the true ps_true.</em></span></a></li>' +
+          '<li><a href="#/apidemoobsbinary"><span class="art-num">4</span><span class="art-body"><strong>mlr3HTE_demo_binary(setting = "obs")</strong><em>Observational + binary; same confounding structure.</em></span></a></li>' +
+          '<li><a href="#/apidemoobssurv"><span class="art-num">5</span><span class="art-body"><strong>mlr3HTE_demo_surv(setting = "obs")</strong><em>Observational + survival with measured confounding and censoring; RMST-scale truth is also returned.</em></span></a></li>' +
+          '<li><a href="#/apidemosurv"><span class="art-num">6</span><span class="art-body"><strong>mlr3HTE_demo_surv()</strong><em>Randomized + survival: censoring without confounding, useful for isolating the censoring adjustment.</em></span></a></li>' +
           '</ul>' +
           '<p>The true <code>tau</code> only exists in simulated data. To evaluate ranking power on real RCT data, use <a href="#/apihtebenchmark">hte_benchmark()</a>.</p>'
       }
@@ -1701,9 +1701,9 @@ window.SITE_PAGES.api = {
           '<div class="table-wrap"><table>' +
           '<thead><tr><th>函数</th><th>一句话说明</th></tr></thead>' +
           '<tbody>' +
-          '<tr><td><a href="#/apibenchmarkdata"><code>mlr3HTE_benchmark_data()</code></a></td><td>读取随包分发的 5 个跨包基准数据集（含真实 <code>cate_true</code>）</td></tr>' +
-          '<tr><td><a href="#/apibenchmarkdata"><code>mlr3HTE_benchmark_meta()</code></a></td><td>数据字典：来源包、生成函数、样本量、真实 ATE 与字段说明</td></tr>' +
-          '<tr><td><a href="#/apibenchmarkdata"><code>mlr3HTE_benchmark_export()</code></a></td><td>把全部基准数据（RData + CSV）导出到指定目录</td></tr>' +
+          '<tr><td><a href="#/apibenchmarkdata"><code>mlr3HTE_demo_continuous(source = "benchmark", dataset = "grf_causal")</code></a></td><td>读取一份跨包基准数据；统一返回 X / A / Y / tau / ate，并附 <code>raw</code> 原始表</td></tr>' +
+          '<tr><td><a href="#/apibenchmarkdata"><code>mlr3HTE_demo_continuous(catalog = TRUE, source = "benchmark")</code></a></td><td>数据字典：来源包、生成函数、样本量、真实 ATE 与字段说明</td></tr>' +
+          '<tr><td><a href="#/apibenchmarkdata"><code>mlr3HTE_demo_continuous(export_to = dir)</code></a></td><td>把全部基准数据（RData + CSV）导出到指定目录</td></tr>' +
           '</tbody></table></div>' +
           '<p class="text-muted">数据同时以 <code>.RData</code> 与 <code>.csv</code> 随包安装到本地 library，运行时无需 Python。</p>'
       },
@@ -1715,11 +1715,12 @@ window.SITE_PAGES.api = {
           '<div class="table-wrap"><table>' +
           '<thead><tr><th>函数</th><th>一句话说明</th></tr></thead>' +
           '<tbody>' +
-          '<tr><td><a href="#/apiscenarios"><code>mlr3HTE_scenarios()</code></a></td><td>列出 10 个基准设计的结构标签</td></tr>' +
-          '<tr><td><a href="#/apiscenario"><code>mlr3HTE_scenario()</code></a></td><td>按场景 id 生成一份带真值的模拟数据</td></tr>' +
-          '<tr><td><a href="#/apibench"><code>mlr3HTE_bench()</code></a></td><td>取出随包发布的 30 份基准数据之一</td></tr>' +
-          '<tr><td><a href="#/apibenchindex"><code>mlr3HTE_bench_index()</code></a></td><td>打包数据中实际存在的键与真值 ATE</td></tr>' +
-          '</tbody></table></div>'
+          '<tr><td><a href="#/apiscenarios"><code>mlr3HTE_demo_continuous(catalog = TRUE)</code></a></td><td>列出 10 个基准设计的结构标签</td></tr>' +
+          '<tr><td><a href="#/apiscenario"><code>mlr3HTE_demo_surv(scenario = "rct_lin")</code></a></td><td>按场景 id 生成一份带真值的模拟数据</td></tr>' +
+          '<tr><td><a href="#/apibench"><code>mlr3HTE_demo_continuous(source = "bundled", dataset = "rct_lin")</code></a></td><td>取出随包发布的 30 份基准数据之一</td></tr>' +
+          '<tr><td><a href="#/apibenchindex"><code>mlr3HTE_demo_continuous(catalog = TRUE, source = "bundled")</code></a></td><td>打包数据中实际存在的键与真值 ATE</td></tr>' +
+          '</tbody></table></div>' +
+          '<p class="text-muted">v0.49 起模拟数据只导出三个门面：<code>mlr3HTE_demo_continuous()</code> / <code>mlr3HTE_demo_binary()</code> / <code>mlr3HTE_demo_surv()</code>；上表各行都是同一组函数在不同参数下的路由。</p>'
       },
 
       {
@@ -1748,11 +1749,11 @@ window.SITE_PAGES.api = {
           '<div class="table-wrap"><table>' +
           '<thead><tr><th>函数</th><th>一句话说明</th></tr></thead>' +
           '<tbody>' +
-          '<tr><td><a href="#/apidemodata"><code>mlr3HTE_demo_data()</code></a></td><td>随机化 + 连续结局，带 tau / ate</td></tr>' +
+          '<tr><td><a href="#/apidemodata"><code>mlr3HTE_demo_continuous()</code></a></td><td>随机化 + 连续结局，带 tau / ate</td></tr>' +
           '<tr><td><a href="#/apidemobinary"><code>mlr3HTE_demo_binary()</code></a></td><td>随机化 + 二分类结局</td></tr>' +
-          '<tr><td><a href="#/apidemoobs"><code>mlr3HTE_demo_obs()</code></a></td><td>观察性 + 连续结局，含真实 ps_true</td></tr>' +
-          '<tr><td><a href="#/apidemoobsbinary"><code>mlr3HTE_demo_obs_binary()</code></a></td><td>观察性 + 二分类结局</td></tr>' +
-          '<tr><td><a href="#/apidemoobssurv"><code>mlr3HTE_demo_obs_surv()</code></a></td><td>观察性 + 生存结局，混杂与删失并存</td></tr>' +
+          '<tr><td><a href="#/apidemoobs"><code>mlr3HTE_demo_continuous(setting = "obs")</code></a></td><td>观察性 + 连续结局，含真实 ps_true</td></tr>' +
+          '<tr><td><a href="#/apidemoobsbinary"><code>mlr3HTE_demo_binary(setting = "obs")</code></a></td><td>观察性 + 二分类结局</td></tr>' +
+          '<tr><td><a href="#/apidemoobssurv"><code>mlr3HTE_demo_surv(setting = "obs")</code></a></td><td>观察性 + 生存结局，混杂与删失并存</td></tr>' +
           '<tr><td><a href="#/apidemosurv"><code>mlr3HTE_demo_surv()</code></a></td><td>随机化 + 生存结局，只有删失</td></tr>' +
           '</tbody></table></div>'
       },
@@ -1765,7 +1766,7 @@ window.SITE_PAGES.api = {
           '<thead><tr><th>函数</th><th>一句话说明</th></tr></thead>' +
           '<tbody>' +
           '<tr><td><a href="#/apidag"><code>mlr3HTE_dag()</code></a></td><td>画 RCT / 观察性两种设计的因果结构图</td></tr>' +
-          '<tr><td><a href="#/apidagdata"><code>mlr3HTE_dag_data()</code></a></td><td>DAG 的节点表 / 边表 / 曲率路由结果</td></tr>' +
+          '<tr><td><a href="#/apidagdata"><code>mlr3HTE_demo_continuous(design = "rct")</code></a></td><td>DAG 的节点表 / 边表 / 曲率路由结果</td></tr>' +
           '</tbody></table></div>'
       }
     ]
@@ -1848,9 +1849,9 @@ window.SITE_PAGES.api = {
           '<div class="table-wrap"><table>' +
           '<thead><tr><th>Function</th><th>One-line description</th></tr></thead>' +
           '<tbody>' +
-          '<tr><td><a href="#/apibenchmarkdata"><code>mlr3HTE_benchmark_data()</code></a></td><td>Load the five bundled cross-package datasets (with true <code>cate_true</code>)</td></tr>' +
-          '<tr><td><a href="#/apibenchmarkdata"><code>mlr3HTE_benchmark_meta()</code></a></td><td>Data dictionary: source package, generator, sample size, true ATE, field notes</td></tr>' +
-          '<tr><td><a href="#/apibenchmarkdata"><code>mlr3HTE_benchmark_export()</code></a></td><td>Export all benchmark data (RData + CSV) to a directory</td></tr>' +
+          '<tr><td><a href="#/apibenchmarkdata"><code>mlr3HTE_demo_continuous(source = "benchmark", dataset = "grf_causal")</code></a></td><td>Load one cross-package dataset as a unified list (X / A / Y / tau / ate) plus <code>raw</code></td></tr>' +
+          '<tr><td><a href="#/apibenchmarkdata"><code>mlr3HTE_demo_continuous(catalog = TRUE, source = "benchmark")</code></a></td><td>Data dictionary: source package, generator, sample size, true ATE, field notes</td></tr>' +
+          '<tr><td><a href="#/apibenchmarkdata"><code>mlr3HTE_demo_continuous(export_to = dir)</code></a></td><td>Export all benchmark data (RData + CSV) to a directory</td></tr>' +
           '</tbody></table></div>' +
           '<p class="text-muted">The data ship as both <code>.RData</code> and <code>.csv</code> inside the installed package, so no Python is needed at run time.</p>'
       },
@@ -1862,11 +1863,12 @@ window.SITE_PAGES.api = {
           '<div class="table-wrap"><table>' +
           '<thead><tr><th>Function</th><th>One-line description</th></tr></thead>' +
           '<tbody>' +
-          '<tr><td><a href="#/apiscenarios"><code>mlr3HTE_scenarios()</code></a></td><td>Structural labels of the ten benchmark designs</td></tr>' +
-          '<tr><td><a href="#/apiscenario"><code>mlr3HTE_scenario()</code></a></td><td>Generate one simulated dataset with known ground truth</td></tr>' +
-          '<tr><td><a href="#/apibench"><code>mlr3HTE_bench()</code></a></td><td>Fetch one of the thirty bundled benchmark datasets</td></tr>' +
-          '<tr><td><a href="#/apibenchindex"><code>mlr3HTE_bench_index()</code></a></td><td>Keys present in the bundled data and their true ATE</td></tr>' +
-          '</tbody></table></div>'
+          '<tr><td><a href="#/apiscenarios"><code>mlr3HTE_demo_continuous(catalog = TRUE)</code></a></td><td>Structural labels of the ten benchmark designs</td></tr>' +
+          '<tr><td><a href="#/apiscenario"><code>mlr3HTE_demo_surv(scenario = "rct_lin")</code></a></td><td>Generate one simulated dataset with known ground truth</td></tr>' +
+          '<tr><td><a href="#/apibench"><code>mlr3HTE_demo_continuous(source = "bundled", dataset = "rct_lin")</code></a></td><td>Fetch one of the thirty bundled benchmark datasets</td></tr>' +
+          '<tr><td><a href="#/apibenchindex"><code>mlr3HTE_demo_continuous(catalog = TRUE, source = "bundled")</code></a></td><td>Keys present in the bundled data and their true ATE</td></tr>' +
+          '</tbody></table></div>' +
+          '<p class="text-muted">Since v0.49 only three facades are exported: <code>mlr3HTE_demo_continuous()</code> / <code>mlr3HTE_demo_binary()</code> / <code>mlr3HTE_demo_surv()</code>. Every row above is a different argument route into the same functions.</p>'
       },
 
       {
@@ -1895,11 +1897,11 @@ window.SITE_PAGES.api = {
           '<div class="table-wrap"><table>' +
           '<thead><tr><th>Function</th><th>One-line description</th></tr></thead>' +
           '<tbody>' +
-          '<tr><td><a href="#/apidemodata"><code>mlr3HTE_demo_data()</code></a></td><td>Randomised + continuous outcome, with tau / ate</td></tr>' +
+          '<tr><td><a href="#/apidemodata"><code>mlr3HTE_demo_continuous()</code></a></td><td>Randomised + continuous outcome, with tau / ate</td></tr>' +
           '<tr><td><a href="#/apidemobinary"><code>mlr3HTE_demo_binary()</code></a></td><td>Randomised + binary outcome</td></tr>' +
-          '<tr><td><a href="#/apidemoobs"><code>mlr3HTE_demo_obs()</code></a></td><td>Observational + continuous outcome, with true ps_true</td></tr>' +
-          '<tr><td><a href="#/apidemoobsbinary"><code>mlr3HTE_demo_obs_binary()</code></a></td><td>Observational + binary outcome</td></tr>' +
-          '<tr><td><a href="#/apidemoobssurv"><code>mlr3HTE_demo_obs_surv()</code></a></td><td>Observational + survival, confounding and censoring</td></tr>' +
+          '<tr><td><a href="#/apidemoobs"><code>mlr3HTE_demo_continuous(setting = "obs")</code></a></td><td>Observational + continuous outcome, with true ps_true</td></tr>' +
+          '<tr><td><a href="#/apidemoobsbinary"><code>mlr3HTE_demo_binary(setting = "obs")</code></a></td><td>Observational + binary outcome</td></tr>' +
+          '<tr><td><a href="#/apidemoobssurv"><code>mlr3HTE_demo_surv(setting = "obs")</code></a></td><td>Observational + survival, confounding and censoring</td></tr>' +
           '<tr><td><a href="#/apidemosurv"><code>mlr3HTE_demo_surv()</code></a></td><td>Randomised + survival outcome, censoring only</td></tr>' +
           '</tbody></table></div>'
       },
@@ -1912,7 +1914,7 @@ window.SITE_PAGES.api = {
           '<thead><tr><th>Function</th><th>One-line description</th></tr></thead>' +
           '<tbody>' +
           '<tr><td><a href="#/apidag"><code>mlr3HTE_dag()</code></a></td><td>Causal diagram for the RCT and observational designs</td></tr>' +
-          '<tr><td><a href="#/apidagdata"><code>mlr3HTE_dag_data()</code></a></td><td>Node and edge tables plus curvature routing for the DAG</td></tr>' +
+          '<tr><td><a href="#/apidagdata"><code>mlr3HTE_demo_continuous(design = "rct")</code></a></td><td>Node and edge tables plus curvature routing for the DAG</td></tr>' +
           '</tbody></table></div>'
       }
     ]
@@ -1942,7 +1944,7 @@ window.SITE_PAGES.apiqinicurve = {
         heading: "实测示例",
         body:
           '<p>代码与输出均为<strong>真实跑出</strong>。' +
-          '背景数据：<code>mlr3HTE_demo_data(n = 1500, seed = 1201)</code> 上拟合的 X-learner（ranger 300 树）。</p>' +
+          '背景数据：<code>mlr3HTE_demo_continuous(n = 1500, seed = 1201)</code> 上拟合的 X-learner（ranger 300 树）。</p>' +
           '<pre><code class="language-r">cv &lt;- qini_curve(fit$cate_train, d$A, d$Y)\nhead(cv, 5)\ntail(cv, 3)\nattr(cv, "qini_at_full")</code></pre>' +
           '<p>实测输出：</p>' +
           '<pre><code class="r-out">--- 前 5 行 ---\n      fraction        qini\n1 0.0000000000 0.000000000\n2 0.0006666667 0.014940224\n3 0.0013333333 0.006970732\n4 0.0020000000 0.019672433\n5 0.0026666667 0.033119033\n\n--- 末 3 行 ---\n      fraction     qini\n1499 0.9986667 1.077251\n1500 0.9993333 1.081709\n1501 1.0000000 1.072626\n\n--- 属性 qini_at_full ---\n[1] 1.072626</code></pre>' +
@@ -1971,7 +1973,7 @@ window.SITE_PAGES.apiqinicurve = {
         heading: "Worked example (real output)",
         body:
           '<p>Both code and output are <strong>actually run</strong>. Background data: an X-learner ' +
-          '(ranger, 300 trees) fitted on <code>mlr3HTE_demo_data(n = 1500, seed = 1201)</code>.</p>' +
+          '(ranger, 300 trees) fitted on <code>mlr3HTE_demo_continuous(n = 1500, seed = 1201)</code>.</p>' +
           '<pre><code class="language-r">cv &lt;- qini_curve(fit$cate_train, d$A, d$Y)\nhead(cv, 5)\ntail(cv, 3)\nattr(cv, "qini_at_full")</code></pre>' +
           '<p>Output:</p>' +
           '<pre><code class="r-out">--- 前 5 行 ---\n      fraction        qini\n1 0.0000000000 0.000000000\n2 0.0006666667 0.014940224\n3 0.0013333333 0.006970732\n4 0.0020000000 0.019672433\n5 0.0026666667 0.033119033\n\n--- 末 3 行 ---\n      fraction     qini\n1499 0.9986667 1.077251\n1500 0.9993333 1.081709\n1501 1.0000000 1.072626\n\n--- 属性 qini_at_full ---\n[1] 1.072626</code></pre>' +
@@ -2003,7 +2005,7 @@ window.SITE_PAGES.apiqinicoef = {
         heading: "实测示例",
         body:
           '<p>代码与输出均为<strong>真实跑出</strong>。' +
-          '背景数据：<code>mlr3HTE_demo_data(n = 1500, seed = 1201)</code> 上拟合的 X-learner（ranger 300 树）。</p>' +
+          '背景数据：<code>mlr3HTE_demo_continuous(n = 1500, seed = 1201)</code> 上拟合的 X-learner（ranger 300 树）。</p>' +
           '<pre><code class="language-r">qini_coefficient(fit$cate_train, d$A, d$Y)\n\n# 用随机排序与真实 tau 当标尾\nset.seed(2)\nrnd &lt;- rnorm(nrow(d$X))\ntibble(来源 = c("随机", "模型", "真实 tau"),\n       qini_coefficient = c(qini_coefficient(rnd, d$A, d$Y)$qini_coefficient,\n                            qini_coefficient(fit$cate_train, d$A, d$Y)$qini_coefficient,\n                            qini_coefficient(d$tau, d$A, d$Y)$qini_coefficient))</code></pre>' +
           '<p>实测输出：</p>' +
           '<pre><code class="r-out">$qini_coefficient\n[1] 0.2831499\n\n$qini_normalized\n[1] 0.5279564\n\n$auc\n[1] 0.8194629\n\n$qini_at_full\n[1] 1.072626\n\n\n--- 随机 vs 真实 tau 作标尺 ---\n# A tibble: 3 × 2\n  来源     qini_coefficient\n  &lt;chr&gt;               &lt;dbl&gt;\n1 随机               -0.198\n2 模型                0.283\n3 真实 tau            0.280</code></pre>' +
@@ -2032,7 +2034,7 @@ window.SITE_PAGES.apiqinicoef = {
         heading: "Worked example (real output)",
         body:
           '<p>Both code and output are <strong>actually run</strong>. Background data: an X-learner ' +
-          '(ranger, 300 trees) fitted on <code>mlr3HTE_demo_data(n = 1500, seed = 1201)</code>.</p>' +
+          '(ranger, 300 trees) fitted on <code>mlr3HTE_demo_continuous(n = 1500, seed = 1201)</code>.</p>' +
           '<pre><code class="language-r">qini_coefficient(fit$cate_train, d$A, d$Y)\n\n# 用随机排序与真实 tau 当标尾\nset.seed(2)\nrnd &lt;- rnorm(nrow(d$X))\ntibble(来源 = c("随机", "模型", "真实 tau"),\n       qini_coefficient = c(qini_coefficient(rnd, d$A, d$Y)$qini_coefficient,\n                            qini_coefficient(fit$cate_train, d$A, d$Y)$qini_coefficient,\n                            qini_coefficient(d$tau, d$A, d$Y)$qini_coefficient))</code></pre>' +
           '<p>Output:</p>' +
           '<pre><code class="r-out">$qini_coefficient\n[1] 0.2831499\n\n$qini_normalized\n[1] 0.5279564\n\n$auc\n[1] 0.8194629\n\n$qini_at_full\n[1] 1.072626\n\n\n--- 随机 vs 真实 tau 作标尺 ---\n# A tibble: 3 × 2\n  来源     qini_coefficient\n  &lt;chr&gt;               &lt;dbl&gt;\n1 随机               -0.198\n2 模型                0.283\n3 真实 tau            0.280</code></pre>' +
@@ -2064,7 +2066,7 @@ window.SITE_PAGES.apicforbenefit = {
         heading: "实测示例",
         body:
           '<p>代码与输出均为<strong>真实跑出</strong>。' +
-          '背景数据：<code>mlr3HTE_demo_data(n = 1500, seed = 1201)</code> 上拟合的 X-learner（ranger 300 树）。</p>' +
+          '背景数据：<code>mlr3HTE_demo_continuous(n = 1500, seed = 1201)</code> 上拟合的 X-learner（ranger 300 树）。</p>' +
           '<pre><code class="language-r">c_for_benefit(fit$cate_train, d$A, d$Y)\n\n# 用随机排序与真实 tau 当标尾\nset.seed(2)\nrnd &lt;- rnorm(nrow(d$X))\ntibble(来源 = c("随机", "模型", "真实 tau"),\n       c_for_benefit = c(c_for_benefit(rnd, d$A, d$Y)$c_for_benefit,\n                           c_for_benefit(fit$cate_train, d$A, d$Y)$c_for_benefit,\n                           c_for_benefit(d$tau, d$A, d$Y)$c_for_benefit))</code></pre>' +
           '<p>实测输出：</p>' +
           '<pre><code class="r-out">$c_for_benefit\n[1] 0.6634926\n\n$n_pairs\n[1] 713\n\n$n_concordant\n[1] 168413\n\n$n_discordant\n[1] 85415\n\n$n_tied_pred\n[1] 0\n\n\n--- 随机 vs 真实 tau 作标尺 ---\n# A tibble: 3 × 2\n  来源     c_for_benefit\n  &lt;chr&gt;            &lt;dbl&gt;\n1 随机             0.488\n2 模型             0.663\n3 真实 tau         0.624</code></pre>' +
@@ -2093,7 +2095,7 @@ window.SITE_PAGES.apicforbenefit = {
         heading: "Worked example (real output)",
         body:
           '<p>Both code and output are <strong>actually run</strong>. Background data: an X-learner ' +
-          '(ranger, 300 trees) fitted on <code>mlr3HTE_demo_data(n = 1500, seed = 1201)</code>.</p>' +
+          '(ranger, 300 trees) fitted on <code>mlr3HTE_demo_continuous(n = 1500, seed = 1201)</code>.</p>' +
           '<pre><code class="language-r">c_for_benefit(fit$cate_train, d$A, d$Y)\n\n# 用随机排序与真实 tau 当标尾\nset.seed(2)\nrnd &lt;- rnorm(nrow(d$X))\ntibble(来源 = c("随机", "模型", "真实 tau"),\n       c_for_benefit = c(c_for_benefit(rnd, d$A, d$Y)$c_for_benefit,\n                           c_for_benefit(fit$cate_train, d$A, d$Y)$c_for_benefit,\n                           c_for_benefit(d$tau, d$A, d$Y)$c_for_benefit))</code></pre>' +
           '<p>Output:</p>' +
           '<pre><code class="r-out">$c_for_benefit\n[1] 0.6634926\n\n$n_pairs\n[1] 713\n\n$n_concordant\n[1] 168413\n\n$n_discordant\n[1] 85415\n\n$n_tied_pred\n[1] 0\n\n\n--- 随机 vs 真实 tau 作标尺 ---\n# A tibble: 3 × 2\n  来源     c_for_benefit\n  &lt;chr&gt;            &lt;dbl&gt;\n1 随机             0.488\n2 模型             0.663\n3 真实 tau         0.624</code></pre>' +
@@ -2125,7 +2127,7 @@ window.SITE_PAGES.apitoccurve = {
         heading: "实测示例",
         body:
           '<p>代码与输出均为<strong>真实跑出</strong>。' +
-          '背景数据：<code>mlr3HTE_demo_data(n = 1500, seed = 1201)</code> 上拟合的 X-learner（ranger 300 树）。</p>' +
+          '背景数据：<code>mlr3HTE_demo_continuous(n = 1500, seed = 1201)</code> 上拟合的 X-learner（ranger 300 树）。</p>' +
           '<pre><code class="language-r">cv &lt;- toc_curve(fit$cate_train, d$A, d$Y)\nhead(cv, 5)\nattr(cv, "overall_ate")\n\n# 分位处的 TOC\ntibble(分位 = c("10%", "25%", "50%", "75%"),\n       TOC = sapply(c(.1, .25, .5, .75), function(f)\n         cv$toc[which.min(abs(cv$fraction - f))]))</code></pre>' +
           '<p>实测输出：</p>' +
           '<pre><code class="r-out">--- 前 5 行 ---\n      fraction       toc\n1 0.0006666667 22.410337\n2 0.0013333333  5.228049\n3 0.0020000000  9.836217\n4 0.0026666667 12.419637\n5 0.0033333333  7.271920\n\n--- 属性 overall_ate ---\n[1] 1.072626\n\n--- 分位数处的 TOC ---\n# A tibble: 4 × 2\n  分位    TOC\n  &lt;chr&gt; &lt;dbl&gt;\n1 10%    2.44\n2 25%    2.14\n3 50%    1.89\n4 75%    1.51</code></pre>' +
@@ -2154,7 +2156,7 @@ window.SITE_PAGES.apitoccurve = {
         heading: "Worked example (real output)",
         body:
           '<p>Both code and output are <strong>actually run</strong>. Background data: an X-learner ' +
-          '(ranger, 300 trees) fitted on <code>mlr3HTE_demo_data(n = 1500, seed = 1201)</code>.</p>' +
+          '(ranger, 300 trees) fitted on <code>mlr3HTE_demo_continuous(n = 1500, seed = 1201)</code>.</p>' +
           '<pre><code class="language-r">cv &lt;- toc_curve(fit$cate_train, d$A, d$Y)\nhead(cv, 5)\nattr(cv, "overall_ate")\n\n# 分位处的 TOC\ntibble(分位 = c("10%", "25%", "50%", "75%"),\n       TOC = sapply(c(.1, .25, .5, .75), function(f)\n         cv$toc[which.min(abs(cv$fraction - f))]))</code></pre>' +
           '<p>Output:</p>' +
           '<pre><code class="r-out">--- 前 5 行 ---\n      fraction       toc\n1 0.0006666667 22.410337\n2 0.0013333333  5.228049\n3 0.0020000000  9.836217\n4 0.0026666667 12.419637\n5 0.0033333333  7.271920\n\n--- 属性 overall_ate ---\n[1] 1.072626\n\n--- 分位数处的 TOC ---\n# A tibble: 4 × 2\n  分位    TOC\n  &lt;chr&gt; &lt;dbl&gt;\n1 10%    2.44\n2 25%    2.14\n3 50%    1.89\n4 75%    1.51</code></pre>' +
@@ -2186,8 +2188,8 @@ window.SITE_PAGES.apidrpseudo = {
         heading: "实测示例",
         body:
           '<p>代码与输出均为<strong>真实跑出</strong>。' +
-          '背景数据：<code>mlr3HTE_demo_data(n = 1500, seed = 1201)</code> 上拟合的 X-learner（ranger 300 树）。</p>' +
-          '<pre><code class="language-r">d &lt;- mlr3HTE_demo_obs(n = 1200, seed = 1204)\ndr &lt;- dr_pseudo_outcome(d$X, d$A, d$Y, seed = 1)\ncat("--- 返回的字段 ---\\n")\nnames(dr)\ncat("\\n--- 伪结局的均值 = DR 估计的 ATE ---\\n")\ntibble(DR_ATE = mean(dr$pseudo), 真实ATE = d$ate)\ncat("\\n--- 三件套的范围 ---\\n")\ntibble(ps_min = min(dr$propensity), ps_max = max(dr$propensity),\n       mu1_mean = mean(dr$mu1), mu0_mean = mean(dr$mu0))</code></pre>' +
+          '背景数据：<code>mlr3HTE_demo_continuous(n = 1500, seed = 1201)</code> 上拟合的 X-learner（ranger 300 树）。</p>' +
+          '<pre><code class="language-r">d &lt;- mlr3HTE_demo_continuous(setting = "obs", n = 1200, seed = 1204)\ndr &lt;- dr_pseudo_outcome(d$X, d$A, d$Y, seed = 1)\ncat("--- 返回的字段 ---\\n")\nnames(dr)\ncat("\\n--- 伪结局的均值 = DR 估计的 ATE ---\\n")\ntibble(DR_ATE = mean(dr$pseudo), 真实ATE = d$ate)\ncat("\\n--- 三件套的范围 ---\\n")\ntibble(ps_min = min(dr$propensity), ps_max = max(dr$propensity),\n       mu1_mean = mean(dr$mu1), mu0_mean = mean(dr$mu0))</code></pre>' +
           '<p>实测输出：</p>' +
           '<pre><code class="r-out">--- 返回的字段 ---\n[1] "pseudo"     "mu1"        "mu0"        "propensity" "ate"\n[6] "t0"         "effect"\n\n--- 伪结局的均值 = DR 估计的 ATE ---\n# A tibble: 1 × 2\n  DR_ATE 真实ATE\n   &lt;dbl&gt;   &lt;dbl&gt;\n1  0.979    1.04\n\n--- 三件套的范围 ---\n# A tibble: 1 × 4\n  ps_min ps_max mu1_mean mu0_mean\n   &lt;dbl&gt;  &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;\n1 0.0179  0.939     7.16     6.10</code></pre>' +
           '<p>实测里 DR 估计的 ATE 为 0.979，真值 1.04；这量级偏差在 n = 1200 上属于正常采样潮用，且它比未校正的算算本身（约 1.74）小一个数量级。</p>'
@@ -2215,8 +2217,8 @@ window.SITE_PAGES.apidrpseudo = {
         heading: "Worked example (real output)",
         body:
           '<p>Both code and output are <strong>actually run</strong>. Background data: an X-learner ' +
-          '(ranger, 300 trees) fitted on <code>mlr3HTE_demo_data(n = 1500, seed = 1201)</code>.</p>' +
-          '<pre><code class="language-r">d &lt;- mlr3HTE_demo_obs(n = 1200, seed = 1204)\ndr &lt;- dr_pseudo_outcome(d$X, d$A, d$Y, seed = 1)\ncat("--- 返回的字段 ---\\n")\nnames(dr)\ncat("\\n--- 伪结局的均值 = DR 估计的 ATE ---\\n")\ntibble(DR_ATE = mean(dr$pseudo), 真实ATE = d$ate)\ncat("\\n--- 三件套的范围 ---\\n")\ntibble(ps_min = min(dr$propensity), ps_max = max(dr$propensity),\n       mu1_mean = mean(dr$mu1), mu0_mean = mean(dr$mu0))</code></pre>' +
+          '(ranger, 300 trees) fitted on <code>mlr3HTE_demo_continuous(n = 1500, seed = 1201)</code>.</p>' +
+          '<pre><code class="language-r">d &lt;- mlr3HTE_demo_continuous(setting = "obs", n = 1200, seed = 1204)\ndr &lt;- dr_pseudo_outcome(d$X, d$A, d$Y, seed = 1)\ncat("--- 返回的字段 ---\\n")\nnames(dr)\ncat("\\n--- 伪结局的均值 = DR 估计的 ATE ---\\n")\ntibble(DR_ATE = mean(dr$pseudo), 真实ATE = d$ate)\ncat("\\n--- 三件套的范围 ---\\n")\ntibble(ps_min = min(dr$propensity), ps_max = max(dr$propensity),\n       mu1_mean = mean(dr$mu1), mu0_mean = mean(dr$mu0))</code></pre>' +
           '<p>Output:</p>' +
           '<pre><code class="r-out">--- 返回的字段 ---\n[1] "pseudo"     "mu1"        "mu0"        "propensity" "ate"\n[6] "t0"         "effect"\n\n--- 伪结局的均值 = DR 估计的 ATE ---\n# A tibble: 1 × 2\n  DR_ATE 真实ATE\n   &lt;dbl&gt;   &lt;dbl&gt;\n1  0.979    1.04\n\n--- 三件套的范围 ---\n# A tibble: 1 × 4\n  ps_min ps_max mu1_mean mu0_mean\n   &lt;dbl&gt;  &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;\n1 0.0179  0.939     7.16     6.10</code></pre>' +
           '<p>The DR-estimated ATE here is 0.979 against a truth of 1.04; a gap of this size at n = 1200 is ordinary sampling noise, and it is an order of magnitude smaller than the unadjusted estimate (about 1.74).</p>'
@@ -2246,7 +2248,7 @@ window.SITE_PAGES.apihtebenchmark = {
         id: "example",
         heading: "实测示例",
         body:
-          '<p>代码与输出均为<strong>真实跑出</strong>。背景数据：<code>mlr3HTE_demo_data(n = 1500, seed = 1201)</code>。</p>' +
+          '<p>代码与输出均为<strong>真实跑出</strong>。背景数据：<code>mlr3HTE_demo_continuous(n = 1500, seed = 1201)</code>。</p>' +
           '<pre><code class="language-r">bm &lt;- hte_benchmark(d$X, d$A, d$Y, tau = d$tau, seed = 42)\nbm$table\nbm$setup\ndim(bm$cate)</code></pre>' +
           '<p>实测输出：</p>' +
           '<pre><code class="r-out">learner    ate qini_coefficient qini_normalized toc_gain c_for_benefit\n1       S 1.0367           0.2235          0.4167   0.5160        0.6126\n2       T 1.0960           0.2025          0.3777   0.4915        0.6081\n3       X 1.0919           0.2167          0.4041   0.6466        0.6170\n4       R 0.4983           0.2469          0.4604   0.9460        0.5989\n5      DR 1.0887           0.2214          0.4129   0.5676        0.6173\n  tau_cor tau_rmse\n1  0.9077   0.4382\n2  0.8937   0.4810\n3  0.9455   0.3584\n4  0.8573   0.8540\n5  0.9319   0.3784\n\n--- setup ---\n$n\n[1] 1500\n\n$n_folds\n[1] 5\n\n$seed\n[1] 42\n\n$effect\n[1] "survdiff"\n\n$t0\nNULL\n\n$learners\n[1] "S"  "T"  "X"  "R"  "DR"\n\n$learner_base\n[1] "LearnerRegrRanger"\n\n$has_truth\n[1] TRUE\n\n\n--- cate 长表规模 ---\n[1] 7500    3</code></pre>' +
@@ -2274,7 +2276,7 @@ window.SITE_PAGES.apihtebenchmark = {
         id: "example",
         heading: "Worked example (real output)",
         body:
-          '<p>Both code and output are <strong>actually run</strong>. Background data: <code>mlr3HTE_demo_data(n = 1500, seed = 1201)</code>.</p>' +
+          '<p>Both code and output are <strong>actually run</strong>. Background data: <code>mlr3HTE_demo_continuous(n = 1500, seed = 1201)</code>.</p>' +
           '<pre><code class="language-r">bm &lt;- hte_benchmark(d$X, d$A, d$Y, tau = d$tau, seed = 42)\nbm$table\nbm$setup\ndim(bm$cate)</code></pre>' +
           '<p>Output:</p>' +
           '<pre><code class="r-out">learner    ate qini_coefficient qini_normalized toc_gain c_for_benefit\n1       S 1.0367           0.2235          0.4167   0.5160        0.6126\n2       T 1.0960           0.2025          0.3777   0.4915        0.6081\n3       X 1.0919           0.2167          0.4041   0.6466        0.6170\n4       R 0.4983           0.2469          0.4604   0.9460        0.5989\n5      DR 1.0887           0.2214          0.4129   0.5676        0.6173\n  tau_cor tau_rmse\n1  0.9077   0.4382\n2  0.8937   0.4810\n3  0.9455   0.3584\n4  0.8573   0.8540\n5  0.9319   0.3784\n\n--- setup ---\n$n\n[1] 1500\n\n$n_folds\n[1] 5\n\n$seed\n[1] 42\n\n$effect\n[1] "survdiff"\n\n$t0\nNULL\n\n$learners\n[1] "S"  "T"  "X"  "R"  "DR"\n\n$learner_base\n[1] "LearnerRegrRanger"\n\n$has_truth\n[1] TRUE\n\n\n--- cate 长表规模 ---\n[1] 7500    3</code></pre>' +
@@ -2305,7 +2307,7 @@ window.SITE_PAGES.apiplotbenchmark = {
         id: "example",
         heading: "实测示例",
         body:
-          '<p>代码与输出均为<strong>真实跑出</strong>。背景数据：<code>mlr3HTE_demo_data(n = 1500, seed = 1201)</code>。</p>' +
+          '<p>代码与输出均为<strong>真实跑出</strong>。背景数据：<code>mlr3HTE_demo_continuous(n = 1500, seed = 1201)</code>。</p>' +
           '<pre><code class="language-r">bm &lt;- hte_benchmark(d$X, d$A, d$Y, learners = c("S", "X"), seed = 42)\np &lt;- plot_hte_benchmark(bm, "qini")\nclass(p)\nlength(bm$curves$qini)</code></pre>' +
           '<p>实测输出：</p>' +
           '<pre><code class="language-r">返回类： ggplot2::ggplot ggplot ggplot2::gg S7_object gg \n曲线数： 2 \n默认 min_fraction = 0.05，即前 5% 不画</code></pre>' +
@@ -2342,7 +2344,7 @@ window.SITE_PAGES.apiplotbenchmark = {
         id: "example",
         heading: "Worked example (real output)",
         body:
-          '<p>Both code and output are <strong>actually run</strong>. Background data: <code>mlr3HTE_demo_data(n = 1500, seed = 1201)</code>.</p>' +
+          '<p>Both code and output are <strong>actually run</strong>. Background data: <code>mlr3HTE_demo_continuous(n = 1500, seed = 1201)</code>.</p>' +
           '<pre><code class="language-r">bm &lt;- hte_benchmark(d$X, d$A, d$Y, learners = c("S", "X"), seed = 42)\np &lt;- plot_hte_benchmark(bm, "qini")\nclass(p)\nlength(bm$curves$qini)</code></pre>' +
           '<p>Output:</p>' +
           '<pre><code class="language-r">返回类： ggplot2::ggplot ggplot ggplot2::gg S7_object gg \n曲线数： 2 \n默认 min_fraction = 0.05，即前 5% 不画</code></pre>' +
@@ -2382,7 +2384,7 @@ window.SITE_PAGES.apicateci = {
         id: "example",
         heading: "实测示例",
         body:
-          '<p>代码与输出均为<strong>真实跑出</strong>。背景数据：<code>mlr3HTE_demo_data(n = 800, seed = 1201)</code>；为了速度 B 只取 30。</p>' +
+          '<p>代码与输出均为<strong>真实跑出</strong>。背景数据：<code>mlr3HTE_demo_continuous(n = 800, seed = 1201)</code>；为了速度 B 只取 30。</p>' +
           '<pre><code class="language-r">ci &lt;- cate_ci("T", d$X, d$A, d$Y, B = 30, seed = 1,\n               learner_base = lrn("regr.ranger", num.trees = 150, seed = 1L))\ntibble(ATE = ci$ate, ATE_lo = ci$ate_lo, ATE_hi = ci$ate_hi,\n       B = ci$B, level = ci$level)\ntibble(lo = ci$cate_lo[1:3], hi = ci$cate_hi[1:3])</code></pre>' +
           '<p>实测输出：</p>' +
           '<pre><code class="r-out"># A tibble: 1 × 5\n    ATE ATE_lo ATE_hi     B level\n  &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;\n1  1.05  0.923   1.20    30  0.95\n\n--- CATE 区间宽度（前 3 人）---\n# A tibble: 3 × 2\n      lo    hi\n   &lt;dbl&gt; &lt;dbl&gt;\n1 -0.058 2.26 \n2 -0.893 0.874\n3 -0.264 0.599</code></pre>' +
@@ -2410,7 +2412,7 @@ window.SITE_PAGES.apicateci = {
         id: "example",
         heading: "Worked example (real output)",
         body:
-          '<p>Both code and output are <strong>actually run</strong>. Background data: <code>mlr3HTE_demo_data(n = 800, seed = 1201)</code>; B is only 30 for speed.</p>' +
+          '<p>Both code and output are <strong>actually run</strong>. Background data: <code>mlr3HTE_demo_continuous(n = 800, seed = 1201)</code>; B is only 30 for speed.</p>' +
           '<pre><code class="language-r">ci &lt;- cate_ci("T", d$X, d$A, d$Y, B = 30, seed = 1,\n               learner_base = lrn("regr.ranger", num.trees = 150, seed = 1L))\ntibble(ATE = ci$ate, ATE_lo = ci$ate_lo, ATE_hi = ci$ate_hi,\n       B = ci$B, level = ci$level)\ntibble(lo = ci$cate_lo[1:3], hi = ci$cate_hi[1:3])</code></pre>' +
           '<p>Output:</p>' +
           '<pre><code class="r-out"># A tibble: 1 × 5\n    ATE ATE_lo ATE_hi     B level\n  &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;\n1  1.05  0.923   1.20    30  0.95\n\n--- CATE 区间宽度（前 3 人）---\n# A tibble: 3 × 2\n      lo    hi\n   &lt;dbl&gt; &lt;dbl&gt;\n1 -0.058 2.26 \n2 -0.893 0.874\n3 -0.264 0.599</code></pre>' +
@@ -2754,30 +2756,30 @@ window.SITE_PAGES.apilrn = {
 
 window.SITE_PAGES.apiscenarios = {
   zh: {
-    title: "mlr3HTE_scenarios()",
+    title: "mlr3HTE_demo_continuous(catalog = TRUE)",
     lede: '列出 10 个基准模拟设计的结构标签（研究设计 / 混杂形式 / HTE 形式 / 是否共用变量）。',
     sections: [
       {
         id: "fn",
-        heading: "mlr3HTE_scenarios()",
+        heading: "mlr3HTE_demo_continuous(catalog = TRUE)",
         body:
           '<p>返回 data.frame，每行一个设计。四个维度相互独立，便于固定其余结构、只改变一个维度做对照。</p>' +
-          '<pre><code class="language-r">mlr3HTE_scenarios()</code></pre>' +
+          '<pre><code class="language-r">mlr3HTE_demo_continuous(catalog = TRUE)</code></pre>' +
           '<pre><code class="r-out">                          id design confounding       hte shared\n1                    rct_lin    rct        none    linear  FALSE\n2                 rct_nonlin    rct        none nonlinear  FALSE\n3        obs_lin_lin_sharedF    obs      linear    linear  FALSE\n4        obs_lin_lin_sharedT    obs      linear    linear   TRUE\n5     obs_lin_nonlin_sharedF    obs      linear nonlinear  FALSE\n6     obs_lin_nonlin_sharedT    obs      linear nonlinear   TRUE\n7     obs_nonlin_lin_sharedF    obs   nonlinear    linear  FALSE\n8     obs_nonlin_lin_sharedT    obs   nonlinear    linear   TRUE\n9  obs_nonlin_nonlin_sharedF    obs   nonlinear nonlinear  FALSE\n10 obs_nonlin_nonlin_sharedT    obs   nonlinear nonlinear   TRUE</code></pre>' +
           '<div class="callout warn"><div class="callout-title">使用要点</div><p><code>shared = TRUE</code> 表示存在既进入处理分配模型、又进入真实 CATE 的协变量，即混杂因子兼效应修饰因子。这类变量在观察性研究中是偏差的主要来源。</p></div>'
       }
     ]
   },
   en: {
-    title: "mlr3HTE_scenarios()",
+    title: "mlr3HTE_demo_continuous(catalog = TRUE)",
     lede: 'Lists the structural labels of the ten benchmark simulation designs (design, confounding form, HTE form, shared variable).',
     sections: [
       {
         id: "fn",
-        heading: "mlr3HTE_scenarios()",
+        heading: "mlr3HTE_demo_continuous(catalog = TRUE)",
         body:
           '<p>Returns a data.frame with one row per design. The four dimensions are independent, so one can be varied while the rest are held fixed.</p>' +
-          '<pre><code class="language-r">mlr3HTE_scenarios()</code></pre>' +
+          '<pre><code class="language-r">mlr3HTE_demo_continuous(catalog = TRUE)</code></pre>' +
           '<pre><code class="r-out">                          id design confounding       hte shared\n1                    rct_lin    rct        none    linear  FALSE\n2                 rct_nonlin    rct        none nonlinear  FALSE\n3        obs_lin_lin_sharedF    obs      linear    linear  FALSE\n4        obs_lin_lin_sharedT    obs      linear    linear   TRUE\n5     obs_lin_nonlin_sharedF    obs      linear nonlinear  FALSE\n6     obs_lin_nonlin_sharedT    obs      linear nonlinear   TRUE\n7     obs_nonlin_lin_sharedF    obs   nonlinear    linear  FALSE\n8     obs_nonlin_lin_sharedT    obs   nonlinear    linear   TRUE\n9  obs_nonlin_nonlin_sharedF    obs   nonlinear nonlinear  FALSE\n10 obs_nonlin_nonlin_sharedT    obs   nonlinear nonlinear   TRUE</code></pre>' +
           '<div class="callout warn"><div class="callout-title">Notes</div><p><code>shared = TRUE</code> indicates a covariate that enters both the treatment assignment model and the true CATE, i.e. a confounder that is also an effect modifier. Such variables dominate the bias in observational studies.</p></div>'
       }
@@ -2787,42 +2789,42 @@ window.SITE_PAGES.apiscenarios = {
 
 window.SITE_PAGES.apiscenario = {
   zh: {
-    title: "mlr3HTE_scenario()",
+    title: "mlr3HTE_demo_surv(scenario = ...)",
     lede: '按场景 id 生成一份带真值的模拟数据，同一参数组合完全可复现。',
     sections: [
       {
         id: "fn",
-        heading: "mlr3HTE_scenario()",
+        heading: "mlr3HTE_demo_surv(scenario = ...)",
         body:
           '<div class="table-wrap"><table><thead><tr><th>参数</th><th>说明</th></tr></thead><tbody>' +
-          '<tr><td><code>id</code></td><td>场景 id，取值见 <code>mlr3HTE_scenarios()</code></td></tr>' +
-          '<tr><td><code>outcome</code></td><td><code>"continuous"</code> / <code>"binary"</code> / <code>"survival"</code></td></tr>' +
-          '<tr><td><code>n</code></td><td>样本量，默认 2000</td></tr>' +
-          '<tr><td><code>seed</code></td><td>随机种子；缺省时按 id 与结局派生，保证可复现</td></tr>' +
+          '<tr><td><code>scenario</code></td><td>场景 id，取值见 <code>mlr3HTE_demo_continuous(catalog = TRUE)</code></td></tr>' +
+          '<tr><td><code>outcome</code></td><td>由所选门面决定：<code>mlr3HTE_demo_continuous()</code> / <code>_binary()</code> / <code>_surv()</code></td></tr>' +
+          '<tr><td><code>n</code></td><td>样本量，门面默认 4000；按场景生成时建议显式给出</td></tr>' +
+          '<tr><td><code>seed</code></td><td>随机种子；<code>NULL</code> 时按场景 id 与结局派生，保证可复现</td></tr>' +
           '<tr><td><code>t0</code></td><td>生存结局的效应评估时点，默认 2</td></tr>' +
           '</tbody></table></div>' +
-          '<pre><code class="language-r">s &lt;- mlr3HTE_scenario("obs_nonlin_nonlin_sharedT", "survival", n = 300, seed = 2)\nc(ate = s$ate, ate_rmst = s$ate_rmst)</code></pre>' +
+          '<pre><code class="language-r">s &lt;- mlr3HTE_demo_surv(scenario = "obs_nonlin_nonlin_sharedT", n = 300, seed = 2)\nc(ate = s$ate, ate_rmst = s$ate_rmst)</code></pre>' +
           '<pre><code class="r-out">      ate  ate_rmst\n0.1623314 0.2063841</code></pre>' +
           '<div class="callout warn"><div class="callout-title">使用要点</div><p>真值 <code>tau</code> 的尺度随结局变化：连续结局为均值差，二分类为风险差，生存为 t0 时点生存概率差；生存结局另给 RMST 尺度的 <code>tau_rmst</code>。ATE 一律等于 <code>mean(tau)</code>。</p></div>'
       }
     ]
   },
   en: {
-    title: "mlr3HTE_scenario()",
+    title: "mlr3HTE_demo_surv(scenario = ...)",
     lede: 'Generates one simulated dataset with known ground truth for a given scenario id; identical arguments reproduce identical data.',
     sections: [
       {
         id: "fn",
-        heading: "mlr3HTE_scenario()",
+        heading: "mlr3HTE_demo_surv(scenario = ...)",
         body:
           '<div class="table-wrap"><table><thead><tr><th>参数</th><th>说明</th></tr></thead><tbody>' +
-          '<tr><td><code>id</code></td><td>Scenario id, see <code>mlr3HTE_scenarios()</code></td></tr>' +
-          '<tr><td><code>outcome</code></td><td><code>"continuous"</code> / <code>"binary"</code> / <code>"survival"</code></td></tr>' +
-          '<tr><td><code>n</code></td><td>Sample size, default 2000</td></tr>' +
-          '<tr><td><code>seed</code></td><td>Seed; derived from id and outcome when omitted</td></tr>' +
+          '<tr><td><code>scenario</code></td><td>Scenario id, see <code>mlr3HTE_demo_continuous(catalog = TRUE)</code></td></tr>' +
+          '<tr><td><code>outcome</code></td><td>Selected by the facade: <code>mlr3HTE_demo_continuous()</code> / <code>_binary()</code> / <code>_surv()</code></td></tr>' +
+          '<tr><td><code>n</code></td><td>Sample size; the facade defaults to 4000, set it explicitly for scenario data</td></tr>' +
+          '<tr><td><code>seed</code></td><td>Seed; <code>NULL</code> derives one from scenario id and outcome</td></tr>' +
           '<tr><td><code>t0</code></td><td>Evaluation time for survival outcomes, default 2</td></tr>' +
           '</tbody></table></div>' +
-          '<pre><code class="language-r">s &lt;- mlr3HTE_scenario("obs_nonlin_nonlin_sharedT", "survival", n = 300, seed = 2)\nc(ate = s$ate, ate_rmst = s$ate_rmst)</code></pre>' +
+          '<pre><code class="language-r">s &lt;- mlr3HTE_demo_surv(scenario = "obs_nonlin_nonlin_sharedT", n = 300, seed = 2)\nc(ate = s$ate, ate_rmst = s$ate_rmst)</code></pre>' +
           '<pre><code class="r-out">      ate  ate_rmst\n0.1623314 0.2063841</code></pre>' +
           '<div class="callout warn"><div class="callout-title">Notes</div><p>The scale of <code>tau</code> depends on the outcome: a mean difference for continuous outcomes, a risk difference for binary outcomes, and a difference in survival probability at t0 for survival outcomes, which additionally return <code>tau_rmst</code>. The ATE always equals <code>mean(tau)</code>.</p></div>'
       }
@@ -2832,28 +2834,28 @@ window.SITE_PAGES.apiscenario = {
 
 window.SITE_PAGES.apibench = {
   zh: {
-    title: "mlr3HTE_bench()",
+    title: "mlr3HTE_demo_continuous(source = 'bundled')",
     lede: '取出随包发布的基准数据（10 个设计 × 3 类结局，n = 2000，固定种子）。',
     sections: [
       {
         id: "fn",
-        heading: "mlr3HTE_bench()",
+        heading: "mlr3HTE_demo_continuous(source = 'bundled')",
         body:
-          '<pre><code class="language-r">b &lt;- mlr3HTE_bench("rct_lin", "continuous")\nlist(n = nrow(b$X), ate = b$ate, all_ps_half = all(b$ps_true == 0.5))</code></pre>' +
+          '<pre><code class="language-r">b &lt;- mlr3HTE_demo_continuous(source = "bundled", dataset = "rct_lin")\nlist(n = nrow(b$X), ate = b$ate, all_ps_half = all(b$ps_true == 0.5))</code></pre>' +
           '<pre><code class="r-out">$n\n[1] 2000\n\n$ate\n[1] 1\n\n$all_ps_half\n[1] TRUE</code></pre>' +
           '<div class="callout warn"><div class="callout-title">使用要点</div><p>方法学比较应统一使用这一份数据，避免各自重新模拟导致结论不可比。若请求的组合不存在，会即时按同一生成器重算，结果一致但更慢。</p></div>'
       }
     ]
   },
   en: {
-    title: "mlr3HTE_bench()",
+    title: "mlr3HTE_demo_continuous(source = 'bundled')",
     lede: 'Returns the benchmark data shipped with the package (10 designs x 3 outcomes, n = 2000, fixed seeds).',
     sections: [
       {
         id: "fn",
-        heading: "mlr3HTE_bench()",
+        heading: "mlr3HTE_demo_continuous(source = 'bundled')",
         body:
-          '<pre><code class="language-r">b &lt;- mlr3HTE_bench("rct_lin", "continuous")\nlist(n = nrow(b$X), ate = b$ate, all_ps_half = all(b$ps_true == 0.5))</code></pre>' +
+          '<pre><code class="language-r">b &lt;- mlr3HTE_demo_continuous(source = "bundled", dataset = "rct_lin")\nlist(n = nrow(b$X), ate = b$ate, all_ps_half = all(b$ps_true == 0.5))</code></pre>' +
           '<pre><code class="r-out">$n\n[1] 2000\n\n$ate\n[1] 1\n\n$all_ps_half\n[1] TRUE</code></pre>' +
           '<div class="callout warn"><div class="callout-title">Notes</div><p>Method comparisons should use this single dataset so that conclusions remain comparable. If a requested combination is absent, it is recomputed from the same generator: identical results, but slower.</p></div>'
       }
@@ -2863,28 +2865,28 @@ window.SITE_PAGES.apibench = {
 
 window.SITE_PAGES.apibenchindex = {
   zh: {
-    title: "mlr3HTE_bench_index()",
+    title: "mlr3HTE_demo_continuous(catalog = TRUE, source = 'bundled')",
     lede: '列出打包数据中实际存在的键、真值 ATE 与样本量，便于批量循环。',
     sections: [
       {
         id: "fn",
-        heading: "mlr3HTE_bench_index()",
+        heading: "mlr3HTE_demo_continuous(catalog = TRUE, source = 'bundled')",
         body:
-          '<pre><code class="language-r">idx &lt;- mlr3HTE_bench_index()\ndim(idx)\nutils::head(idx, 4)</code></pre>' +
+          '<pre><code class="language-r">idx &lt;- mlr3HTE_demo_continuous(catalog = TRUE, source = "bundled")\ndim(idx)\nutils::head(idx, 4)</code></pre>' +
           '<pre><code class="r-out">dim: 30 5\n                    key         id    outcome       ate    n\n1    rct_lin.continuous    rct_lin continuous 1.0000000 2000\n2        rct_lin.binary    rct_lin     binary 0.1288110 2000\n3      rct_lin.survival    rct_lin   survival 0.1542625 2000\n4 rct_nonlin.continuous rct_nonlin continuous 0.9939152 2000</code></pre>' +
           '<div class="callout warn"><div class="callout-title">使用要点</div><p>共 30 行（10 设计 × 3 结局）。键的格式为 <code>&lt;场景 id&gt;.&lt;结局&gt;</code>。</p></div>'
       }
     ]
   },
   en: {
-    title: "mlr3HTE_bench_index()",
+    title: "mlr3HTE_demo_continuous(catalog = TRUE, source = 'bundled')",
     lede: 'Lists the keys present in the bundled data together with the true ATE and sample size, for batch iteration.',
     sections: [
       {
         id: "fn",
-        heading: "mlr3HTE_bench_index()",
+        heading: "mlr3HTE_demo_continuous(catalog = TRUE, source = 'bundled')",
         body:
-          '<pre><code class="language-r">idx &lt;- mlr3HTE_bench_index()\ndim(idx)\nutils::head(idx, 4)</code></pre>' +
+          '<pre><code class="language-r">idx &lt;- mlr3HTE_demo_continuous(catalog = TRUE, source = "bundled")\ndim(idx)\nutils::head(idx, 4)</code></pre>' +
           '<pre><code class="r-out">dim: 30 5\n                    key         id    outcome       ate    n\n1    rct_lin.continuous    rct_lin continuous 1.0000000 2000\n2        rct_lin.binary    rct_lin     binary 0.1288110 2000\n3      rct_lin.survival    rct_lin   survival 0.1542625 2000\n4 rct_nonlin.continuous rct_nonlin continuous 0.9939152 2000</code></pre>' +
           '<div class="callout warn"><div class="callout-title">Notes</div><p>Thirty rows in total (10 designs x 3 outcomes). Keys follow the pattern <code>&lt;scenario id&gt;.&lt;outcome&gt;</code>.</p></div>'
       }
@@ -2909,7 +2911,7 @@ window.SITE_PAGES.apiexplainer = {
           '<tr><td><code>t0 / effect</code></td><td>生存结局的评估时点与效应尺度</td></tr>' +
           '<tr><td><code>label / verbose</code></td><td>解释器显示名 / 是否打印 DALEX 进度</td></tr>' +
           '</tbody></table></div>' +
-          '<pre><code class="language-r">d &lt;- mlr3HTE_scenario("rct_nonlin", "continuous", n = 400, seed = 1)\nfit &lt;- metalearner("T", d$X, d$A, d$Y,\n                   learner_base = lrn("regr.ranger", num.trees = 200))\nex &lt;- hte_explainer(fit, d$X, d$A, d$Y, seed = 1)\nc(n = length(ex$pseudo), cor_pseudo_tau = round(cor(ex$pseudo, d$tau), 3))</code></pre>' +
+          '<pre><code class="language-r">d &lt;- mlr3HTE_demo_continuous(scenario = "rct_nonlin", n = 400, seed = 1)\nfit &lt;- metalearner("T", d$X, d$A, d$Y,\n                   learner_base = lrn("regr.ranger", num.trees = 200))\nex &lt;- hte_explainer(fit, d$X, d$A, d$Y, seed = 1)\nc(n = length(ex$pseudo), cor_pseudo_tau = round(cor(ex$pseudo, d$tau), 3))</code></pre>' +
           '<pre><code class="r-out">             n cor_pseudo_tau\n       400.000          0.326</code></pre>' +
           '<div class="callout warn"><div class="callout-title">使用要点</div><p>伪结局与真值 <code>tau</code> 的相关通常不高（上例 0.326）：它是逐人的无偏估计，方差很大，个别取值可能远离真值。这不影响它作为解释目标的资格——<code>E[Y*|X] = tau(X)</code> 是<strong>条件期望</strong>层面的性质，与单点噪声无关。若要逐点精度，应看 metalearner 的 CATE 估计，而非伪结局。</p></div>' +
           '<div class="callout warn"><div class="callout-title">使用要点</div><p>响应变量必须是伪结局。若直接用 <code>Y</code>，置换重要性与 PDP 衡量的将是「该变量对基线预后 <code>mu(X)</code> 的重要性」，与效应异质性无关。伪结局满足 <code>E[Y*|X] = tau(X)</code>，因此解释目标才是 CATE。</p></div>'
@@ -2932,7 +2934,7 @@ window.SITE_PAGES.apiexplainer = {
           '<tr><td><code>t0 / effect</code></td><td>Evaluation time and effect scale for survival outcomes</td></tr>' +
           '<tr><td><code>label / verbose</code></td><td>Explainer label / whether to print DALEX progress</td></tr>' +
           '</tbody></table></div>' +
-          '<pre><code class="language-r">d &lt;- mlr3HTE_scenario("rct_nonlin", "continuous", n = 400, seed = 1)\nfit &lt;- metalearner("T", d$X, d$A, d$Y,\n                   learner_base = lrn("regr.ranger", num.trees = 200))\nex &lt;- hte_explainer(fit, d$X, d$A, d$Y, seed = 1)\nc(n = length(ex$pseudo), cor_pseudo_tau = round(cor(ex$pseudo, d$tau), 3))</code></pre>' +
+          '<pre><code class="language-r">d &lt;- mlr3HTE_demo_continuous(scenario = "rct_nonlin", n = 400, seed = 1)\nfit &lt;- metalearner("T", d$X, d$A, d$Y,\n                   learner_base = lrn("regr.ranger", num.trees = 200))\nex &lt;- hte_explainer(fit, d$X, d$A, d$Y, seed = 1)\nc(n = length(ex$pseudo), cor_pseudo_tau = round(cor(ex$pseudo, d$tau), 3))</code></pre>' +
           '<pre><code class="r-out">             n cor_pseudo_tau\n       400.000          0.326</code></pre>' +
           '<div class="callout warn"><div class="callout-title">Notes</div><p>The correlation between the pseudo-outcome and the true <code>tau</code> is usually modest (0.326 above): it is an unbiased but high-variance individual-level estimate. That does not disqualify it as an explanation target — <code>E[Y*|X] = tau(X)</code> is a property of the <strong>conditional expectation</strong>, not of individual noise. For point-wise accuracy, use the metalearner\'s CATE estimate instead.</p></div>' +
           '<div class="callout warn"><div class="callout-title">Notes</div><p>The response must be the pseudo-outcome. With the raw <code>Y</code>, permutation importance and partial dependence measure how strongly a variable drives the baseline prognosis <code>mu(X)</code>, which is unrelated to effect heterogeneity. The pseudo-outcome satisfies <code>E[Y*|X] = tau(X)</code>, so the explanation target is the CATE itself.</p></div>'
@@ -2950,7 +2952,7 @@ window.SITE_PAGES.apisurrogate = {
         id: "fn",
         heading: "hte_surrogate()",
         body:
-          '<pre><code class="language-r">d &lt;- mlr3HTE_scenario("rct_nonlin", "continuous", n = 400, seed = 1)\nfit &lt;- metalearner("T", d$X, d$A, d$Y, learner_base = lrn("regr.ranger", num.trees = 200))\nsur &lt;- hte_surrogate(d$X, fit$predict(d$X))\nlist(learner = sur$learner_id,\n     cor = round(cor(sur$predict(d$X), fit$predict(d$X)), 3))</code></pre>' +
+          '<pre><code class="language-r">d &lt;- mlr3HTE_demo_continuous(scenario = "rct_nonlin", n = 400, seed = 1)\nfit &lt;- metalearner("T", d$X, d$A, d$Y, learner_base = lrn("regr.ranger", num.trees = 200))\nsur &lt;- hte_surrogate(d$X, fit$predict(d$X))\nlist(learner = sur$learner_id,\n     cor = round(cor(sur$predict(d$X), fit$predict(d$X)), 3))</code></pre>' +
           '<pre><code class="r-out">$learner\n[1] "regr.ranger"\n\n$cor\n[1] 0.913</code></pre>' +
           '<div class="callout warn"><div class="callout-title">使用要点</div><p>代理模型只用于解释与可视化，不应替代原 metalearner 做效应估计：它把多阶段、带权重、带交叉拟合的过程压缩成单一回归，精度必然下降。</p></div>'
       }
@@ -2964,7 +2966,7 @@ window.SITE_PAGES.apisurrogate = {
         id: "fn",
         heading: "hte_surrogate()",
         body:
-          '<pre><code class="language-r">d &lt;- mlr3HTE_scenario("rct_nonlin", "continuous", n = 400, seed = 1)\nfit &lt;- metalearner("T", d$X, d$A, d$Y, learner_base = lrn("regr.ranger", num.trees = 200))\nsur &lt;- hte_surrogate(d$X, fit$predict(d$X))\nlist(learner = sur$learner_id,\n     cor = round(cor(sur$predict(d$X), fit$predict(d$X)), 3))</code></pre>' +
+          '<pre><code class="language-r">d &lt;- mlr3HTE_demo_continuous(scenario = "rct_nonlin", n = 400, seed = 1)\nfit &lt;- metalearner("T", d$X, d$A, d$Y, learner_base = lrn("regr.ranger", num.trees = 200))\nsur &lt;- hte_surrogate(d$X, fit$predict(d$X))\nlist(learner = sur$learner_id,\n     cor = round(cor(sur$predict(d$X), fit$predict(d$X)), 3))</code></pre>' +
           '<pre><code class="r-out">$learner\n[1] "regr.ranger"\n\n$cor\n[1] 0.913</code></pre>' +
           '<div class="callout warn"><div class="callout-title">Notes</div><p>The surrogate is intended for explanation and visualisation only and should not replace the original metalearner for effect estimation: it compresses a multi-stage, weighted, cross-fitted procedure into a single regression and necessarily loses precision.</p></div>'
       }
@@ -3307,28 +3309,28 @@ window.SITE_PAGES.apiplotshap = {
 
 window.SITE_PAGES.apidagdata = {
   zh: {
-    title: "mlr3HTE_dag_data()",
+    title: "mlr3HTE_demo_continuous(design = 'rct')",
     lede: 'DAG 图的节点表与边表，含每条边的路由结果（曲率）。',
     sections: [
       {
         id: "fn",
-        heading: "mlr3HTE_dag_data()",
+        heading: "mlr3HTE_demo_continuous(design = 'rct')",
         body:
-          '<pre><code class="language-r">dd &lt;- mlr3HTE_dag_data("rct", "continuous")\ndd$edges[, c("from", "to", "type", "curve")]</code></pre>' +
+          '<pre><code class="language-r">dd &lt;- mlr3HTE_demo_continuous(design = "rct")\ndd$edges[, c("from", "to", "type", "curve")]</code></pre>' +
           '<pre><code class="r-out">  from  to type curve\n1    X tau base     0\n2    X  mu base     0\n3    A   Y base     0\n4  tau   Y base     0\n5   mu   Y base     0</code></pre>' +
           '<div class="callout warn"><div class="callout-title">使用要点</div><p>任意两个节点之间只保留一条有向边。若某条边会从第三个节点身上穿过，自动加曲率绕行，<code>curve</code> 列即该边采用的曲率（0 表示直线）。绘图时按曲率分组，一层一个 <code>geom_curve</code>。</p></div>'
       }
     ]
   },
   en: {
-    title: "mlr3HTE_dag_data()",
+    title: "mlr3HTE_demo_continuous(design = 'rct')",
     lede: 'The node and edge tables behind the DAG plot, including the routing result (curvature) of every edge.',
     sections: [
       {
         id: "fn",
-        heading: "mlr3HTE_dag_data()",
+        heading: "mlr3HTE_demo_continuous(design = 'rct')",
         body:
-          '<pre><code class="language-r">dd &lt;- mlr3HTE_dag_data("rct", "continuous")\ndd$edges[, c("from", "to", "type", "curve")]</code></pre>' +
+          '<pre><code class="language-r">dd &lt;- mlr3HTE_demo_continuous(design = "rct")\ndd$edges[, c("from", "to", "type", "curve")]</code></pre>' +
           '<pre><code class="r-out">  from  to type curve\n1    X tau base     0\n2    X  mu base     0\n3    A   Y base     0\n4  tau   Y base     0\n5   mu   Y base     0</code></pre>' +
           '<div class="callout warn"><div class="callout-title">Notes</div><p>At most one directed edge is kept between any pair of nodes. If an edge would pass through a third node, a curvature is added automatically and recorded in the <code>curve</code> column (0 means a straight line). The plot is then drawn with one <code>geom_curve</code> layer per curvature value.</p></div>'
       }
@@ -3381,13 +3383,13 @@ window.SITE_PAGES.apisim = {
         heading: "模拟数据与 DAG",
         body:
           '<p>这一组函数回答“用什么数据做比较”与“因果结构长什么样”。四个结构维度（研究设计 / 混杂形式 / HTE 形式 / 共用变量）相互独立，便于固定其余、只改一个来做对照。</p>' +
-          '<div class="table-wrap"><table><thead><tr><th>函数</th><th>用途</th></tr></thead><tbody><tr><td><a href="#/apiscenarios">mlr3HTE_scenarios()</a></td><td>列出 10 个基准设计的结构标签</td></tr><tr><td><a href="#/apiscenario">mlr3HTE_scenario()</a></td><td>按场景 id 生成一份带真值的模拟数据</td></tr><tr><td><a href="#/apibench">mlr3HTE_bench()</a></td><td>取出随包发布的基准数据（10 设计 × 3 结局）</td></tr><tr><td><a href="#/apibenchindex">mlr3HTE_bench_index()</a></td><td>列出打包数据中实际存在的键与真值 ATE</td></tr><tr><td><a href="#/apidagdata">mlr3HTE_dag_data() · mlr3HTE_dag()()</a></td><td>DAG 的节点表、边表与绘图，含每条边的曲率路由</td></tr><tr><td><a href="#/apibenchdata">hte_benchmark_data()</a></td><td>取出基准测试的曲线绘图数据与参考线</td></tr></tbody></table></div>'
+          '<div class="table-wrap"><table><thead><tr><th>函数</th><th>用途</th></tr></thead><tbody><tr><td><a href="#/apiscenarios">mlr3HTE_demo_continuous(catalog = TRUE)</a></td><td>列出 10 个基准设计的结构标签</td></tr><tr><td><a href="#/apiscenario">mlr3HTE_demo_surv(scenario = "rct_lin")</a></td><td>按场景 id 生成一份带真值的模拟数据</td></tr><tr><td><a href="#/apibench">mlr3HTE_demo_continuous(source = "bundled", dataset = "rct_lin")</a></td><td>取出随包发布的基准数据（10 设计 × 3 结局）</td></tr><tr><td><a href="#/apibenchindex">mlr3HTE_demo_continuous(catalog = TRUE, source = "bundled")</a></td><td>列出打包数据中实际存在的键与真值 ATE</td></tr><tr><td><a href="#/apidagdata">mlr3HTE_demo_continuous(design = "rct") · mlr3HTE_dag()</a></td><td>DAG 的节点表、边表与绘图，含每条边的曲率路由</td></tr><tr><td><a href="#/apibenchdata">hte_benchmark_data()</a></td><td>取出基准测试的曲线绘图数据与参考线</td></tr></tbody></table></div>'
       },
       {
         id: "dag",
         heading: "DAG 的唯一箭头约定",
         body:
-          '<p>任意两个节点之间只保留一条有向边；若某条边会从第三个节点身上穿过，<code>mlr3HTE_dag_data()</code> 会自动加曲率绕行，曲率记在 <code>curve</code> 列（0 表示直线）。绘图时按曲率分组，一层一个 <code>geom_curve</code>——因为 <code>curvature</code> 是参数而非美学映射，不能直接写进 <code>aes()</code>。</p>'
+          '<p>任意两个节点之间只保留一条有向边；若某条边会从第三个节点身上穿过，<code>mlr3HTE_demo_continuous(design = "rct")</code> 会自动加曲率绕行，曲率记在 <code>curve</code> 列（0 表示直线）。绘图时按曲率分组，一层一个 <code>geom_curve</code>——因为 <code>curvature</code> 是参数而非美学映射，不能直接写进 <code>aes()</code>。</p>'
       }
     ]
   },
@@ -3400,13 +3402,13 @@ window.SITE_PAGES.apisim = {
         heading: "Simulation data & DAG",
         body:
           '<p>These functions answer which data to compare on and what the causal structure looks like. The four structural dimensions (design, confounding form, HTE form, shared variable) are independent, so one can be varied while the rest are held fixed.</p>' +
-          '<div class="table-wrap"><table><thead><tr><th>Function</th><th>Purpose</th></tr></thead><tbody><tr><td><a href="#/apiscenarios">mlr3HTE_scenarios()</a></td><td>Lists the structural labels of the ten benchmark designs</td></tr><tr><td><a href="#/apiscenario">mlr3HTE_scenario()</a></td><td>Generates one simulated dataset with known ground truth</td></tr><tr><td><a href="#/apibench">mlr3HTE_bench()</a></td><td>Returns the bundled benchmark data (10 designs x 3 outcomes)</td></tr><tr><td><a href="#/apibenchindex">mlr3HTE_bench_index()</a></td><td>Lists the keys present in the bundled data and the true ATE</td></tr><tr><td><a href="#/apidagdata">mlr3HTE_dag_data() · mlr3HTE_dag()()</a></td><td>Node and edge tables plus the DAG plot, including curvature routing</td></tr><tr><td><a href="#/apibenchdata">hte_benchmark_data()</a></td><td>Returns benchmark curve data with the reference lines</td></tr></tbody></table></div>'
+          '<div class="table-wrap"><table><thead><tr><th>Function</th><th>Purpose</th></tr></thead><tbody><tr><td><a href="#/apiscenarios">mlr3HTE_demo_continuous(catalog = TRUE)</a></td><td>Lists the structural labels of the ten benchmark designs</td></tr><tr><td><a href="#/apiscenario">mlr3HTE_demo_surv(scenario = "rct_lin")</a></td><td>Generates one simulated dataset with known ground truth</td></tr><tr><td><a href="#/apibench">mlr3HTE_demo_continuous(source = "bundled", dataset = "rct_lin")</a></td><td>Returns the bundled benchmark data (10 designs x 3 outcomes)</td></tr><tr><td><a href="#/apibenchindex">mlr3HTE_demo_continuous(catalog = TRUE, source = "bundled")</a></td><td>Lists the keys present in the bundled data and the true ATE</td></tr><tr><td><a href="#/apidagdata">mlr3HTE_demo_continuous(design = "rct") · mlr3HTE_dag()</a></td><td>Node and edge tables plus the DAG plot, including curvature routing</td></tr><tr><td><a href="#/apibenchdata">hte_benchmark_data()</a></td><td>Returns benchmark curve data with the reference lines</td></tr></tbody></table></div>'
       },
       {
         id: "dag",
         heading: "One arrow per pair of nodes",
         body:
-          '<p>At most one directed edge is kept between any pair of nodes. If an edge would pass through a third node, <code>mlr3HTE_dag_data()</code> adds curvature automatically and records it in the <code>curve</code> column (0 means a straight line). The plot is drawn with one <code>geom_curve</code> layer per curvature value, because <code>curvature</code> is a parameter rather than an aesthetic and cannot go inside <code>aes()</code>.</p>'
+          '<p>At most one directed edge is kept between any pair of nodes. If an edge would pass through a third node, <code>mlr3HTE_demo_continuous(design = "rct")</code> adds curvature automatically and records it in the <code>curve</code> column (0 means a straight line). The plot is drawn with one <code>geom_curve</code> layer per curvature value, because <code>curvature</code> is a parameter rather than an aesthetic and cannot go inside <code>aes()</code>.</p>'
       }
     ]
   }
@@ -3462,19 +3464,20 @@ window.SITE_PAGES.apiexplain = {
         heading: "返回什么",
         body:
           '<div class="fn">' +
-          '<div class="fn-name">mlr3HTE_benchmark_data()<span class="badge">data</span></div>' +
-          '<div class="fn-sig">mlr3HTE_benchmark_data(name = NULL, path = NULL)</div>' +
+          '<div class="fn-name">mlr3HTE_demo_continuous(source = "benchmark")<span class="badge">data</span></div>' +
+          '<div class="fn-sig">mlr3HTE_demo_continuous(source = "benchmark", dataset = NULL)</div>' +
           '<p>读取基准数据。优先 <code>.RData</code>（保留列类型、加载更快），缺失时回退 <code>.csv</code>。' +
-          '<code>name = NULL</code> 返回全部（命名 list）；取单个名称返回单个 data.frame。</p>' +
+          '返回统一 list（<code>X / A / Y / tau / ate</code>）并附 <code>raw</code> 原始表；' +
+          '<code>dataset = NULL</code> 时返回全部 5 份的命名 list。结局类型按各份数据自身的列推断。</p>' +
           '</div>' +
           '<div class="fn">' +
-          '<div class="fn-name">mlr3HTE_benchmark_meta()</div>' +
-          '<div class="fn-sig">mlr3HTE_benchmark_meta(path = NULL)</div>' +
+          '<div class="fn-name">mlr3HTE_demo_continuous(catalog = TRUE, source = "benchmark")</div>' +
+          '<div class="fn-sig">mlr3HTE_demo_continuous(catalog = TRUE, source = "benchmark")</div>' +
           '<p>数据字典：来源包、生成函数、样本量、特征数、结局/处理类型、是否含真实效应、真实 ATE 与字段说明。</p>' +
           '</div>' +
           '<div class="fn">' +
-          '<div class="fn-name">mlr3HTE_benchmark_export()</div>' +
-          '<div class="fn-sig">mlr3HTE_benchmark_export(dest, path = NULL)</div>' +
+          '<div class="fn-name">mlr3HTE_demo_continuous(export_to = dest)</div>' +
+          '<div class="fn-sig">mlr3HTE_demo_continuous(export_to = dest)</div>' +
           '<p>把全部基准数据（RData + CSV）与元信息复制到 <code>dest</code>，便于包外使用或上传其它仓库。</p>' +
           '</div>'
       },
@@ -3498,15 +3501,15 @@ window.SITE_PAGES.apiexplain = {
         heading: "实测示例",
         body:
           '<pre><code class="language-r"># 数据字典\n' +
-          'mlr3HTE_benchmark_meta()\n\n' +
-          '# 取单个数据集（列含 cate_true）\n' +
-          'd &lt;- mlr3HTE_benchmark_data("grf_causal")\n' +
-          'head(d)\n\n' +
+          'mlr3HTE_demo_continuous(catalog = TRUE, source = "benchmark")\n\n' +
+          '# 取单个数据集（raw 含 cate_true）\n' +
+          'd &lt;- mlr3HTE_demo_continuous(source = "benchmark", dataset = "grf_causal")\n' +
+          'head(d$raw)\n\n' +
           '# 取全部，命名 list\n' +
-          'all_d &lt;- mlr3HTE_benchmark_data()\n' +
+          'all_d &lt;- mlr3HTE_demo_continuous(source = "benchmark")\n' +
           'names(all_d)\n\n' +
           '# 导出到本地目录\n' +
-          'mlr3HTE_benchmark_export("~/benchmarks")</code></pre>'
+          'mlr3HTE_demo_continuous(export_to = "~/benchmarks")</code></pre>'
       }
     ]
   },
@@ -3520,19 +3523,21 @@ window.SITE_PAGES.apiexplain = {
         heading: "What it returns",
         body:
           '<div class="fn">' +
-          '<div class="fn-name">mlr3HTE_benchmark_data()<span class="badge">data</span></div>' +
-          '<div class="fn-sig">mlr3HTE_benchmark_data(name = NULL, path = NULL)</div>' +
+          '<div class="fn-name">mlr3HTE_demo_continuous(source = "benchmark")<span class="badge">data</span></div>' +
+          '<div class="fn-sig">mlr3HTE_demo_continuous(source = "benchmark", dataset = NULL)</div>' +
           '<p>Load benchmark data. Prefers <code>.RData</code> (preserves column types, faster) and falls back to <code>.csv</code>. ' +
-          '<code>name = NULL</code> returns all datasets as a named list; a single name returns one data.frame.</p>' +
+          'Returns a unified list (<code>X / A / Y / tau / ate</code>) plus the untouched <code>raw</code> table; ' +
+          '<code>dataset = NULL</code> returns all five datasets as a named list. Each outcome type is inferred ' +
+          'from that dataset\'s own columns.</p>' +
           '</div>' +
           '<div class="fn">' +
-          '<div class="fn-name">mlr3HTE_benchmark_meta()</div>' +
-          '<div class="fn-sig">mlr3HTE_benchmark_meta(path = NULL)</div>' +
+          '<div class="fn-name">mlr3HTE_demo_continuous(catalog = TRUE, source = "benchmark")</div>' +
+          '<div class="fn-sig">mlr3HTE_demo_continuous(catalog = TRUE, source = "benchmark")</div>' +
           '<p>Data dictionary: source package, generator, sample size, number of features, outcome/treatment type, ground-truth availability, true ATE and field notes.</p>' +
           '</div>' +
           '<div class="fn">' +
-          '<div class="fn-name">mlr3HTE_benchmark_export()</div>' +
-          '<div class="fn-sig">mlr3HTE_benchmark_export(dest, path = NULL)</div>' +
+          '<div class="fn-name">mlr3HTE_demo_continuous(export_to = dest)</div>' +
+          '<div class="fn-sig">mlr3HTE_demo_continuous(export_to = dest)</div>' +
           '<p>Copy all benchmark data (RData + CSV) and metadata to <code>dest</code>, for use outside the package or upload to another repository.</p>' +
           '</div>'
       },
@@ -3556,15 +3561,15 @@ window.SITE_PAGES.apiexplain = {
         heading: "Example",
         body:
           '<pre><code class="language-r"># data dictionary\n' +
-          'mlr3HTE_benchmark_meta()\n\n' +
-          '# one dataset (columns include cate_true)\n' +
-          'd &lt;- mlr3HTE_benchmark_data("grf_causal")\n' +
-          'head(d)\n\n' +
-          '# all datasets as a named list\n' +
-          'all_d &lt;- mlr3HTE_benchmark_data()\n' +
+          'mlr3HTE_demo_continuous(catalog = TRUE, source = "benchmark")\n\n' +
+          '# one dataset (raw contains cate_true)\n' +
+          'd &lt;- mlr3HTE_demo_continuous(source = "benchmark", dataset = "grf_causal")\n' +
+          'head(d$raw)\n\n' +
+          '# all five datasets as a named list\n' +
+          'all_d &lt;- mlr3HTE_demo_continuous(source = "benchmark")\n' +
           'names(all_d)\n\n' +
           '# export to a local directory\n' +
-          'mlr3HTE_benchmark_export("~/benchmarks")</code></pre>'
+          'mlr3HTE_demo_continuous(export_to = "~/benchmarks")</code></pre>'
       }
     ]
   }

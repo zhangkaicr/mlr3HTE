@@ -12,22 +12,22 @@ out <- function(tag, code) {
 }
 
 set.seed(1)
-d  <- mlr3HTE_scenario("obs_lin_lin_sharedT", "continuous", n = 600, seed = 1)
-dv <- mlr3HTE_scenario("rct_nonlin", "continuous", n = 400, seed = 1)
+d  <- mlr3HTE_demo_continuous(scenario = "obs_lin_lin_sharedT", n = 600, seed = 1)
+dv <- mlr3HTE_demo_continuous(scenario = "rct_nonlin", n = 400, seed = 1)
 fit <- metalearner("T", dv$X, dv$A, dv$Y,
                    learner_base = mlr3::lrn("regr.ranger", num.trees = 200))
 ex <- hte_explainer(fit, dv$X, dv$A, dv$Y, seed = 1)
 
-sc <- mlr3HTE_scenarios()
+sc <- mlr3HTE_demo_continuous(catalog = TRUE)
 out("scenarios", print(sc))
 out("scenario_meta", {
-  s <- mlr3HTE_scenario("obs_nonlin_nonlin_sharedT", "survival", n = 300, seed = 2)
+  s <- mlr3HTE_demo_surv(scenario = "obs_nonlin_nonlin_sharedT", n = 300, seed = 2)
   str(s$meta)
   cat("ate =", s$ate, " ate_rmst =", s$ate_rmst, "\n")
 })
-out("bench_index", print(utils::head(mlr3HTE_bench_index(), 4)))
+out("bench_index", print(utils::head(mlr3HTE_demo_continuous(catalog = TRUE, source = "bundled"), 4)))
 out("bench_one", {
-  b <- mlr3HTE_bench("rct_lin", "continuous")
+  b <- mlr3HTE_demo_continuous(source = "bundled", dataset = "rct_lin")
   cat("n =", nrow(b$X), " ate =", b$ate, " ps 全为 0.5:", all(b$ps_true == 0.5), "\n")
 })
 
@@ -56,7 +56,7 @@ out("plot_classes", {
 
 # 生存结局的解释器也走一遍，确认伪结局与 RMST 尺度都通
 out("surv_explainer", {
-  s <- mlr3HTE_scenario("rct_lin", "survival", n = 300, seed = 1)
+  s <- mlr3HTE_demo_surv(scenario = "rct_lin", n = 300, seed = 1)
   f <- metalearner("T", s$X, s$A, s$Y, learner_base = "coxph", t0 = s$t0)
   e2 <- hte_explainer(f, s$X, s$A, s$Y, t0 = s$t0, effect = "survdiff", seed = 1)
   cat("n =", length(e2$pseudo), " t0 =", e2$t0, " pseudo 均值 =", round(mean(e2$pseudo), 4), "\n")

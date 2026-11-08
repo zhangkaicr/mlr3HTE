@@ -3,7 +3,7 @@
 # 目的：把估计出来的 CATE 曲面当作一个"模型"来解释——哪些变量驱动了效应异质性、
 #       效应随某个变量如何变化、单个个体的效应由哪些变量推高或拉低。
 #       解释对象必须是双重稳健伪结局 Y*（E[Y*|X] = tau(X)），不能是原始 Y。
-# 输入：无（数据由 mlr3HTE_scenario() 现场生成，或使用随包基准数据）
+# 输入：无（数据由 mlr3HTE_demo_continuous() 现场生成，或使用随包基准数据）
 # 输出：置换重要性表与图、PDP/ALE 曲线与图、SHAP 蜂群/依赖/瀑布图、可加性校验
 # 依赖：mlr3, mlr3learners, mlr3HTE, DALEX, kernelshap, shapviz, ggplot2, cli
 # 运行：在 mlr3HTE/ 目录下执行
@@ -42,7 +42,7 @@ if (length(miss)) {
 cli::cli_alert_info("响应变量取双重稳健伪结局：E[Y*|X] = tau(X)")
 
 # 2 拟合一个 CATE 模型 ----
-d <- mlr3HTE_scenario("rct_nonlin", "continuous", n = 600, seed = 1)
+d <- mlr3HTE_demo_continuous(scenario = "rct_nonlin", n = 600, seed = 1)
 fit <- metalearner("T", d$X, d$A, d$Y,
                    learner_base = lrn("regr.ranger", num.trees = 300))
 
@@ -122,7 +122,7 @@ ggplot2::ggplot(qd, ggplot2::aes(x = .data$value, y = .data$shap)) +
   ggplot2::theme_minimal(base_size = 12)
 
 # 9 生存结局也可以同样解释 ----
-s <- mlr3HTE_scenario("rct_lin", "survival", n = 400, seed = 1)
+s <- mlr3HTE_demo_surv(scenario = "rct_lin", n = 400, seed = 1)
 fit_s <- metalearner("T", s$X, s$A, s$Y, learner_base = "coxph", t0 = s$t0)
 ex_s <- hte_explainer(fit_s, s$X, s$A, s$Y, t0 = s$t0, effect = "survdiff", seed = 1)
 length(ex_s$pseudo)
