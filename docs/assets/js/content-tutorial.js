@@ -110,7 +110,7 @@ window.SITE_PAGES.tutorial = {
           '<tr><td><code>14_RCT基准测试_Qini指标.R</code></td><td>把三个判别力指标搬到 RCT 场景，附随机排序基线</td></tr>' +
           '<tr><td><code>15_CATE模型可解释性_DALEX与SHAP.R</code></td><td>以 DR 伪结局为响应变量做置换重要性 / PDP / SHAP</td></tr>' +
           '<tr><td><code>16_基准模拟数据网格.R</code></td><td>30 份固定基准数据的用法、混杂强度量化与线性/非线性 HTE 对照</td></tr>' +
-          '<tr><td><code>17_混杂强度扫描.R</code></td><td><strong>v0.40 的证据页</strong>：5 档混杂强度 × 五族 × 10 次重复，报告 CATE 相关与 ATE 偏差</td></tr>' +
+          '<tr><td><code>17_混杂强度扫描.R</code></td><td><strong>v0.50 的证据页</strong>：5 档混杂强度 × 五族 × 10 次重复，R/DR 传 <code>ps_bounds = c(0.05, 0.95)</code>，报告 CATE 相关与 ATE 偏差</td></tr>' +
           '</tbody></table></div>'
       },
       {
@@ -118,65 +118,69 @@ window.SITE_PAGES.tutorial = {
         heading: "混杂强度扫描：去掉加权选项后，用什么证明还能去混杂",
         body:
           '<p>v0.40 移除了 <code>weighting</code> / <code>weights</code> / <code>stabilize</code>。' +
-          '移除一个选项容易，难的是回答「那还怎么校正混杂」。脚本 ' +
-          '<code>17_混杂强度扫描.R</code> 就是为这个问题写的：把 ' +
-          '<code>mlr3HTE_demo_continuous(setting = "obs")</code> 的 <code>strength</code> 参数从 0 扫到 2，' +
-          '每档重复 10 次、n = 2000、70/30 划分，R/DR 开交叉拟合，' +
-          '只看两件事——<strong>ATE 偏没偏</strong>、<strong>CATE 相关掉没掉</strong>。</p>' +
+          '脚本 <code>17_混杂强度扫描.R</code> 回答「那还怎么校正混杂」：把 ' +
+          '<code>mlr3HTE_demo_continuous(setting = "obs")</code> 的 <code>strength</code> 从 0 扫到 2，' +
+          '每档重复 10 次、n = 2000、70/30 划分，R/DR 开交叉拟合。' +
+          '<strong>v0.50 起 R/DR 另外传 <code>ps_bounds = c(0.05, 0.95)</code></strong>：' +
+          '强度 2 时约 7.5% 个体真实 PS 低于 0.05，默认截断压不住 Robinson 伪结果的方差爆炸。</p>' +
           '<figure class="fig"><img src="assets/img/bench/confounding_strength.png" ' +
-          'alt="混杂强度扫描：五族在 5 档强度下的 ATE 偏差与 CATE 相关">' +
-          '<figcaption>图 17 · 左：ATE 偏差随混杂强度的变化；右：估计 CATE 与真实 CATE 的留出集相关</figcaption></figure>' +
-          '<p><strong>第一栏是未调整差分</strong>——它没有经过任何校正，' +
-          '所以这一栏就是「不校正的代价」：从 RCT 的 +0.008 一路涨到 +1.048，' +
-          '基本是线性的。后面五栏是把全部混杂变量放进 X 之后的结果。</p>' +
+          'alt="混杂强度扫描：五族在 5 档强度下的 CATE 相关与 ATE 偏差">' +
+          '<figcaption>图 17 · 左：估计 CATE 与真实 CATE 的留出集相关；右：ATE 偏差随混杂强度的变化</figcaption></figure>' +
+          '<p><strong>第一栏是未调整差分</strong>——没有任何校正，' +
+          '从 RCT 的 +0.008 一路涨到 +1.048，基本是线性的。后面五栏是把混杂变量全部放进 X 之后的结果。</p>' +
           '<div class="table-wrap"><table>' +
           '<thead><tr><th>强度</th><th>未调整</th><th>S</th><th>T</th><th>X</th>' +
           '<th>R</th><th>DR</th></tr></thead>' +
           '<tbody>' +
-          '<tr><td>0（RCT）</td><td>+0.008</td><td>−0.037</td><td>+0.007</td>' +
-          '<td>+0.009</td><td>+0.005</td><td>+0.006</td></tr>' +
-          '<tr><td>0.5</td><td>+0.392</td><td>+0.010</td><td>+0.039</td>' +
-          '<td>+0.033</td><td>+0.044</td><td>+0.006</td></tr>' +
-          '<tr><td>1.0</td><td>+0.709</td><td>+0.061</td><td>+0.067</td>' +
-          '<td>+0.043</td><td>+0.020</td><td>−0.011</td></tr>' +
-          '<tr><td>1.5</td><td>+0.919</td><td>+0.100</td><td>+0.099</td>' +
-          '<td>+0.052</td><td>+0.062</td><td>−0.057</td></tr>' +
-          '<tr><td>2.0</td><td>+1.048</td><td>+0.137</td><td>+0.134</td>' +
-          '<td>+0.060</td><td>+0.040</td><td>−0.045</td></tr>' +
+          '<tr><td>0（RCT）</td><td>+0.008</td><td>−0.037</td><td>+0.007</td><td>+0.009</td><td>+0.014</td><td>+0.006</td></tr>' +
+          '<tr><td>0.5</td><td>+0.392</td><td>+0.010</td><td>+0.039</td><td>+0.033</td><td>+0.070</td><td>+0.006</td></tr>' +
+          '<tr><td>1.0</td><td>+0.709</td><td>+0.061</td><td>+0.067</td><td>+0.043</td><td>+0.173</td><td>−0.010</td></tr>' +
+          '<tr><td>1.5</td><td>+0.919</td><td>+0.100</td><td>+0.099</td><td>+0.052</td><td>+0.316</td><td>−0.006</td></tr>' +
+          '<tr><td>2.0</td><td>+1.048</td><td>+0.137</td><td>+0.134</td><td>+0.060</td><td>+0.425</td><td>+0.017</td></tr>' +
           '</tbody></table></div>' +
-          '<p>混杂全部放进 X 时，<strong>五族的 ATE 偏差始终不超过 0.137</strong>，' +
-          '而不校正的偏差已经到了 1.048。这就是「条件化能去混杂」的直接证据，' +
-          '而且不需要任何用户可切换的加权开关。</p>' +
+          '<p>把混杂全放进 X 后，<strong>S / T / X / DR 四族的 |ATE 偏差| 始终不超过 0.137</strong>，' +
+          '而不校正已经到 1.048——这是「条件化能去混杂」的直接证据。' +
+          '<strong>R 是例外</strong>：偏差从 +0.014 涨到 +0.425，强度越高越明显。</p>' +
           '<div class="table-wrap"><table>' +
           '<thead><tr><th>强度</th><th>S</th><th>T</th><th>X</th><th>R</th>' +
           '<th>DR</th></tr></thead>' +
           '<tbody>' +
-          '<tr><td>0（RCT）</td><td>0.910</td><td>0.893</td><td>0.955</td>' +
-          '<td>0.867</td><td>0.912</td></tr>' +
-          '<tr><td>0.5</td><td>0.909</td><td>0.895</td><td>0.954</td>' +
-          '<td>0.850</td><td>0.909</td></tr>' +
-          '<tr><td>1.0</td><td>0.899</td><td>0.891</td><td>0.942</td>' +
-          '<td>0.797</td><td>0.871</td></tr>' +
-          '<tr><td>1.5</td><td>0.897</td><td>0.886</td><td>0.943</td>' +
-          '<td>0.661</td><td>0.748</td></tr>' +
-          '<tr><td>2.0</td><td>0.893</td><td>0.883</td><td>0.938</td>' +
-          '<td>0.631</td><td>0.782</td></tr>' +
+          '<tr><td>0（RCT）</td><td>0.910</td><td>0.893</td><td>0.955</td><td>0.890</td><td>0.912</td></tr>' +
+          '<tr><td>0.5</td><td>0.909</td><td>0.895</td><td>0.954</td><td>0.867</td><td>0.909</td></tr>' +
+          '<tr><td>1.0</td><td>0.899</td><td>0.891</td><td>0.942</td><td>0.684</td><td>0.872</td></tr>' +
+          '<tr><td>1.5</td><td>0.897</td><td>0.886</td><td>0.943</td><td>0.494</td><td>0.817</td></tr>' +
+          '<tr><td>2.0</td><td>0.893</td><td>0.883</td><td>0.938</td><td>0.463</td><td>0.856</td></tr>' +
           '</tbody></table></div>' +
-          '<p>CATE 相关讲的是另一个故事。S / T / X 的相关几乎是一条平线' +
-          '（X 始终在 0.94 附近）——它们只做条件化，估计量的分母里没有 ' +
-          '<code>1/(A-e)</code> 这种会爆的项。<strong>R 与 DR 则在高强度下明显退化</strong>：' +
-          'R 从 0.867 掉到 0.631，DR 从 0.912 掉到 0.748。原因很直白——强度 2 时倾向得分的' +
-          '取值范围是 [0.001, 0.994]，<code>A - e</code> 会接近 ±1，' +
-          'Robinson 权重 <code>(A-e)^2</code> 与 DR 伪结果里的 <code>1/(A-e)</code> ' +
-          '都被放大成噪声放大器。</p>' +
+          '<p>CATE 相关讲的是另一个故事。S / T / X 几乎是一条平线（X 始终在 0.94 附近）；' +
+          '<strong>R 从 0.890 掉到 0.463</strong>，DR 只从 0.912 轻微降到 0.856。' +
+          'S/T/X 只做条件化，估计量里没有 <code>1/(A-e)</code> 这类会爆的项；' +
+          'R 的 Robinson 伪结果 <code>(Y-mu)/(A-e)</code> 与 DR 伪结果都含倒数项，' +
+          '强度 2 时 PS 取值 [0.001, 0.994]，尾部个体把方差放大。</p>' +
+          '<h3>ps_bounds 诊断：收紧救回多少，还剩多少</h3>' +
+          '<p>配对诊断 <code>dev/_diag17_ps_bounds.R</code> 在<strong>同一份数据、同一个划分</strong>上只改截断' +
+          '（3 个种子，口径与上表 10 次重复不同，只看相对变化）。强度 2 的结果：</p>' +
+          '<div class="table-wrap"><table>' +
+          '<thead><tr><th>族</th><th>指标</th><th>默认 [0.01, 0.99]</th><th>收紧 [0.05, 0.95]</th></tr></thead>' +
+          '<tbody>' +
+          '<tr><td>R</td><td>CATE 相关</td><td>0.197</td><td><strong>0.496</strong></td></tr>' +
+          '<tr><td>R</td><td>ATE 偏差</td><td>1.003</td><td><strong>0.292</strong></td></tr>' +
+          '<tr><td>R</td><td>CATE RMSE</td><td>5.970</td><td><strong>1.682</strong></td></tr>' +
+          '<tr><td>DR</td><td>CATE 相关</td><td>0.842</td><td><strong>0.854</strong></td></tr>' +
+          '<tr><td>DR</td><td>CATE RMSE</td><td>0.649</td><td><strong>0.603</strong></td></tr>' +
+          '<tr><td>X</td><td>CATE 相关</td><td>0.943</td><td><strong>0.944</strong></td></tr>' +
+          '</tbody></table></div>' +
+          '<p>收紧把 R 的 CATE 相关从 0.197 拉回 0.496、RMSE 从 5.970 压到 1.682，X 几乎不动；' +
+          '但<strong>救不回 v0.43 移除的 tau 回归权重</strong>，收紧后 R 仍明显退化（上表相关 0.463）。' +
+          '这不是 bug，是估计量的性质。</p>' +
           '<div class="callout warn"><div class="callout-title">诚实的结论</div>' +
-          '<p>这不是 bug，是估计量的性质。<strong>倾向得分越极端，逆概率类的估计量方差越大</strong>，' +
-          '而条件化类的 S/T/X 不受这条规律约束。所以实践中的建议是：' +
-          '要稳健的逐人排序，S/T/X 足够；要 ATE 的无偏性且混杂不极端，R/DR 更好；' +
-          '一旦倾向得分出现接近 0 或 1 的尾部，先看权重诊断再决定信谁。</p></div>' +
+          '<p>倾向得分越极端，含逆概率项的估计量方差越大；条件化类的 S/T/X 不受这条规律约束。' +
+          '实践建议：要稳健的逐人排序，S/T/X 足够；要 ATE 且混杂不极端，DR 也很稳；' +
+          '<strong>一旦 PS 出现接近 0 或 1 的尾部，先看权重诊断，并优先 S/T/X/DR 而不是 R</strong>。' +
+          '本页数值基于 v0.50；更早版本的图与表是历史证据，不可直接对比。</p></div>' +
           '<p>数据与图形由 <code>tutorial/code/17_混杂强度扫描.R</code> 生成，' +
-          '原始结果在 <code>tutorial/figures/17_confounding_strength.csv</code>，' +
-          '可自行复算。</p>'
+          '原始结果在 <code>tutorial/figures/17_confounding_strength.csv</code>（含未调整差值行），' +
+          '配对诊断脚本 <code>dev/_diag17_ps_bounds.R</code>，结果在 ' +
+          '<code>tutorial/figures/17_confounding_strength_ps_diag.csv</code>，可自行复算。</p>'
       },
       {
         id: "environment",
@@ -287,7 +291,7 @@ window.SITE_PAGES.tutorial = {
           '<tr><td><code>14_RCT基准测试_Qini指标.R</code></td><td>The three discrimination metrics moved onto an RCT setting, with a random-ordering baseline</td></tr>' +
           '<tr><td><code>15_CATE模型可解释性_DALEX与SHAP.R</code></td><td>Permutation importance / PDP / SHAP with the DR pseudo-outcome as the response</td></tr>' +
           '<tr><td><code>16_基准模拟数据网格.R</code></td><td>How to use the 30 fixed benchmark datasets, quantified confounding strength, and a linear / nonlinear HTE contrast</td></tr>' +
-          '<tr><td><code>17_混杂强度扫描.R</code></td><td><strong>The v0.40 evidence page</strong>: 5 confounding strengths × 5 families × 10 repeats, reporting CATE correlation and ATE bias</td></tr>' +
+          '<tr><td><code>17_混杂强度扫描.R</code></td><td><strong>The v0.50 evidence page</strong>: 5 confounding strengths × 5 families × 10 repeats, with <code>ps_bounds = c(0.05, 0.95)</code> for R/DR, reporting CATE correlation and ATE bias</td></tr>' +
           '</tbody></table></div>'
       },
       {
@@ -295,66 +299,77 @@ window.SITE_PAGES.tutorial = {
         heading: "Confounding-strength sweep: with the weighting option gone, what proves deconfounding still works",
         body:
           '<p>v0.40 removed <code>weighting</code> / <code>weights</code> / <code>stabilize</code>. ' +
-          'Dropping an option is easy; the hard part is answering "then how do we correct confounding?". ' +
-          'Script <code>17_混杂强度扫描.R</code> was written for exactly that: sweep the ' +
-          '<code>strength</code> argument of <code>mlr3HTE_demo_continuous(setting = "obs")</code> from 0 to 2, ' +
-          '10 repeats per level, n = 2000, 70/30 split, R/DR cross-fitted, and watch two things — ' +
-          '<strong>is the ATE biased</strong> and <strong>does the CATE correlation hold up</strong>.</p>' +
+          'Script <code>17_混杂强度扫描.R</code> answers how confounding is corrected without them: ' +
+          'it sweeps the <code>strength</code> argument of ' +
+          '<code>mlr3HTE_demo_continuous(setting = "obs")</code> from 0 to 2, with 10 repeats per ' +
+          'level, n = 2000, a 70/30 split, and cross-fitting for R/DR. ' +
+          '<strong>Since v0.50 R/DR also pass <code>ps_bounds = c(0.05, 0.95)</code></strong>: at strength 2 ' +
+          'about 7.5% of units have a true PS below 0.05, and the default clipping cannot contain ' +
+          'the variance of the Robinson pseudo-outcome.</p>' +
           '<figure class="fig"><img src="assets/img/bench/confounding_strength.png" ' +
-          'alt="Confounding-strength sweep: ATE bias and CATE correlation for five families across five strengths">' +
-          '<figcaption>Figure 17 · Left: ATE bias against confounding strength. Right: held-out correlation between estimated and true CATE</figcaption></figure>' +
+          'alt="Confounding-strength sweep: CATE correlation and ATE bias for five families across five strengths">' +
+          '<figcaption>Figure 17 · Left: held-out correlation between estimated and true CATE. Right: ATE bias against confounding strength</figcaption></figure>' +
           '<p><strong>The first column is the unadjusted difference</strong> — no correction of any kind, ' +
-          'so it is the "cost of doing nothing": it climbs from +0.008 under RCT to +1.048, essentially linearly. ' +
+          'so it is the cost of doing nothing: it climbs from +0.008 under RCT to +1.048, essentially linearly. ' +
           'The five columns after it place every confounder in X.</p>' +
           '<div class="table-wrap"><table>' +
           '<thead><tr><th>Strength</th><th>Unadjusted</th><th>S</th><th>T</th><th>X</th>' +
           '<th>R</th><th>DR</th></tr></thead>' +
           '<tbody>' +
-          '<tr><td>0 (RCT)</td><td>+0.008</td><td>−0.037</td><td>+0.007</td>' +
-          '<td>+0.009</td><td>+0.005</td><td>+0.006</td></tr>' +
-          '<tr><td>0.5</td><td>+0.392</td><td>+0.010</td><td>+0.039</td>' +
-          '<td>+0.033</td><td>+0.044</td><td>+0.006</td></tr>' +
-          '<tr><td>1.0</td><td>+0.709</td><td>+0.061</td><td>+0.067</td>' +
-          '<td>+0.043</td><td>+0.020</td><td>−0.011</td></tr>' +
-          '<tr><td>1.5</td><td>+0.919</td><td>+0.100</td><td>+0.099</td>' +
-          '<td>+0.052</td><td>+0.062</td><td>−0.057</td></tr>' +
-          '<tr><td>2.0</td><td>+1.048</td><td>+0.137</td><td>+0.134</td>' +
-          '<td>+0.060</td><td>+0.040</td><td>−0.045</td></tr>' +
+          '<tr><td>0 (RCT)</td><td>+0.008</td><td>−0.037</td><td>+0.007</td><td>+0.009</td><td>+0.014</td><td>+0.006</td></tr>' +
+          '<tr><td>0.5</td><td>+0.392</td><td>+0.010</td><td>+0.039</td><td>+0.033</td><td>+0.070</td><td>+0.006</td></tr>' +
+          '<tr><td>1.0</td><td>+0.709</td><td>+0.061</td><td>+0.067</td><td>+0.043</td><td>+0.173</td><td>−0.010</td></tr>' +
+          '<tr><td>1.5</td><td>+0.919</td><td>+0.100</td><td>+0.099</td><td>+0.052</td><td>+0.316</td><td>−0.006</td></tr>' +
+          '<tr><td>2.0</td><td>+1.048</td><td>+0.137</td><td>+0.134</td><td>+0.060</td><td>+0.425</td><td>+0.017</td></tr>' +
           '</tbody></table></div>' +
-          '<p>With all confounders placed in X, <strong>no family\'s ATE bias ever exceeds 0.137</strong>, ' +
-          'while the uncorrected bias has already reached 1.048. That is the direct evidence that conditioning ' +
-          'deconfounds — and it needs no user-switchable weighting option.</p>' +
+          '<p>With all confounders in X, <strong>S / T / X / DR never exceed an |ATE bias| of 0.137</strong>, ' +
+          'while the uncorrected bias has already reached 1.048 — direct evidence that conditioning deconfounds. ' +
+          '<strong>R is the exception</strong>: its bias grows from +0.014 to +0.425 as strength increases.</p>' +
           '<div class="table-wrap"><table>' +
           '<thead><tr><th>Strength</th><th>S</th><th>T</th><th>X</th><th>R</th>' +
           '<th>DR</th></tr></thead>' +
           '<tbody>' +
-          '<tr><td>0 (RCT)</td><td>0.910</td><td>0.893</td><td>0.955</td>' +
-          '<td>0.867</td><td>0.912</td></tr>' +
-          '<tr><td>0.5</td><td>0.909</td><td>0.895</td><td>0.954</td>' +
-          '<td>0.850</td><td>0.909</td></tr>' +
-          '<tr><td>1.0</td><td>0.899</td><td>0.891</td><td>0.942</td>' +
-          '<td>0.797</td><td>0.871</td></tr>' +
-          '<tr><td>1.5</td><td>0.897</td><td>0.886</td><td>0.943</td>' +
-          '<td>0.661</td><td>0.748</td></tr>' +
-          '<tr><td>2.0</td><td>0.893</td><td>0.883</td><td>0.938</td>' +
-          '<td>0.631</td><td>0.782</td></tr>' +
+          '<tr><td>0 (RCT)</td><td>0.910</td><td>0.893</td><td>0.955</td><td>0.890</td><td>0.912</td></tr>' +
+          '<tr><td>0.5</td><td>0.909</td><td>0.895</td><td>0.954</td><td>0.867</td><td>0.909</td></tr>' +
+          '<tr><td>1.0</td><td>0.899</td><td>0.891</td><td>0.942</td><td>0.684</td><td>0.872</td></tr>' +
+          '<tr><td>1.5</td><td>0.897</td><td>0.886</td><td>0.943</td><td>0.494</td><td>0.817</td></tr>' +
+          '<tr><td>2.0</td><td>0.893</td><td>0.883</td><td>0.938</td><td>0.463</td><td>0.856</td></tr>' +
           '</tbody></table></div>' +
           '<p>CATE correlation tells a different story. S / T / X are almost a flat line ' +
-          '(X never leaves the neighbourhood of 0.94) — they only condition, and their estimators ' +
-          'contain no term like <code>1/(A-e)</code> that can blow up. <strong>R and DR visibly degrade ' +
-          'at high strength</strong>: R falls from 0.867 to 0.631, DR from 0.912 to 0.748. The reason is plain — ' +
-          'at strength 2 the propensity score ranges over [0.001, 0.994], so <code>A - e</code> approaches ±1, ' +
-          'and both the Robinson weight <code>(A-e)^2</code> and the <code>1/(A-e)</code> inside the DR ' +
-          'pseudo-outcome turn into noise amplifiers.</p>' +
+          '(X never leaves the neighbourhood of 0.94); <strong>R falls from 0.890 to 0.463</strong>, ' +
+          'while DR only slips from 0.912 to 0.856. S/T/X only condition and contain no term like ' +
+          '<code>1/(A-e)</code> that can blow up, whereas the Robinson pseudo-outcome ' +
+          '<code>(Y-mu)/(A-e)</code> and the DR pseudo-outcome both carry a reciprocal; ' +
+          'at strength 2 the PS ranges over [0.001, 0.994] and tail units inflate the variance.</p>' +
+          '<h3>ps_bounds diagnostic: how much clipping recovers, and what remains</h3>' +
+          '<p>The paired diagnostic <code>dev/_diag17_ps_bounds.R</code> changes only the clipping on ' +
+          '<strong>the same data and the same split</strong> (3 seeds, a different protocol from the ' +
+          '10 repeats above; read the relative change, not the absolute level). Results at strength 2:</p>' +
+          '<div class="table-wrap"><table>' +
+          '<thead><tr><th>Family</th><th>Metric</th><th>Default [0.01, 0.99]</th><th>Tight [0.05, 0.95]</th></tr></thead>' +
+          '<tbody>' +
+          '<tr><td>R</td><td>CATE cor</td><td>0.197</td><td><strong>0.496</strong></td></tr>' +
+          '<tr><td>R</td><td>ATE bias</td><td>1.003</td><td><strong>0.292</strong></td></tr>' +
+          '<tr><td>R</td><td>CATE RMSE</td><td>5.970</td><td><strong>1.682</strong></td></tr>' +
+          '<tr><td>DR</td><td>CATE cor</td><td>0.842</td><td><strong>0.854</strong></td></tr>' +
+          '<tr><td>DR</td><td>CATE RMSE</td><td>0.649</td><td><strong>0.603</strong></td></tr>' +
+          '<tr><td>X</td><td>CATE cor</td><td>0.943</td><td><strong>0.944</strong></td></tr>' +
+          '</tbody></table></div>' +
+          '<p>Tighter clipping lifts the R correlation from 0.197 back to 0.496 and cuts RMSE from ' +
+          '5.970 to 1.682, while X barely moves; but it <strong>cannot restore the tau-regression ' +
+          'weights removed in v0.43</strong>, so R still degrades visibly (correlation 0.463 above). ' +
+          'This is a property of the estimator, not a bug.</p>' +
           '<div class="callout warn"><div class="callout-title">The honest conclusion</div>' +
-          '<p>This is not a bug, it is a property of the estimators. <strong>The more extreme the propensity ' +
-          'score, the larger the variance of inverse-probability-style estimators</strong>, while ' +
-          'conditioning-based S/T/X are not bound by that rule. The practical advice: for robust per-person ' +
-          'ranking, S/T/X suffice; for an unbiased ATE under mild confounding, R/DR are better; ' +
-          'and once the propensity score develops tails near 0 or 1, inspect the weight diagnostics before ' +
-          'deciding whom to trust.</p></div>' +
-          '<p>Data and figure are produced by <code>tutorial/code/17_混杂强度扫描.R</code>; ' +
-          'the raw results live in <code>tutorial/figures/17_confounding_strength.csv</code> and can be recomputed.</p>'
+          '<p>The more extreme the propensity score, the larger the variance of estimators containing ' +
+          'inverse-probability terms; conditioning-based S/T/X are not bound by that rule. ' +
+          'For robust per-person ranking, S/T/X suffice; for an ATE under mild confounding, DR is steady; ' +
+          '<strong>once the PS develops tails near 0 or 1, inspect the weight diagnostics and prefer ' +
+          'S/T/X/DR over R</strong>. All numbers on this page are from v0.50; earlier figures and tables ' +
+          'are historical evidence and are not directly comparable.</p></div>' +
+          '<p>Data and figure come from <code>tutorial/code/17_混杂强度扫描.R</code>; the raw results ' +
+          'live in <code>tutorial/figures/17_confounding_strength.csv</code> (including the unadjusted ' +
+          'row). The paired diagnostic script is <code>dev/_diag17_ps_bounds.R</code> and its output is ' +
+          '<code>tutorial/figures/17_confounding_strength_ps_diag.csv</code>.</p>'
       },
       {
         id: "environment",
@@ -677,7 +692,7 @@ window.SITE_PAGES.tutorialanalysis = {
           '（二）R/DR 必须开 <code>cross_fitting = TRUE</code>，否则 tau 被高弹性学习器衰减' +
           '——实测 R-learner 的 ATE 从 0.976 掉到 0.432。</p></div>' +
           '<p>更系统的证据见<a href="#/tutorial/conf-sweep">混杂强度扫描</a>：' +
-          '5 档强度下未调整偏差从 +0.01 涨到 +1.05，五族始终在 0.14 以内。</p>' +
+          '5 档强度下未调整偏差从 +0.01 涨到 +1.05；S/T/X/DR 四族始终在 0.14 以内，R 在强度 2 达到 +0.425（已收紧 PS 截断）。</p>' +
           '<p>估计出 CATE 之后还要回答「哪些变量驱动了效应异质性」。本篇后半部分把可解释性一次讲完，' +
           '每个函数的参数细节见<a href="#/apiexplain">函数总览</a>。</p>'
       },
@@ -987,7 +1002,7 @@ window.SITE_PAGES.tutorialanalysis = {
           '(ii) R/DR need <code>cross_fitting = TRUE</code>, otherwise tau is attenuated by flexible learners ' +
           '— measured: the R-learner\'s ATE drops from 0.976 to 0.432.</p></div>' +
           '<p>For systematic evidence see the <a href="#/tutorial/conf-sweep">confounding-strength sweep</a>: ' +
-          'across 5 strengths the unadjusted bias grows from +0.01 to +1.05 while all five families stay within 0.14.</p>' +
+          'across 5 strengths the unadjusted bias grows from +0.01 to +1.05; S/T/X/DR stay within 0.14 while R reaches +0.425 at strength 2 even after tighter PS clipping.</p>' +
           '<p>Once the CATE is estimated there is still the question "which variables drive the heterogeneity". ' +
           'The second half of this article covers interpretability in one pass; per-function parameter details ' +
           'live in the <a href="#/apiexplain">function overview</a>.</p>'

@@ -15,6 +15,30 @@
 - `0.21` 之前的历史批次沿用旧编号折算（`0.1.0` → `0.10`，10-21 那批观察性指标 →
   `0.11`，`0.2.0` → `0.20`）；`0.21` 起严格执行上面的 +0.01。
 
+## [0.50] — 2026-11-09（教程 17 图文刷新 · A 方案：先诊断 ps_bounds 再据实测改写结论）
+
+- **背景**：v0.49 全量重跑教程时发现 `conf-sweep` 页（中英）与
+  `tutorial/figures/17_confounding_strength.{csv,png}` 仍是 v0.40 的实测值。
+  v0.43 移除 R/DR 的 tau 回归权重、v0.46 引入 `ps_bounds` 之后，
+  「五族 ATE 偏差始终不超过 0.137」「R 从 0.867 掉到 0.631」已不成立；DGP 逐位未变。
+- **A 方案诊断先行**：新增 `dev/_diag17_ps_bounds.R`，配对设计（同一数据、
+  同一训练/留出划分，只改截断；4 档强度 × X/R/DR × 3 种子 × 2 种截断）。
+  强度 2 时约 7.5% 个体真实 PS < 0.05、约 2% > 0.95。收紧到 `[0.05, 0.95]` 后
+  R 的 CATE 相关 0.197 → 0.496、ATE bias 1.003 → 0.292、RMSE 5.970 → 1.682；
+  DR 小幅改善，X 几乎不动，S/T 不拟合 PS、不受影响。
+- **结论不粉饰**：截断压住了极端 PS 的方差爆炸，但救不回 v0.43 移除的 tau 回归权重。
+  按收紧配置重跑 250 次拟合后，R 在强度 2 的 CATE 相关仍只有 0.463、
+  ATE bias +0.425；S/T/X/DR 四族的 |偏差| 不超过 0.137。
+- **脚本 17**：R/DR 显式传 `ps_bounds = c(0.05, 0.95)`，图标题改为如实描述，
+  `17_confounding_strength.csv` 新增「未调整差值」行（页面首列从此可复算），
+  章节目录统一为三级 `----` 分层。
+- **图文与页面**：刷新 `tutorial/figures/17_confounding_strength.{csv,png}` 并同步
+  `docs/assets/img/bench/confounding_strength.png`；`content-tutorial.js` 的
+  `conf-sweep` 中英页、两处交叉引用、`tutorial/00_教程.md` 第 15 节的表格与结论
+  全部按新实测重写；顺手修正图注左右顺序（左 CATE 相关 / 右 ATE 偏差）。
+- **新增证据脚本**：`dev/_diag17_ps_bounds.R`（配对诊断）、
+  `dev/_stage3_conf_sweep.py`（从 csv 自动生成中英表格并刷新页面，避免手抄）。
+
 ## [0.49] — 2026-11-08（模拟数据生成只导出三个函数 · Stage 2 完成）
 
 - **公开 API 收敛到三个门面**：`mlr3HTE_demo_continuous()` / `mlr3HTE_demo_binary()` /

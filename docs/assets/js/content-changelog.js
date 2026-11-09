@@ -9,8 +9,30 @@ window.SITE_PAGES.changelog = {
   /* ---------------- 中文 ---------------- */
   zh: {
     title: "更新日志",
-    lede: "mlr3HTE 的版本历史与重要变更。当前版本 v0.49。",
+    lede: "mlr3HTE 的版本历史与重要变更。当前版本 v0.50。",
     sections: [
+
+      {
+        id: "v050",
+        heading: "v0.50 · 2026-11-09",
+        body:
+          '<div class="callout ok"><div class="callout-title">教程 17：先诊断 ps_bounds，再据实测改写结论</div>' +
+          '<ul>' +
+          '<li>v0.49 发现 <code>conf-sweep</code> 页（中英）与 <code>17_confounding_strength.{csv,png}</code> ' +
+          '仍是 v0.40 的实测值；v0.43 移除 R/DR 的 tau 回归权重、v0.46 引入 <code>ps_bounds</code> 后，' +
+          '「五族偏差不超过 0.137」已不成立。</li>' +
+          '<li><strong>A 方案诊断</strong>：新增 <code>dev/_diag17_ps_bounds.R</code>，配对设计' +
+          '（同一数据与划分，只改截断）。强度 2 时约 7.5% 个体真实 PS < 0.05；' +
+          '把 R/DR 收到 <code>[0.05, 0.95]</code> 后 R 的 CATE 相关 0.197 → 0.496、' +
+          'ATE bias 1.003 → 0.292、RMSE 5.970 → 1.682，X 几乎不动。</li>' +
+          '<li><strong>不粉饰</strong>：截断救不回 v0.43 去掉的 tau 回归权重。按收紧配置重跑 250 次拟合后，' +
+          'R 在强度 2 的相关仍只有 <strong>0.463</strong>、ATE bias <strong>+0.425</strong>；' +
+          'S/T/X/DR 四族 |偏差| ≤ 0.137。</li>' +
+          '<li>脚本 17 给 R/DR 传 <code>ps_bounds = c(0.05, 0.95)</code>；csv 新增未调整差值行；' +
+          '图、两处 PNG、中英页面、交叉引用与 <code>tutorial/00_教程.md</code> 第 15 节全部按新实测重写；' +
+          '顺手修正图注左右顺序。</li>' +
+          '</ul></div>'
+      },
 
       {
         id: "v049",
@@ -793,8 +815,32 @@ window.SITE_PAGES.changelog = {
   /* ---------------- English ---------------- */
   en: {
     title: "Changelog",
-    lede: "Version history and notable changes for mlr3HTE. Current version: v0.49.",
+    lede: "Version history and notable changes for mlr3HTE. Current version: v0.50.",
     sections: [
+
+      {
+        id: "v050",
+        heading: "v0.50 · 2026-11-09",
+        body:
+          '<div class="callout ok"><div class="callout-title">Tutorial 17: diagnose ps_bounds first, rewrite conclusions from real output</div>' +
+          '<ul>' +
+          '<li>v0.49 revealed that the <code>conf-sweep</code> pages (both languages) and ' +
+          '<code>17_confounding_strength.{csv,png}</code> still carried v0.40 measurements. After v0.43 ' +
+          'removed the tau-regression weights for R/DR and v0.46 added <code>ps_bounds</code>, the claim ' +
+          'that no family exceeds a bias of 0.137 no longer held.</li>' +
+          '<li><strong>Plan A diagnostic</strong>: new <code>dev/_diag17_ps_bounds.R</code> uses a paired design ' +
+          '(same data and split, only the clipping changes). At strength 2 about 7.5% of units have a true ' +
+          'PS below 0.05; clipping R/DR to <code>[0.05, 0.95]</code> lifts the R CATE correlation from ' +
+          '0.197 to 0.496, cuts ATE bias from 1.003 to 0.292 and RMSE from 5.970 to 1.682, while X barely moves.</li>' +
+          '<li><strong>No whitewash</strong>: clipping cannot restore the tau-regression weights removed in ' +
+          'v0.43. After 250 fresh fits under the tighter setting, R still has correlation <strong>0.463</strong> ' +
+          'and ATE bias <strong>+0.425</strong> at strength 2; S/T/X/DR stay within |bias| 0.137.</li>' +
+          '<li>Script 17 now passes <code>ps_bounds = c(0.05, 0.95)</code> for R/DR; the CSV gained an ' +
+          'unadjusted row; both PNGs, the bilingual pages, cross-references and section 15 of ' +
+          '<code>tutorial/00_教程.md</code> were rewritten from the new output. The figure caption ' +
+          'left/right order was corrected too.</li>' +
+          '</ul></div>'
+      },
 
       {
         id: "v049",
